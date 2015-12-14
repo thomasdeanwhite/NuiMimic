@@ -1,12 +1,11 @@
 package com.sheffield.leapmotion.tester.instrumentation;
 
-import com.sheffield.leapmotion.tester.App;
-import org.apache.commons.io.IOUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.HashMap;
+
+import org.apache.commons.io.IOUtils;
 
 public class TestingClassLoader extends ClassLoader {
 
@@ -72,14 +71,6 @@ public class TestingClassLoader extends ClassLoader {
 		Class<?> clazz = cl.loadClass(name);
 		classes.put(lname, clazz);
 		return clazz;
-	}
-
-	@Override
-	protected String findLibrary(String libname) {
-		if (App.out != null) {
-			App.out.println("Tried loading library: " + libname);
-		}
-		return super.findLibrary(libname);
 	}
 
 	public Class<?> loadClass(String name, byte[] bytes) {
