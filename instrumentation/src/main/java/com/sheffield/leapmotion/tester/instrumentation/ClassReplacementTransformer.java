@@ -1,25 +1,41 @@
 package com.sheffield.leapmotion.tester.instrumentation;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import com.sheffield.leapmotion.tester.App;
-import com.sheffield.leapmotion.tester.LeapMotionApplicationHandler;
 import com.sheffield.leapmotion.tester.Properties;
-import com.sheffield.leapmotion.tester.instrumentation.visitors.TestingClassAdapter;
 
 public class ClassReplacementTransformer implements ClassFileTransformer {
 
 	public static final String CONTROLLER_CLASS = "com.leapmotion.leap.Controller";
 
 	private static ArrayList<String> seenClasses = new ArrayList<String>();
+	private ClassVisitor cv;
 
+	public ClassReplacementTransformer() {
+
+	}
+
+	public ClassReplacementTransformer(ClassVisitor cv) {
+		this.cv = cv;
+	}
+
+	public void setClassVisitor(ClassVisitor cv) {
+		this.cv = cv;
+	}
+
+	@Override
 	public byte[] transform(ClassLoader cLoader, String cName, Class<?> iClass, ProtectionDomain pDomain, byte[] cBytes)
 			throws IllegalClassFormatException {
 		// if (TestingClassLoader.getClassLoader().isClassFinalized(cName)) {
@@ -34,7 +50,7 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 		if (Properties.EXILED_CLASSES != null) {
 			for (String s : Properties.EXILED_CLASSES) {
 				if (cName.equals(s)) {
-					App.out.println("Not loaded class " + cName);
+					// App.out.println("Not loaded class " + cName);
 					throw new IllegalClassFormatException();
 				}
 			}
@@ -57,11 +73,13 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 			byte[] newClass = cBytes;
 			try {
 				ClassReader cr = new ClassReader(ins);
-
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+				if (cv == null) {
+					cv = cw;
+				}
 				try {
-					cr.accept(new TestingClassAdapter(cw, cr.getClassName()), 0);
-				} catch (Throwable t){
+					cr.accept(cv, 0);
+				} catch (Throwable t) {
 					return cBytes;
 				}
 
@@ -71,7 +89,7 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 			File file = new File("classes/" + cName + ".class");
 			file.getParentFile().mkdirs();
 			file.createNewFile();
-			App.out.println("- Writing new class " + file.getAbsolutePath());
+			// App.out.println("- Writing new class " + file.getAbsolutePath());
 			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
 			fos.write(newClass);
 			fos.close();
@@ -79,14 +97,14 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} catch (Throwable t) {
-			t.printStackTrace(App.out);
+			t.printStackTrace(/* App.out */);
 		}
 		return cBytes;
 
 	}
 
-	private static final String[] forbiddenPackages = new String[] { "com/sheffield/leapmotion", "com/google/gson", "com/sun",
-			"java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli" };
+	private static final String[] forbiddenPackages = new String[] { "com/sheffield/leapmotion", "com/google/gson",
+			"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli" };
 
 	public boolean shouldInstrumentClass(String className) {
 		if (className == null) {
@@ -95,21 +113,17 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 		if (className.contains(".")) {
 			className = className.replace(".", "/");
 		}
-		if (LeapMotionApplicationHandler.isDependancy(className)) {
-			return false;
-		}
-
 		if (isForbiddenPackage(className)) {
 			return false;
 		}
 		if (className.contains("/")) {
 			className = className.replace("/", ".");
 		}
-		if (Properties.INSTRUMENTED_PACKAGES == null){
+		if (Properties.INSTRUMENTED_PACKAGES == null) {
 			return true;
 		}
-		for (String s : Properties.INSTRUMENTED_PACKAGES){
-			if (className.startsWith(s)){
+		for (String s : Properties.INSTRUMENTED_PACKAGES) {
+			if (className.startsWith(s)) {
 				return true;
 			}
 		}
