@@ -8,9 +8,9 @@ public class Properties {
 	public static String PLAYBACK_FILE = null;
 
 	// Number of times to change frames per second
-	public static long SWITCH_RATE = 300;
+	public static long SWITCH_RATE = 100;
 
-	public static int SWITCH_TIME = 50;
+	public static int SWITCH_TIME = 2000;
 
 	public static boolean SMOOTH_ANIMATION = true;
 
@@ -50,9 +50,9 @@ public class Properties {
 
 	public static String[] INSTRUMENTED_PACKAGES = null;
 
-	public static String NGRAM_TYPE = "200-2";
+	public static String NGRAM_TYPE = "50-2";
 
-	public static String[] GESTURE_FILES = {"processed/gorogoa-" + NGRAM_TYPE,
+	public static String[] GESTURE_FILES = {"processed/poly-" + NGRAM_TYPE,
 //			"processed/bigcircle-25-2",
 //			"processed/circle-25-2",
 //			"processed/keytap-25-2",

@@ -63,8 +63,8 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	}
 
 	public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
-		for (Listener listener : listeners) {
-			listener.onFrame(this);
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).onFrame(this);
 		}
 	}
 
@@ -129,7 +129,8 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
 		}
-		return frameHandler.getFrame(arg0);
+		Frame f = frameHandler.getFrame(arg0);
+		return f;
 	}
 
 	@Override

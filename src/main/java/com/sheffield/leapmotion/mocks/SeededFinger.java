@@ -19,6 +19,7 @@ public class SeededFinger extends Finger {
 	protected float length;
 	protected int timeVisible;
 	protected Vector tipVelocity;
+	protected Vector tipPosition;
 	protected float touchDistance;
 	protected Zone touchZone;
 	protected float width;
@@ -33,6 +34,7 @@ public class SeededFinger extends Finger {
 		extended = true;
 		touchDistance = tipPosition().getZ() / 400;
 		width = 50f;
+		tipPosition = Vector.forward();
 		length = bone(Bone.Type.TYPE_DISTAL).nextJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).magnitude();
 		touchZone = touchDistance > 0 ? Zone.ZONE_TOUCHING
 				: touchDistance > 50 / MAX_Z_POSITION ? Zone.ZONE_HOVERING : Zone.ZONE_NONE;
@@ -82,6 +84,11 @@ public class SeededFinger extends Finger {
 		} else {
 			extended = false;
 		}
+		tipPosition = tipPosition();
+		touchDistance = tipPosition().getZ() / 200;
+		length = bone(Bone.Type.TYPE_DISTAL).nextJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).magnitude();
+		touchZone = touchDistance > 0 ? Zone.ZONE_TOUCHING
+				: touchDistance > 50 / MAX_Z_POSITION ? Zone.ZONE_HOVERING : Zone.ZONE_NONE;
 	}
 
 	@Override
@@ -167,7 +174,7 @@ public class SeededFinger extends Finger {
 	@Override
 	public Vector stabilizedTipPosition() {
 		// TODO Auto-generated method stub
-		return tipPosition();
+		return tipPosition;
 	}
 
 	@Override

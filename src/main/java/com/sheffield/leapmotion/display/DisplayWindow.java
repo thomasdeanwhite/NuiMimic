@@ -142,7 +142,9 @@ public class DisplayWindow extends JFrame {
 		hand.setDoubleBuffered(true);
 		add(hand);
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		if (!com.sheffield.leapmotion.sampler.Properties.SEQUENCE) {
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		}
 
 		setVisible(true);
 		setSize(600, 600);

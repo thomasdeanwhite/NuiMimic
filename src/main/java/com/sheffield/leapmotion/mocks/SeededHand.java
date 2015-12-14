@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.mocks;
 
 import com.leapmotion.leap.*;
+import com.sheffield.leapmotion.tester.Properties;
 
 import java.io.Serializable;
 
@@ -68,7 +69,9 @@ public class SeededHand extends Hand implements Serializable {
 				sf.bones.put(bt, sb);
 			}
 			sf.normalize();
+			sf.tipPosition = f.stabilizedTipPosition().plus(f.stabilizedTipPosition().minus(sf.stabilizedTipPosition()).divide(Properties.SWITCH_TIME));
 			sf.tipVelocity = f2.tipPosition().minus(sf.tipPosition());
+			sf.hand = h;
 			sfl.addFinger(sf);
 		}
 		h.fingerList = sfl;

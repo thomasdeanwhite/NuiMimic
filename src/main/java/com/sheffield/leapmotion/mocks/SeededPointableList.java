@@ -24,6 +24,10 @@ public class SeededPointableList extends PointableList {
 		pointables.clear();
 	}
 
+	public boolean contains(Pointable p){
+		return pointables.contains(p);
+	}
+
 	@Override
 	public PointableList append(FingerList arg0) {
 		for (Pointable p : arg0) {

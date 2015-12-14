@@ -390,7 +390,7 @@ public class App {
                 int delay = (int) (1000f / Properties.SWITCH_RATE);
 
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(15000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -431,6 +431,7 @@ public class App {
                     e.printStackTrace();
                 }
                 App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
+                System.exit(0);
 
             }
 

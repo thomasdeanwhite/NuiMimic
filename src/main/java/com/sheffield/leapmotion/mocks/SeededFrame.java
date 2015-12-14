@@ -49,10 +49,13 @@ public class SeededFrame extends Frame {
 
 				for (Finger f : h.fingers()) {
 					fingerList.addFinger(f);
+					pointables.addPointable(f);
 				}
 			}
 			for (Pointable p : frame.pointables()) {
-				pointables.addPointable(p);
+				if (!pointables.contains(p)) {
+					pointables.addPointable(p);
+				}
 			}
 		}
 	}
@@ -71,6 +74,7 @@ public class SeededFrame extends Frame {
 	public void setHandList(SeededHandList hl) {
 		handList.clear();
 		fingerList.clear();
+		pointables.clear();
 		for (Hand h : hl) {
 			handList.addHand(h);
 
@@ -195,7 +199,9 @@ public class SeededFrame extends Frame {
 
 	@Override
 	public Pointable pointable(int arg0) {
-		return pointables.get(arg0);
+
+		 Pointable p = pointables.get(arg0);
+		return p == null ? Pointable.invalid() : p;
 	}
 
 	@Override

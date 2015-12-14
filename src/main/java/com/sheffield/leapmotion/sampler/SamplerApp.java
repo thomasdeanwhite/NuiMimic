@@ -104,7 +104,7 @@ public class SamplerApp extends Listener {
 		// Policy hack so app always receives data
 		com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(controller), controller, 1);
 		com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(controller), controller, 1 << 15);
-		SamplerApp.out.println("Connected to LeapMotion");
+		SamplerApp.out.println("- Connected to LeapMotion");
 	}
 
 	@Override

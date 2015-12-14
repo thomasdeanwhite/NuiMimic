@@ -1,16 +1,11 @@
 package com.sheffield.leapmotion.tester.instrumentation.modifiers;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-
 import com.sheffield.leapmotion.tester.analysis.BranchType;
 import com.sheffield.leapmotion.tester.analysis.ClassAnalyzer;
+import org.objectweb.asm.*;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class BranchVisitor extends MethodAdapter {
 	private int branch = 0;
@@ -60,7 +55,7 @@ public class BranchVisitor extends MethodAdapter {
 		mv.visitLabel(label);
 		String key = label.toString();
 		if (labelBranches.containsKey(key)) {
-			visitLdcInsn(labelBranches.get(key));
+			visitLdcInsn(labelBranches.get(key) + "[false]");
 			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD));
 		}
@@ -72,6 +67,7 @@ public class BranchVisitor extends MethodAdapter {
 
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
+		mv.visitJumpInsn(opcode, label);
 		BranchType bt = null;
 		String branchName = getBranchName(branch);
 		switch (opcode) {
@@ -97,6 +93,8 @@ public class BranchVisitor extends MethodAdapter {
 		case Opcodes.IF_ACMPNE:
 		case Opcodes.IFNONNULL:
 		case Opcodes.IFNULL:
+			//mv.visitLdcInsn(new Boolean(false));
+
 			if (lookNext) {
 				if (opcode == Opcodes.IF_ICMPEQ || opcode == Opcodes.IFEQ) {
 					bt = BranchType.BRANCH_E;
@@ -126,11 +124,13 @@ public class BranchVisitor extends MethodAdapter {
 			}
 
 			labelBranches.put(label.toString(), branchName);
+			visitLdcInsn(branchName + "[true]");
+			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
+					Type.getMethodDescriptor(BRANCH_METHOD));
 			ClassAnalyzer.branchFound(branchName);
 
 		}
 
-		mv.visitJumpInsn(opcode, label);
 	}
 
 	@Override
