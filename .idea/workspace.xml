@@ -2,35 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17190a71-dd8a-460d-867a-0c0b041b1145" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/target/leapmotion-tester-0.0.1-SNAPSHOT-jar-with-dependencies.jar" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/analyzer/AnalyzerApp.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/analyzer/AnalyzerApp.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/analyzer/HillClimbingDataAnalyzer.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/analyzer/HillClimbingDataAnalyzer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/display/DisplayWindow.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/display/DisplayWindow.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededFinger.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededFinger.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededFrame.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededFrame.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededHand.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededHand.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededPointableList.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/mocks/SeededPointableList.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/sampler/Properties.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/sampler/Properties.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/sampler/SamplerApp.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/sampler/SamplerApp.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/App$3.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/App$3.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/App.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/App.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/Properties.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/Properties.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/controller/SeededController.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/controller/SeededController.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/instrumentation/modifiers/BranchVisitor.class" afterPath="$PROJECT_DIR$/target/classes/com/sheffield/leapmotion/tester/instrumentation/modifiers/BranchVisitor.class" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/display/DisplayWindow.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/display/DisplayWindow.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededFrame.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededFrame.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededHand.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededHand.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededPointableList.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededPointableList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/sampler/Properties.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/sampler/Properties.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/App.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/App.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/Properties.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/Properties.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/controller/SeededController.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/controller/SeededController.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/instrumentation/modifiers/BranchVisitor.java" afterPath="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/instrumentation/modifiers/BranchVisitor.java" />
     </list>
     <ignored path="leapmotion-tester.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -98,7 +70,7 @@
       <file leaf-file-name="SeededPointableList.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededPointableList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-12.444445">
+            <state vertical-scroll-proportion="0.0">
               <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
               <folding>
                 <element signature="e#588#589#0" expanded="true" />
@@ -111,7 +83,7 @@
       <file leaf-file-name="App.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/App.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-5.1034484">
+            <state vertical-scroll-proportion="0.0">
               <caret line="97" column="42" selection-start-line="97" selection-start-column="42" selection-end-line="97" selection-end-column="42" />
               <folding />
             </state>
@@ -151,8 +123,8 @@
       <file leaf-file-name="BranchVisitor.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/instrumentation/modifiers/BranchVisitor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.77005345">
-              <caret line="147" column="26" selection-start-line="147" selection-start-column="26" selection-end-line="147" selection-end-column="26" />
+            <state vertical-scroll-proportion="0.13057671">
+              <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
               <folding />
             </state>
           </provider>
@@ -240,10 +212,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1288" />
+    <option name="x" value="-8" />
     <option name="y" value="-8" />
-    <option name="width" value="1296" />
-    <option name="height" value="1000" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -286,8 +258,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -668,7 +639,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1311,14 +1283,14 @@
     <list size="10">
       <item index="0" class="java.lang.String" itemvalue="Application.App Gorogoa" />
       <item index="1" class="java.lang.String" itemvalue="Application.App PolyDrop" />
-      <item index="2" class="java.lang.String" itemvalue="Application.SamplerApp" />
-      <item index="3" class="java.lang.String" itemvalue="Application.App" />
-      <item index="4" class="java.lang.String" itemvalue="Application.AnalyzerApp" />
-      <item index="5" class="java.lang.String" itemvalue="JAR Application.ASLDigits" />
-      <item index="6" class="java.lang.String" itemvalue="JAR Application.Gorogoa" />
-      <item index="7" class="java.lang.String" itemvalue="JAR Application.Polydrop" />
-      <item index="8" class="java.lang.String" itemvalue="JUnit.All in leapmotion-tester" />
-      <item index="9" class="java.lang.String" itemvalue="Maven.mvn assembly:assembly" />
+      <item index="2" class="java.lang.String" itemvalue="JAR Application.ASLDigits" />
+      <item index="3" class="java.lang.String" itemvalue="JAR Application.Gorogoa" />
+      <item index="4" class="java.lang.String" itemvalue="JAR Application.Polydrop" />
+      <item index="5" class="java.lang.String" itemvalue="Maven.mvn assembly:assembly" />
+      <item index="6" class="java.lang.String" itemvalue="Application.SamplerApp" />
+      <item index="7" class="java.lang.String" itemvalue="Application.App" />
+      <item index="8" class="java.lang.String" itemvalue="Application.AnalyzerApp" />
+      <item index="9" class="java.lang.String" itemvalue="JUnit.All in leapmotion-tester" />
     </list>
     <recent_temporary>
       <list size="4">
@@ -1351,40 +1323,41 @@
       <workItem from="1449566070973" duration="16330000" />
       <workItem from="1449666268030" duration="5967000" />
       <workItem from="1449833110171" duration="13932000" />
-      <workItem from="1450104522107" duration="7574000" />
+      <workItem from="1450104522107" duration="8281000" />
+      <workItem from="1450179266515" duration="98000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="117090000" />
+    <option name="totallyTimeSpent" value="117895000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1288" y="-8" width="1296" height="1000" extended-state="6" />
-    <editor active="false" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946146" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37037036" sideWeight="0.503125" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2760943" sideWeight="0.496875" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2765625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.184375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946146" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28178695" sideWeight="0.496875" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1492,7 +1465,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="803" column="16" selection-start-line="803" selection-start-column="16" selection-end-line="803" selection-end-column="16" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1523,7 +1495,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="94" column="21" selection-start-line="94" selection-start-column="21" selection-end-line="94" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1531,9 +1502,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-4.5172415">
           <caret line="99" column="56" selection-start-line="99" selection-start-column="56" selection-end-line="99" selection-end-column="56" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1548,10 +1516,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33274648">
           <caret line="554" column="18" selection-start-line="554" selection-start-column="18" selection-end-line="554" selection-end-column="18" />
-          <folding>
-            <element signature="e#23018#23019#0" expanded="false" />
-            <element signature="e#23057#23058#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1610,7 +1574,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="6.2413793">
           <caret line="43" column="57" selection-start-line="43" selection-start-column="57" selection-end-line="43" selection-end-column="57" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1618,7 +1581,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="25" column="54" selection-start-line="25" selection-start-column="54" selection-end-line="25" selection-end-column="54" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1626,7 +1588,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="44" column="47" selection-start-line="44" selection-start-column="47" selection-end-line="44" selection-end-column="47" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1634,7 +1595,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="15" column="13" selection-start-line="15" selection-start-column="13" selection-end-line="15" selection-end-column="13" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1642,7 +1602,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="54" column="62" selection-start-line="54" selection-start-column="62" selection-end-line="54" selection-end-column="62" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1720,14 +1679,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Temp/pq53013_created.java.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.20421393">
-          <caret line="334" column="24" selection-start-line="334" selection-start-column="24" selection-end-line="334" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-8.732142">
@@ -1762,7 +1713,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/mocks/SeededPointableList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-12.444445">
+        <state vertical-scroll-proportion="0.0">
           <caret line="26" column="26" selection-start-line="26" selection-start-column="26" selection-end-line="26" selection-end-column="26" />
           <folding>
             <element signature="e#588#589#0" expanded="true" />
@@ -1805,7 +1756,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/App.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.1034484">
+        <state vertical-scroll-proportion="0.0">
           <caret line="97" column="42" selection-start-line="97" selection-start-column="42" selection-end-line="97" selection-end-column="42" />
           <folding />
         </state>
@@ -1837,8 +1788,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/instrumentation/modifiers/BranchVisitor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.77005345">
-          <caret line="147" column="26" selection-start-line="147" selection-start-column="26" selection-end-line="147" selection-end-column="26" />
+        <state vertical-scroll-proportion="0.13057671">
+          <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
           <folding />
         </state>
       </provider>
