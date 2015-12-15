@@ -3,6 +3,7 @@ package com.sheffield.instrumenter.instrumentation.modifiers;
 import com.sheffield.instrumenter.analysis.BranchType;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import org.objectweb.asm.*;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,18 +14,22 @@ public class BranchVisitor extends MethodAdapter {
 	private boolean lookNext = false;
 	private String className;
 	private String methodName;
+	private String methodDescriptor;
 	private static final String ANALYZER_CLASS = Type.getInternalName(ClassAnalyzer.class);
 	private static Method BRANCH_METHOD;
 	private static Method BRANCH_DISTANCE_METHOD_I;
 	private static Method BRANCH_DISTANCE_METHOD_F;
 	private static Method BRANCH_DISTANCE_METHOD_D;
 	private static Method BRANCH_DISTANCE_METHOD_L;
+	private LocalVariablesSorter lvs;
+
+	int branchVariable = 0;
 
 	private HashMap<String, String> labelBranches;
 
 	static {
 		try {
-			BRANCH_METHOD = ClassAnalyzer.class.getMethod("branchExecuted", new Class[] { String.class });
+			BRANCH_METHOD = ClassAnalyzer.class.getMethod("branchExecuted", new Class[] { boolean.class, String.class });
 			BRANCH_DISTANCE_METHOD_I = ClassAnalyzer.class.getMethod("branchExecutedDistance",
 					new Class[] { int.class, int.class, String.class });
 			BRANCH_DISTANCE_METHOD_F = ClassAnalyzer.class.getMethod("branchExecutedDistance",
@@ -42,10 +47,11 @@ public class BranchVisitor extends MethodAdapter {
 		}
 	}
 
-	public BranchVisitor(MethodVisitor mv, String className, String methodName) {
+	public BranchVisitor(MethodVisitor mv, String className, String methodName, String methodDescriptor) {
 		super(mv);
 		this.className = className;
 		this.methodName = methodName;
+		this.methodDescriptor = methodDescriptor;
 		labelBranches = new HashMap<String, String>();
 
 	}
@@ -55,9 +61,15 @@ public class BranchVisitor extends MethodAdapter {
 		mv.visitLabel(label);
 		String key = label.toString();
 		if (labelBranches.containsKey(key)) {
-			visitLdcInsn(labelBranches.get(key) + "[false]");
+			lvs.visitVarInsn(Opcodes.ILOAD, branchVariable);
+			Label l = new Label();
+
+			mv.visitJumpInsn(Opcodes.IFNE, l);
+			lvs.visitVarInsn(Opcodes.ILOAD, branchVariable);
+			visitLdcInsn(labelBranches.get(key));
 			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD));
+			mv.visitLabel(l);
 		}
 	}
 
@@ -67,7 +79,7 @@ public class BranchVisitor extends MethodAdapter {
 
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
-		mv.visitJumpInsn(opcode, label);
+
 		BranchType bt = null;
 		String branchName = getBranchName(branch);
 		switch (opcode) {
@@ -93,8 +105,6 @@ public class BranchVisitor extends MethodAdapter {
 		case Opcodes.IF_ACMPNE:
 		case Opcodes.IFNONNULL:
 		case Opcodes.IFNULL:
-			//mv.visitLdcInsn(new Boolean(false));
-
 			if (lookNext) {
 				if (opcode == Opcodes.IF_ICMPEQ || opcode == Opcodes.IFEQ) {
 					bt = BranchType.BRANCH_E;
@@ -123,12 +133,27 @@ public class BranchVisitor extends MethodAdapter {
 				}
 			}
 
-			labelBranches.put(label.toString(), branchName);
-			visitLdcInsn(branchName + "[true]");
+			lvs = new LocalVariablesSorter(Opcodes.ACC_PUBLIC,
+					 methodDescriptor, this);
+
+			branchVariable = lvs.newLocal(Type.INT_TYPE);
+			mv.visitInsn(Opcodes.ICONST_0);
+			lvs.visitVarInsn(Opcodes.ISTORE, branchVariable);
+			mv.visitJumpInsn(opcode, label);
+
+			mv.visitInsn(Opcodes.ICONST_1);
+			visitLdcInsn(branchName);
 			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD));
-			ClassAnalyzer.branchFound(branchName);
+			mv.visitInsn(Opcodes.ICONST_1);
+			lvs.visitVarInsn(Opcodes.ISTORE, branchVariable);
 
+			labelBranches.put(label.toString(), branchName);
+			ClassAnalyzer.branchFound(branchName + "[" + false + "]");
+			ClassAnalyzer.branchFound(branchName + "[" + true + "]");
+			break;
+			default:
+				mv.visitJumpInsn(opcode, label);
 		}
 
 	}

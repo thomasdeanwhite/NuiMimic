@@ -4,7 +4,6 @@ import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.instrumenter.instrumentation.TestingClassLoader;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.instrumenter.states.StateTracker;
 import org.apache.commons.cli.*;
@@ -19,12 +18,11 @@ import java.security.Permission;
 import java.util.Random;
 
 public class App {
-    public static final TestingClassLoader CLASS_LOADER = TestingClassLoader.getTestingClassLoader();
     public static Random random = new Random();
     public static App APP;
     public static boolean CLOSING = false;
     public static boolean RECORDING_STARTED = false;
-    private static final boolean ENABLE_APPLICATION_OUTPUT = false;
+    private static boolean ENABLE_APPLICATION_OUTPUT = false;
 
     private static Thread mainThread = null;
 
@@ -159,7 +157,7 @@ public class App {
 
             // out = System.out;
 
-            System.setOut(dummyStream);
+            //System.setOut(dummyStream);
             System.setSecurityManager(new NoExitSecurityManager());
         }
         App.out.println("- Setup Complete");
@@ -327,6 +325,7 @@ public class App {
 
     public static void main(String[] args) {
         App.out.print("- Instrumenting JAR with options: ");
+        ENABLE_APPLICATION_OUTPUT = true;
         for (String s : args){
             App.out.print(s + " ");
         }
@@ -335,8 +334,9 @@ public class App {
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
+            App.out.println("\tWriting output to: " + output);
             ClassAnalyzer.output(output);
-            App.out.println("Written output to " + output);
+            App.out.println("\r\tWritten output to " + output);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

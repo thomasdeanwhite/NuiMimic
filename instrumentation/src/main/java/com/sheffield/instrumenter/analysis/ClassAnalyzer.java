@@ -193,7 +193,8 @@ public class ClassAnalyzer {
 	}
 
 	public static void branchFound(String branch) {
-		branchesTotal.add(branch);
+		branchesTotal.add(branch + "[" + false + "]");
+		branchesTotal.add(branch + "[" + true + "]");
 	}
 
 	public static BranchType getBranchType(String branch) {
@@ -251,7 +252,8 @@ public class ClassAnalyzer {
 		}
 	}
 
-	public static synchronized void branchExecuted(String branch) {
+	public static synchronized void branchExecuted(boolean hit, String branch) {
+		branch += "[" + hit + "]";
 		if (!branchesExecuted.contains(branch)) {
 			branchesExecuted.add(branch);
 		}
@@ -429,8 +431,11 @@ public class ClassAnalyzer {
 	public static void output(String file){
 		String branches = "";
 
+		int counter = 0;
+
 		for (String b : branchesTotal){
 			branches += b + ",";
+			System.out.print("\r" + counter++);
 		}
 		branches = branches.substring(0, branches.length()-1);
 

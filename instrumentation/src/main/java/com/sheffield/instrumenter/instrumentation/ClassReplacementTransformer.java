@@ -1,42 +1,25 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
-
+import com.sheffield.instrumenter.Properties;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import com.sheffield.instrumenter.Properties;
+import java.io.*;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.ArrayList;
 
-public class ClassReplacementTransformer implements ClassFileTransformer {
+public class ClassReplacementTransformer {
 
 	public static final String CONTROLLER_CLASS = "com.leapmotion.leap.Controller";
 
 	private static ArrayList<String> seenClasses = new ArrayList<String>();
-	private ClassVisitor cv;
 
 	public ClassReplacementTransformer() {
 
 	}
 
-	public ClassReplacementTransformer(ClassVisitor cv) {
-		this.cv = cv;
-	}
-
-	public void setClassVisitor(ClassVisitor cv) {
-		this.cv = cv;
-	}
-
-	@Override
-	public byte[] transform(ClassLoader cLoader, String cName, Class<?> iClass, ProtectionDomain pDomain, byte[] cBytes)
+	public byte[] transform(String cName, byte[] cBytes, ClassVisitor cv, ClassWriter cw)
 			throws IllegalClassFormatException {
 		// if (TestingClassLoader.getClassLoader().isClassFinalized(cName)) {
 		// throw new IllegalClassFormatException();
@@ -73,18 +56,12 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 			byte[] newClass = cBytes;
 			try {
 				ClassReader cr = new ClassReader(ins);
-				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-				if (cv == null) {
-					cv = cw;
-				}
-				try {
-					cr.accept(cv, 0);
-				} catch (Throwable t) {
-					return cBytes;
-				}
+
+				cr.accept(cv, 0);
 
 				newClass = cw.toByteArray();
 			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			File file = new File("classes/" + cName + ".class");
 			file.getParentFile().mkdirs();
@@ -94,10 +71,12 @@ public class ClassReplacementTransformer implements ClassFileTransformer {
 			fos.write(newClass);
 			fos.close();
 			return newClass;
-		} catch (Exception e) {
+		} catch (NoClassDefFoundError e) {
+			//e.printStackTrace();
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-		} catch (Throwable t) {
-			t.printStackTrace(/* App.out */);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return cBytes;
 

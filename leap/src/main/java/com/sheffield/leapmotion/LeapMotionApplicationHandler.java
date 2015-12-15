@@ -2,7 +2,6 @@ package com.sheffield.leapmotion;
 
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.instrumenter.instrumentation.TestingClassLoader;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
 import org.apache.commons.io.IOUtils;
 import org.objectweb.asm.ClassWriter;
@@ -36,7 +35,7 @@ public class LeapMotionApplicationHandler {
 
 	// private static VirtualMachine virtualMachine;
 
-	public static String loadJar(String jar) throws MalformedURLException {
+	public static void loadJar(String jar) throws MalformedURLException {
 		JAR_LOADED = true;
 		String jarFilePath = "file:/" + jar;
 
@@ -92,17 +91,9 @@ public class LeapMotionApplicationHandler {
 				}
 			}
 
-			Class mClass = TestingClassLoader.getTestingClassLoader().loadClass(mainClass);
-
-			App.out.println("- Found main class " + mClass.getName());
-
-			return mClass.getName();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		return null;
 
 	}
 
@@ -115,8 +106,6 @@ public class LeapMotionApplicationHandler {
 
 		URL url = new URL("jar:" + jarFilePath + "!/");
 
-		ClassLoader cl = ClassLoader.getSystemClassLoader();
-		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 		ClassReplacementTransformer crp = new ClassReplacementTransformer();
 
 		try {
@@ -133,9 +122,8 @@ public class LeapMotionApplicationHandler {
 				}
 
 				String className = je.getName().substring(0, je.getName().length() - 6);
-
+				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 				TestingClassAdapter tca = new TestingClassAdapter(cw, className);
-				crp.setClassVisitor(tca);
 				classes.add(className);
 				App.out.print("\t ☒ Found " + className);
 				try {
@@ -145,8 +133,8 @@ public class LeapMotionApplicationHandler {
 						continue;
 					}
 					byte[] classBytes = IOUtils.toByteArray(is);
-					crp.transform(TestingClassLoader.getTestingClassLoader(), className, null, null, classBytes);
-					App.out.print("\r\t ☑ Instrumented " + className + "\n");
+					crp.transform(className, classBytes, tca, cw);
+					App.out.print("\r\t ☑ Instrumented " + className);
 				} catch (Exception e1) {
 					App.out.println();
 					continue;
@@ -154,8 +142,8 @@ public class LeapMotionApplicationHandler {
 				}
 			}
 
-			nonDependancies = new String[classes.size()];
-			classes.toArray(nonDependancies);
+//			nonDependancies = new String[classes.size()];
+//			classes.toArray(nonDependancies);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

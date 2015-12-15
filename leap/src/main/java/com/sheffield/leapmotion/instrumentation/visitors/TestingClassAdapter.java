@@ -1,11 +1,10 @@
 package com.sheffield.leapmotion.instrumentation.visitors;
 
 import com.sheffield.instrumenter.instrumentation.modifiers.BranchVisitor;
+import com.sheffield.leapmotion.instrumentation.modifiers.InstantiationVisitor;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
-
-import com.sheffield.leapmotion.instrumentation.modifiers.InstantiationVisitor;
 
 public class TestingClassAdapter extends ClassAdapter implements ClassVisitor {
 
@@ -28,7 +27,7 @@ public class TestingClassAdapter extends ClassAdapter implements ClassVisitor {
 		// exceptions);
 		return new BranchVisitor(
 				new InstantiationVisitor(super.visitMethod(access, name, descriptor, signature, exceptions), className),
-				className, name + descriptor);
+				className, name, descriptor);
 	}
 
 }
