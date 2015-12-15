@@ -23,8 +23,32 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
       </profile>
+      <profile default="false" name="Annotation profile for instrumentation" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="instrumentation" />
+      </profile>
+      <profile default="false" name="Annotation profile for leap" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="leap" />
+      </profile>
+      <profile default="false" name="Annotation profile for common" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="common" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="common" target="1.6" />
+      <module name="instrumentation" target="1.6" />
+      <module name="leap" target="1.6" />
       <module name="leapmotion-tester" target="1.6" />
       <module name="leapmotion-webbrowser" target="1.6" />
     </bytecodeTargetLevel>
