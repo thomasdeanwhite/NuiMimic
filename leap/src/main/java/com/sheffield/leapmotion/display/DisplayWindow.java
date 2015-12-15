@@ -2,7 +2,7 @@ package com.sheffield.leapmotion.display;
 
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
-import com.sheffield.instrumenter.App;
+import com.sheffield.leapmotion.App;
 import com.sheffield.instrumenter.Properties;
 
 import javax.swing.*;

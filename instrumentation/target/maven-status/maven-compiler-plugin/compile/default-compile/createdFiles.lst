@@ -1,0 +1,17 @@
+com\sheffield\instrumenter\analysis\ClassAnalyzer$2.class
+com\sheffield\instrumenter\Display$OutputCanvas.class
+com\sheffield\instrumenter\Display.class
+com\sheffield\instrumenter\instrumentation\modifiers\BranchVisitor.class
+com\sheffield\instrumenter\states\StateTracker.class
+com\sheffield\instrumenter\analysis\BranchType.class
+com\sheffield\instrumenter\analysis\ClassAnalyzer$1.class
+com\sheffield\instrumenter\states\ScreenGrabber.class
+com\sheffield\instrumenter\instrumentation\ClassReplacementTransformer.class
+com\sheffield\instrumenter\states\ImageStateRecognizer.class
+com\sheffield\instrumenter\analysis\ClassAnalyzer.class
+com\sheffield\instrumenter\states\EuclideanStateRecognizer.class
+com\sheffield\instrumenter\instrumentation\TestingClassLoader.class
+com\sheffield\instrumenter\states\StateRecognizer.class
+com\sheffield\instrumenter\states\StateNode.class
+com\sheffield\instrumenter\states\Similarity.class
+com\sheffield\instrumenter\states\StateTree.class

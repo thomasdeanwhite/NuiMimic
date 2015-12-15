@@ -1,7 +1,7 @@
 package com.sheffield.leapmotion.analyzer;
 
 import com.sheffield.leapmotion.sampler.FileHandler;
-import com.sheffield.instrumenter.App;
+import com.sheffield.leapmotion.App;
 
 import java.io.File;
 import java.io.IOException;
