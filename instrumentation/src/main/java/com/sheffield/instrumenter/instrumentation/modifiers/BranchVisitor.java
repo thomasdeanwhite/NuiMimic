@@ -23,7 +23,7 @@ public class BranchVisitor extends MethodAdapter {
 	private static Method BRANCH_DISTANCE_METHOD_L;
 	private LocalVariablesSorter lvs;
 
-	int branchVariable = 0;
+	private HashMap<String, Integer> branchVariables = new HashMap<String, Integer>();
 
 	private HashMap<String, String> labelBranches;
 
@@ -53,25 +53,28 @@ public class BranchVisitor extends MethodAdapter {
 		this.methodName = methodName;
 		this.methodDescriptor = methodDescriptor;
 		labelBranches = new HashMap<String, String>();
-
+		lvs = new LocalVariablesSorter(Opcodes.ACC_PUBLIC,
+				this.methodDescriptor, this);
 	}
 
-	@Override
-	public void visitLabel(Label label) {
-		mv.visitLabel(label);
-		String key = label.toString();
-		if (labelBranches.containsKey(key)) {
-			lvs.visitVarInsn(Opcodes.ILOAD, branchVariable);
-			Label l = new Label();
-
-			mv.visitJumpInsn(Opcodes.IFNE, l);
-			lvs.visitVarInsn(Opcodes.ILOAD, branchVariable);
-			visitLdcInsn(labelBranches.get(key));
-			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
-					Type.getMethodDescriptor(BRANCH_METHOD));
-			mv.visitLabel(l);
-		}
-	}
+//	@Override
+//	public void visitLabel(Label label) {
+//		mv.visitLabel(label);
+//		String key = label.toString();
+//		if (labelBranches.containsKey(key)) {
+//			String branchName = labelBranches.get(key);
+//			int branchVariable = branchVariables.get(branchName);
+//			lvs.visitVarInsn(Opcodes.ILOAD, branchVariable);
+//			Label l = new Label();
+//
+//			mv.visitJumpInsn(Opcodes.IFNE, l);
+//			lvs.visitVarInsn(Opcodes.ILOAD, branchVariable);
+//			visitLdcInsn(branchName);
+//			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
+//					Type.getMethodDescriptor(BRANCH_METHOD));
+//			mv.visitLabel(l);
+//		}
+//	}
 
 	private String getBranchName(int branch) {
 		return className + "::" + methodName + "#" + branch;
@@ -95,14 +98,15 @@ public class BranchVisitor extends MethodAdapter {
 					Type.getMethodDescriptor(BRANCH_DISTANCE_METHOD_I));
 			lastBranchDistance = branch;
 			lookNext = true;
+			//visitInsn(Opcodes.DUP2);
 		case Opcodes.IFGE:
 		case Opcodes.IFGT:
 		case Opcodes.IFLE:
 		case Opcodes.IFLT:
 		case Opcodes.IFEQ:
 		case Opcodes.IFNE:
-		case Opcodes.IF_ACMPEQ:
-		case Opcodes.IF_ACMPNE:
+//		case Opcodes.IF_ACMPEQ:
+//		case Opcodes.IF_ACMPNE:
 		case Opcodes.IFNONNULL:
 		case Opcodes.IFNULL:
 			if (lookNext) {
@@ -132,25 +136,29 @@ public class BranchVisitor extends MethodAdapter {
 					ClassAnalyzer.branchDistanceFound(branchName, bt);
 				}
 			}
-
-			lvs = new LocalVariablesSorter(Opcodes.ACC_PUBLIC,
-					 methodDescriptor, this);
-
-			branchVariable = lvs.newLocal(Type.INT_TYPE);
-			mv.visitInsn(Opcodes.ICONST_0);
-			lvs.visitVarInsn(Opcodes.ISTORE, branchVariable);
-			mv.visitJumpInsn(opcode, label);
-
-			mv.visitInsn(Opcodes.ICONST_1);
+			Label l = new Label();
+			Label l2 = new Label();
+			mv.visitJumpInsn(opcode, l);
+			visitInsn(Opcodes.ICONST_0);
 			visitLdcInsn(branchName);
 			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD));
-			mv.visitInsn(Opcodes.ICONST_1);
-			lvs.visitVarInsn(Opcodes.ISTORE, branchVariable);
+			mv.visitJumpInsn(Opcodes.GOTO, l2);
+			visitLabel(l);
+			visitInsn(Opcodes.ICONST_1);
+			visitLdcInsn(branchName);
+			visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
+					Type.getMethodDescriptor(BRANCH_METHOD));
+			visitJumpInsn(Opcodes.GOTO, label);
+			visitLabel(l2);
+
+
+
+
 
 			labelBranches.put(label.toString(), branchName);
-			ClassAnalyzer.branchFound(branchName + "[" + false + "]");
-			ClassAnalyzer.branchFound(branchName + "[" + true + "]");
+			ClassAnalyzer.branchFound(branchName);
+			branch++;
 			break;
 			default:
 				mv.visitJumpInsn(opcode, label);

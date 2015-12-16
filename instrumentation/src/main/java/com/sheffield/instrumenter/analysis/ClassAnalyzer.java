@@ -1,18 +1,21 @@
 package com.sheffield.instrumenter.analysis;
 
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
+import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.*;
 
 public class ClassAnalyzer {
 
 	private static ArrayList<String> branchesToCover;
+
+	public static PrintStream out = System.out;
 
 	public static final int FRAMES_FOR_STATE_CHECK = (int) Properties.SWITCH_RATE;
 
@@ -27,6 +30,10 @@ public class ClassAnalyzer {
 	private static ArrayList<String> methodsExecutedThisRun;
 
 	private static ArrayList<String> branchesExecuted;
+
+	private static ArrayList<String> branchesPositiveExecuted;
+
+	private static ArrayList<String> branchesNegativeExecuted;
 
 	private static ArrayList<String> distancesWaiting;
 
@@ -62,6 +69,8 @@ public class ClassAnalyzer {
 		methodsExecutedThisRun = new ArrayList<String>();
 
 		branchesExecuted = new ArrayList<String>();
+		branchesPositiveExecuted = new ArrayList<String>();
+		branchesNegativeExecuted = new ArrayList<String>();
 		branchesTotal = new ArrayList<String>();
 		branchesExecutedThisRun = new ArrayList<String>();
 		branchesDistance = new ArrayList<String>();
@@ -78,6 +87,10 @@ public class ClassAnalyzer {
 		stateRecognizer = new EuclideanStateRecognizer();
 
 		stateChangeListeners = new ArrayList<StateChangeListener>();
+	}
+
+	public static void setOut(PrintStream stream){
+		out = stream;
 	}
 
 	public static void addBranchToCover(String s) {
@@ -254,6 +267,15 @@ public class ClassAnalyzer {
 
 	public static synchronized void branchExecuted(boolean hit, String branch) {
 		branch += "[" + hit + "]";
+
+		if (hit && !branchesPositiveExecuted.contains(branch)){
+			branchesPositiveExecuted.add(branch);
+		}
+
+		if (!hit && !branchesNegativeExecuted.contains(branch)){
+			branchesNegativeExecuted.add(branch);
+		}
+
 		if (!branchesExecuted.contains(branch)) {
 			branchesExecuted.add(branch);
 		}
@@ -418,23 +440,24 @@ public class ClassAnalyzer {
 		String csv = "";
 
 		if (headers){
-			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram\n";
+			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits\n";
 		}
 		String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
 		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-")+1);
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + branchesTotal.size() + "," + branchesExecutedThisRun.size() + ","
-				+ bCoverage +"," + Properties.RUNTIME + "," + clusters + "," + ngram + "\n";
+				+ bCoverage +"," + Properties.RUNTIME + "," + clusters + "," + ngram + "," + branchesPositiveExecuted.size() + "," + branchesNegativeExecuted.size() + "\n";
 		return csv;
 
 	}
 
 	public static void output(String file){
-		String branches = "";
 
 		int counter = 0;
 		int bars = 50;
+		StringBuilder sb = new StringBuilder("");
 		for (String b : branchesTotal){
-			branches += b + ",";
+			sb.append(b);
+			sb.append(",");
 			String progress = "[";
 			float percent = (counter / (float) branchesTotal.size());
 			int b1 = (int)(percent * bars);
@@ -447,10 +470,10 @@ public class ClassAnalyzer {
 				progress += " ";
 			}
 			progress += "] " + (int)(percent * 100) + "% [" + counter + " of " + branchesTotal.size() + "]";
-			System.out.print("\r" + progress);
+			out.print("\r" + progress);
 			counter++;
 		}
-		branches = branches.substring(0, branches.length()-1);
+		String branches = sb.substring(0, sb.length()-1);
 
 		try {
 			FileHandler.writeToFile(new File(file), branches);

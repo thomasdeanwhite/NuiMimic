@@ -23,6 +23,7 @@ public class App {
     public static boolean CLOSING = false;
     public static boolean RECORDING_STARTED = false;
     private static boolean ENABLE_APPLICATION_OUTPUT = false;
+    private static boolean IS_INSTRUMENTING = false;
 
     private static Thread mainThread = null;
 
@@ -155,9 +156,9 @@ public class App {
 
             }, true);
 
-            // out = System.out;
+            out = System.out;
 
-            //System.setOut(dummyStream);
+            System.setOut(dummyStream);
             System.setSecurityManager(new NoExitSecurityManager());
         }
         App.out.println("- Setup Complete");
@@ -276,20 +277,22 @@ public class App {
                     App.out.println("- Found sequence file at: " + Properties.PLAYBACK_FILE);
                 }
             }
-            File playback = new File("branches.csv");
-            if (playback.getAbsoluteFile().exists()) {
-                try {
-                    String branchesString = FileHandler.readFile(playback);
+            if (!IS_INSTRUMENTING) {
+                File playback = new File("branches.csv");
+                if (playback.getAbsoluteFile().exists()) {
+                    try {
+                        String branchesString = FileHandler.readFile(playback);
 
-                    String[] branches = branchesString.split(",");
+                        String[] branches = branchesString.split(",");
 
-                    for (String b : branches){
-                        ClassAnalyzer.branchFound(b.trim());
+                        for (String b : branches) {
+                            ClassAnalyzer.branchFound(b.trim());
+                        }
+
+                        App.out.println("- Found branches file (" + branches.length + " branches) at: " + playback.getAbsolutePath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-
-                    App.out.println("- Found branches file (" + branches.length + " branches) at: " + playback.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
 
@@ -326,6 +329,8 @@ public class App {
     public static void main(String[] args) {
         App.out.print("- Instrumenting JAR with options: ");
         ENABLE_APPLICATION_OUTPUT = true;
+        IS_INSTRUMENTING = true;
+        ClassAnalyzer.setOut(App.out);
         for (String s : args){
             App.out.print(s + " ");
         }
@@ -334,7 +339,7 @@ public class App {
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
-            App.out.print("\n\tWriting output to: " + output);
+            App.out.print("\r\tWriting output to: " + output);
             ClassAnalyzer.output(output);
             App.out.println("\r\tWritten output to " + output);
         } catch (MalformedURLException e) {
@@ -428,6 +433,7 @@ public class App {
                         App.out.println("Creating file " + csv.getAbsolutePath());
                         csv.createNewFile();
                     }
+                    ClassAnalyzer.setOut(App.out);
                     FileHandler.appendToFile(csv, ClassAnalyzer.toCsv(newFile));
                 } catch (IOException e) {
                     e.printStackTrace();
