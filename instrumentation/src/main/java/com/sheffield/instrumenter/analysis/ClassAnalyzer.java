@@ -432,10 +432,23 @@ public class ClassAnalyzer {
 		String branches = "";
 
 		int counter = 0;
-
+		int bars = 50;
 		for (String b : branchesTotal){
 			branches += b + ",";
-			System.out.print("\r" + counter++);
+			String progress = "[";
+			float percent = (counter / (float) branchesTotal.size());
+			int b1 = (int)(percent * bars);
+			for (int i = 0; i < b1; i++){
+				progress += "-";
+			}
+			progress += ">";
+			int b2 = bars - b1;
+			for (int i = 0; i < b2; i++){
+				progress += " ";
+			}
+			progress += "] " + (int)(percent * 100) + "% [" + counter + " of " + branchesTotal.size() + "]";
+			System.out.print("\r" + progress);
+			counter++;
 		}
 		branches = branches.substring(0, branches.length()-1);
 

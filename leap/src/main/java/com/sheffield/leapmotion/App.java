@@ -334,7 +334,7 @@ public class App {
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
-            App.out.println("\tWriting output to: " + output);
+            App.out.print("\n\tWriting output to: " + output);
             ClassAnalyzer.output(output);
             App.out.println("\r\tWritten output to " + output);
         } catch (MalformedURLException e) {
