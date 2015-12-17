@@ -1,15 +1,20 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -89,7 +94,7 @@ public class ClassAnalyzer {
 		stateChangeListeners = new ArrayList<StateChangeListener>();
 	}
 
-	public static void setOut(PrintStream stream){
+	public static void setOut(PrintStream stream) {
 		out = stream;
 	}
 
@@ -268,11 +273,11 @@ public class ClassAnalyzer {
 	public static synchronized void branchExecuted(boolean hit, String branch) {
 		branch += "[" + hit + "]";
 
-		if (hit && !branchesPositiveExecuted.contains(branch)){
+		if (hit && !branchesPositiveExecuted.contains(branch)) {
 			branchesPositiveExecuted.add(branch);
 		}
 
-		if (!hit && !branchesNegativeExecuted.contains(branch)){
+		if (!hit && !branchesNegativeExecuted.contains(branch)) {
 			branchesNegativeExecuted.add(branch);
 		}
 
@@ -396,8 +401,7 @@ public class ClassAnalyzer {
 	}
 
 	/**
-	 * Returns distance between branch. 0 is a satisfied branch, 1 is as far
-	 * away as possible.
+	 * Returns distance between branch. 0 is a satisfied branch, 1 is as far away as possible.
 	 *
 	 * @param branch
 	 * @return
@@ -427,11 +431,29 @@ public class ClassAnalyzer {
 		return branchDistance;
 	}
 
+	public static List<String> getBranchesExecuted(String className) {
+		List<String> branchesExecutedInClass = new ArrayList<>();
+		for (String b : branchesExecuted) {
+			if (b.startsWith(className)) {
+				branchesExecutedInClass.add(b.substring(className.length() + 1));
+			}
+		}
+		return branchesExecutedInClass;
+
+	}
+
+	public static synchronized List<String> getBranchesExecuted() {
+		List<String> toReturn = new ArrayList<>();
+		for (String s : branchesExecutedThisRun) {
+			toReturn.add(s);
+		}
+		return toReturn;
+	}
+
 	public static String getReport() {
 		double bCoverage = (double) branchesExecutedThisRun.size() / (double) branchesTotal.size();
 		return "\t@ Branches Discovered: " + branchesTotal.size() + "\n\t@ Branches Covered: "
-				+ branchesExecutedThisRun.size() + "\n\t@ Branch Coverage: "
-				+ bCoverage;
+				+ branchesExecutedThisRun.size() + "\n\t@ Branch Coverage: " + bCoverage;
 
 	}
 
@@ -439,41 +461,42 @@ public class ClassAnalyzer {
 		double bCoverage = (double) branchesExecutedThisRun.size() / (double) branchesTotal.size();
 		String csv = "";
 
-		if (headers){
+		if (headers) {
 			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits\n";
 		}
 		String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
-		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-")+1);
-		csv += Properties.FRAME_SELECTION_STRATEGY + "," + branchesTotal.size() + "," + branchesExecutedThisRun.size() + ","
-				+ bCoverage +"," + Properties.RUNTIME + "," + clusters + "," + ngram + "," + branchesPositiveExecuted.size() + "," + branchesNegativeExecuted.size() + "\n";
+		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
+		csv += Properties.FRAME_SELECTION_STRATEGY + "," + branchesTotal.size() + "," + branchesExecutedThisRun.size()
+				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
+				+ branchesPositiveExecuted.size() + "," + branchesNegativeExecuted.size() + "\n";
 		return csv;
 
 	}
 
-	public static void output(String file){
+	public static void output(String file) {
 
 		int counter = 0;
 		int bars = 50;
 		StringBuilder sb = new StringBuilder("");
-		for (String b : branchesTotal){
+		for (String b : branchesTotal) {
 			sb.append(b);
 			sb.append(",");
 			String progress = "[";
-			float percent = (counter / (float) branchesTotal.size());
-			int b1 = (int)(percent * bars);
-			for (int i = 0; i < b1; i++){
+			float percent = counter / (float) branchesTotal.size();
+			int b1 = (int) (percent * bars);
+			for (int i = 0; i < b1; i++) {
 				progress += "-";
 			}
 			progress += ">";
 			int b2 = bars - b1;
-			for (int i = 0; i < b2; i++){
+			for (int i = 0; i < b2; i++) {
 				progress += " ";
 			}
-			progress += "] " + (int)(percent * 100) + "% [" + counter + " of " + branchesTotal.size() + "]";
+			progress += "] " + (int) (percent * 100) + "% [" + counter + " of " + branchesTotal.size() + "]";
 			out.print("\r" + progress);
 			counter++;
 		}
-		String branches = sb.substring(0, sb.length()-1);
+		String branches = sb.substring(0, sb.length() - 1);
 
 		try {
 			FileHandler.writeToFile(new File(file), branches);
