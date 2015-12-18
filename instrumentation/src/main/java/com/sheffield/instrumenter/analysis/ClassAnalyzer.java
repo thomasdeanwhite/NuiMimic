@@ -1,17 +1,17 @@
 package com.sheffield.instrumenter.analysis;
 
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.listeners.StateChangeListener;
-import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
-import com.sheffield.instrumenter.states.StateRecognizer;
-import com.sheffield.leapmotion.sampler.FileHandler;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.listeners.StateChangeListener;
+import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
+import com.sheffield.instrumenter.states.StateRecognizer;
+import com.sheffield.leapmotion.sampler.FileHandler;
 
 public class ClassAnalyzer {
 
@@ -153,7 +153,8 @@ public class ClassAnalyzer {
 	}
 
 	public static double branchCoverage() {
-		return (double) branchesPositiveExecuted.size() / (double) branchesTotal.size();
+		return (branchesPositiveExecuted.size() + branchesNegativeExecuted.size())
+				/ (2 * (double) branchesTotal.size());
 	}
 
 	public static double calculateBranchDistance(String branch, float b1, float b2) {
@@ -228,9 +229,8 @@ public class ClassAnalyzer {
 
 	public static String getReport() {
 		double bCoverage = (double) branchesExecuted.size() / (double) branchesTotal.size();
-		return "\t@ Branches Discovered: " + branchesTotal.size() + "\n\t@ Branches Covered: "
-				+ branchesExecuted.size() + "\n\t@ Branch Coverage: "
-				+ bCoverage;
+		return "\t@ Branches Discovered: " + branchesTotal.size() + "\n\t@ Branches Covered: " + branchesExecuted.size()
+				+ "\n\t@ Branch Coverage: " + bCoverage;
 
 	}
 
@@ -242,9 +242,10 @@ public class ClassAnalyzer {
 			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits\n";
 		}
 		String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
-		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-")+1);
-		csv += Properties.FRAME_SELECTION_STRATEGY + "," + branchesTotal.size() + "," + branchesPositiveExecuted.size() + ","
-				+ bCoverage +"," + Properties.RUNTIME + "," + clusters + "," + ngram + "," + branchesPositiveExecuted.size() + "," + branchesNegativeExecuted.size() + "\n";
+		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
+		csv += Properties.FRAME_SELECTION_STRATEGY + "," + branchesTotal.size() + "," + branchesPositiveExecuted.size()
+				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
+				+ branchesPositiveExecuted.size() + "," + branchesNegativeExecuted.size() + "\n";
 		return csv;
 
 	}

@@ -18,7 +18,7 @@ public class BranchVisitor extends MethodAdapter {
 	private boolean lookNext = false;
 	private String className;
 	private String methodName;
-	private static final String ANALYZER_CLASS = Type.getInternalName(ClassAnalyzer.class);
+	private final String ANALYZER_CLASS = Type.getInternalName(ClassAnalyzer.class);
 	private static Method BRANCH_METHOD;
 	private static Method BRANCH_DISTANCE_METHOD_I;
 	private static Method BRANCH_DISTANCE_METHOD_F;
