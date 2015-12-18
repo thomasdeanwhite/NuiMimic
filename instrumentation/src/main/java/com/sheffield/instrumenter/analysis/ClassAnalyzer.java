@@ -68,6 +68,12 @@ public class ClassAnalyzer {
 		stateChangeListeners = new ArrayList<StateChangeListener>();
 	}
 
+	public static void reset() {
+		branchesExecuted.clear();
+		branchesPositiveExecuted.clear();
+		branchesNegativeExecuted.clear();
+	}
+
 	public static void setOut(PrintStream stream) {
 		out = stream;
 	}
