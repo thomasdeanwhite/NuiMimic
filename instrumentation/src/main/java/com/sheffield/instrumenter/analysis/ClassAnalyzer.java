@@ -1,20 +1,17 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ClassAnalyzer {
 
@@ -199,7 +196,7 @@ public class ClassAnalyzer {
 	}
 
 	/**
-	 * Returns distance between branch. 0 is a satisfied branch, 1 is as far away as possible.
+	 * Returns distance between negative and positive branch hit. 0 is a positive hit, 1 is as far away from positive as possible.
 	 *
 	 * @param branch
 	 * @return
