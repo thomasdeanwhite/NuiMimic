@@ -2,23 +2,156 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17190a71-dd8a-460d-867a-0c0b041b1145" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ThrowableListener.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/LoggingUncaughtExceptionHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/target/classes/com/sheffield/instrumenter/Properties.class" afterPath="$PROJECT_DIR$/common/target/classes/com/sheffield/instrumenter/Properties.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer$1.class" afterPath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" afterPath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.class" afterPath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$1.class" afterPath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$1.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$2.class" afterPath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$2.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$3.class" afterPath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$3.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$ExitException.class" afterPath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$ExitException.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$NoExitSecurityManager.class" afterPath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$NoExitSecurityManager.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App.class" afterPath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" afterPath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/analyzer/AnalyzerApp.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/analyzer/DataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/analyzer/HMMDataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/analyzer/HillClimbingDataAnalyzer$SequenceSimilarity.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/analyzer/HillClimbingDataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/analyzer/ProbabilityDataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/display/DisplayWindow$HandCanvas.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/display/DisplayWindow.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/display/LeapmotionDisplay.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/HandFactory.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/NotImplementedException.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededBone.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededFinger.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededFingerList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededFrame.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededGesture.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededGestureList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededHand.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededHandList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/mocks/SeededPointableList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/sampler/AppStatus.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/sampler/FileHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/sampler/Properties.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/sampler/SamplerApp.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/sampler/Serializer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/App$ExitException.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/App$NoExitSecurityManager.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/App.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/AppStatus.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/Display$OutputCanvas.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/Display.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/FileHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/LeapMotionApplicationHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/Serializer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/controller/FrameHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/controller/SeededController.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/controller/gestures/GestureHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/controller/gestures/NoneGestureHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/controller/gestures/RandomGestureHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/framemodifier/FrameModifier.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/framemodifier/NGramFrameModifier.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/framemodifier/RandomFrameModifier.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/AdaptiveRandomDistanceFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/BranchDistanceAverageFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/BranchDistanceFrameSelector2.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/EmptyFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/EuclideanFrameSelector$FrameSimilarity.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/EuclideanFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/FrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/NGramFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/PlaybackFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/RandomDistanceFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/RandomFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/StaticDistanceFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/frameselectors/UserPlaybackFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/listeners/FrameSwitchListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/listeners/StateChangeListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/EuclideanStateRecognizer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/ImageStateRecognizer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/ScreenGrabber.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/Similarity.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/StateNode.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/StateRecognizer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/StateTracker.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/bin/com/sheffield/leapmotion/tester/states/StateTree.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/common/target/classes/com/sheffield/instrumenter/Properties$FrameSelectionStrategy.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/common/target/classes/com/sheffield/instrumenter/Properties.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/common/target/classes/com/sheffield/instrumenter/listeners/StateChangeListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/common/target/classes/com/sheffield/leapmotion/sampler/FileHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/Display$OutputCanvas.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/Display.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/BranchType.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ThrowableListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/instrumentation/LoggingUncaughtExceptionHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/EuclideanStateRecognizer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/ImageStateRecognizer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/ScreenGrabber.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/Similarity.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/StateNode.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/StateRecognizer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/StateTracker.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/states/StateTree.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$2.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$3.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$ExitException.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App$NoExitSecurityManager.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/App.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/AppStatus.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/FileHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/LeapMotionApplicationHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/Serializer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/analyzer/AnalyzerApp.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/analyzer/DataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/analyzer/HMMDataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/analyzer/HillClimbingDataAnalyzer$SequenceSimilarity.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/analyzer/HillClimbingDataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/analyzer/ProbabilityDataAnalyzer.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/FrameHandler$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/FrameHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/SeededController$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/SeededController.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/gestures/GestureHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/gestures/NoneGestureHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/controller/gestures/RandomGestureHandler.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/display/DisplayWindow$HandCanvas.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/display/DisplayWindow.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/display/LeapmotionDisplay.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/framemodifier/FrameModifier.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/framemodifier/RandomFrameModifier.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/AdaptiveRandomDistanceFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/EmptyFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/EuclideanFrameSelector$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/EuclideanFrameSelector$FrameSimilarity.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/EuclideanFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/FrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/PlaybackFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/RandomDistanceFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/RandomFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/StaticDistanceFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/frameselectors/UserPlaybackFrameSelector.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/instrumentation/modifiers/InstantiationVisitor.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/instrumentation/visitors/TestingClassAdapter.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/listeners/FrameSwitchListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/HandFactory.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/NotImplementedException.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededBone.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededFinger.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededFingerList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededFrame.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededGesture.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededGestureList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededHand.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededHandList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededListener.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/mocks/SeededPointableList.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/sampler/AppStatus.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/sampler/SamplerApp.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/leap/target/classes/com/sheffield/leapmotion/sampler/Serializer.class" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/META-INF/maven/com.sheffield/leap/pom.properties" afterPath="$PROJECT_DIR$/leap/target/classes/META-INF/maven/com.sheffield/leap/pom.properties" />
     </list>
     <ignored path="leapmotion-tester.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -46,11 +179,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="App.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="App.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3690476">
-              <caret line="407" column="50" selection-start-line="407" selection-start-column="50" selection-end-line="407" selection-end-column="50" />
+            <state vertical-scroll-proportion="-13.5172415">
+              <caret line="413" column="83" selection-start-line="413" selection-start-column="83" selection-end-line="413" selection-end-column="83" />
               <folding />
             </state>
           </provider>
@@ -59,11 +192,10 @@
       <file leaf-file-name="ClassReplacementTransformer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-23.172413">
-              <caret line="28" column="48" selection-start-line="28" selection-start-column="48" selection-end-line="28" selection-end-column="48" />
+            <state vertical-scroll-proportion="-21.51724">
+              <caret line="26" column="48" selection-start-line="26" selection-start-column="48" selection-end-line="26" selection-end-column="48" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#674#682#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -82,16 +214,15 @@
       <file leaf-file-name="ClassAnalyzer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.83928573">
-              <caret line="228" column="42" selection-start-line="228" selection-start-column="42" selection-end-line="228" selection-end-column="42" />
+            <state vertical-scroll-proportion="-4.285714">
+              <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
               <folding>
-                <element signature="imports" expanded="true" />
                 <element signature="e#2520#2521#0" expanded="true" />
                 <element signature="e#2539#2540#0" expanded="true" />
                 <element signature="e#2589#2590#0" expanded="true" />
                 <element signature="e#2618#2619#0" expanded="true" />
                 <element signature="docComment;method#getBranchDistance#0;class#ClassAnalyzer#0" expanded="true" />
-                <element signature="e#5917#5925#0" expanded="true" />
+                <element signature="e#5954#5962#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -139,14 +270,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BranchVisitor.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="BranchVisitor.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-105.10345">
-              <caret line="136" column="44" selection-start-line="136" selection-start-column="44" selection-end-line="136" selection-end-column="44" />
+            <state vertical-scroll-proportion="0.37209302">
+              <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#891#908#0" expanded="true" />
+                <element signature="e#855#872#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -214,15 +345,15 @@
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/states/EuclideanStateRecognizer.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/SeededController.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/FrameHandler.java" />
-        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" />
         <option value="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ExceptionListener.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ThrowableListener.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/ExceptionLoggingVisitor.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/ThrowableLoggingVisitor.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/LoggingUncaughtExceptionHandler.java" />
-        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" />
+        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" />
+        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" />
       </list>
     </option>
   </component>
@@ -1330,12 +1461,12 @@
       <workItem from="1450180131642" duration="8257000" />
       <workItem from="1450193663304" duration="8008000" />
       <workItem from="1450268943224" duration="11725000" />
-      <workItem from="1450435294820" duration="10731000" />
+      <workItem from="1450435294820" duration="10989000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="157360000" />
+    <option name="totallyTimeSpent" value="157618000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -1469,7 +1600,6 @@
           <caret line="77" column="33" selection-start-line="77" selection-start-column="33" selection-end-line="77" selection-end-column="33" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#674#682#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1479,13 +1609,12 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
             <element signature="e#2520#2521#0" expanded="true" />
             <element signature="e#2539#2540#0" expanded="true" />
             <element signature="e#2589#2590#0" expanded="true" />
             <element signature="e#2618#2619#0" expanded="true" />
             <element signature="docComment;method#getBranchDistance#0;class#ClassAnalyzer#0" expanded="true" />
-            <element signature="e#5917#5925#0" expanded="true" />
+            <element signature="e#5954#5962#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1496,7 +1625,7 @@
           <caret line="148" column="60" selection-start-line="148" selection-start-column="60" selection-end-line="148" selection-end-column="60" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#891#908#0" expanded="true" />
+            <element signature="e#855#872#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1583,7 +1712,6 @@
           <caret line="23" column="28" selection-start-line="23" selection-start-column="28" selection-end-line="23" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#674#682#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1593,13 +1721,12 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="12" column="12" selection-start-line="12" selection-start-column="7" selection-end-line="12" selection-end-column="12" />
           <folding>
-            <element signature="imports" expanded="true" />
             <element signature="e#2520#2521#0" expanded="true" />
             <element signature="e#2539#2540#0" expanded="true" />
             <element signature="e#2589#2590#0" expanded="true" />
             <element signature="e#2618#2619#0" expanded="true" />
             <element signature="docComment;method#getBranchDistance#0;class#ClassAnalyzer#0" expanded="true" />
-            <element signature="e#5917#5925#0" expanded="true" />
+            <element signature="e#5954#5962#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1620,7 +1747,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#891#908#0" expanded="true" />
+            <element signature="e#855#872#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1808,11 +1935,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-23.172413">
-          <caret line="28" column="48" selection-start-line="28" selection-start-column="48" selection-end-line="28" selection-end-column="48" />
+        <state vertical-scroll-proportion="-21.51724">
+          <caret line="26" column="48" selection-start-line="26" selection-start-column="48" selection-end-line="26" selection-end-column="48" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#674#682#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1830,17 +1956,6 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="48" column="48" selection-start-line="48" selection-start-column="48" selection-end-line="48" selection-end-column="48" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-105.10345">
-          <caret line="136" column="44" selection-start-line="136" selection-start-column="44" selection-end-line="136" selection-end-column="44" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#891#908#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1862,27 +1977,37 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-13.5172415">
+          <caret line="413" column="83" selection-start-line="413" selection-start-column="83" selection-end-line="413" selection-end-column="83" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.83928573">
-          <caret line="228" column="42" selection-start-line="228" selection-start-column="42" selection-end-line="228" selection-end-column="42" />
+        <state vertical-scroll-proportion="-4.285714">
+          <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
           <folding>
-            <element signature="imports" expanded="true" />
             <element signature="e#2520#2521#0" expanded="true" />
             <element signature="e#2539#2540#0" expanded="true" />
             <element signature="e#2589#2590#0" expanded="true" />
             <element signature="e#2618#2619#0" expanded="true" />
             <element signature="docComment;method#getBranchDistance#0;class#ClassAnalyzer#0" expanded="true" />
-            <element signature="e#5917#5925#0" expanded="true" />
+            <element signature="e#5954#5962#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java">
+    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3690476">
-          <caret line="407" column="50" selection-start-line="407" selection-start-column="50" selection-end-line="407" selection-end-column="50" />
-          <folding />
+        <state vertical-scroll-proportion="0.37209302">
+          <caret line="10" column="27" selection-start-line="10" selection-start-column="27" selection-end-line="10" selection-end-column="27" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#855#872#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

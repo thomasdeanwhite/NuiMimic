@@ -17,8 +17,6 @@ import com.sheffield.instrumenter.Properties;
 
 public class ClassReplacementTransformer {
 
-	public static final String CONTROLLER_CLASS = "com.leapmotion.leap.Controller";
-
 	private static ArrayList<String> seenClasses = new ArrayList<String>();
 
 	public ClassReplacementTransformer() {
@@ -90,7 +88,7 @@ public class ClassReplacementTransformer {
 
 	private static final String[] forbiddenPackages = new String[] { "com/sheffield/leapmotion", "com/google/gson",
 			"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
-			"com/sheffield/instrumenter" };
+			"com/sheffield/instrumenter", "com/dpaterson", "org/junit" };
 
 	public boolean shouldInstrumentClass(String className) {
 		if (className == null) {
