@@ -40,9 +40,6 @@ public class FrameHandler {
             case STATIC_DISTANCE:
                 frameSelector = new StaticDistanceFrameSelector();
                 break;
-            case BRANCH_DISTANCE_AVERAGE:
-                frameSelector = new BranchDistanceAverageFrameSelector();
-                break;
             case N_GRAM:
                 frameSelector = new NGramFrameSelector("");
                 break;

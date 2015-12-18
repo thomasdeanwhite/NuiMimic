@@ -1,13 +1,12 @@
 package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.*;
-import com.sheffield.leapmotion.AppStatus;
 import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.AppStatus;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.sampler.SamplerApp;
 
 import java.util.ArrayList;
@@ -103,7 +102,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 			throw new IllegalArgumentException("Runtime Finished!");
 		}
 		Frame f = frame(0);
-		ClassAnalyzer.newFrame();
+		//ClassAnalyzer.newFrame();
 		if (App.DISPLAY_WINDOW != null) {
 			App.DISPLAY_WINDOW.setFrame(f);
 		}

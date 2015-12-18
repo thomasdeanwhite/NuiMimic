@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-
 public class EuclideanStateRecognizer extends StateRecognizer {
 
 	protected HashMap<Integer, HashMap<String, Float>> states;
@@ -18,57 +16,7 @@ public class EuclideanStateRecognizer extends StateRecognizer {
 
 	@Override
 	public int recognizeState() {
-		HashMap<String, Integer> callFrequencies = ClassAnalyzer.lastBranchesCalled;
-		String[] keys = new String[callFrequencies.keySet().size()];
-
-		callFrequencies.keySet().toArray(keys);
-
-		HashMap<Integer, Float> stateDifferences = new HashMap<Integer, Float>();
-
-		if (states.isEmpty()) {
-			return newState(callFrequencies);
-		}
-
-		int bestState = 0;
-		float bestDifference = Float.MAX_VALUE;
-		for (int i : states.keySet()) {
-			HashMap<String, Float> calls = states.get(i);
-			float stateDifference = 0;
-			for (String key : keys) {
-				int callFreq = callFrequencies.get(key);
-				if (calls.containsKey(key)) {
-					float stateCalls = calls.get(key);
-					stateDifference += Math.log(Math.abs(stateCalls - callFreq) + 1f);
-				} else {
-					stateDifference += Math.log(callFreq + 1f);
-				}
-			}
-			stateDifferences.put(i, stateDifference);
-			if (stateDifference < bestDifference && stateDifference < stateSizes.get(i)) {
-				bestState = i;
-				bestDifference = stateDifference;
-			}
-		}
-
-		HashMap<String, Float> calls = states.get(bestState);
-		HashMap<String, Float> differences = new HashMap<String, Float>();
-		for (String key : callFrequencies.keySet()) {
-			int callFreq = callFrequencies.get(key);
-			if (calls.containsKey(key)) {
-				float stateCalls = callFreq;
-				stateCalls -= calls.get(key);
-				differences.put(key, stateCalls);
-			} else {
-				differences.put(key, (float) callFreq);
-			}
-		}
-		Similarity sim = isSameState(bestState, differences);
-		if (sim.isSameState()) {
-			return mergeStates(bestState, differences);
-		}
-
-		return newState(callFrequencies);
-
+		return 0;
 	}
 
 	protected Similarity calculateSimilarity(int state, HashMap<String, Float> differences) {
