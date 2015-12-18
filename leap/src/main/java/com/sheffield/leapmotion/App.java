@@ -3,6 +3,7 @@ package com.sheffield.leapmotion;
 import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.instrumenter.states.StateTracker;
@@ -17,7 +18,7 @@ import java.net.MalformedURLException;
 import java.security.Permission;
 import java.util.Random;
 
-public class App {
+public class App implements ThrowableListener {
     public static Random random = new Random();
     public static App APP;
     public static boolean CLOSING = false;
@@ -55,6 +56,12 @@ public class App {
     private long lastSwitchTime;
     private long timeBetweenSwitch;
     private StateTracker stateTracker;
+
+    @Override
+    public void throwableThrown(Throwable t) {
+        App.out.println("Throwable thrown! " + t.getLocalizedMessage());
+        output();
+    }
 
     public static class ExitException extends SecurityException {
         /**
@@ -159,8 +166,8 @@ public class App {
             out = System.out;
 
             System.setOut(dummyStream);
-            System.setSecurityManager(new NoExitSecurityManager());
         }
+        System.setSecurityManager(new NoExitSecurityManager());
         App.out.println("- Setup Complete");
     }
 
@@ -397,7 +404,7 @@ public class App {
                 int delay = (int) (1000f / Properties.SWITCH_RATE);
 
                 try {
-                    Thread.sleep(15000);
+                    Thread.sleep(30000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -420,32 +427,38 @@ public class App {
                 if (Properties.RECORDING) {
                     com.sheffield.leapmotion.sampler.SamplerApp.getApp().appFinished();
                 }
-                App.out.println("- Finished testing: ");
-                App.out.println("@ Coverage Report: ");
-                App.out.println(ClassAnalyzer.getReport());
-                File csv = new File("test-results.csv");
-                if (csv.getParentFile() != null){
-                    csv.getParentFile().mkdirs();
-                }
-                try {
-                    boolean newFile = !csv.getAbsoluteFile().exists();
-                    if (newFile){
-                        App.out.println("Creating file " + csv.getAbsolutePath());
-                        csv.createNewFile();
-                    }
-                    ClassAnalyzer.setOut(App.out);
-                    FileHandler.appendToFile(csv, ClassAnalyzer.toCsv(newFile));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
-                System.exit(0);
+
+                App.getApp().output();
+
 
             }
 
         });
         mainThread.start();
 
+    }
+
+    public void output(){
+        App.out.println("- Finished testing: ");
+        App.out.println("@ Coverage Report: ");
+        App.out.println(ClassAnalyzer.getReport());
+        File csv = new File("test-results.csv");
+        if (csv.getParentFile() != null){
+            csv.getParentFile().mkdirs();
+        }
+        try {
+            boolean newFile = !csv.getAbsoluteFile().exists();
+            if (newFile){
+                App.out.println("Creating file " + csv.getAbsolutePath());
+                csv.createNewFile();
+            }
+            ClassAnalyzer.setOut(App.out);
+            FileHandler.appendToFile(csv, ClassAnalyzer.toCsv(newFile));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
+        System.exit(0);
     }
 
     public void start() {

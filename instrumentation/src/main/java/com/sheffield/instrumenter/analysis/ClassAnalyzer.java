@@ -1,6 +1,7 @@
 package com.sheffield.instrumenter.analysis;
 
 import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
@@ -14,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ClassAnalyzer {
+
+	private static ArrayList<ThrowableListener> throwableListeners;
 
 	private static ArrayList<String> branchesToCover;
 
@@ -36,18 +39,17 @@ public class ClassAnalyzer {
 	private static HashMap<String, Integer> callFrequencies;
 
 	private static HashMap<String, Float> branchDistance;
-	private static int currentBranchDistance = 0;
 
 	private static StateRecognizer stateRecognizer;
 
 	private static final float BRANCH_DISTANCE_ADDITION = 50f;
 
-	private static int currentState = 0;
-
 	private static ArrayList<StateChangeListener> stateChangeListeners;
-	public static boolean frameStateNew = false;
 
 	static {
+		Thread.currentThread().setUncaughtExceptionHandler(new LoggingUncaughtExceptionHandler());
+		throwableListeners = new ArrayList<ThrowableListener>();
+
 		branchesToCover = new ArrayList<String>();
 
 		branchesExecuted = new ArrayList<String>();
@@ -66,6 +68,16 @@ public class ClassAnalyzer {
 		stateRecognizer = new EuclideanStateRecognizer();
 
 		stateChangeListeners = new ArrayList<StateChangeListener>();
+	}
+
+	public static void addThrowableListener(ThrowableListener tl){
+		throwableListeners.add(tl);
+	}
+
+	public static void throwableThrown(Throwable throwable){
+		for (ThrowableListener t :throwableListeners){
+			t.throwableThrown(throwable);
+		}
 	}
 
 	public static void setOut(PrintStream stream) {
@@ -227,7 +239,7 @@ public class ClassAnalyzer {
 	}
 
 	public static String getReport() {
-		double bCoverage = (double) branchesExecuted.size() / (double) branchesTotal.size();
+		double bCoverage = (double) branchesPositiveExecuted.size() / (double) branchesTotal.size();
 		return "\t@ Branches Discovered: " + branchesTotal.size() + "\n\t@ Branches Covered: "
 				+ branchesExecuted.size() + "\n\t@ Branch Coverage: "
 				+ bCoverage;
