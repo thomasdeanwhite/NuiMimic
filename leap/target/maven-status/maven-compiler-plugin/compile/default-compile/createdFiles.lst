@@ -16,7 +16,6 @@ com\sheffield\leapmotion\controller\gestures\NoneGestureHandler.class
 com\sheffield\leapmotion\analyzer\HMMDataAnalyzer.class
 com\sheffield\leapmotion\App$3.class
 com\sheffield\leapmotion\display\DisplayWindow.class
-com\sheffield\leapmotion\frameselectors\BranchDistanceAverageFrameSelector.class
 com\sheffield\leapmotion\mocks\SeededListener.class
 com\sheffield\leapmotion\AppStatus.class
 com\sheffield\leapmotion\mocks\SeededFrame.class
@@ -45,7 +44,6 @@ com\sheffield\leapmotion\controller\SeededController.class
 com\sheffield\leapmotion\frameselectors\PlaybackFrameSelector.class
 com\sheffield\leapmotion\framemodifier\FrameModifier.class
 com\sheffield\leapmotion\mocks\SeededPointableList.class
-com\sheffield\leapmotion\frameselectors\BranchDistanceFrameSelector2.class
 com\sheffield\leapmotion\sampler\Serializer.class
 com\sheffield\leapmotion\controller\FrameHandler$1.class
 com\sheffield\leapmotion\FileHandler.class

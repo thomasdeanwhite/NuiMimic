@@ -52,7 +52,7 @@ public class Properties {
 
 	public static String NGRAM_TYPE = "50-2";
 
-	public static String[] GESTURE_FILES = {"processed/poly-" + NGRAM_TYPE,
+	public static String[] GESTURE_FILES = {"processed/asl-" + NGRAM_TYPE,
 //			"processed/bigcircle-25-2",
 //			"processed/circle-25-2",
 //			"processed/keytap-25-2",
