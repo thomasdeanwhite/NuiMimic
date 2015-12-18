@@ -1,13 +1,19 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.Properties;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.ArrayList;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.*;
-import java.lang.instrument.IllegalClassFormatException;
-import java.util.ArrayList;
+import com.sheffield.instrumenter.Properties;
 
 public class ClassReplacementTransformer {
 
@@ -72,7 +78,7 @@ public class ClassReplacementTransformer {
 			fos.close();
 			return newClass;
 		} catch (NoClassDefFoundError e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -83,7 +89,8 @@ public class ClassReplacementTransformer {
 	}
 
 	private static final String[] forbiddenPackages = new String[] { "com/sheffield/leapmotion", "com/google/gson",
-			"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli" };
+			"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
+			"com/sheffield/instrumenter" };
 
 	public boolean shouldInstrumentClass(String className) {
 		if (className == null) {
