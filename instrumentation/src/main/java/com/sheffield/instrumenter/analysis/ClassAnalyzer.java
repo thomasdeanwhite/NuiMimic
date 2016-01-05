@@ -1,18 +1,18 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ClassAnalyzer {
 
@@ -119,12 +119,13 @@ public class ClassAnalyzer {
 	}
 
 	public static synchronized void branchExecuted(boolean hit, String branch) {
-
 		if (hit && !branchesPositiveExecuted.contains(branch)) {
+			//out.println(branch + "[" + hit + "]");
 			branchesPositiveExecuted.add(branch);
 		}
 
 		if (!hit && !branchesNegativeExecuted.contains(branch)) {
+			//out.println(branch + "[" + hit + "]");
 			branchesNegativeExecuted.add(branch);
 		}
 

@@ -23,7 +23,7 @@ public class App implements ThrowableListener {
     public static App APP;
     public static boolean CLOSING = false;
     public static boolean RECORDING_STARTED = false;
-    private static boolean ENABLE_APPLICATION_OUTPUT = false;
+    private static boolean ENABLE_APPLICATION_OUTPUT = true;
     private static boolean IS_INSTRUMENTING = false;
 
     private static Thread mainThread = null;
@@ -404,7 +404,7 @@ public class App implements ThrowableListener {
                 int delay = (int) (1000f / Properties.SWITCH_RATE);
 
                 try {
-                    Thread.sleep(30000);
+                    Thread.sleep(Properties.DELAY_TIME);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -466,7 +466,6 @@ public class App implements ThrowableListener {
     }
 
     public void tick() {
-
         long time = System.currentTimeMillis();
 
         if (time - lastSwitchTime > timeBetweenSwitch) {

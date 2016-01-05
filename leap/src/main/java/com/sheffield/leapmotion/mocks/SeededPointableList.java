@@ -12,6 +12,8 @@ public class SeededPointableList extends PointableList {
 
 	protected ArrayList<Pointable> pointables;
 
+	protected Pointable frontMost;
+
 	public SeededPointableList() {
 		pointables = new ArrayList<Pointable>();
 	}
@@ -83,13 +85,16 @@ public class SeededPointableList extends PointableList {
 
 	@Override
 	public Pointable frontmost() {
-		Pointable fm = Pointable.invalid();
-		for (Pointable p : this){
-			if (!fm.isValid() || fm.tipPosition().minus(p.tipPosition()).getZ() > 0){
-				fm = p;
+		if (frontMost == null) {
+			Pointable fm = Pointable.invalid();
+			for (Pointable p : this) {
+				if (!fm.isValid() || fm.tipPosition().minus(p.tipPosition()).getZ() > 0) {
+					fm = p;
+				}
 			}
+			frontMost = fm;
 		}
-		return fm;
+		return frontMost;
 	}
 
 	@Override

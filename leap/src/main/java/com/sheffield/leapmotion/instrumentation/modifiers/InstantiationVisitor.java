@@ -1,9 +1,12 @@
 package com.sheffield.leapmotion.instrumentation.modifiers;
 
+import com.leapmotion.leap.CircleGesture;
 import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.HandList;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.mocks.SeededGesture;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -19,19 +22,21 @@ public class InstantiationVisitor extends MethodAdapter {
 	private static final String APP_CLASS = Type.getInternalName(App.class);
 	private static final String NEW_CONTROLLER = Type.getInternalName(SeededController.class);
 	private static final String HAND_CLASS = Type.getInternalName(HandList.class);
+	private static final String CIRCLE_GESTURE_CLASS = Type.getInternalName(CircleGesture.class);
+	private static final String GESTURE_CLASS = Type.getInternalName(SeededGesture.class);
 	private static Method METHOD_TO_CALL;
 	private static Method APP_METHOD_TO_CALL;
+	private static Method CIRCLE_METHOD_TO_CALL;
 
 	static {
 		try {
 			METHOD_TO_CALL = SeededController.class.getMethod("getController", new Class[] {});
 			APP_METHOD_TO_CALL = App.class.getMethod("setTesting", new Class[] {});
+			CIRCLE_METHOD_TO_CALL = SeededGesture.class.getMethod("getCircleGesture", new Class[] {Gesture.class});
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(App.out);
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(App.out);
 		}
 	}
 
@@ -63,6 +68,18 @@ public class InstantiationVisitor extends MethodAdapter {
 		} else if (owner.equals(HAND_CLASS) && name.equals("empty")) {
 			// Convert from old API version to new one.
 			super.visitMethodInsn(opcode, owner, "isEmpty", desc);
+			shouldCall = false;
+		} else if (owner.equals(CIRCLE_GESTURE_CLASS) && name.contains("<init>")) {
+//			super.visitInsn(Opcodes.DUP);
+//			super.visitMethodInsn(opcode, owner, name, desc);
+			try {
+				super.visitInsn(Opcodes.POP);
+				super.visitMethodInsn(Opcodes.INVOKESTATIC, GESTURE_CLASS, "getCircleGesture",
+						Type.getMethodDescriptor(CIRCLE_METHOD_TO_CALL));
+				 App.out.println("Replaced CircleGesture instantiation in " + className + " with method call to " + CIRCLE_METHOD_TO_CALL.toGenericString());
+			} catch (SecurityException e) {
+				e.printStackTrace(App.out);
+			}
 			shouldCall = false;
 		}
 

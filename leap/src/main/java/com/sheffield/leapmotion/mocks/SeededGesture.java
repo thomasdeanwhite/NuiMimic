@@ -1,19 +1,26 @@
 package com.sheffield.leapmotion.mocks;
 
+import com.leapmotion.leap.*;
+
 import java.io.Serializable;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.HandList;
-import com.leapmotion.leap.PointableList;
-
 public class SeededGesture extends Gesture implements Serializable {
+
+
+	public static CircleGesture getCircleGesture(Gesture g){
+		if (g instanceof SeededGesture){
+			return ((SeededGesture) g).getCircleGesture();
+		}
+		return new CircleGesture(g);
+	}
+
 
 	protected Type type;
 	protected State state;
 	protected Frame frame;
 	protected int duration;
 	protected int id = 0;
+	protected SeededCircleGesture circleGesture;
 
 	public SeededGesture(Type gestureType, State gestureState, Frame frame, int duration, int id) {
 		type = gestureType;
@@ -21,6 +28,14 @@ public class SeededGesture extends Gesture implements Serializable {
 		this.frame = frame;
 		this.duration = duration;
 		this.id = id;
+	}
+
+	public SeededCircleGesture getCircleGesture(){
+		return circleGesture;
+	}
+
+	public void setCircleGesture(SeededCircleGesture g){
+		circleGesture = g;
 	}
 
 	@Override

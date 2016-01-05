@@ -90,7 +90,15 @@ public class FrameHandler {
         } else {
             frame = Frame.invalid();
         }
-        if (frame instanceof SeededFrame) {
+
+        return frame;
+    }
+
+    public void loadNewFrame() {
+        Frame frame = frameSelector.newFrame();
+        if (!(frameSelector instanceof UserPlaybackFrameSelector)) {
+            frame = new SeededFrame(frame);
+            SeededFrame sf = (SeededFrame) frame;
             GestureList gl = null;
             if (gestureHandler != null) {
                 gl = gestureHandler.handleFrame(frame);
@@ -100,31 +108,17 @@ public class FrameHandler {
             }
 
 
-            SeededFrame sf = (SeededFrame) frame;
-            if (!sf.isGestureSet()) {
-                sf.setGestures(gl);
-            }
+            sf.setGestures(gl);
             for (FrameModifier fm : frameModifiers) {
-                fm.modifyFrame((SeededFrame) frame);
+                fm.modifyFrame(sf);
             }
-        }
-
-        return frame;
-
-    }
-
-    public void loadNewFrame() {
-        Frame frame = frameSelector.newFrame();
-        if (!(frameSelector instanceof UserPlaybackFrameSelector)) {
-            frame = new SeededFrame(frame);
         }
         frames.add(0, frame);
-        for (FrameSwitchListener fsl : frameSwitchListeners) {
-            fsl.onFrameSwitch(getFrame(), frame);
-        }
-
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {
             frames.remove(frames.size() - 1);
+        }
+        for (FrameSwitchListener fsl : frameSwitchListeners) {
+            fsl.onFrameSwitch(getFrame(1), frame);
         }
 
     }

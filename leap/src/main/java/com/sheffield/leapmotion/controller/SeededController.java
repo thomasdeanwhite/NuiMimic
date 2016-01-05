@@ -112,7 +112,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	@Override
 	public Frame frame(int arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
-
 		if (Properties.RECORDING) {
 			final Frame f = super.frame(arg0);
 			new Thread(new Runnable() {
@@ -279,6 +278,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	}
 
 	private void notSupported(){
-		throw new IllegalStateException("Feature not supported!");//return super.trackedQuad();
+		throw new IllegalStateException("Feature not supported!");
 	}
 }

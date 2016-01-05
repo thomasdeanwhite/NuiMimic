@@ -1,7 +1,5 @@
 package com.sheffield.instrumenter;
 
-import java.lang.reflect.Method;
-
 public class Properties {
 	public static String DIRECTORY = "H:\\data\\leapmotion";
 
@@ -12,6 +10,8 @@ public class Properties {
 
 	public static int SWITCH_TIME = 2000;
 
+	public static long DELAY_TIME = 100;
+
 	public static boolean SMOOTH_ANIMATION = true;
 
 	public static String SUT = null;
@@ -21,8 +21,6 @@ public class Properties {
 	public static String CLASS_PATH = "";
 
 	public static String LM_AGENT_JAR = "lm-agent.jar";
-
-	public static Method MAIN_METHOD = null;
 
 	public static boolean RECORDING = false;
 
