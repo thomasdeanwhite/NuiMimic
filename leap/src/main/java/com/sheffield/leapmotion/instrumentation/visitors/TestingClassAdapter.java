@@ -4,7 +4,7 @@ import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
-import com.sheffield.instrumenter.instrumentation.modifiers.BranchVisitor;
+import com.sheffield.instrumenter.instrumentation.modifiers.StaticBranchVisitor;
 import com.sheffield.leapmotion.instrumentation.modifiers.InstantiationVisitor;
 
 public class TestingClassAdapter extends ClassAdapter implements ClassVisitor {
@@ -26,7 +26,7 @@ public class TestingClassAdapter extends ClassAdapter implements ClassVisitor {
 			String[] exceptions) {
 		// MethodNode mn = new MethodNode(access, name, descriptor, signature,
 		// exceptions);
-		return new BranchVisitor(
+		return new StaticBranchVisitor(
 				new InstantiationVisitor(super.visitMethod(access, name, descriptor, signature, exceptions), className),
 				className, name);
 	}
