@@ -1,7 +1,33 @@
 package com.sheffield.instrumenter;
 
-public class Properties {
-	public static String DIRECTORY = "C:\\data\\leap-motion";
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class Properties implements PropertySource {
+	private Properties() {
+		reflectMap();
+	}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.FIELD)
+	public @interface Parameter {
+		String key();
+
+		String group()
+
+		default "Experimental";
+
+		String description();
+	}
+
+	public static String DIRECTORY = "H:\\data\\leapmotion";
 
 	public static String PLAYBACK_FILE = null;
 
@@ -31,6 +57,13 @@ public class Properties {
 	}
 
 	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATIC_DISTANCE;
+
+	public enum InstrumentationApproach {
+		STATIC, ARRAY
+	}
+
+	@Parameter(key = "instrumentation_approach", description = "Determines the approach to be used during class instrumentation. A static approach inserts calls to ClassAnalyzer.lineFound etc to track which lines/branches have been covered. Using an array stores all line/branch executions in an array of integers and has a method to get all the values")
+	public static InstrumentationApproach INSTRUMENTATION_APPROACH = InstrumentationApproach.ARRAY;
 
 	public static int MAX_LOADED_FRAMES = 10;
 
@@ -72,4 +105,71 @@ public class Properties {
 
 	public static boolean REPLACE_FINGERS_METHOD = true;
 
+	@Parameter(key = "write_class", description = "flag to determine whether or not to write classes. If set to true, the InstrumentingClassLoader will write out all classes to the value of BYTECODE_DIR")
+	public static boolean WRITE_CLASS = false;
+
+	@Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true")
+	public static String BYTECODE_DIR = System.getProperty("user.home") + "/.bytecode/";
+
+	private Map<String, Field> parameterMap = new HashMap<String, Field>();
+
+	private void reflectMap() {
+		for (Field field : Arrays.asList(Properties.class.getFields())) {
+			if (field.isAnnotationPresent(Parameter.class)) {
+				parameterMap.put(field.getAnnotation(Parameter.class).key(), field);
+			}
+		}
+	}
+
+	@Override
+	public boolean hasParameter(String name) {
+		return parameterMap.keySet().contains(name);
+	}
+
+	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void setParameter(String key, String value) throws IllegalArgumentException, IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new IllegalArgumentException(key + " was not found in the Properties class");
+		}
+		Field f = parameterMap.get(key);
+		Class<?> cl = f.getType();
+		if (cl.isAssignableFrom(Number.class) || cl.isPrimitive()) {
+			if (cl.equals(Long.class) || cl.equals(long.class)) {
+				Long l = Long.parseLong(value);
+				f.setLong(null, l);
+			} else if (cl.equals(Double.class) || cl.equals(double.class)) {
+				Double d = Double.parseDouble(value);
+				f.setDouble(null, d);
+			} else if (cl.equals(Float.class) || cl.equals(float.class)) {
+				Float fl = Float.parseFloat(value);
+				f.setFloat(null, fl);
+			} else if (cl.equals(Integer.class) || cl.equals(int.class)) {
+				Integer in = Integer.parseInt(value);
+				f.setInt(null, in);
+			} else if (cl.equals(Boolean.class) || cl.equals(boolean.class)) {
+				Boolean bl = Boolean.parseBoolean(value);
+				f.setBoolean(null, bl);
+			}
+		} else if (cl.isAssignableFrom(String.class)) {
+			f.set(null, value);
+		}
+		if (f.getType().isEnum()) {
+			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
+		}
+	}
+
+	@Override
+	public Set<String> getParameterNames() {
+		return parameterMap.keySet();
+	}
+
+	private static Properties instance;
+
+	public static Properties instance() {
+		if (instance == null) {
+			instance = new Properties();
+		}
+		return instance;
+	}
 }

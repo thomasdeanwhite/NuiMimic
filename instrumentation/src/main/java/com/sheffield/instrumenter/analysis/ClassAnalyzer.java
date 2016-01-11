@@ -1,18 +1,20 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class ClassAnalyzer {
 
@@ -21,6 +23,10 @@ public class ClassAnalyzer {
 	private static ArrayList<String> branchesToCover;
 
 	public static PrintStream out = System.out;
+
+	private static Map<String, List<Integer>> linesExecuted;
+
+	private static Map<String, List<Integer>> linesTotal;
 
 	private static ArrayList<String> branchesExecuted;
 
@@ -61,6 +67,8 @@ public class ClassAnalyzer {
 
 		branchTypes = new HashMap<String, BranchType>();
 		branchDistance = new HashMap<String, Float>();
+		linesTotal = new HashMap<String, List<Integer>>();
+		linesExecuted = new HashMap<String, List<Integer>>();
 		distancesWaiting = new ArrayList<String>();
 
 		callFrequencies = new HashMap<String, Integer>();
@@ -120,12 +128,12 @@ public class ClassAnalyzer {
 
 	public static synchronized void branchExecuted(boolean hit, String branch) {
 		if (hit && !branchesPositiveExecuted.contains(branch)) {
-			//out.println(branch + "[" + hit + "]");
+			// out.println(branch + "[" + hit + "]");
 			branchesPositiveExecuted.add(branch);
 		}
 
 		if (!hit && !branchesNegativeExecuted.contains(branch)) {
-			//out.println(branch + "[" + hit + "]");
+			// out.println(branch + "[" + hit + "]");
 			branchesNegativeExecuted.add(branch);
 		}
 
@@ -244,6 +252,35 @@ public class ClassAnalyzer {
 
 	public static synchronized List<String> getBranchesExecuted() {
 		return branchesExecuted;
+	}
+
+	public static void lineFound(String className, int lineNumber) {
+		if (!linesTotal.containsKey(className)) {
+			linesTotal.put(className, new ArrayList<Integer>());
+		}
+		linesTotal.get(className).add(lineNumber);
+	}
+
+	public static void lineExecuted(String className, int lineNumber) {
+		if (!linesExecuted.containsKey(className)) {
+			linesExecuted.put(className, new ArrayList<Integer>());
+		}
+		linesExecuted.get(className).add(lineNumber);
+	}
+
+	public static double lineCoverage() {
+		int totalLines = 0;
+		int coveredLines = 0;
+		String className = "";
+		for (Iterator<String> it = linesTotal.keySet().iterator(); it.hasNext();) {
+			className = it.next();
+			totalLines += linesTotal.get(className).size();
+			if (linesExecuted.containsKey(className)) {
+				coveredLines += linesExecuted.get(className).size();
+			}
+
+		}
+		return coveredLines / (double) totalLines;
 	}
 
 	public static String getReport() {
