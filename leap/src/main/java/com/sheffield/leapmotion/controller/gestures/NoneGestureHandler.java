@@ -1,12 +1,11 @@
 package com.sheffield.leapmotion.controller.gestures;
 
 import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.Gesture.State;
 import com.leapmotion.leap.Gesture.Type;
 import com.leapmotion.leap.GestureList;
+import com.leapmotion.leap.Vector;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 public class NoneGestureHandler implements GestureHandler {
@@ -19,7 +18,8 @@ public class NoneGestureHandler implements GestureHandler {
 	protected long gestureStart;
 	protected int gestureDuration;
 	protected int gestureId = 0;
-	protected ArrayList<Gesture> gestures = new ArrayList<Gesture>();
+	protected Vector cumalitiveGesturePositions = Vector.zero();
+	protected int gestureCount = 0;
 	
 	//gesture time limit (3 seconds)[in nanoseconds]
 	public static final int GESTURE_TIME_LIMIT = 3 * 1000;
@@ -54,7 +54,8 @@ public class NoneGestureHandler implements GestureHandler {
 			//default duration should be > 0 according to docs
 			gestureDuration = 3;
 			gestureId++;
-			gestures.clear();
+			cumalitiveGesturePositions = Vector.zero();
+			gestureCount = 0;
 		} else {
 			if (gestureState == State.STATE_UPDATE){
 				long chance = random.nextInt(gestureDuration);

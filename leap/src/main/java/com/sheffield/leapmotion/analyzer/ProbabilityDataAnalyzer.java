@@ -53,18 +53,20 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 		}
 
 		double r = Math.random();
-
-		for (SequenceSimilarity s : seqs) {
-			float probability = s.probability;
-			// if (sequence.contains(s)) {
-			// probability /= s.freq / 3;
-			// }
-			if (r < probability) {
-				newValue = s;
-				break;
+		// Apply additive smoothing: if r < n then select another candidate
+		if (r < 1.0f - (ngramCandidates.size()/((float) totals.get(key) + ngramCandidates.size()))){
+			r = Math.random();
+			for (SequenceSimilarity s : seqs) {
+				float probability = s.probability;
+				if (r < probability) {
+					newValue = s;
+					break;
+				}
+				r -= s.probability;
 			}
-			r -= s.probability;
 		}
+
+		// if newValue == null, either no sequence exists (sparse) or additive smoothing in action
 		if (newValue == null) {
 			String newHand = getBackupSequence();
 			sequence.add(newHand);
@@ -76,15 +78,8 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 	}
 
 	public String getBackupSequence() {
-		int number = random.nextInt(map.keySet().size());
-		for (String s : map.keySet()){
-			if (number <= 0){
-				String s1 = s.split(" ")[0];
-				return s1;
-			}
-			number--;
-		}
-		return "";
+		int number = random.nextInt(ngramCandidates.size());
+		return ngramCandidates.get(number);
 	}
 
 }

@@ -7,33 +7,19 @@ import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHandList;
 
-import java.util.ArrayList;
-
 public class Serializer {
 	private static Gson GSON = new Gson();
 
-	public static String sequenceToJson(ArrayList<Frame> frames) {
-		byte[][] list = new byte[frames.size()][];
-
-		for (int i = 0; i < frames.size(); i++) {
-			byte[] b = frames.get(i).serialize();
-			list[i] = b;
-		}
-
-		String content = GSON.toJson(list);
+	public static String sequenceToJson(Frame frame) {
+		String content = GSON.toJson(frame.serialize());
 		return content;
 	}
 
-	public static ArrayList<Frame> sequenceFromJson(String json) {
-		byte[][] rawFrames = GSON.fromJson(json, byte[][].class);
-		ArrayList<Frame> frames = new ArrayList<Frame>();
-		for (int i = 0; i < rawFrames.length; i++) {
-			byte[] rawFrame = rawFrames[i];
-			Frame frame = new Frame();
-			frame.deserialize(rawFrame);
-			frames.add(frame);
-		}
-		return frames;
+	public static Frame sequenceFromJson(String json) {
+		byte[] rawFrames = GSON.fromJson(json, byte[].class);
+		Frame f = new Frame();
+		f.deserialize(rawFrames);
+		return f;
 	}
 
 	public static Frame fromJson(Frame currentFrame, String frame) {

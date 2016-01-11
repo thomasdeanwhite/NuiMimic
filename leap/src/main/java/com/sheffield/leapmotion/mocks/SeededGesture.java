@@ -9,7 +9,9 @@ public class SeededGesture extends Gesture implements Serializable {
 
 	public static CircleGesture getCircleGesture(Gesture g){
 		if (g instanceof SeededGesture){
-			return ((SeededGesture) g).getCircleGesture();
+            CircleGesture cg = ((SeededGesture) g).getCircleGesture();
+            cg.center();
+			return cg;
 		}
 		return new CircleGesture(g);
 	}
@@ -20,7 +22,7 @@ public class SeededGesture extends Gesture implements Serializable {
 	protected Frame frame;
 	protected int duration;
 	protected int id = 0;
-	protected SeededCircleGesture circleGesture;
+	protected CircleGesture circleGesture;
 
 	public SeededGesture(Type gestureType, State gestureState, Frame frame, int duration, int id) {
 		type = gestureType;
@@ -28,9 +30,10 @@ public class SeededGesture extends Gesture implements Serializable {
 		this.frame = frame;
 		this.duration = duration;
 		this.id = id;
+		circleGesture = new CircleGesture();
 	}
 
-	public SeededCircleGesture getCircleGesture(){
+	public CircleGesture getCircleGesture(){
 		return circleGesture;
 	}
 

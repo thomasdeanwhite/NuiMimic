@@ -1,19 +1,14 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.instrument.IllegalClassFormatException;
-import java.util.ArrayList;
-
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import com.sheffield.instrumenter.Properties;
+import java.io.*;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.ArrayList;
 
 public class ClassReplacementTransformer {
 
@@ -75,12 +70,9 @@ public class ClassReplacementTransformer {
 			fos.write(newClass);
 			fos.close();
 			return newClass;
-		} catch (NoClassDefFoundError e) {
-			// e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace(ClassAnalyzer.out);
+			System.exit(2);
 		}
 		return cBytes;
 

@@ -1,16 +1,16 @@
 package com.sheffield.instrumenter;
 
 public class Properties {
-	public static String DIRECTORY = "H:\\data\\leapmotion";
+	public static String DIRECTORY = "C:\\data\\leap-motion";
 
 	public static String PLAYBACK_FILE = null;
 
 	// Number of times to change frames per second
 	public static long SWITCH_RATE = 100;
 
-	public static int SWITCH_TIME = 2000;
+	public static int SWITCH_TIME = 500;
 
-	public static long DELAY_TIME = 100;
+	public static long DELAY_TIME = 2000;
 
 	public static boolean SMOOTH_ANIMATION = true;
 
@@ -34,7 +34,7 @@ public class Properties {
 
 	public static int MAX_LOADED_FRAMES = 10;
 
-	public static long RUNTIME = 120000;
+	public static long RUNTIME = 600000;
 
 	public static long BACKGROUND_FRAMES = 20;
 
@@ -50,7 +50,7 @@ public class Properties {
 
 	public static String NGRAM_TYPE = "50-2";
 
-	public static String[] GESTURE_FILES = {"processed/asl-" + NGRAM_TYPE,
+	public static String[] GESTURE_FILES = {"processed/gor-" + NGRAM_TYPE,
 //			"processed/bigcircle-25-2",
 //			"processed/circle-25-2",
 //			"processed/keytap-25-2",
@@ -68,6 +68,8 @@ public class Properties {
 
 	public static long TIMEOUT = 0;
 
-	public static boolean SEQUENCE = false;
+	public static boolean SEQUENCE = true;
+
+	public static boolean REPLACE_FINGERS_METHOD = true;
 
 }
