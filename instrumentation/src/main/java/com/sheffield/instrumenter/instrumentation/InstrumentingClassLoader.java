@@ -57,7 +57,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		if (instances.containsKey(name)) {
+		if (ClassStore.get(name) != null) {
 			return instances.get(name);
 		}
 		if ("".equals(name)) {
@@ -79,7 +79,6 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
 					? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
-
 			Class<?> cl = defineClass(name, bytes, 0, bytes.length);
 			if (Properties.WRITE_CLASS) {
 				File folder = new File(Properties.BYTECODE_DIR);
@@ -92,7 +91,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 				outFile.close();
 			}
 
-			instances.put(name, cl);
+			ClassStore.put(name, cl);
 			if (resolve) {
 				resolveClass(cl);
 			}

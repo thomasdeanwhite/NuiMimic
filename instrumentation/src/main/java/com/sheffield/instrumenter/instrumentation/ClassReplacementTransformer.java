@@ -61,7 +61,7 @@ public class ClassReplacementTransformer {
 			try {
 				ClassReader cr = new ClassReader(ins);
 
-				cr.accept(cv, 0);
+				cr.accept(cv, ClassReader.EXPAND_FRAMES);
 
 				newClass = cw.toByteArray();
 			} catch (IOException e) {
