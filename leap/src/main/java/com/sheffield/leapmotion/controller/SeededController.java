@@ -38,7 +38,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 
 	private static ArrayList<Listener> listeners;
 	private static FrameHandler frameHandler;
-	private boolean frameRequested = false;
+	private boolean frameRequested = true;
 
 	public SeededController() {
 		super();
@@ -61,6 +61,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		CONTROLLER = this;
 	}
 
+	@Override
 	public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
 		for (int i = 0; i < listeners.size(); i++) {
 			listeners.get(i).onFrame(this);
@@ -68,12 +69,12 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	}
 
 	public void tick() {
-		if (!Properties.RECORDING && frameRequested) {
-			frameRequested = false;
+		if (frameHandler != null){
+			//if (frameRequested) {
+				frameHandler.loadNewFrame();
+			//}
 		}
-		if (frameHandler != null) {
-			frameHandler.loadNewFrame();
-		}
+		frameRequested = false;
 	}
 
 	@Override
@@ -97,7 +98,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	@Override
 	public Frame frame() {
 		App.getApp().setStatus(AppStatus.TESTING);
-		frameRequested = true;
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
 		}
@@ -112,6 +112,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	@Override
 	public Frame frame(int arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
+		frameRequested = true;
 		if (Properties.RECORDING) {
 			final Frame f = super.frame(arg0);
 			new Thread(new Runnable() {

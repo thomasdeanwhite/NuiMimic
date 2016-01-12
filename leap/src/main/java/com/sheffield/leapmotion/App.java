@@ -211,6 +211,10 @@ public class App implements ThrowableListener {
                 .withDescription("max frames to retain in memory for Controller.frame(i)").hasArg()
                 .withArgName("maxLoadedFrames").create("maxLoadedFrames"));
 
+        options.addOption(OptionBuilder.withLongOpt("delayTime")
+                .withDescription("Time to wait before seeding (ms)").hasArg()
+                .withArgName("delayTime").create("delayTime"));
+
         options.addOption(OptionBuilder.withLongOpt("backgroundFrames")
                 .withDescription("max frames loaded in memory to use for selecting the next frame").hasArg()
                 .withArgName("backgroundFrames").create("backgroundFrames"));
@@ -222,6 +226,10 @@ public class App implements ThrowableListener {
         options.addOption(OptionBuilder.withLongOpt("recording")
                 .withDescription("Used when a pre-sequence of data should be recorded and played back.")
                 .create("recording"));
+
+        options.addOption(OptionBuilder.withLongOpt("replace_fingers_method")
+                .withDescription("If using an older API, the Hand.fingers() method returns only extended fingers. If so use this flag.")
+                .create("replace_fingers_method"));
 
         options.addOption(OptionBuilder.withLongOpt("delayLibrary")
                 .withDescription("Use if getting a Library Already Loaded error.")
@@ -264,6 +272,8 @@ public class App implements ThrowableListener {
                     Properties.MAX_LOADED_FRAMES = Integer.parseInt(o.getValue());
                 } else if (o.getArgName().equals("backgroundFrames")) {
                     Properties.BACKGROUND_FRAMES = Long.parseLong(o.getValue());
+                } else if (o.getArgName().equals("delayTime")) {
+                        Properties.DELAY_TIME = Long.parseLong(o.getValue());
                 } else if (o.getArgName().equals("playback")) {
                     Properties.PLAYBACK_FILE = o.getValue();
                 } else if (o.getArgName().equals("branches")) {
@@ -310,6 +320,11 @@ public class App implements ThrowableListener {
             if (cmd.hasOption("recording")) {
                 App.out.println("- Recording mode activated.");
                 Properties.RECORDING = true;
+            }
+
+            if (cmd.hasOption("replace_fingers_method")) {
+                App.out.println("- Replacing calls to Hand.fingers() with Hand.fingers().extended()");
+                Properties.REPLACE_FINGERS_METHOD = true;
             }
 
             if (cmd.hasOption("delayLibrary")) {

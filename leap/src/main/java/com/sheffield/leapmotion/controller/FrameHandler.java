@@ -85,7 +85,7 @@ public class FrameHandler {
 
     public Frame getFrame(int i) {
         Frame frame = null;
-        if (i < frames.size()) {
+        if (i < frames.size() && i >= 0) {
             frame = frames.get(i);
         } else {
             frame = Frame.invalid();
@@ -96,7 +96,14 @@ public class FrameHandler {
 
     public void loadNewFrame() {
         Frame frame = frameSelector.newFrame();
-        if (!(frameSelector instanceof UserPlaybackFrameSelector)) {
+        if (frameSelector instanceof UserPlaybackFrameSelector) {
+            UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
+            if (upfs.finished()){
+                frameSelector = upfs.getBackupFrameSelector();
+                loadNewFrame();
+                return;
+            }
+        } else {
             frame = new SeededFrame(frame);
             SeededFrame sf = (SeededFrame) frame;
             GestureList gl = null;
@@ -117,9 +124,18 @@ public class FrameHandler {
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {
             frames.remove(frames.size() - 1);
         }
+        final Frame last = getFrame(1);
+        final Frame next = frame;
         for (FrameSwitchListener fsl : frameSwitchListeners) {
-            fsl.onFrameSwitch(getFrame(1), frame);
-        }
+            final FrameSwitchListener fl = fsl;
 
+            new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    fl.onFrameSwitch(last, next);
+                }
+            }).start();
+        }
     }
 }

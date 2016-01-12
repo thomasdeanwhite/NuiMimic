@@ -2,16 +2,15 @@ package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededHand;
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.leapmotion.controller.SeededController;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class NGramFrameSelector extends FrameSelector {
@@ -48,7 +47,7 @@ public class NGramFrameSelector extends FrameSelector {
 			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".handdata";
 			analyzer = new AnalyzerApp(sequenceFile);
 			analyzer.analyze();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace(App.out);
 		}

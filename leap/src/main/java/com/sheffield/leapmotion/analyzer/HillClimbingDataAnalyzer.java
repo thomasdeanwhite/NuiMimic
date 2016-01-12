@@ -7,6 +7,8 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 	protected HashMap<String, ArrayList<SequenceSimilarity>> map;
 	protected int ngramSize = 0;
+	protected HashMap<String, Integer> totals;
+	protected ArrayList<String> ngramCandidates;
 
 	public class SequenceSimilarity {
 		public String sequence;
@@ -26,6 +28,8 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 	public HillClimbingDataAnalyzer() {
 		map = new HashMap<String, ArrayList<SequenceSimilarity>>();
+		totals = new HashMap<String, Integer>();
+		ngramCandidates = new ArrayList<String>();
 	}
 
 
@@ -74,6 +78,9 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 				if (!exists) {
 					seqs.add(new SequenceSimilarity(seq, freq));
+					if (!ngramCandidates.contains(seq)){
+						ngramCandidates.add(seq);
+					}
 				}
 				total += freq;
 			}
@@ -83,6 +90,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 				// " " + ss.probability);
 			}
 			map.put(d[0], seqs);
+			totals.put(d[0], (int)total);
 		}
 
 	}
