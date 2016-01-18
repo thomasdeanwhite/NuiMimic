@@ -110,6 +110,7 @@ public class StaticBranchVisitor extends MethodAdapter {
 			case Opcodes.IF_ACMPNE:
 			case Opcodes.IFNONNULL:
 			case Opcodes.IFNULL:
+				
 				if (lookNext) {
 					if (opcode == Opcodes.IF_ICMPEQ || opcode == Opcodes.IFEQ) {
 						bt = BranchType.BRANCH_E;

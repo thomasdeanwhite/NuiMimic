@@ -26,6 +26,7 @@ public class ArrayApproachClassVisitor extends ClassAdapter {
 	public static final String RESET_COUNTER_METHOD_DESC = "()V";
 	public static final String INIT_METHOD_NAME = "__instrumentationInit";
 	public static final String INIT_METHOD_DESC = "()V";
+	private int access;
 	private AtomicInteger counter = new AtomicInteger(0);
 	private List<BranchHit> branchHitCounterIds = new ArrayList<BranchHit>();
 	private List<LineHit> lineHitCounterIds = new ArrayList<LineHit>();
@@ -44,15 +45,18 @@ public class ArrayApproachClassVisitor extends ClassAdapter {
 
 	public ArrayApproachClassVisitor(ClassVisitor mv, String className) {
 		super(mv);
-		this.className = className;
+		this.className = className.replace('.', '/');
 	}
 
 	@Override
-	public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-		super.visit(arg0, arg1, arg2, arg3, arg4, arg5);
-		FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
-				COUNTER_VARIABLE_DESC, null, null);
-		fv.visitEnd();
+	public void visit(int arg0, int access, String arg2, String arg3, String arg4, String[] arg5) {
+		super.visit(arg0, access, arg2, arg3, arg4, arg5);
+		this.access = access;
+		if ((access & Opcodes.ACC_INTERFACE) == 0) {
+			FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
+					COUNTER_VARIABLE_DESC, null, null);
+			fv.visitEnd();
+		}
 	}
 
 	@Override
@@ -68,10 +72,12 @@ public class ArrayApproachClassVisitor extends ClassAdapter {
 	@Override
 	public void visitEnd() {
 		// create visits to our own methods to collect hits
-		addGetCounterMethod(cv);
-		addResetCounterMethod(cv);
-		addInitMethod(cv);
-		ClassAnalyzer.classAnalyzed(className, branchHitCounterIds, lineHitCounterIds);
+		if ((access & Opcodes.ACC_INTERFACE) == 0) {
+			addGetCounterMethod(cv);
+			addResetCounterMethod(cv);
+			addInitMethod(cv);
+			ClassAnalyzer.classAnalyzed(className, branchHitCounterIds, lineHitCounterIds);
+		}
 		super.visitEnd();
 	}
 

@@ -1,14 +1,17 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.ArrayList;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.*;
-import java.lang.instrument.IllegalClassFormatException;
-import java.util.ArrayList;
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 
 public class ClassReplacementTransformer {
 
@@ -62,19 +65,20 @@ public class ClassReplacementTransformer {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			File file = new File("classes/" + cName + ".class");
-			file.getParentFile().mkdirs();
-			file.createNewFile();
-			// App.out.println("- Writing new class " + file.getAbsolutePath());
-			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-			fos.write(newClass);
-			fos.close();
+//			File file = new File("classes/" + cName + ".class");
+//			file.getParentFile().mkdirs();
+//			file.createNewFile();
+//			// App.out.println("- Writing new class " + file.getAbsolutePath());
+//			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+//			fos.write(newClass);
+//			fos.close();
 			return newClass;
 		} catch (Exception e) {
 			e.printStackTrace(ClassAnalyzer.out);
-			System.exit(2);
+			return cw.toByteArray();
+			//System.exit(2);
 		}
-		return cBytes;
+//		return cBytes;
 
 	}
 

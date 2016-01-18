@@ -61,7 +61,7 @@ public class ArrayBranchVisitor extends MethodAdapter {
 				visitLdcInsn(trueCounter);
 				visitInsn(Opcodes.DUP2);
 				visitInsn(Opcodes.IALOAD);
-				visitLdcInsn(1);
+				visitInsn(Opcodes.ICONST_1);
 				visitInsn(Opcodes.IADD);
 				visitInsn(Opcodes.IASTORE);
 				mv.visitJumpInsn(Opcodes.GOTO, l2);
@@ -71,7 +71,7 @@ public class ArrayBranchVisitor extends MethodAdapter {
 				visitLdcInsn(falseCounter);
 				visitInsn(Opcodes.DUP2);
 				visitInsn(Opcodes.IALOAD);
-				visitLdcInsn(1);
+				visitInsn(Opcodes.ICONST_1);
 				visitInsn(Opcodes.IADD);
 				visitInsn(Opcodes.IASTORE);
 				mv.visitJumpInsn(Opcodes.GOTO, label);
@@ -93,7 +93,7 @@ public class ArrayBranchVisitor extends MethodAdapter {
 		visitLdcInsn(counterId);
 		visitInsn(Opcodes.DUP2);
 		visitInsn(Opcodes.IALOAD);
-		visitLdcInsn(1);
+		visitInsn(Opcodes.ICONST_1);
 		visitInsn(Opcodes.IADD);
 		visitInsn(Opcodes.IASTORE);
 		super.visitLineNumber(lineNumber, label);
