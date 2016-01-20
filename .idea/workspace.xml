@@ -2,20 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17190a71-dd8a-460d-867a-0c0b041b1145" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/PropertySource.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/ArrayBranchVisitor.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/StaticBranchVisitor.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/visitors/ArrayApproachClassVisitor.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/visitors/StaticApproachClassVisitor.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" afterPath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" afterPath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/target/classes/META-INF/maven/com.sheffield/common/pom.properties" afterPath="$PROJECT_DIR$/common/target/classes/META-INF/maven/com.sheffield/common/pom.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/target/classes/META-INF/maven/com.sheffield/instrumentation/pom.properties" afterPath="$PROJECT_DIR$/instrumentation/target/classes/META-INF/maven/com.sheffield/instrumentation/pom.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/instrumentation/visitors/TestingClassAdapter.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/instrumentation/visitors/TestingClassAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/target/classes/META-INF/maven/com.sheffield/leap/pom.properties" afterPath="$PROJECT_DIR$/leap/target/classes/META-INF/maven/com.sheffield/leap/pom.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/src/main/java/com/sheffield/leapmotion/sampler/FileHandler.java" afterPath="$PROJECT_DIR$/common/src/main/java/com/sheffield/leapmotion/sampler/FileHandler.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
     </list>
     <ignored path="leapmotion-tester.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -43,52 +36,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="RandomGestureHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/gestures/RandomGestureHandler.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-10.071428">
-              <caret line="47" column="5" selection-start-line="47" selection-start-column="5" selection-end-line="47" selection-end-column="5" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RandomFrameSelector.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/RandomFrameSelector.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-7.137931">
-              <caret line="35" column="38" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SeededGesture.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededGesture.java">
+      <file leaf-file-name="SeededController.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/SeededController.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="28" column="29" selection-start-line="28" selection-start-column="29" selection-end-line="28" selection-end-column="29" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SeededFinger.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.660714">
-              <caret line="192" column="13" selection-start-line="192" selection-start-column="13" selection-end-line="192" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SeededHand.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededHand.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="68" column="37" selection-start-line="68" selection-start-column="37" selection-end-line="68" selection-end-column="37" />
-              <folding />
+              <caret line="81" column="50" selection-start-line="81" selection-start-column="50" selection-end-line="81" selection-end-column="50" />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#919#920#0" expanded="false" />
+                <element signature="e#954#955#0" expanded="false" />
+                <element signature="e#3106#3107#0" expanded="false" />
+                <element signature="e#3147#3148#0" expanded="false" />
+                <element signature="e#3915#3916#0" expanded="false" />
+                <element signature="e#3942#3943#0" expanded="false" />
+                <element signature="e#3989#3990#0" expanded="false" />
+                <element signature="e#4007#4008#0" expanded="false" />
+                <element signature="e#4275#4276#0" expanded="false" />
+                <element signature="e#4293#4294#0" expanded="false" />
+                <element signature="e#4344#4345#0" expanded="false" />
+                <element signature="e#4362#4363#0" expanded="false" />
+                <element signature="e#4403#4404#0" expanded="false" />
+                <element signature="e#4421#4422#0" expanded="false" />
+                <element signature="e#5219#5220#0" expanded="false" />
+                <element signature="e#5248#5249#0" expanded="false" />
+                <element signature="e#5906#5907#0" expanded="false" />
+                <element signature="e#5946#5947#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -96,31 +69,9 @@
       <file leaf-file-name="HandFactory.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/HandFactory.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-10.068966">
-              <caret line="79" column="28" selection-start-line="79" selection-start-column="28" selection-end-line="79" selection-end-column="28" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="FrameHandler.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/FrameHandler.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-13.0">
-              <caret line="114" column="13" selection-start-line="114" selection-start-column="13" selection-end-line="114" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SeededController.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/SeededController.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-7.482143">
-              <caret line="81" column="50" selection-start-line="81" selection-start-column="50" selection-end-line="81" selection-end-column="50" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -128,17 +79,61 @@
       <file leaf-file-name="Properties.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-0.02425107">
-              <caret line="29" column="60" selection-start-line="29" selection-start-column="60" selection-end-line="29" selection-end-column="60" />
+            <state vertical-scroll-proportion="0.43452382">
+              <caret line="103" column="42" selection-start-line="103" selection-start-column="42" selection-end-line="103" selection-end-column="42" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#400#401#0" expanded="true" />
-                <element signature="e#419#420#0" expanded="true" />
-                <element signature="e#3435#3450#0" expanded="true" />
-                <element signature="e#3809#3855#0" expanded="true" />
-                <element signature="e#5134#5135#0" expanded="true" />
-                <element signature="e#5169#5170#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="NGramFrameSelector.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-13.222222">
+              <caret line="32" column="0" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ClassReplacementTransformer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="91" column="44" selection-start-line="91" selection-start-column="44" selection-end-line="91" selection-end-column="44" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InstrumentingClassLoader.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="NGramFrameModifier.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="103" column="41" selection-start-line="103" selection-start-column="41" selection-end-line="103" selection-end-column="41" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SamplerApp.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-9.379311">
+              <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -146,9 +141,11 @@
       <file leaf-file-name="StaticDistanceFrameSelector.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/StaticDistanceFrameSelector.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-11.24138">
+            <state vertical-scroll-proportion="0.0">
               <caret line="43" column="13" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -173,8 +170,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/frameselectors/RandomDistanceFrameSelector.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/frameselectors/AdaptiveRandomDistanceFrameSelector.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/tester/instrumentation/visitors/TestingClassAdapter.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/sheffield/leapmotion/display/DisplayWindow.java" />
@@ -204,7 +199,6 @@
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededGestureList.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededPointableList.java" />
-        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ThrowableListener.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/gestures/NoneGestureHandler.java" />
@@ -216,14 +210,17 @@
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/Serializer.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/UserPlaybackFrameSelector.java" />
-        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededCircleGesture.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/FrameHandler.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/SeededController.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededHand.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/gestures/RandomGestureHandler.java" />
+        <option value="$PROJECT_DIR$/common/src/main/java/com/sheffield/leapmotion/sampler/FileHandler.java" />
         <option value="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" />
+        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java" />
+        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java" />
+        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
       </list>
     </option>
   </component>
@@ -291,8 +288,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -608,6 +605,84 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="instrumentation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="leapmotion-tester" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="leapmotion-tester" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="instrumentation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="instrumenter" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="leapmotion-tester" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="leapmotion-tester" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="instrumentation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="instrumenter" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="instrumentation" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="leapmotion-tester" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="leapmotion-tester" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="common" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
@@ -705,7 +780,7 @@
       <recent name="C:\Users\thomas\IdeaProjects\leapmotion-tester\leapmotion-webbrowser\src\main\java" />
     </key>
   </component>
-  <component name="RunManager" selected="JAR Application.Gorogoa">
+  <component name="RunManager" selected="Application.SamplerApp">
     <configuration default="false" name="SamplerApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
         <pattern>
@@ -766,6 +841,26 @@
       <envs />
       <method />
     </configuration>
+    <configuration default="false" name="SamplerApp (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="com.sheffield.leapmotion.sampler.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="com.sheffield.leapmotion.sampler.SamplerApp" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="leap" />
+      <envs />
+      <method />
+    </configuration>
     <configuration default="false" name="All in leapmotion-tester" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
       <module name="leapmotion-tester" />
@@ -785,26 +880,6 @@
       </option>
       <envs />
       <patterns />
-      <method />
-    </configuration>
-    <configuration default="false" name="SamplerApp (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
-        <pattern>
-          <option name="PATTERN" value="com.sheffield.leapmotion.sampler.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="MAIN_CLASS_NAME" value="com.sheffield.leapmotion.sampler.SamplerApp" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="ENABLE_SWING_INSPECTOR" value="false" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <module name="leap" />
-      <envs />
       <method />
     </configuration>
     <configuration default="true" type="#org.jetbrains.idea.devkit.run.PluginConfigurationType" factoryName="Plugin">
@@ -1306,8 +1381,8 @@
     </configuration>
     <configuration default="false" name="ASLDigits" type="JarApplication" factoryName="JAR Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="JAR_PATH" value="H:/Apps/ASLDigits/bin/Launcher.jar" />
-      <option name="WORKING_DIRECTORY" value="H:\Apps\ASLDigits\" />
+      <option name="JAR_PATH" value="C:/Apps/ASLDigits/bin/Launcher.jar" />
+      <option name="WORKING_DIRECTORY" value="C:\Apps\ASLDigits\" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <envs />
       <method>
@@ -1316,9 +1391,9 @@
     </configuration>
     <configuration default="false" name="Gorogoa" type="JarApplication" factoryName="JAR Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="JAR_PATH" value="H:/Apps/GorogoaPuzzle/run/Gorogoa.jar" />
+      <option name="JAR_PATH" value="C:/Apps/GorogoaPuzzle/run/Gorogoa.jar" />
       <option name="VM_PARAMETERS" value="-Xmx1024M" />
-      <option name="WORKING_DIRECTORY" value="H:\Apps\GorogoaPuzzle\run" />
+      <option name="WORKING_DIRECTORY" value="C:\Apps\GorogoaPuzzle\run" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <envs />
       <method>
@@ -1327,10 +1402,10 @@
     </configuration>
     <configuration default="false" name="Polydrop" type="JarApplication" factoryName="JAR Application">
       <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-      <option name="JAR_PATH" value="H:/Apps/PolyDrop/PolyDrop.jar" />
+      <option name="JAR_PATH" value="C:/Apps/PolyDrop/PolyDrop.jar" />
       <option name="VM_PARAMETERS" value="-Xmx1024M" />
       <option name="PROGRAM_PARAMETERS" value="--windowed" />
-      <option name="WORKING_DIRECTORY" value="H:\Apps\PolyDrop" />
+      <option name="WORKING_DIRECTORY" value="C:\Apps\PolyDrop" />
       <option name="ALTERNATIVE_JRE_PATH" />
       <envs />
       <method>
@@ -1372,14 +1447,14 @@
       <item index="7" class="java.lang.String" itemvalue="Application.SamplerApp" />
       <item index="8" class="java.lang.String" itemvalue="Application.App" />
       <item index="9" class="java.lang.String" itemvalue="Application.AnalyzerApp" />
-      <item index="10" class="java.lang.String" itemvalue="JUnit.All in leapmotion-tester" />
-      <item index="11" class="java.lang.String" itemvalue="Application.SamplerApp (1)" />
+      <item index="10" class="java.lang.String" itemvalue="Application.SamplerApp (1)" />
+      <item index="11" class="java.lang.String" itemvalue="JUnit.All in leapmotion-tester" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Application.SamplerApp (1)" />
-        <item index="1" class="java.lang.String" itemvalue="Application.App" />
-        <item index="2" class="java.lang.String" itemvalue="Application.SamplerApp" />
+        <item index="0" class="java.lang.String" itemvalue="Application.SamplerApp" />
+        <item index="1" class="java.lang.String" itemvalue="Application.SamplerApp (1)" />
+        <item index="2" class="java.lang.String" itemvalue="Application.App" />
         <item index="3" class="java.lang.String" itemvalue="Application.AnalyzerApp" />
         <item index="4" class="java.lang.String" itemvalue="JUnit.All in leapmotion-tester" />
       </list>
@@ -1418,12 +1493,17 @@
       <workItem from="1452073221130" duration="20181000" />
       <workItem from="1452250179024" duration="670000" />
       <workItem from="1452275419834" duration="697000" />
-      <workItem from="1452511275700" duration="12059000" />
+      <workItem from="1452511275700" duration="12103000" />
+      <workItem from="1452597044472" duration="1489000" />
+      <workItem from="1452598709368" duration="713000" />
+      <workItem from="1453119341866" duration="4307000" />
+      <workItem from="1453201471240" duration="6108000" />
+      <workItem from="1453294538624" duration="2863000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="207463000" />
+    <option name="totallyTimeSpent" value="222987000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
@@ -1445,7 +1525,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39842874" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39809927" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1500,7 +1580,7 @@
           <option name="timeStamp" value="10" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="11" />
+      <option name="time" value="18" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1509,13 +1589,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/instrumentation/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/BranchType.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1715,28 +1788,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="65" column="42" selection-start-line="65" selection-start-column="42" selection-end-line="65" selection-end-column="42" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/FileHandler.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="2" column="71" selection-start-line="2" selection-start-column="71" selection-end-line="2" selection-end-column="71" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/common/src/main/java/com/sheffield/leapmotion/sampler/FileHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="20" column="33" selection-start-line="20" selection-start-column="33" selection-end-line="20" selection-end-column="33" />
           <folding />
         </state>
       </provider>
@@ -1757,42 +1812,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-14.068966">
-          <caret line="228" column="31" selection-start-line="228" selection-start-column="31" selection-end-line="228" selection-end-column="31" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#985#986#0" expanded="true" />
-            <element signature="e#1014#1015#0" expanded="true" />
-            <element signature="e#1061#1062#0" expanded="true" />
-            <element signature="e#1097#1098#0" expanded="true" />
-            <element signature="e#7709#7710#0" expanded="true" />
-            <element signature="e#7752#7753#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-11.827586">
           <caret line="431" column="51" selection-start-line="431" selection-start-column="51" selection-end-line="431" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.724138">
-          <caret line="99" column="36" selection-start-line="99" selection-start-column="29" selection-end-line="99" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-10.655172">
-          <caret line="56" column="13" selection-start-line="56" selection-start-column="13" selection-end-line="56" selection-end-column="13" />
           <folding />
         </state>
       </provider>
@@ -1864,43 +1887,41 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/StaticDistanceFrameSelector.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-11.24138">
-          <caret line="43" column="13" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/RandomFrameSelector.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.137931">
+        <state vertical-scroll-proportion="0.0">
           <caret line="35" column="38" selection-start-line="35" selection-start-column="38" selection-end-line="35" selection-end-column="38" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/FrameHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-13.0">
+        <state vertical-scroll-proportion="0.0">
           <caret line="114" column="13" selection-start-line="114" selection-start-column="13" selection-end-line="114" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/HandFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-10.068966">
-          <caret line="79" column="28" selection-start-line="79" selection-start-column="28" selection-end-line="79" selection-end-column="28" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#2555#2556#0" expanded="false" />
+            <element signature="e#2593#2594#0" expanded="false" />
+            <element signature="e#2649#2650#0" expanded="false" />
+            <element signature="e#2684#2685#0" expanded="false" />
+            <element signature="e#2892#2893#0" expanded="false" />
+            <element signature="e#2926#2927#0" expanded="false" />
+            <element signature="e#4491#4492#0" expanded="false" />
+            <element signature="e#4559#4560#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.660714">
+        <state vertical-scroll-proportion="0.0">
           <caret line="192" column="13" selection-start-line="192" selection-start-column="13" selection-end-line="192" selection-end-column="13" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1914,34 +1935,122 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/gestures/RandomGestureHandler.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-10.071428">
+        <state vertical-scroll-proportion="0.0">
           <caret line="47" column="5" selection-start-line="47" selection-start-column="5" selection-end-line="47" selection-end-column="5" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/controller/SeededController.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-7.482143">
+        <state vertical-scroll-proportion="0.0">
           <caret line="81" column="50" selection-start-line="81" selection-start-column="50" selection-end-line="81" selection-end-column="50" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#919#920#0" expanded="false" />
+            <element signature="e#954#955#0" expanded="false" />
+            <element signature="e#3106#3107#0" expanded="false" />
+            <element signature="e#3147#3148#0" expanded="false" />
+            <element signature="e#3915#3916#0" expanded="false" />
+            <element signature="e#3942#3943#0" expanded="false" />
+            <element signature="e#3989#3990#0" expanded="false" />
+            <element signature="e#4007#4008#0" expanded="false" />
+            <element signature="e#4275#4276#0" expanded="false" />
+            <element signature="e#4293#4294#0" expanded="false" />
+            <element signature="e#4344#4345#0" expanded="false" />
+            <element signature="e#4362#4363#0" expanded="false" />
+            <element signature="e#4403#4404#0" expanded="false" />
+            <element signature="e#4421#4422#0" expanded="false" />
+            <element signature="e#5219#5220#0" expanded="false" />
+            <element signature="e#5248#5249#0" expanded="false" />
+            <element signature="e#5906#5907#0" expanded="false" />
+            <element signature="e#5946#5947#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/StaticDistanceFrameSelector.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="43" column="13" selection-start-line="43" selection-start-column="13" selection-end-line="43" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://C:/Program Files (x86)/Java/jdk1.8.0_60/src.zip!/javax/swing/JOptionPane.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33238232">
+          <caret line="563" column="25" selection-start-line="563" selection-start-column="25" selection-end-line="563" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="103" column="41" selection-start-line="103" selection-start-column="41" selection-end-line="103" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="91" column="44" selection-start-line="91" selection-start-column="44" selection-end-line="91" selection-end-column="44" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/mocks/HandFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-13.222222">
+          <caret line="32" column="0" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/common/src/main/java/com/sheffield/leapmotion/sampler/FileHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4422254">
+          <caret line="39" column="23" selection-start-line="39" selection-start-column="23" selection-end-line="39" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-9.379311">
+          <caret line="28" column="0" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-0.02425107">
-          <caret line="29" column="60" selection-start-line="29" selection-start-column="60" selection-end-line="29" selection-end-column="60" />
+        <state vertical-scroll-proportion="0.43452382">
+          <caret line="103" column="42" selection-start-line="103" selection-start-column="42" selection-end-line="103" selection-end-column="42" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#400#401#0" expanded="true" />
-            <element signature="e#419#420#0" expanded="true" />
-            <element signature="e#3435#3450#0" expanded="true" />
-            <element signature="e#3809#3855#0" expanded="true" />
-            <element signature="e#5134#5135#0" expanded="true" />
-            <element signature="e#5169#5170#0" expanded="true" />
           </folding>
         </state>
       </provider>

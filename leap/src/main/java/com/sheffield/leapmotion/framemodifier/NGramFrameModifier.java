@@ -30,7 +30,7 @@ public class NGramFrameModifier implements FrameModifier {
 
     public NGramFrameModifier(String filename) {
         try {
-            String positionFile = Properties.DIRECTORY + "/" + filename + ".positioncluster";
+            String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
             lastSwitchTime = System.currentTimeMillis();
             currentAnimationTime = Properties.SWITCH_TIME;
             String contents = FileHandler.readFile(new File(positionFile));
@@ -47,11 +47,11 @@ public class NGramFrameModifier implements FrameModifier {
 
             }
 
-            String sequenceFile = Properties.DIRECTORY + "/" + filename + ".positiondata";
+            String sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_position_ngram";
             positionAnalyzer = new AnalyzerApp(sequenceFile);
             positionAnalyzer.analyze();
 
-            String rotationFile = Properties.DIRECTORY + "/" + filename + ".rotationcluster";
+            String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
             contents = FileHandler.readFile(new File(rotationFile));
             lines = contents.split("\n");
             rotations = new HashMap<String, Vector[]>();
@@ -71,7 +71,7 @@ public class NGramFrameModifier implements FrameModifier {
 
             }
 
-            sequenceFile = Properties.DIRECTORY + "/" + filename + ".rotationdata";
+            sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_ngram";
             rotationAnalyzer = new AnalyzerApp(sequenceFile);
             rotationAnalyzer.analyze();
         } catch (IOException e) {

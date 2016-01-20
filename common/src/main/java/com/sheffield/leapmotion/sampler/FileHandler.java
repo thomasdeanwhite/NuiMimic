@@ -1,13 +1,13 @@
 package com.sheffield.leapmotion.sampler;
 
+import com.sheffield.instrumenter.Properties;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-
-import com.sheffield.instrumenter.Properties;
 
 public class FileHandler {
 
@@ -25,6 +25,7 @@ public class FileHandler {
 		}
 	}
 
+	@Deprecated
 	public static File generateFile() {
 		File file = new File(Properties.DIRECTORY + "/" + System.currentTimeMillis());
 		return file;
@@ -32,6 +33,12 @@ public class FileHandler {
 
 	public static File generateFile(String subdirectory) {
 		File file = new File(Properties.DIRECTORY + "/" + subdirectory + "/" + System.currentTimeMillis());
+		return file;
+	}
+
+
+	public static File generateFileWithName(String subdirectory) {
+		File file = new File(Properties.DIRECTORY + "/" + subdirectory);
 		return file;
 	}
 

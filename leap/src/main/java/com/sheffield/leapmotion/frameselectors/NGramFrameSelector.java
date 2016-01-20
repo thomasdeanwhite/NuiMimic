@@ -28,7 +28,7 @@ public class NGramFrameSelector extends FrameSelector {
 			App.out.println("* Setting up NGram Frame Selection");
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
-			String clusterFile = Properties.DIRECTORY + "/" + filename + ".handcluster";
+			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
 			hands = new HashMap<String, SeededHand>();
 
 			String contents = FileHandler.readFile(new File(clusterFile));
@@ -44,7 +44,7 @@ public class NGramFrameSelector extends FrameSelector {
 
 			}
 
-			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".handdata";
+			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".joint_position_ngram";
 			analyzer = new AnalyzerApp(sequenceFile);
 			analyzer.analyze();
 		} catch (Exception e) {

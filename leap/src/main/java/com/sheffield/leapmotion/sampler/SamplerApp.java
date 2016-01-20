@@ -2,9 +2,11 @@ package com.sheffield.leapmotion.sampler;
 
 import com.leapmotion.leap.*;
 import com.sheffield.instrumenter.Properties;
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.mocks.HandFactory;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -23,16 +25,25 @@ public class SamplerApp extends Listener {
     public static boolean USE_CONTROLLER = true;
     public static PrintStream out = System.out;
 
-    public static boolean SHOW_GUI = true;
+    public static boolean SHOW_GUI = false;
 
     private AppStatus status;
     private long startTime;
     private DisplayWindow display;
     private boolean startedRecording = false;
+    private File currentGestures;
+    private File currentGesturesCircle;
+    private File currentGesturesSwipe;
+    private File currentGesturesScreenTap;
+    private File currentGesturesKeyTap;
     private File currentSequence;
     private File currentHands;
     private File currentPosition;
     private File currentRotation;
+
+    private String filenameStart = "gorogoa";
+
+    private static final boolean REQUEST_NAME = true;
 
     public AppStatus status() {
         return status;
@@ -46,6 +57,11 @@ public class SamplerApp extends Listener {
         super();
         status = AppStatus.DISCONNECTED;
         startTime = System.currentTimeMillis();
+
+        if (REQUEST_NAME){
+            filenameStart = JOptionPane.showInputDialog(null, "Please enter your name:", "Leap Motion Sampler", JOptionPane.INFORMATION_MESSAGE);
+        }
+
         if (SHOW_GUI) {
             display = new DisplayWindow();
         }
@@ -81,7 +97,7 @@ public class SamplerApp extends Listener {
             controller.removeListener(app);
         }
 
-        SamplerApp.out.println("Finished data collection");
+        SamplerApp.out.println("- Finished data collection");
         System.exit(0);
 
     }
@@ -93,19 +109,34 @@ public class SamplerApp extends Listener {
         // Policy hack so app always receives data
         com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(controller), controller, 1);
         com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(controller), controller, 1 << 15);
+
+        //enable gestures for gesture model to work
+        controller.enableGesture(Gesture.Type.TYPE_SWIPE);
+        controller.enableGesture(Gesture.Type.TYPE_CIRCLE);
+        controller.enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
+        controller.enableGesture(Gesture.Type.TYPE_KEY_TAP);
+
         SamplerApp.out.println("- Connected to LeapMotion");
     }
 
     @Override
     public void onFrame(Controller arg0) {
-        Frame frame = arg0.frame();
+        final Frame frame = arg0.frame();
         if (frame.isValid()) {
-            frame(frame);
+            new Thread(new Runnable(){
+                @Override
+                public void run() {
+                    frame(frame);
+                }
+
+
+            }).start();
             // super.onFrame(arg0);
         }
     }
 
-    public void frame(Frame frame) {
+    public synchronized void frame(Frame frame) {
+
         if (!startedRecording) {
             boolean validHand = false;
 
@@ -138,6 +169,7 @@ public class SamplerApp extends Listener {
                     currentRotation = null;
                     currentPosition = null;
                     currentSequence = null;
+                    currentGestures = null;
                 }
             } else {
                 status = AppStatus.FINISHED;
@@ -146,11 +178,124 @@ public class SamplerApp extends Listener {
 
             String addition = "-" + BREAK_TIMES[breakIndex];
 
+            //write gestures out to file
+            try {
+
+                if (currentGestures == null) {
+                    App.out.println("- New Gestures File: " + filenameStart);
+                    currentGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.sequence_gesture_data");
+                    currentGestures.getParentFile().mkdirs();
+                    currentGestures.createNewFile();
+
+                    currentGesturesCircle = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_circle");
+                    currentGesturesCircle.getParentFile().mkdirs();
+                    currentGesturesCircle.createNewFile();
+
+                    currentGesturesSwipe = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_swipe");
+                    currentGesturesSwipe.getParentFile().mkdirs();
+                    currentGesturesSwipe.createNewFile();
+
+                    currentGesturesScreenTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_screentap");
+                    currentGesturesScreenTap.getParentFile().mkdirs();
+                    currentGesturesScreenTap.createNewFile();
+
+                    currentGesturesKeyTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_keytap");
+                    currentGesturesKeyTap.getParentFile().mkdirs();
+                    currentGesturesKeyTap.createNewFile();
+                }
+
+                if (frame.gestures().count() > 0) {
+                    String gestureString = "";
+
+                    for (Gesture g : frame.gestures()) {
+                        gestureString += g.type() + ",";
+
+                        switch (g.type()) {
+                            case TYPE_CIRCLE:
+                                CircleGesture cg = new CircleGesture(g);
+                                String circleGesture = cg.center().getX() + "," +
+                                        cg.center().getY() + "," +
+                                        cg.center().getZ() + ",";
+
+                                circleGesture += cg.normal().getX() + "," +
+                                        cg.normal().getY() + "," +
+                                        cg.normal().getZ() + ",";
+
+                                circleGesture += cg.radius();
+
+                                circleGesture += cg.duration() + "\n";
+                                FileHandler.appendToFile(currentGesturesCircle, circleGesture);
+                                break;
+                            case TYPE_SWIPE:
+                                SwipeGesture sg = new SwipeGesture(g);
+                                String swipeGesture = sg.startPosition().getX() + "," +
+                                        sg.startPosition().getY() + "," +
+                                        sg.startPosition().getZ() + ",";
+
+                                swipeGesture += sg.position().getX() + "," +
+                                        sg.position().getY() + "," +
+                                        sg.position().getZ() + ",";
+
+                                swipeGesture += sg.direction().getX() + "," +
+                                        sg.direction().getY() + "," +
+                                        sg.direction().getZ() + ",";
+
+                                swipeGesture += sg.speed() + "\n";
+
+                                FileHandler.appendToFile(currentGesturesSwipe, swipeGesture);
+                                break;
+                            case TYPE_SCREEN_TAP:
+                                ScreenTapGesture stg = new ScreenTapGesture(g);
+
+                                String screenTapGesture = stg.position().getX() + "," +
+                                        stg.position().getY() + "," +
+                                        stg.position().getZ() + ",";
+
+                                screenTapGesture += stg.direction().getX() + "," +
+                                        stg.direction().getY() + "," +
+                                        stg.direction().getZ() + ",";
+
+                                screenTapGesture += stg.progress();
+
+                                FileHandler.appendToFile(currentGesturesScreenTap, screenTapGesture);
+                                break;
+
+                            case TYPE_KEY_TAP:
+                                KeyTapGesture ktg = new KeyTapGesture(g);
+
+                                String keyTapGesture = ktg.position().getX() + "," +
+                                        ktg.position().getY() + "," +
+                                        ktg.position().getZ() + ",";
+
+                                keyTapGesture += ktg.direction().getX() + "," +
+                                        ktg.position().getY() + "," +
+                                        ktg.position().getZ() + ",";
+
+                                keyTapGesture += ktg.progress() + "\n";
+
+                                FileHandler.appendToFile(currentGesturesScreenTap, keyTapGesture);
+                                break;
+                        }
+                    }
+                    if (gestureString.length() == 0){
+                        gestureString = "INVALID";
+                    } else {
+                        gestureString.substring(0, gestureString.length()-1);
+                    }
+                    FileHandler.appendToFile(currentGestures, gestureString + "\n");
+                } else {
+                    FileHandler.appendToFile(currentGestures, "INVALID" + "\n");
+                }
+            } catch (IOException e) {
+                e.printStackTrace(App.out);
+            }
+
             if (Properties.SEQUENCE) {
                 writeFramesInSequence(frame);
             }
 
             for (Hand h : frame.hands()) {
+                //write hands out to file
                 if (h.isValid() && h.isRight()) {
 
                     if (SHOW_GUI) {
@@ -164,20 +309,20 @@ public class SamplerApp extends Listener {
                     String frameAsString = HandFactory.handToString(uniqueId, h);
                     try {
                         if (currentHands == null) {
-                            currentHands = new File(FileHandler.generateFile() + addition + "ms.handdata");
+                            currentHands = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_joint_positions");
                             currentHands.getParentFile().mkdirs();
                             currentHands.createNewFile();
                         }
                         FileHandler.appendToFile(currentHands, frameAsString + "\n");
                         if (currentSequence == null) {
-                            currentSequence = new File(FileHandler.generateFile() + addition + "ms.seqdata");
+                            currentSequence = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.sequence_hand_data");
                             currentSequence.getParentFile().mkdirs();
                             currentSequence.createNewFile();
                         }
                         FileHandler.appendToFile(currentSequence, uniqueId + ",");
 
                         if (currentPosition == null) {
-                            currentPosition = new File(FileHandler.generateFile() + addition + "ms.positiondata");
+                            currentPosition = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_hand_positions");
                             currentPosition.getParentFile().mkdirs();
                             currentPosition.createNewFile();
                         }
@@ -186,7 +331,7 @@ public class SamplerApp extends Listener {
                         FileHandler.appendToFile(currentPosition, position);
 
                         if (currentRotation == null) {
-                            currentRotation = new File(FileHandler.generateFile() + addition + "ms.rotationdata");
+                            currentRotation = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_hand_rotations");
                             currentRotation.getParentFile().mkdirs();
                             currentRotation.createNewFile();
                         }
@@ -203,14 +348,15 @@ public class SamplerApp extends Listener {
                         FileHandler.appendToFile(currentRotation, rotation);
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        e.printStackTrace(App.out);
                     }
 
                 }
             }
-
         }
+
     }
+
 
     public void tick() {
         if (SHOW_GUI) {
@@ -235,7 +381,7 @@ public class SamplerApp extends Listener {
                 boolean start = false;
 
                 if (sequenceFile == null) {
-                    sequenceFile = new File(FileHandler.generateFile() + "-" + BREAK_TIMES[breakIndex] + "ms.rawframedata");
+                    sequenceFile = new File(FileHandler.generateFile() + "-" + BREAK_TIMES[breakIndex] + "ms.raw_frame_data");
                     sequenceFile.getParentFile().mkdirs();
                     sequenceFile.createNewFile();
                     //com.sheffield.leapmotion.FileHandler.appendToFile(sequenceFile, "[");

@@ -27,7 +27,7 @@ public class Properties implements PropertySource {
 		String description();
 	}
 
-	public static String DIRECTORY = "H:\\data\\leapmotion";
+	public static String DIRECTORY = "C:\\data\\leap-motion";
 
 	public static String PLAYBACK_FILE = null;
 
@@ -81,9 +81,9 @@ public class Properties implements PropertySource {
 
 	public static String[] INSTRUMENTED_PACKAGES = null;
 
-	public static String NGRAM_TYPE = "50-2";
+	public static String NGRAM_TYPE = "25-2";
 
-	public static String[] GESTURE_FILES = {"processed/gor-" + NGRAM_TYPE,
+	public static String[] GESTURE_FILES = {"processed/gor-300000ms-" + NGRAM_TYPE,
 //			"processed/bigcircle-25-2",
 //			"processed/circle-25-2",
 //			"processed/keytap-25-2",
