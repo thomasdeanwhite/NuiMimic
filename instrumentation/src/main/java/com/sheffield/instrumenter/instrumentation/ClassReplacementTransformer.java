@@ -1,16 +1,17 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 
 public class ClassReplacementTransformer {
 
@@ -81,7 +82,7 @@ public class ClassReplacementTransformer {
 
 	}
 
-	public static final ArrayList<String> forbiddenPackages = new ArrayList<String> ();
+	private static final ArrayList<String> forbiddenPackages = new ArrayList<String> ();
 	static {
 		String[] defaultHiddenPackages = new String[]{"com/sun", "java/", "sun/", "jdk/", "java/",
 				"com/sheffield/instrumenter"};
@@ -94,7 +95,16 @@ public class ClassReplacementTransformer {
 			forbiddenPackages.add(s);
 		}
 	}
-
+	
+	/**
+	 * Add a package that should not be instrumented. 
+	 * @param forbiddenPackage the package name not to be instrumented, using / for subpackages (e.g. org/junit)
+	 */
+	public static void addForbiddenPackage(String forbiddenPackage){
+		forbiddenPackages.add(forbiddenPackage);
+	}
+	
+	
 	public boolean shouldInstrumentClass(String className) {
 		if (className == null) {
 			return false;
