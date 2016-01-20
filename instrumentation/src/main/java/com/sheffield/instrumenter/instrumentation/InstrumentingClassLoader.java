@@ -8,8 +8,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -18,6 +16,7 @@ import org.objectweb.asm.ClassWriter;
 
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
 
@@ -26,7 +25,6 @@ public class InstrumentingClassLoader extends URLClassLoader {
 	private static InstrumentingClassLoader instance;
 	private ClassLoader classLoader;
 	ClassReplacementTransformer crt = new ClassReplacementTransformer();
-	private final Map<String, Class<?>> instances = new HashMap<String, Class<?>>();
 	private boolean shouldInstrument;
 
 	public void setShouldInstrument(boolean shouldInstrument) {
@@ -57,8 +55,8 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		if (instances.containsKey(name)) {
-			return instances.get(name);
+		if (ClassStore.get(name) != null) {
+			return ClassStore.get(name);
 		}
 		if ("".equals(name)) {
 			throw new ClassNotFoundException();
@@ -79,8 +77,6 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
 					? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
-
-			Class<?> cl = defineClass(name, bytes, 0, bytes.length);
 			if (Properties.WRITE_CLASS) {
 				File folder = new File(Properties.BYTECODE_DIR);
 				folder.mkdirs();
@@ -91,8 +87,14 @@ public class InstrumentingClassLoader extends URLClassLoader {
 				outFile.flush();
 				outFile.close();
 			}
-
-			instances.put(name, cl);
+			Class<?> cl = null;
+			try{
+				cl = defineClass(name, bytes, 0, bytes.length);
+			}catch(final Throwable e){
+				e.printStackTrace(ClassAnalyzer.out);
+			}
+			
+			ClassStore.put(name, cl);
 			if (resolve) {
 				resolveClass(cl);
 			}

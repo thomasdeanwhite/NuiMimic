@@ -4,9 +4,10 @@ import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
+import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.instrumenter.states.StateTracker;
 import org.apache.commons.cli.*;
 
 import java.awt.event.WindowEvent;
@@ -303,7 +304,8 @@ public class App implements ThrowableListener {
                         String[] branches = branchesString.split(",");
 
                         for (String b : branches) {
-                            ClassAnalyzer.branchFound(b.trim());
+                            String[] info = b.split("#");
+                            ClassAnalyzer.branchFound(info[0].trim(), Integer.parseInt(info[1]));
                         }
 
                         App.out.println("- Found branches file (" + branches.length + " branches) at: " + playback.getAbsolutePath());
@@ -350,6 +352,12 @@ public class App implements ThrowableListener {
 
     public static void main(String[] args) {
         App.out.print("- Instrumenting JAR with options: ");
+        String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
+                "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
+                "org/junit"};
+        for (String s : defaultHiddenPackages){
+            ClassReplacementTransformer.forbiddenPackages.add(s);
+        }
         ENABLE_APPLICATION_OUTPUT = true;
         IS_INSTRUMENTING = true;
         ClassAnalyzer.setOut(App.out);

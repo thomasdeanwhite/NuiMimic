@@ -6,7 +6,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
 
@@ -56,31 +58,42 @@ public class ClassReplacementTransformer {
 			try {
 				ClassReader cr = new ClassReader(ins);
 
-				cr.accept(cv, 0);
+				cr.accept(cv, ClassReader.EXPAND_FRAMES);
 
 				newClass = cw.toByteArray();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			File file = new File("classes/" + cName + ".class");
-			file.getParentFile().mkdirs();
-			file.createNewFile();
-			// App.out.println("- Writing new class " + file.getAbsolutePath());
-			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-			fos.write(newClass);
-			fos.close();
+//			File file = new File("classes/" + cName + ".class");
+//			file.getParentFile().mkdirs();
+//			file.createNewFile();
+//			// App.out.println("- Writing new class " + file.getAbsolutePath());
+//			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+//			fos.write(newClass);
+//			fos.close();
 			return newClass;
 		} catch (Exception e) {
 			e.printStackTrace(ClassAnalyzer.out);
-			System.exit(2);
+			return cw.toByteArray();
+			//System.exit(2);
 		}
-		return cBytes;
+//		return cBytes;
 
 	}
 
-	private static final String[] forbiddenPackages = new String[] { "com/sheffield/leapmotion", "com/google/gson",
-			"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
-			"com/sheffield/instrumenter", "com/dpaterson", "org/junit" };
+	public static final ArrayList<String> forbiddenPackages = new ArrayList<String> ();
+	static {
+		String[] defaultHiddenPackages = new String[]{"com/sun", "java/", "sun/", "jdk/", "java/",
+				"com/sheffield/instrumenter"};
+
+//		String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
+//				"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
+//				"com/sheffield/instrumenter", "com/dpaterson", "org/junit"};
+
+		for (String s : defaultHiddenPackages){
+			forbiddenPackages.add(s);
+		}
+	}
 
 	public boolean shouldInstrumentClass(String className) {
 		if (className == null) {
