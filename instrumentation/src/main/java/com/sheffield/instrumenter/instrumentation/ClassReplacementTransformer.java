@@ -15,9 +15,14 @@ public class ClassReplacementTransformer {
 
 	private static ArrayList<String> seenClasses = new ArrayList<String>();
 	private boolean shouldWriteClass = false;
+	public ArrayList<ShouldInstrumentChecker> shouldInstrumentCheckers;
+
+	public interface ShouldInstrumentChecker {
+		boolean shouldInstrument(String className);
+	}
 
 	public ClassReplacementTransformer() {
-
+		shouldInstrumentCheckers = new ArrayList<ShouldInstrumentChecker>();
 	}
 
 	public void setWriteClasses (boolean b){
@@ -121,6 +126,13 @@ public class ClassReplacementTransformer {
 		if (className.contains("/")) {
 			className = className.replace("/", ".");
 		}
+
+		for (ShouldInstrumentChecker sic : shouldInstrumentCheckers){
+			if (!sic.shouldInstrument(className)){
+				return false;
+			}
+		}
+
 		if (Properties.INSTRUMENTED_PACKAGES == null) {
 			return true;
 		}
@@ -131,6 +143,14 @@ public class ClassReplacementTransformer {
 		}
 
 		return false;
+	}
+
+	public void addShouldInstrumentChecker (ShouldInstrumentChecker s){
+		shouldInstrumentCheckers.add(s);
+	}
+
+	public void removeShouldInstrumentChecker (ShouldInstrumentChecker s){
+		shouldInstrumentCheckers.remove(s);
 	}
 
 	public static boolean isForbiddenPackage(String clazz) {

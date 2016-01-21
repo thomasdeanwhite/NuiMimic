@@ -2,19 +2,14 @@ package com.sheffield.leapmotion;
 
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
-import org.apache.commons.io.IOUtils;
-import org.objectweb.asm.ClassWriter;
+import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
@@ -29,15 +24,33 @@ public class LeapMotionApplicationHandler {
 
 	private static boolean JAR_LOADED = false;
 
-	private static String[] nonDependancies;
+	private static ArrayList<String> nonDependancies;
 
 	private static final Class[] parameters = new Class[] { URL.class };
+
+	private static final InstrumentingClassLoader INSTRUMENTING_CLASS_LOADER = InstrumentingClassLoader.getInstance();
+
+	static {
+		INSTRUMENTING_CLASS_LOADER.getClassReplacementTransformer().addShouldInstrumentChecker(new ClassReplacementTransformer.ShouldInstrumentChecker() {
+			@Override
+			public boolean shouldInstrument(String className) {
+				for (String s : nonDependancies){
+					if (className.startsWith(s)){
+						return true;
+					}
+				}
+				return false;
+			}
+		});
+
+		nonDependancies = new ArrayList<String>();
+	}
 
 	// private static VirtualMachine virtualMachine;
 
 	public static void loadJar(String jar) throws MalformedURLException {
 		JAR_LOADED = true;
-		String jarFilePath = "file:/" + jar;
+		String jarFilePath = "file:" + jar;
 
 		URL url = new URL("jar:" + jarFilePath + "!/");
 
@@ -47,7 +60,8 @@ public class LeapMotionApplicationHandler {
 		// }
 
 		try {
-			addUrlToSystemClasspath(url);
+			addUrlToSystemClasspath(new URL(jarFilePath));
+
 
 			JarURLConnection uc = (JarURLConnection) url.openConnection();
 
@@ -59,12 +73,9 @@ public class LeapMotionApplicationHandler {
 				lastSlash = jarFile.getName().lastIndexOf("\\");
 			}
 
-			addUrlToSystemClasspath(new URL("file:/" + jarFile.getName().substring(0, lastSlash)));
-
 			Manifest mf = jarFile.getManifest();
 
 			App.out.println("- Loaded jar: " + url.getPath());
-			addUrlToSystemClasspath(url);
 
 			String mainClass = mf.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 
@@ -82,12 +93,12 @@ public class LeapMotionApplicationHandler {
 				if (mfClassPath != null) {
 					String[] mfCps = mfClassPath.split(" ");
 
-					String location = "jar:file:/" + Properties.CLASS_PATH;
+					String location = "file:" + Properties.CLASS_PATH;
 
 					location = location.replace("\\", "/");
 
 					for (String mfCp : mfCps) {
-						String path = location + "/" + mfCp + "!/";
+						String path = location + "/" + mfCp;
 						addUrlToSystemClasspath(new URL(path));
 						App.out.println("Added " + path + " to classpath");
 					}
@@ -101,6 +112,7 @@ public class LeapMotionApplicationHandler {
 	}
 
 	public static void instrumentJar(String jar) throws MalformedURLException {
+		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
 		String jarFilePath = "file:/" + jar;
 
 		if (!JAR_LOADED) {
@@ -109,48 +121,57 @@ public class LeapMotionApplicationHandler {
 
 		URL url = new URL("jar:" + jarFilePath + "!/");
 
-		ClassReplacementTransformer crp = new ClassReplacementTransformer();
-		crp.setWriteClasses(true);
 
 		try {
 			JarURLConnection uc = (JarURLConnection) url.openConnection();
 			JarFile jarFile = uc.getJarFile();
 
 			Enumeration e = jarFile.entries();
+			ArrayList<JarEntry> entries = new ArrayList<JarEntry>();
 
-			ArrayList<String> classes = new ArrayList<String>();
-
+			//Loop through JAR, seeing what classes it contains.
 			while (e.hasMoreElements()) {
 				JarEntry je = (JarEntry) e.nextElement();
+
+				//is entry a class file?
 				if (je.isDirectory() || !je.getName().endsWith(".class")) {
 					continue;
 				}
 
-				String className = je.getName().substring(0, je.getName().length() - 6);
-				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-				TestingClassAdapter tca = new TestingClassAdapter(cw, className);
+				entries.add(je);
+
+				String className = je.getName().substring(0, je.getName().length() - ".class".length());
+				nonDependancies.add(className.replace("/", "."));
+			}
+
+			ArrayList<String> classes = new ArrayList<String>();
+
+			Properties.WRITE_CLASS = true;
+			int index = jar.lastIndexOf("/");
+			if (index == -1){
+				index = jar.lastIndexOf("\\");
+			}
+
+			String jarPath = jar.substring(0, index).replace("\\", "/");
+
+			Properties.BYTECODE_DIR = jarPath + "/classes";
+
+			for (JarEntry je : entries){
+
+				String className = je.getName().substring(0, je.getName().length() - ".class".length());
 				classes.add(className);
 				App.out.print("\t Found " + className);
 				try {
-					InputStream is = jarFile.getInputStream(je);
-					if (is == null) {
-						App.out.println();
-						continue;
-					}
-					byte[] classBytes = IOUtils.toByteArray(is);
-					crp.transform(className, classBytes, tca, cw);
+					Class c = INSTRUMENTING_CLASS_LOADER.loadClass(className.replace("/", "."));
 					App.out.print("\r\t ☑ Instrumented " + className);
 				} catch (Throwable e1) {
 					App.out.print("\r\t ☒ Failed instrumenting " + className);
 					App.out.println();
-					//e1.printStackTrace(App.out);
+					e1.printStackTrace(App.out);
 					continue;
 
 				}
 			}
-
-//			nonDependancies = new String[classes.size()];
-//			classes.toArray(nonDependancies);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace(App.out);
@@ -184,32 +205,34 @@ public class LeapMotionApplicationHandler {
 	private static Method classpathMethod = null;
 
 	public static void addUrlToSystemClasspath(URL url) {
-		try {
-			URLClassLoader sloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-			if (classpathMethod == null) {
-				Class sclass = URLClassLoader.class;
-				Method method = sclass.getDeclaredMethod("addURL", parameters);
-				method.setAccessible(true);
-				classpathMethod = method;
-			}
-			classpathMethod.invoke(sloader, new Object[] { url });
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		INSTRUMENTING_CLASS_LOADER.addURL(url);
 
-		}
+//		try {
+//			URLClassLoader sloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+//			if (classpathMethod == null) {
+//				Class sclass = URLClassLoader.class;
+//				Method method = sclass.getDeclaredMethod("addURL", parameters);
+//				method.setAccessible(true);
+//				classpathMethod = method;
+//			}
+//			classpathMethod.invoke(sloader, new Object[] { url });
+//		} catch (IllegalAccessException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IllegalArgumentException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (InvocationTargetException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (NoSuchMethodException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SecurityException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//
+//		}
 	}
 
 }
