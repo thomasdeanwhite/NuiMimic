@@ -11,7 +11,7 @@ public class AnalyzerApp {
 
 	public static final int PROGRESS_BARS = 60;
 	public static final int SEQUENCE_LENGTH = 1000;
-	public static final boolean REMOVE_REPEATED = true;
+	public static final boolean REMOVE_REPEATED = false;
 
 	private String contents;
 	private DataAnalyzer dataAnalyzer;

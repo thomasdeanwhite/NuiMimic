@@ -53,9 +53,18 @@ public class LeapMotionApplicationHandler {
 
 			JarFile jarFile = uc.getJarFile();
 
+			int lastSlash = jarFile.getName().lastIndexOf("/");
+
+			if (lastSlash <= 0) {
+				lastSlash = jarFile.getName().lastIndexOf("\\");
+			}
+
+			addUrlToSystemClasspath(new URL("file:/" + jarFile.getName().substring(0, lastSlash)));
+
 			Manifest mf = jarFile.getManifest();
 
-			App.out.println("- Loaded jar file: " + url.getPath());
+			App.out.println("- Loaded jar: " + url.getPath());
+			addUrlToSystemClasspath(url);
 
 			String mainClass = mf.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 
@@ -73,13 +82,7 @@ public class LeapMotionApplicationHandler {
 				if (mfClassPath != null) {
 					String[] mfCps = mfClassPath.split(" ");
 
-					int lastSlash = jarFile.getName().lastIndexOf("/");
-
-					if (lastSlash <= 0) {
-						lastSlash = jarFile.getName().lastIndexOf("\\");
-					}
-
-					String location = "jar:file:" + jarFile.getName().substring(0, lastSlash);
+					String location = "jar:file:/" + Properties.CLASS_PATH;
 
 					location = location.replace("\\", "/");
 
@@ -107,6 +110,7 @@ public class LeapMotionApplicationHandler {
 		URL url = new URL("jar:" + jarFilePath + "!/");
 
 		ClassReplacementTransformer crp = new ClassReplacementTransformer();
+		crp.setWriteClasses(true);
 
 		try {
 			JarURLConnection uc = (JarURLConnection) url.openConnection();
@@ -115,6 +119,7 @@ public class LeapMotionApplicationHandler {
 			Enumeration e = jarFile.entries();
 
 			ArrayList<String> classes = new ArrayList<String>();
+
 			while (e.hasMoreElements()) {
 				JarEntry je = (JarEntry) e.nextElement();
 				if (je.isDirectory() || !je.getName().endsWith(".class")) {
@@ -125,7 +130,7 @@ public class LeapMotionApplicationHandler {
 				ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 				TestingClassAdapter tca = new TestingClassAdapter(cw, className);
 				classes.add(className);
-				App.out.print("\t ☒ Found " + className);
+				App.out.print("\t Found " + className);
 				try {
 					InputStream is = jarFile.getInputStream(je);
 					if (is == null) {
@@ -135,8 +140,10 @@ public class LeapMotionApplicationHandler {
 					byte[] classBytes = IOUtils.toByteArray(is);
 					crp.transform(className, classBytes, tca, cw);
 					App.out.print("\r\t ☑ Instrumented " + className);
-				} catch (Exception e1) {
+				} catch (Throwable e1) {
+					App.out.print("\r\t ☒ Failed instrumenting " + className);
 					App.out.println();
+					//e1.printStackTrace(App.out);
 					continue;
 
 				}
@@ -146,7 +153,7 @@ public class LeapMotionApplicationHandler {
 //			classes.toArray(nonDependancies);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			e1.printStackTrace(App.out);
 		}
 
 	}

@@ -6,25 +6,25 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
 
 public class ClassReplacementTransformer {
 
 	private static ArrayList<String> seenClasses = new ArrayList<String>();
+	private boolean shouldWriteClass = false;
 
 	public ClassReplacementTransformer() {
 
 	}
 
+	public void setWriteClasses (boolean b){
+		shouldWriteClass = b;
+	}
+
 	public byte[] transform(String cName, byte[] cBytes, ClassVisitor cv, ClassWriter cw)
 			throws IllegalClassFormatException {
-		// if (TestingClassLoader.getClassLoader().isClassFinalized(cName)) {
-		// throw new IllegalClassFormatException();
-		// }
 
 		if (seenClasses.contains(cName)) {
 			throw new IllegalClassFormatException("Class already loaded!");
@@ -64,20 +64,20 @@ public class ClassReplacementTransformer {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-//			File file = new File("classes/" + cName + ".class");
-//			file.getParentFile().mkdirs();
-//			file.createNewFile();
-//			// App.out.println("- Writing new class " + file.getAbsolutePath());
-//			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-//			fos.write(newClass);
-//			fos.close();
+			if (shouldWriteClass) {
+				File file = new File("classes/" + cName + ".class");
+				file.getParentFile().mkdirs();
+				file.createNewFile();
+				FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+				fos.write(newClass);
+				fos.close();
+			}
 			return newClass;
 		} catch (Exception e) {
 			e.printStackTrace(ClassAnalyzer.out);
 			return cw.toByteArray();
-			//System.exit(2);
+
 		}
-//		return cBytes;
 
 	}
 
