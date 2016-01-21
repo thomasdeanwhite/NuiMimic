@@ -2,14 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17190a71-dd8a-460d-867a-0c0b041b1145" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/CustomLoaderClassWriter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" afterPath="$PROJECT_DIR$/instrumentation/target/classes/com/sheffield/instrumenter/analysis/ClassAnalyzer.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" afterPath="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassStore.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassStore.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/StaticBranchVisitor.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/StaticBranchVisitor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/LeapMotionApplicationHandler.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/LeapMotionApplicationHandler.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java" />
     </list>
     <ignored path="leapmotion-tester.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -71,15 +71,8 @@
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="363" column="24" selection-start-line="363" selection-start-column="24" selection-end-line="363" selection-end-column="24" />
-              <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#3348#3349#0" expanded="false" />
-                <element signature="e#3367#3368#0" expanded="false" />
-                <element signature="e#3417#3418#0" expanded="false" />
-                <element signature="e#3446#3447#0" expanded="false" />
-                <element signature="docComment;method#getBranchDistance#0;class#ClassAnalyzer#0" expanded="false" />
-              </folding>
+              <caret line="371" column="24" selection-start-line="371" selection-start-column="24" selection-end-line="371" selection-end-column="24" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -98,17 +91,17 @@
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="384" column="53" selection-start-line="384" selection-start-column="53" selection-end-line="384" selection-end-column="53" />
+              <caret line="390" column="53" selection-start-line="390" selection-start-column="53" selection-end-line="390" selection-end-column="53" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="LeapMotionApplicationHandler.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="LeapMotionApplicationHandler.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/LeapMotionApplicationHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.19400856">
-              <caret line="124" column="75" selection-start-line="124" selection-start-column="75" selection-end-line="124" selection-end-column="75" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="147" column="0" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -126,15 +119,18 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ClassReplacementTransformer.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ClassReplacementTransformer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="93" column="37" selection-start-line="93" selection-start-column="37" selection-end-line="93" selection-end-column="37" />
+            <state vertical-scroll-proportion="0.7089872">
+              <caret line="138" column="28" selection-start-line="138" selection-start-column="28" selection-end-line="138" selection-end-column="28" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#623#624#0" expanded="true" />
-                <element signature="e#650#651#0" expanded="true" />
+                <element signature="e#483#491#0" expanded="true" />
+                <element signature="e#624#625#0" expanded="true" />
+                <element signature="e#651#652#0" expanded="true" />
+                <element signature="e#2146#2154#0" expanded="true" />
+                <element signature="docComment;method#addForbiddenPackage#0;class#ClassReplacementTransformer#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -144,7 +140,7 @@
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="128" column="78" selection-start-line="128" selection-start-column="78" selection-end-line="128" selection-end-column="78" />
+              <caret line="185" column="9" selection-start-line="185" selection-start-column="9" selection-end-line="185" selection-end-column="9" />
               <folding>
                 <element signature="imports" expanded="false" />
               </folding>
@@ -237,13 +233,13 @@
         <option value="$PROJECT_DIR$/common/src/main/java/com/sheffield/leapmotion/sampler/FileHandler.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/framemodifier/NGramFrameModifier.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
-        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/LeapMotionApplicationHandler.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java" />
         <option value="$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" />
+        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java" />
       </list>
     </option>
   </component>
@@ -1383,16 +1379,16 @@
       <workItem from="1453201471240" duration="6108000" />
       <workItem from="1453294538624" duration="9589000" />
       <workItem from="1453305210086" duration="3460000" />
-      <workItem from="1453378854480" duration="4337000" />
+      <workItem from="1453378854480" duration="4396000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="237510000" />
+    <option name="totallyTimeSpent" value="237569000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1401,7 +1397,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37037036" sideWeight="0.503125" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23020063" sideWeight="0.496875" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23020063" sideWeight="0.496875" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32996634" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.184375" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1826,7 +1822,7 @@
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/InstrumentingClassLoader.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="128" column="78" selection-start-line="128" selection-start-column="78" selection-end-line="128" selection-end-column="78" />
+          <caret line="185" column="9" selection-start-line="185" selection-start-column="9" selection-end-line="185" selection-end-column="9" />
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
@@ -1870,15 +1866,8 @@
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="363" column="24" selection-start-line="363" selection-start-column="24" selection-end-line="363" selection-end-column="24" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#3348#3349#0" expanded="false" />
-            <element signature="e#3367#3368#0" expanded="false" />
-            <element signature="e#3417#3418#0" expanded="false" />
-            <element signature="e#3446#3447#0" expanded="false" />
-            <element signature="docComment;method#getBranchDistance#0;class#ClassAnalyzer#0" expanded="false" />
-          </folding>
+          <caret line="371" column="24" selection-start-line="371" selection-start-column="24" selection-end-line="371" selection-end-column="24" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1895,28 +1884,31 @@
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="384" column="53" selection-start-line="384" selection-start-column="53" selection-end-line="384" selection-end-column="53" />
+          <caret line="390" column="53" selection-start-line="390" selection-start-column="53" selection-end-line="390" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/LeapMotionApplicationHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="147" column="0" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/ClassReplacementTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="93" column="37" selection-start-line="93" selection-start-column="37" selection-end-line="93" selection-end-column="37" />
+        <state vertical-scroll-proportion="0.7089872">
+          <caret line="138" column="28" selection-start-line="138" selection-start-column="28" selection-end-line="138" selection-end-column="28" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#623#624#0" expanded="true" />
-            <element signature="e#650#651#0" expanded="true" />
+            <element signature="e#483#491#0" expanded="true" />
+            <element signature="e#624#625#0" expanded="true" />
+            <element signature="e#651#652#0" expanded="true" />
+            <element signature="e#2146#2154#0" expanded="true" />
+            <element signature="docComment;method#addForbiddenPackage#0;class#ClassReplacementTransformer#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/LeapMotionApplicationHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.19400856">
-          <caret line="124" column="75" selection-start-line="124" selection-start-column="75" selection-end-line="124" selection-end-column="75" />
-          <folding />
         </state>
       </provider>
     </entry>

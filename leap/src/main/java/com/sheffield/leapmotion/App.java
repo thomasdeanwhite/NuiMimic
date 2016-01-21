@@ -1,15 +1,5 @@
 package com.sheffield.leapmotion;
 
-import com.sheffield.instrumenter.Display;
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.analysis.ThrowableListener;
-import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.instrumenter.states.StateTracker;
-import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.display.DisplayWindow;
-import org.apache.commons.cli.*;
-
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +8,22 @@ import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.security.Permission;
 import java.util.Random;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+
+import com.sheffield.instrumenter.Display;
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.analysis.ThrowableListener;
+import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.sheffield.instrumenter.states.StateTracker;
+import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.display.DisplayWindow;
 
 public class App implements ThrowableListener {
     public static Random random = new Random();
@@ -368,7 +374,7 @@ public class App implements ThrowableListener {
                 "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
                 "org/junit"};
         for (String s : defaultHiddenPackages){
-            ClassReplacementTransformer.forbiddenPackages.add(s);
+            ClassReplacementTransformer.addForbiddenPackage(s);
         }
         ENABLE_APPLICATION_OUTPUT = true;
         IS_INSTRUMENTING = true;
@@ -433,7 +439,8 @@ public class App implements ThrowableListener {
         App.out.println("- Starting background testing thread.");
         mainThread = new Thread(new Runnable() {
 
-            public void run() {
+            @Override
+			public void run() {
                 // TODO Auto-generated method stub
 
                 App app = App.getApp();

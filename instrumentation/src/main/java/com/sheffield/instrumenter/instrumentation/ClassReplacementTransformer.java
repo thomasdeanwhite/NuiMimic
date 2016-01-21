@@ -1,5 +1,6 @@
 package com.sheffield.instrumenter.instrumentation;
 
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import org.objectweb.asm.ClassReader;
@@ -79,20 +80,32 @@ public class ClassReplacementTransformer {
 
 		}
 
+
 	}
 
-	public static final ArrayList<String> forbiddenPackages = new ArrayList<String> ();
+	private static final ArrayList<String> forbiddenPackages = new ArrayList<String>();
+
 	static {
-		String[] defaultHiddenPackages = new String[]{"com/sun", "java/", "sun/", "jdk/", "java/",
-				"com/sheffield/instrumenter"};
+		String[] defaultHiddenPackages = new String[] { "com/sun", "java/", "sun/", "jdk/",
+				"com/sheffield/instrumenter" };
 
-//		String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
-//				"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
-//				"com/sheffield/instrumenter", "com/dpaterson", "org/junit"};
+		// String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
+		// "com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
+		// "com/sheffield/instrumenter", "com/dpaterson", "org/junit"};
 
-		for (String s : defaultHiddenPackages){
+		for (String s : defaultHiddenPackages) {
 			forbiddenPackages.add(s);
 		}
+	}
+
+	/**
+	 * Add a package that should not be instrumented.
+	 * 
+	 * @param forbiddenPackage
+	 *            the package name not to be instrumented, using / for subpackages (e.g. org/junit)
+	 */
+	public static void addForbiddenPackage(String forbiddenPackage) {
+		forbiddenPackages.add(forbiddenPackage);
 	}
 
 	public boolean shouldInstrumentClass(String className) {

@@ -1,5 +1,19 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.instrumentation.ClassStore;
@@ -13,13 +27,6 @@ import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -77,7 +84,8 @@ public class ClassAnalyzer {
 	}
 
 	public static void resetCoverage() {
-		Set<String> classNames = branches.keySet();
+		Set<String> classNames = new HashSet<String>();
+		classNames.addAll(branches.keySet());
 		classNames.addAll(lines.keySet());
 		for (String className : classNames) {
 			if (branches.containsKey(className)) {
@@ -265,11 +273,11 @@ public class ClassAnalyzer {
 		return branchDistance.get(branch);
 	}
 
-	public static List<BranchHit> getBranchesExecuted(String className) {
-		List<BranchHit> branchesHit = new ArrayList<BranchHit>();
+	public static List<Branch> getBranchesExecuted(String className) {
+		List<Branch> branchesHit = new ArrayList<Branch>();
 		for (BranchHit bh : branches.get(className)) {
 			if (bh.getBranch().getTrueHits() > 0) {
-				branchesHit.add(bh);
+				branchesHit.add(bh.getBranch());
 			}
 		}
 		return branchesHit;
@@ -455,17 +463,19 @@ public class ClassAnalyzer {
 							new Class<?>[] {});
 					getCounters.setAccessible(true);
 					int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
-					for (int i = 0; i < counters.length; i++) {
-						Line line = findLineWithCounterId(className, i);
-						if (line != null) {
-							line.hit(counters[i]);
-						}
-						BranchHit branch = findBranchWithCounterId(className, i);
-						if (branch != null) {
-							if (branch.getTrueCounterId() == i) {
-								branch.getBranch().trueHit(counters[i]);
-							} else {
-								branch.getBranch().falseHit(counters[i]);
+					if (counters != null) {
+						for (int i = 0; i < counters.length; i++) {
+							Line line = findLineWithCounterId(className, i);
+							if (line != null) {
+								line.hit(counters[i]);
+							}
+							BranchHit branch = findBranchWithCounterId(className, i);
+							if (branch != null) {
+								if (branch.getTrueCounterId() == i) {
+									branch.getBranch().trueHit(counters[i]);
+								} else {
+									branch.getBranch().falseHit(counters[i]);
+								}
 							}
 						}
 					}
@@ -486,5 +496,54 @@ public class ClassAnalyzer {
 				}
 			}
 		}
+	}
+
+	public static List<Line> getCoverableLines(String className) {
+		if (!lines.containsKey(className)) {
+			return Collections.<Line> emptyList();
+		}
+		List<Line> coverableLines = new ArrayList<Line>();
+		for (LineHit lh : lines.get(className)) {
+			coverableLines.add(lh.getLine());
+		}
+		return coverableLines;
+	}
+
+	public static List<Branch> getCoverableBranches(String className) {
+		if (!branches.containsKey(className)) {
+			return Collections.<Branch> emptyList();
+		}
+		List<Branch> coverableBranches = new ArrayList<Branch>();
+		for (BranchHit bh : branches.get(className)) {
+			coverableBranches.add(bh.getBranch());
+		}
+		return coverableBranches;
+	}
+
+	public static List<String> getChangedClasses() {
+		List<String> changedClasses = new ArrayList<String>();
+		Iterator<String> it = branches.keySet().iterator();
+		while (it.hasNext()) {
+			String className = it.next();
+			List<BranchHit> branchHits = branches.get(className);
+			for (BranchHit bh : branchHits) {
+				if (bh.getBranch().getTrueHits() > 0 || bh.getBranch().getFalseHits() > 0) {
+					changedClasses.add(className);
+					break;
+				}
+			}
+		}
+		it = lines.keySet().iterator();
+		while (it.hasNext()) {
+			String className = it.next();
+			List<LineHit> lineHits = lines.get(className);
+			for (LineHit lh : lineHits) {
+				if (lh.getLine().getHits() > 0) {
+					changedClasses.add(className);
+					break;
+				}
+			}
+		}
+		return changedClasses;
 	}
 }

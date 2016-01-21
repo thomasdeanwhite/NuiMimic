@@ -26,6 +26,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 	private ClassLoader classLoader;
 	ClassReplacementTransformer crt = new ClassReplacementTransformer();
 	private boolean shouldInstrument;
+	private MockClassLoader loader;
 
 	public void setShouldInstrument(boolean shouldInstrument) {
 		this.shouldInstrument = shouldInstrument;
@@ -33,7 +34,14 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
 	private InstrumentingClassLoader(URL[] urls) {
 		super(urls);
+		loader = new MockClassLoader(urls);
 		this.classLoader = getClass().getClassLoader();
+	}
+
+	@Override
+	protected void addURL(URL u) {
+		super.addURL(u);
+		loader.addURL(u);
 	}
 
 	public static void init(InstrumentingClassLoader instance) {
@@ -73,7 +81,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 		ByteArrayOutputStream out = null;
 		try {
 			stream = getInputStreamForClass(name);
-			ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+			ClassWriter cw = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
 			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
 					? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
@@ -88,12 +96,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
 				outFile.close();
 			}
 			Class<?> cl = null;
-			try{
+			try {
 				cl = defineClass(name, bytes, 0, bytes.length);
-			}catch(final Throwable e){
+			} catch (final Throwable e) {
 				e.printStackTrace(ClassAnalyzer.out);
 			}
-			
+
 			ClassStore.put(name, cl);
 			if (resolve) {
 				resolveClass(cl);
@@ -120,6 +128,29 @@ public class InstrumentingClassLoader extends URLClassLoader {
 		}
 	}
 
+	public Class<?> loadOriginalClass(String name) throws ClassNotFoundException {
+		name = name.replace("/", ".");
+		try {
+			if (!crt.shouldInstrumentClass(name.replace(".", "/")) || !shouldInstrument) {
+				Class<?> cl = findLoadedClass(name);
+				if (cl != null) {
+					return cl;
+				}
+				return classLoader.loadClass(name);
+			}
+			Class<?> cl = loader.loadOriginalClass(name);
+			return cl;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		throw new ClassNotFoundException();
+
+	}
+
 	private InputStream getInputStreamForClass(String name) throws ClassNotFoundException {
 		String path = name.replace(".", File.separator) + ".class";
 		InputStream stream = getResourceAsStream(path);
@@ -136,6 +167,33 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			InstrumentingClassLoader.init(instance);
 		}
 		return instance;
+	}
+
+	private class MockClassLoader extends URLClassLoader {
+		public MockClassLoader(URL[] urls) {
+			super(urls);
+		}
+
+		private Class<?> loadOriginalClass(String name) throws IOException, ClassNotFoundException {
+			InputStream stream;
+			Class<?> cl = findLoadedClass(name);
+			if (cl == null) {
+				stream = getInputStreamForClass(name);
+				byte[] bytes = IOUtils.toByteArray(stream);
+				cl = defineClass(name, bytes, 0, bytes.length);
+			}
+			return cl;
+		}
+
+		private Class<?> defClass(String name, byte[] bytes, int offset, int length) {
+			return super.defineClass(name, bytes, offset, length);
+		}
+
+		@Override
+		protected void addURL(URL u) {
+			super.addURL(u);
+		}
+
 	}
 
 }
