@@ -84,7 +84,8 @@ public class ClassAnalyzer {
 	}
 
 	public static void resetCoverage() {
-		Set<String> classNames = branches.keySet();
+		Set<String> classNames = new HashSet<String>();
+		classNames.addAll(branches.keySet());
 		classNames.addAll(lines.keySet());
 		for (String className : classNames) {
 			if (branches.containsKey(className)) {
@@ -234,21 +235,21 @@ public class ClassAnalyzer {
 		float bd = 0;
 
 		switch (bt) {
-		case BRANCH_E:
-			bd = Math.abs(b1 - b2);
-			break;
-		case BRANCH_GE:
-			bd = b1 - b2;
-			break;
-		case BRANCH_GT:
-			bd = b1 - b2;
-			break;
-		case BRANCH_LE:
-			bd = b2 - b1;
-			break;
-		case BRANCH_LT:
-			bd = b2 - b1;
-			break;
+			case BRANCH_E:
+				bd = Math.abs(b1 - b2);
+				break;
+			case BRANCH_GE:
+				bd = b1 - b2;
+				break;
+			case BRANCH_GT:
+				bd = b1 - b2;
+				break;
+			case BRANCH_LE:
+				bd = b2 - b1;
+				break;
+			case BRANCH_LT:
+				bd = b2 - b1;
+				break;
 		}
 		bd = Math.abs(bd / Float.MAX_VALUE);
 		bd = Math.min(1f, Math.max(0f, bd));
@@ -260,8 +261,7 @@ public class ClassAnalyzer {
 	}
 
 	/**
-	 * Returns distance between negative and positive branch hit. 0 is a
-	 * positive hit, 1 is as far away from positive as possible.
+	 * Returns distance between negative and positive branch hit. 0 is a positive hit, 1 is as far away from positive as possible.
 	 *
 	 * @param branch
 	 * @return

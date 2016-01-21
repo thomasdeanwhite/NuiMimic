@@ -65,46 +65,48 @@ public class ClassReplacementTransformer {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-//			File file = new File("classes/" + cName + ".class");
-//			file.getParentFile().mkdirs();
-//			file.createNewFile();
-//			// App.out.println("- Writing new class " + file.getAbsolutePath());
-//			FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-//			fos.write(newClass);
-//			fos.close();
+			// File file = new File("classes/" + cName + ".class");
+			// file.getParentFile().mkdirs();
+			// file.createNewFile();
+			// // App.out.println("- Writing new class " + file.getAbsolutePath());
+			// FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+			// fos.write(newClass);
+			// fos.close();
 			return newClass;
 		} catch (Exception e) {
 			e.printStackTrace(ClassAnalyzer.out);
 			return cw.toByteArray();
-			//System.exit(2);
+			// System.exit(2);
 		}
-//		return cBytes;
+		// return cBytes;
 
 	}
 
-	private static final ArrayList<String> forbiddenPackages = new ArrayList<String> ();
+	private static final ArrayList<String> forbiddenPackages = new ArrayList<String>();
+
 	static {
-		String[] defaultHiddenPackages = new String[]{"com/sun", "java/", "sun/", "jdk/", "java/",
-				"com/sheffield/instrumenter"};
+		String[] defaultHiddenPackages = new String[] { "com/sun", "java/", "sun/", "jdk/",
+				"com/sheffield/instrumenter" };
 
-//		String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
-//				"com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
-//				"com/sheffield/instrumenter", "com/dpaterson", "org/junit"};
+		// String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
+		// "com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
+		// "com/sheffield/instrumenter", "com/dpaterson", "org/junit"};
 
-		for (String s : defaultHiddenPackages){
+		for (String s : defaultHiddenPackages) {
 			forbiddenPackages.add(s);
 		}
 	}
-	
+
 	/**
-	 * Add a package that should not be instrumented. 
-	 * @param forbiddenPackage the package name not to be instrumented, using / for subpackages (e.g. org/junit)
+	 * Add a package that should not be instrumented.
+	 * 
+	 * @param forbiddenPackage
+	 *            the package name not to be instrumented, using / for subpackages (e.g. org/junit)
 	 */
-	public static void addForbiddenPackage(String forbiddenPackage){
+	public static void addForbiddenPackage(String forbiddenPackage) {
 		forbiddenPackages.add(forbiddenPackage);
 	}
-	
-	
+
 	public boolean shouldInstrumentClass(String className) {
 		if (className == null) {
 			return false;
