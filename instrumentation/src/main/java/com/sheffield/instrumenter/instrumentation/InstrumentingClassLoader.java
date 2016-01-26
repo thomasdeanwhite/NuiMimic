@@ -1,5 +1,15 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,17 +18,6 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.Properties.InstrumentationApproach;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
 
 public class InstrumentingClassLoader extends URLClassLoader {
 
@@ -39,7 +38,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 	}
 
 	@Override
-	protected void addURL(URL u) {
+	public void addURL(URL u) {
 		super.addURL(u);
 		loader.addURL(u);
 	}
@@ -55,6 +54,10 @@ public class InstrumentingClassLoader extends URLClassLoader {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public ClassReplacementTransformer getClassReplacementTransformer(){
+		return crt;
 	}
 
 	/**
@@ -109,12 +112,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			}
 			return cl;
 		} catch (final IOException e) {
-			throw new ClassNotFoundException("Couldn't instrument class");
+			throw new ClassNotFoundException("Couldn't instrument class" + e.getLocalizedMessage());
 		} catch (final IllegalClassFormatException e) {
-			throw new ClassNotFoundException("Couldn't instrument class");
+			throw new ClassNotFoundException("Couldn't instrument class" + e.getLocalizedMessage());
 		} catch (final Exception e) {
 			e.printStackTrace();
-			throw new ClassNotFoundException("Couldn't instrument class");
+			throw new ClassNotFoundException("Couldn't instrument class " + e.getLocalizedMessage());
 		} finally {
 			try {
 				if (out != null) {
@@ -137,6 +140,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 				if (cl != null) {
 					return cl;
 				}
+				URL[] urls = getURLs();
 				return classLoader.loadClass(name);
 			}
 			Class<?> cl = loader.loadOriginalClass(name);
@@ -153,7 +157,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 	}
 
 	private InputStream getInputStreamForClass(String name) throws ClassNotFoundException {
-		String path = name.replace(".", File.separator) + ".class";
+		String path = name.replace(".", "/") + ".class";
 		InputStream stream = getResourceAsStream(path);
 		if (stream != null) {
 			return stream;

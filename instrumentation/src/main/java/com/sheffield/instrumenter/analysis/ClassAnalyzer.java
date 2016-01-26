@@ -368,13 +368,20 @@ public class ClassAnalyzer {
 		String csv = "";
 
 		if (headers) {
-			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits\n";
+			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file\n";
 		}
 		String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
 		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
+
+		String gestureFiles = "";
+
+		for (String s : Properties.GESTURE_FILES){
+			gestureFiles += s;
+		}
+
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
 				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
-				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "\n";
+				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "\n";
 		return csv;
 
 	}
@@ -390,6 +397,7 @@ public class ClassAnalyzer {
 				sb.append(className);
 				sb.append("#");
 				sb.append(b.getBranch().getLineNumber());
+				sb.append(",");
 				String progress = "[";
 				float percent = counter / (float) totalBranches;
 				int b1 = (int) (percent * bars);

@@ -256,6 +256,11 @@ public class App implements ThrowableListener {
                         "Packages that should be instrumented")
                 .hasArg().withArgName("packages").create("packages"));
 
+        options.addOption(OptionBuilder.withLongOpt("gestureFiles")
+                .withDescription(
+                        "Gesture Files to use in NGram")
+                .hasArg().withArgName("gestureFiles").create("gestureFiles"));
+
         try {
             CommandLine cmd = parser.parse(options, args);
             for (Option o : cmd.getOptions()) {
@@ -290,6 +295,9 @@ public class App implements ThrowableListener {
                 } else if (o.getArgName().equals("packages")) {
                     App.out.println("- Only instrumenting " + o.getValue());
                     Properties.INSTRUMENTED_PACKAGES = o.getValue().split(";");
+                } else if (o.getArgName().equals("gestureFiles")) {
+                    App.out.println("- Using gesture files: " + o.getValue());
+                    Properties.GESTURE_FILES = o.getValue().split(";");
                 }
 
             }
@@ -319,6 +327,10 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                 }
+            }
+
+            for (int i = 0; i < Properties.GESTURE_FILES.length; i++){
+                Properties.GESTURE_FILES[i] = Properties.GESTURE_FILES[i] + "-" + Properties.NGRAM_TYPE;
             }
 
             if (Properties.INSTRUMENTED_PACKAGES == null) {
@@ -372,6 +384,9 @@ public class App implements ThrowableListener {
         }
         App.out.println(".");
         setOptions(args);
+
+        Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.STATIC;
+
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
@@ -399,6 +414,7 @@ public class App implements ThrowableListener {
             App.out.println("Found thread already running!");
             return;
         }
+        //Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         if (args != null && args.length > 0) {
             setOptions(args);
             App.out.println("Options setup");

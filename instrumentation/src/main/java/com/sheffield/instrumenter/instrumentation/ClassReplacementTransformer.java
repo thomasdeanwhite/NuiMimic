@@ -1,6 +1,8 @@
 package com.sheffield.instrumenter.instrumentation;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.instrument.IllegalClassFormatException;
@@ -17,16 +19,23 @@ import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 public class ClassReplacementTransformer {
 
 	private static ArrayList<String> seenClasses = new ArrayList<String>();
+	private boolean shouldWriteClass = false;
+	public ArrayList<ShouldInstrumentChecker> shouldInstrumentCheckers;
+
+	public interface ShouldInstrumentChecker {
+		boolean shouldInstrument(String className);
+	}
 
 	public ClassReplacementTransformer() {
+		shouldInstrumentCheckers = new ArrayList<ShouldInstrumentChecker>();
+	}
 
+	public void setWriteClasses(boolean b) {
+		shouldWriteClass = b;
 	}
 
 	public byte[] transform(String cName, byte[] cBytes, ClassVisitor cv, ClassWriter cw)
 			throws IllegalClassFormatException {
-		// if (TestingClassLoader.getClassLoader().isClassFinalized(cName)) {
-		// throw new IllegalClassFormatException();
-		// }
 
 		if (seenClasses.contains(cName)) {
 			throw new IllegalClassFormatException("Class already loaded!");
@@ -66,20 +75,20 @@ public class ClassReplacementTransformer {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			// File file = new File("classes/" + cName + ".class");
-			// file.getParentFile().mkdirs();
-			// file.createNewFile();
-			// // App.out.println("- Writing new class " + file.getAbsolutePath());
-			// FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-			// fos.write(newClass);
-			// fos.close();
+			if (shouldWriteClass) {
+				File file = new File("classes/" + cName + ".class");
+				file.getParentFile().mkdirs();
+				file.createNewFile();
+				FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
+				fos.write(newClass);
+				fos.close();
+			}
 			return newClass;
 		} catch (Exception e) {
 			e.printStackTrace(ClassAnalyzer.out);
 			return cw.toByteArray();
-			// System.exit(2);
+
 		}
-		// return cBytes;
 
 	}
 
@@ -124,6 +133,13 @@ public class ClassReplacementTransformer {
 		if (className.contains("/")) {
 			className = className.replace("/", ".");
 		}
+
+		for (ShouldInstrumentChecker sic : shouldInstrumentCheckers) {
+			if (!sic.shouldInstrument(className)) {
+				return false;
+			}
+		}
+
 		if (Properties.INSTRUMENTED_PACKAGES == null) {
 			return true;
 		}
@@ -134,6 +150,14 @@ public class ClassReplacementTransformer {
 		}
 
 		return false;
+	}
+
+	public void addShouldInstrumentChecker(ShouldInstrumentChecker s) {
+		shouldInstrumentCheckers.add(s);
+	}
+
+	public void removeShouldInstrumentChecker(ShouldInstrumentChecker s) {
+		shouldInstrumentCheckers.remove(s);
 	}
 
 	public static boolean isForbiddenPackage(String clazz) {
