@@ -63,19 +63,20 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		if (ClassStore.get(name) != null) {
-			return ClassStore.get(name);
+		String className = name.replace('/', '.');
+		if (ClassStore.get(className) != null) {
+			return ClassStore.get(className);
 		}
-		if ("".equals(name)) {
+		if ("".equals(className)) {
 			throw new ClassNotFoundException();
 		}
 
-		if (!crt.shouldInstrumentClass(name.replace(".", "/")) || !shouldInstrument) {
-			Class<?> cl = findLoadedClass(name);
+		if (!crt.shouldInstrumentClass(className) || !shouldInstrument) {
+			Class<?> cl = findLoadedClass(className);
 			if (cl != null) {
 				return cl;
 			}
-			return super.loadClass(name, resolve);
+			return super.loadClass(className, resolve);
 		}
 		InputStream stream = null;
 		ByteArrayOutputStream out = null;
@@ -83,7 +84,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			stream = getInputStreamForClass(name);
 			ClassWriter cw = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
 			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
-					? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
+					? new StaticApproachClassVisitor(cw, className) : new ArrayApproachClassVisitor(cw, className);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
 			if (Properties.WRITE_CLASS) {
 				File folder = new File(Properties.BYTECODE_DIR);
@@ -97,12 +98,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			}
 			Class<?> cl = null;
 			try {
-				cl = defineClass(name, bytes, 0, bytes.length);
+				cl = defineClass(className, bytes, 0, bytes.length);
 			} catch (final Throwable e) {
 				e.printStackTrace(ClassAnalyzer.out);
 			}
 
-			ClassStore.put(name, cl);
+			ClassStore.put(className, cl);
 			if (resolve) {
 				resolveClass(cl);
 			}

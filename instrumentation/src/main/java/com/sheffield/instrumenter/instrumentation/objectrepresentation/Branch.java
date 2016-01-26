@@ -40,4 +40,9 @@ public class Branch {
 		return lineNumber;
 	}
 
+	@Override
+	public String toString() {
+		return lineNumber + "#true, " + lineNumber + "#false";
+	}
+
 }

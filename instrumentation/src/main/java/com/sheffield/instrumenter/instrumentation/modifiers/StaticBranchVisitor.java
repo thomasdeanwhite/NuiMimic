@@ -4,21 +4,19 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import com.sheffield.instrumenter.analysis.BranchType;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
 
-public class StaticBranchVisitor extends MethodAdapter {
-	private int branch = 0;
+public class StaticBranchVisitor extends MethodVisitor {
 	private int lastBranchDistance = 0;
 	private boolean lookNext = false;
 	private String className;
 	private String methodName;
-	private static final String ANALYZER_CLASS = Type.getInternalName(ClassAnalyzer.class);
 	private static Method BRANCH_METHOD;
 	private static Method BRANCH_DISTANCE_METHOD_I;
 	private static Method BRANCH_DISTANCE_METHOD_F;
@@ -52,7 +50,7 @@ public class StaticBranchVisitor extends MethodAdapter {
 	}
 
 	public StaticBranchVisitor(MethodVisitor mv, String className, String methodName) {
-		super(mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.methodName = methodName;
 		labelBranches = new HashMap<String, String>();
@@ -85,7 +83,6 @@ public class StaticBranchVisitor extends MethodAdapter {
 	public void visitJumpInsn(int opcode, Label label) {
 
 		BranchType bt = null;
-		String branchName = getBranchName(branch);
 		switch (opcode) {
 			case Opcodes.IF_ICMPEQ:
 			case Opcodes.IF_ICMPGE:
@@ -144,21 +141,18 @@ public class StaticBranchVisitor extends MethodAdapter {
 				visitInsn(Opcodes.ICONST_0);
 				visitLdcInsn(className);
 				visitLdcInsn(currentLine);
-				visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
-						Type.getMethodDescriptor(BRANCH_METHOD));
+				visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "branchExecuted",
+						Type.getMethodDescriptor(BRANCH_METHOD), false);
 				mv.visitJumpInsn(Opcodes.GOTO, l2);
 				visitLabel(l);
 				visitInsn(Opcodes.ICONST_1);
 				visitLdcInsn(className);
 				visitLdcInsn(currentLine);
-				visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
-						Type.getMethodDescriptor(BRANCH_METHOD));
+				visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "branchExecuted",
+						Type.getMethodDescriptor(BRANCH_METHOD), false);
 				visitJumpInsn(Opcodes.GOTO, label);
 				visitLabel(l2);
-
-				labelBranches.put(label.toString(), branchName);
 				ClassAnalyzer.branchFound(className, currentLine);
-				branch++;
 				break;
 			default:
 				mv.visitJumpInsn(opcode, label);
@@ -171,7 +165,6 @@ public class StaticBranchVisitor extends MethodAdapter {
 		switch (opcode) {
 			case Opcodes.FCMPG:
 			case Opcodes.FCMPL: {
-				String branchName = getBranchName(branch);
 				switch (opcode) {
 					case Opcodes.FCMPG:
 					case Opcodes.FCMPL:
@@ -190,7 +183,6 @@ public class StaticBranchVisitor extends MethodAdapter {
 			case Opcodes.DCMPG:
 			case Opcodes.DCMPL: {
 
-				branch++;
 			}
 				break;
 
@@ -201,12 +193,7 @@ public class StaticBranchVisitor extends MethodAdapter {
 	@Override
 	public void visitLineNumber(int lineNumber, Label label) {
 		currentLine = lineNumber;
-		ClassAnalyzer.lineFound(className, currentLine);
-		mv.visitLdcInsn(className);
-		mv.visitLdcInsn(lineNumber);
-		mv.visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "lineExecuted", "(Ljava/lang/String;I)V");
-		super.visitLineNumber(lineNumber, label);
-
+		mv.visitLineNumber(lineNumber, label);
 	}
 
 }

@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
+import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 
-public class ArrayApproachClassVisitor extends ClassAdapter {
+public class ArrayApproachClassVisitor extends ClassVisitor {
 	private String className;
 	public static final String COUNTER_VARIABLE_NAME = "__hitCounters";
 	public static final String COUNTER_VARIABLE_DESC = "[I";
@@ -44,7 +45,7 @@ public class ArrayApproachClassVisitor extends ClassAdapter {
 	}
 
 	public ArrayApproachClassVisitor(ClassVisitor mv, String className) {
-		super(mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className.replace('.', '/');
 	}
 
@@ -63,10 +64,15 @@ public class ArrayApproachClassVisitor extends ClassAdapter {
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
 		if ((Opcodes.ACC_STATIC & access) != 0 || "<init>".equals(name)) {
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
 		}
-		ArrayBranchVisitor abv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
-		return abv;
+		if (Properties.INSTRUMENT_BRANCHES) {
+			mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
+		}
+		if (Properties.INSTRUMENT_LINES) {
+			mv = new ArrayLineVisitor(this, mv, className);
+		}
+		return mv;
 	}
 
 	@Override
@@ -76,7 +82,7 @@ public class ArrayApproachClassVisitor extends ClassAdapter {
 			addGetCounterMethod(cv);
 			addResetCounterMethod(cv);
 			addInitMethod(cv);
-			ClassAnalyzer.classAnalyzed(className, branchHitCounterIds, lineHitCounterIds);
+			ClassAnalyzer.classAnalyzed(className.replace('/', '.'), branchHitCounterIds, lineHitCounterIds);
 		}
 		super.visitEnd();
 	}

@@ -11,6 +11,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
 import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 
 public class ClassReplacementTransformer {
@@ -99,7 +100,7 @@ public class ClassReplacementTransformer {
 
 	/**
 	 * Add a package that should not be instrumented.
-	 * 
+	 *
 	 * @param forbiddenPackage
 	 *            the package name not to be instrumented, using / for subpackages (e.g. org/junit)
 	 */
@@ -108,6 +109,9 @@ public class ClassReplacementTransformer {
 	}
 
 	public boolean shouldInstrumentClass(String className) {
+		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.NONE) {
+			return false;
+		}
 		if (className == null) {
 			return false;
 		}

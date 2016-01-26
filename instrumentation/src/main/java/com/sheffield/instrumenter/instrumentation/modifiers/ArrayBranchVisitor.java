@@ -1,17 +1,14 @@
 package com.sheffield.instrumenter.instrumentation.modifiers;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
 
-public class ArrayBranchVisitor extends MethodAdapter {
+public class ArrayBranchVisitor extends MethodVisitor {
 	private ArrayApproachClassVisitor parent;
 	private String className;
 	private String methodName;
@@ -19,7 +16,7 @@ public class ArrayBranchVisitor extends MethodAdapter {
 
 	public ArrayBranchVisitor(ArrayApproachClassVisitor parent, MethodVisitor mv, String className, String methodName,
 			String desc, int access) {
-		super(mv);
+		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.methodName = methodName;
 		this.parent = parent;
@@ -86,17 +83,7 @@ public class ArrayBranchVisitor extends MethodAdapter {
 	@Override
 	public void visitLineNumber(int lineNumber, Label label) {
 		currentLine = lineNumber;
-		int counterId = parent.newCounterId();
-		parent.addLineHit(new LineHit(new Line(className, currentLine), counterId));
-		visitFieldInsn(Opcodes.GETSTATIC, className, ArrayApproachClassVisitor.COUNTER_VARIABLE_NAME,
-				ArrayApproachClassVisitor.COUNTER_VARIABLE_DESC);
-		visitLdcInsn(counterId);
-		visitInsn(Opcodes.DUP2);
-		visitInsn(Opcodes.IALOAD);
-		visitInsn(Opcodes.ICONST_1);
-		visitInsn(Opcodes.IADD);
-		visitInsn(Opcodes.IASTORE);
-		super.visitLineNumber(lineNumber, label);
+		mv.visitLineNumber(lineNumber, label);
 	}
 
 }
