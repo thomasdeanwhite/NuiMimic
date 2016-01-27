@@ -383,9 +383,9 @@ public class App implements ThrowableListener {
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
-            App.out.print("\r\tWriting output to: " + output);
+            App.out.print("+ Writing output to: " + output);
             ClassAnalyzer.output(output);
-            App.out.println("\r\tWritten output to " + output);
+            App.out.println("\r+ Written output to " + output);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

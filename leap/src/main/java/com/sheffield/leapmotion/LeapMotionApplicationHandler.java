@@ -174,6 +174,8 @@ public class LeapMotionApplicationHandler {
 			e1.printStackTrace(App.out);
 		}
 
+		App.out.println("\r!! Instrumentation finished!");
+
 	}
 
 	public static void loadAgent(String agentJar) {

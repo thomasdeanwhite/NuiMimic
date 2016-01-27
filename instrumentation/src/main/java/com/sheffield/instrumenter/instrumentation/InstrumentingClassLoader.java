@@ -32,6 +32,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
         public ClassVisitor intercept(ClassVisitor parent, String className);
     }
     public void addClassInstrumentingInterceptor (ClassInstrumentingInterceptor cii){
+		ClassAnalyzer.out.printf("- Added ClassInstrumentingInterceptor: %s.\n", cii.getClass().getName());
         classInstrumentingInterceptors.add(cii);
     }
 
