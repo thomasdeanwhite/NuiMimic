@@ -101,7 +101,6 @@ public class InstrumentingClassLoader extends URLClassLoader {
 		try {
 
 			stream = getInputStreamForClass(name);
-<<<<<<< HEAD
             ClassWriter writer = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
             ClassVisitor cw = writer;
             for (ClassInstrumentingInterceptor cii : classInstrumentingInterceptors){
@@ -114,12 +113,6 @@ public class InstrumentingClassLoader extends URLClassLoader {
             ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == Properties.InstrumentationApproach.STATIC
                     ? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
-=======
-			ClassWriter cw = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
-			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
-					? new StaticApproachClassVisitor(cw, className) : new ArrayApproachClassVisitor(cw, className);
-			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
->>>>>>> abd4c13593b08f6306f1f0890a061c4bc7d98454
 			if (Properties.WRITE_CLASS) {
 				String outputDir = Properties.BYTECODE_DIR + "/" + name.replace(".", "/").substring(0, name.lastIndexOf("."));
 				File folder = new File(outputDir);

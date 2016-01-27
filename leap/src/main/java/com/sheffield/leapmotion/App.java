@@ -30,7 +30,6 @@ public class App implements ThrowableListener {
     private static Thread mainThread = null;
 
     public static DisplayWindow DISPLAY_WINDOW = null;
-
     private static PrintStream originalOut = System.out;
 
     public static PrintStream out = new PrintStream(originalOut) {

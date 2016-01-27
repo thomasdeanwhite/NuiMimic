@@ -5,14 +5,13 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.mocks.SeededGesture;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
-public class InstantiationVisitor extends MethodAdapter {
+public class InstantiationVisitor extends MethodVisitor {
 
     private String className;
     private MethodVisitor methodVisitor;
@@ -43,7 +42,7 @@ public class InstantiationVisitor extends MethodAdapter {
     }
 
     public InstantiationVisitor(MethodVisitor mv, String cName) {
-        super(mv);
+        super(Opcodes.ASM5, mv);
         methodVisitor = mv;
         className = cName;
 

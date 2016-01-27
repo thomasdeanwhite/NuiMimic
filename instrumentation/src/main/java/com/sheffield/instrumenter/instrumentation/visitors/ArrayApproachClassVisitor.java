@@ -1,19 +1,6 @@
 package com.sheffield.instrumenter.instrumentation.visitors;
 
-<<<<<<< HEAD
-=======
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-
 import com.sheffield.instrumenter.Properties;
->>>>>>> abd4c13593b08f6306f1f0890a061c4bc7d98454
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
@@ -71,13 +58,8 @@ public class ArrayApproachClassVisitor extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-<<<<<<< HEAD
-		if((access & Opcodes.ACC_STATIC) != 0 || name.equals("<init>")){
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,className,INIT_METHOD_NAME,INIT_METHOD_DESC);
-=======
 		if ((Opcodes.ACC_STATIC & access) != 0 || "<init>".equals(name)) {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
->>>>>>> abd4c13593b08f6306f1f0890a061c4bc7d98454
 		}
 		if (Properties.INSTRUMENT_BRANCHES) {
 			mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);

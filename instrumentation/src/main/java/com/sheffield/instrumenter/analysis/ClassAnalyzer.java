@@ -329,7 +329,9 @@ public class ClassAnalyzer {
 		if (lines.get(className).containsKey(lineNumber)) {
 			return lines.get(className).get(lineNumber);
 		}
-		return null;
+		LineHit lh = new LineHit(new Line(className, lineNumber), -1);
+		lines.get(className).put(lineNumber, lh);
+		return lh;
 	}
 
 	public static double lineCoverage() {
@@ -369,7 +371,7 @@ public class ClassAnalyzer {
 		String gestureFiles = "";
 
 		for (String s : Properties.GESTURE_FILES){
-			gestureFiles += s;
+			gestureFiles += s + "/";
 		}
 
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()

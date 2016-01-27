@@ -50,7 +50,6 @@
       <module name="instrumentation" target="1.6" />
       <module name="leap" target="1.6" />
       <module name="leapmotion-tester" target="1.6" />
-      <module name="leapmotion-webbrowser" target="1.6" />
     </bytecodeTargetLevel>
   </component>
 </project>

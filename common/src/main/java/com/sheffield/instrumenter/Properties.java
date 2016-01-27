@@ -99,6 +99,7 @@ public class Properties implements PropertySource {
 //			"processed/swipe-right-25-2",
 //			"processed/swipe-up-25-2",
 //			"processed/screen-tap-25-2"
+	};
 
 	public static long SAMPLE_RATE = 300;
 
