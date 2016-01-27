@@ -1,16 +1,11 @@
 package com.sheffield.instrumenter.instrumentation.modifiers;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-
 import com.sheffield.instrumenter.analysis.BranchType;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import org.objectweb.asm.*;
+
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class StaticBranchVisitor extends MethodAdapter {
 	private int branch = 0;
@@ -153,7 +148,7 @@ public class StaticBranchVisitor extends MethodAdapter {
 				visitLdcInsn(currentLine);
 				visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecuted",
 						Type.getMethodDescriptor(BRANCH_METHOD));
-				visitJumpInsn(Opcodes.GOTO, label);
+				mv.visitJumpInsn(Opcodes.GOTO, label);
 				visitLabel(l2);
 
 				labelBranches.put(label.toString(), branchName);
@@ -200,10 +195,10 @@ public class StaticBranchVisitor extends MethodAdapter {
 
 	@Override
 	public void visitLineNumber(int lineNumber, Label label) {
-		currentLine = lineNumber;
+		//currentLine = lineNumber;
 		ClassAnalyzer.lineFound(className, currentLine);
 		mv.visitLdcInsn(className);
-		mv.visitLdcInsn(lineNumber);
+		mv.visitLdcInsn(currentLine);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "lineExecuted", "(Ljava/lang/String;I)V");
 		super.visitLineNumber(lineNumber, label);
 

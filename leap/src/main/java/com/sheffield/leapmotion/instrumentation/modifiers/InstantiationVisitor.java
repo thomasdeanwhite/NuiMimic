@@ -28,6 +28,8 @@ public class InstantiationVisitor extends MethodAdapter {
     private static Method APP_METHOD_TO_CALL;
     private static Method CIRCLE_METHOD_TO_CALL;
 
+    private final static boolean DEBUG_MODE = false;
+
     static {
         try {
             METHOD_TO_CALL = SeededController.class.getMethod("getController", new Class[]{});
@@ -49,6 +51,11 @@ public class InstantiationVisitor extends MethodAdapter {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+        if (DEBUG_MODE){
+            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+        }
         boolean shouldCall = true;
         if (owner.equals(CONTROLLER_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
             super.visitMethodInsn(opcode, owner, name, desc);

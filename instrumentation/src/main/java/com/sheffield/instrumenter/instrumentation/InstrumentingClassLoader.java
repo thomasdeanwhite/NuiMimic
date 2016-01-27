@@ -1,7 +1,6 @@
 package com.sheffield.instrumenter.instrumentation;
 
 import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
@@ -18,14 +17,27 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 
 public class InstrumentingClassLoader extends URLClassLoader {
 
 	private static InstrumentingClassLoader instance;
 	private ClassLoader classLoader;
-	ClassReplacementTransformer crt = new ClassReplacementTransformer();
+	private ClassReplacementTransformer crt = new ClassReplacementTransformer();
 	private boolean shouldInstrument;
 	private MockClassLoader loader;
+    private ArrayList<ClassInstrumentingInterceptor> classInstrumentingInterceptors;
+
+    public interface ClassInstrumentingInterceptor {
+        public ClassVisitor intercept(ClassVisitor parent, String className);
+    }
+    public void addClassInstrumentingInterceptor (ClassInstrumentingInterceptor cii){
+        classInstrumentingInterceptors.add(cii);
+    }
+
+    public void removeClassInstrumentingInterceptor (ClassInstrumentingInterceptor cii){
+        classInstrumentingInterceptors.remove(cii);
+    }
 
 	public void setShouldInstrument(boolean shouldInstrument) {
 		this.shouldInstrument = shouldInstrument;
@@ -35,12 +47,15 @@ public class InstrumentingClassLoader extends URLClassLoader {
 		super(urls);
 		loader = new MockClassLoader(urls);
 		this.classLoader = getClass().getClassLoader();
+        classInstrumentingInterceptors = new ArrayList<ClassInstrumentingInterceptor>();
+
 	}
 
 	@Override
 	public void addURL(URL u) {
 		super.addURL(u);
 		loader.addURL(u);
+		// Add url to system class loader.
 	}
 
 	public static void init(InstrumentingClassLoader instance) {
@@ -83,15 +98,25 @@ public class InstrumentingClassLoader extends URLClassLoader {
 		InputStream stream = null;
 		ByteArrayOutputStream out = null;
 		try {
+
 			stream = getInputStreamForClass(name);
-			ClassWriter cw = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
-			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
-					? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
-			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
+            ClassWriter writer = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
+            ClassVisitor cw = writer;
+            for (ClassInstrumentingInterceptor cii : classInstrumentingInterceptors){
+                ClassVisitor newVisitor = cii.intercept(cw, name);
+                if (newVisitor != null){
+                    cw = newVisitor;
+                }
+            }
+
+            ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == Properties.InstrumentationApproach.STATIC
+                    ? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
+			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
 			if (Properties.WRITE_CLASS) {
-				File folder = new File(Properties.BYTECODE_DIR);
+				String outputDir = Properties.BYTECODE_DIR + "/" + name.replace(".", "/").substring(0, name.lastIndexOf("."));
+				File folder = new File(outputDir);
 				folder.mkdirs();
-				File output = new File(folder.getAbsolutePath() + "/" + name + ".class");
+				File output = new File(folder.getAbsolutePath() + "/" + name.substring(name.lastIndexOf(".")+1) + ".class");
 				output.createNewFile();
 				FileOutputStream outFile = new FileOutputStream(output);
 				outFile.write(bytes);
@@ -140,7 +165,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 					return cl;
 				}
 				URL[] urls = getURLs();
-				return classLoader.loadClass(name);
+				return loader.loadClass(name);
 			}
 			Class<?> cl = loader.loadOriginalClass(name);
 			return cl;

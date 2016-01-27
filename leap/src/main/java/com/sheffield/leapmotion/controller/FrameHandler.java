@@ -96,6 +96,23 @@ public class FrameHandler {
 
     public void loadNewFrame() {
         Frame frame = frameSelector.newFrame();
+        if (frameSelector instanceof EmptyFrameSelector){
+            loadNewFrame();
+            final Frame last = getFrame(1);
+            final Frame next = frame;
+            for (FrameSwitchListener fsl : frameSwitchListeners) {
+                final FrameSwitchListener fl = fsl;
+
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        fl.onFrameSwitch(last, next);
+                    }
+                }).start();
+            }
+            return;
+        }
         if (frameSelector instanceof UserPlaybackFrameSelector) {
             UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
             if (upfs.finished()){
@@ -104,7 +121,9 @@ public class FrameHandler {
                 return;
             }
         } else {
-            frame = new SeededFrame(frame);
+            if (!(frame instanceof  SeededFrame)) {
+                frame = new SeededFrame(frame);
+            }
             SeededFrame sf = (SeededFrame) frame;
             GestureList gl = null;
             if (gestureHandler != null) {

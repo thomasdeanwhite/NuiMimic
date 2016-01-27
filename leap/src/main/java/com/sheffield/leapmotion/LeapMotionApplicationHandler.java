@@ -3,6 +3,8 @@ package com.sheffield.leapmotion;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
+import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
+import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +45,13 @@ public class LeapMotionApplicationHandler {
 			}
 		});
 
+		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
+		INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
+			@Override
+			public ClassVisitor intercept(ClassVisitor parent, String name) {
+				return new TestingClassAdapter(parent, name);
+			}
+		});
 		nonDependancies = new ArrayList<String>();
 	}
 
@@ -50,7 +59,7 @@ public class LeapMotionApplicationHandler {
 
 	public static void loadJar(String jar) throws MalformedURLException {
 		JAR_LOADED = true;
-		String jarFilePath = "file:" + jar;
+		String jarFilePath = "file:/" + jar;
 
 		URL url = new URL("jar:" + jarFilePath + "!/");
 
@@ -60,7 +69,7 @@ public class LeapMotionApplicationHandler {
 		// }
 
 		try {
-			addUrlToSystemClasspath(new URL(jarFilePath));
+			addUrlToSystemClasspath(url);
 
 
 			JarURLConnection uc = (JarURLConnection) url.openConnection();
@@ -75,7 +84,7 @@ public class LeapMotionApplicationHandler {
 
 			Manifest mf = jarFile.getManifest();
 
-			App.out.println("- Loaded jar: " + url.getPath());
+			App.out.println(">> Added to ClassPath: " + url);
 
 			String mainClass = mf.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 
@@ -88,20 +97,9 @@ public class LeapMotionApplicationHandler {
 
 				for (File f : files) {
 					mfClassPath += f.getName() + " ";
-				}
-
-				if (mfClassPath != null) {
-					String[] mfCps = mfClassPath.split(" ");
-
-					String location = "file:" + Properties.CLASS_PATH;
-
-					location = location.replace("\\", "/");
-
-					for (String mfCp : mfCps) {
-						String path = location + "/" + mfCp;
-						addUrlToSystemClasspath(new URL(path));
-						App.out.println("Added " + path + " to classpath");
-					}
+					String path = "jar:" + f.toURI().toURL() + "!/";
+					addUrlToSystemClasspath(new URL(path));
+					App.out.println(">> Added to ClassPath: " + path);
 				}
 			}
 
@@ -112,7 +110,6 @@ public class LeapMotionApplicationHandler {
 	}
 
 	public static void instrumentJar(String jar) throws MalformedURLException {
-		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
 		String jarFilePath = "file:/" + jar;
 
 		if (!JAR_LOADED) {
