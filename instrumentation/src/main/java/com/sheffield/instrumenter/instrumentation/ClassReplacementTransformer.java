@@ -1,15 +1,20 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.ArrayList;
 
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.*;
-import java.lang.instrument.IllegalClassFormatException;
-import java.util.ArrayList;
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 
 public class ClassReplacementTransformer {
 
@@ -25,7 +30,7 @@ public class ClassReplacementTransformer {
 		shouldInstrumentCheckers = new ArrayList<ShouldInstrumentChecker>();
 	}
 
-	public void setWriteClasses (boolean b){
+	public void setWriteClasses(boolean b) {
 		shouldWriteClass = b;
 	}
 
@@ -85,7 +90,6 @@ public class ClassReplacementTransformer {
 
 		}
 
-
 	}
 
 	private static final ArrayList<String> forbiddenPackages = new ArrayList<String>();
@@ -105,7 +109,7 @@ public class ClassReplacementTransformer {
 
 	/**
 	 * Add a package that should not be instrumented.
-	 * 
+	 *
 	 * @param forbiddenPackage
 	 *            the package name not to be instrumented, using / for subpackages (e.g. org/junit)
 	 */
@@ -114,6 +118,9 @@ public class ClassReplacementTransformer {
 	}
 
 	public boolean shouldInstrumentClass(String className) {
+		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.NONE) {
+			return false;
+		}
 		if (className == null) {
 			return false;
 		}
@@ -127,8 +134,8 @@ public class ClassReplacementTransformer {
 			className = className.replace("/", ".");
 		}
 
-		for (ShouldInstrumentChecker sic : shouldInstrumentCheckers){
-			if (!sic.shouldInstrument(className)){
+		for (ShouldInstrumentChecker sic : shouldInstrumentCheckers) {
+			if (!sic.shouldInstrument(className)) {
 				return false;
 			}
 		}
@@ -145,11 +152,11 @@ public class ClassReplacementTransformer {
 		return false;
 	}
 
-	public void addShouldInstrumentChecker (ShouldInstrumentChecker s){
+	public void addShouldInstrumentChecker(ShouldInstrumentChecker s) {
 		shouldInstrumentCheckers.add(s);
 	}
 
-	public void removeShouldInstrumentChecker (ShouldInstrumentChecker s){
+	public void removeShouldInstrumentChecker(ShouldInstrumentChecker s) {
 		shouldInstrumentCheckers.remove(s);
 	}
 

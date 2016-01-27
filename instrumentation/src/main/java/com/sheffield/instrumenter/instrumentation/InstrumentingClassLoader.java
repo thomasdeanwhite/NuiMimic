@@ -81,25 +81,27 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		if (ClassStore.get(name) != null) {
-			return ClassStore.get(name);
+		String className = name.replace('/', '.');
+		if (ClassStore.get(className) != null) {
+			return ClassStore.get(className);
 		}
-		if ("".equals(name)) {
+		if ("".equals(className)) {
 			throw new ClassNotFoundException();
 		}
 
-		if (!crt.shouldInstrumentClass(name.replace(".", "/")) || !shouldInstrument) {
-			Class<?> cl = findLoadedClass(name);
+		if (!crt.shouldInstrumentClass(className) || !shouldInstrument) {
+			Class<?> cl = findLoadedClass(className);
 			if (cl != null) {
 				return cl;
 			}
-			return super.loadClass(name, resolve);
+			return super.loadClass(className, resolve);
 		}
 		InputStream stream = null;
 		ByteArrayOutputStream out = null;
 		try {
 
 			stream = getInputStreamForClass(name);
+<<<<<<< HEAD
             ClassWriter writer = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
             ClassVisitor cw = writer;
             for (ClassInstrumentingInterceptor cii : classInstrumentingInterceptors){
@@ -112,6 +114,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
             ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == Properties.InstrumentationApproach.STATIC
                     ? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
+=======
+			ClassWriter cw = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
+			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.STATIC
+					? new StaticApproachClassVisitor(cw, className) : new ArrayApproachClassVisitor(cw, className);
+			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, cw);
+>>>>>>> abd4c13593b08f6306f1f0890a061c4bc7d98454
 			if (Properties.WRITE_CLASS) {
 				String outputDir = Properties.BYTECODE_DIR + "/" + name.replace(".", "/").substring(0, name.lastIndexOf("."));
 				File folder = new File(outputDir);
@@ -125,12 +133,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
 			}
 			Class<?> cl = null;
 			try {
-				cl = defineClass(name, bytes, 0, bytes.length);
+				cl = defineClass(className, bytes, 0, bytes.length);
 			} catch (final Throwable e) {
 				e.printStackTrace(ClassAnalyzer.out);
 			}
 
-			ClassStore.put(name, cl);
+			ClassStore.put(className, cl);
 			if (resolve) {
 				resolveClass(cl);
 			}

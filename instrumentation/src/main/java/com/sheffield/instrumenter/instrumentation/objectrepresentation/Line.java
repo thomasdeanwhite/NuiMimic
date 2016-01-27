@@ -29,4 +29,9 @@ public class Line {
 	public int getLineNumber() {
 		return lineNumber;
 	}
+
+	@Override
+	public String toString() {
+		return String.valueOf(lineNumber);
+	}
 }

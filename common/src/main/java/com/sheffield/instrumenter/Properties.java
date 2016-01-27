@@ -59,11 +59,17 @@ public class Properties implements PropertySource {
 	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATIC_DISTANCE;
 
 	public enum InstrumentationApproach {
-		STATIC, ARRAY
+		STATIC, ARRAY, NONE
 	}
 
 	@Parameter(key = "instrumentation_approach", description = "Determines the approach to be used during class instrumentation. A static approach inserts calls to ClassAnalyzer.lineFound etc to track which lines/branches have been covered. Using an array stores all line/branch executions in an array of integers and has a method to get all the values")
 	public static InstrumentationApproach INSTRUMENTATION_APPROACH = InstrumentationApproach.ARRAY;
+
+	@Parameter(key = "instrument_lines", description = "Switch on line instrumentation")
+	public static boolean INSTRUMENT_LINES = true;
+
+	@Parameter(key = "instrument_branches", description = "Switch on branch instrumentation")
+	public static boolean INSTRUMENT_BRANCHES = true;
 
 	public static int MAX_LOADED_FRAMES = 10;
 
@@ -93,7 +99,6 @@ public class Properties implements PropertySource {
 //			"processed/swipe-right-25-2",
 //			"processed/swipe-up-25-2",
 //			"processed/screen-tap-25-2"
-	};
 
 	public static long SAMPLE_RATE = 300;
 
