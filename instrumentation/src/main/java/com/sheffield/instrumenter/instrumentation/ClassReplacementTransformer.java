@@ -15,6 +15,8 @@ import org.objectweb.asm.ClassWriter;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.analysis.InstrumentingTask;
+import com.sheffield.instrumenter.analysis.task.TaskTimer;
 
 public class ClassReplacementTransformer {
 
@@ -68,10 +70,11 @@ public class ClassReplacementTransformer {
 			byte[] newClass = cBytes;
 			try {
 				ClassReader cr = new ClassReader(ins);
-
+				TaskTimer.taskStart(new InstrumentingTask(cName));
 				cr.accept(cv, ClassReader.EXPAND_FRAMES);
 
 				newClass = cw.toByteArray();
+				TaskTimer.taskEnd();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

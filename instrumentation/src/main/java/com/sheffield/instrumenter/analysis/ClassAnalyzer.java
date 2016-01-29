@@ -375,7 +375,7 @@ public class ClassAnalyzer {
 
 		String gestureFiles = "";
 
-		for (String s : Properties.GESTURE_FILES){
+		for (String s : Properties.GESTURE_FILES) {
 			gestureFiles += s;
 		}
 
