@@ -1,21 +1,16 @@
 package com.sheffield.instrumenter.instrumentation.visitors;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import org.objectweb.asm.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ArrayApproachClassVisitor extends ClassVisitor {
 	private String className;

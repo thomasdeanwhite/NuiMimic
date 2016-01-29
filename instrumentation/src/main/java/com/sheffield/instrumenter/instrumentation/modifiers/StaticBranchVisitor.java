@@ -23,6 +23,7 @@ public class StaticBranchVisitor extends MethodVisitor {
 	private static Method BRANCH_DISTANCE_METHOD_D;
 	private static Method BRANCH_DISTANCE_METHOD_L;
 	private int currentLine;
+	private MethodVisitor mv;
 
 	private HashMap<String, Integer> branchVariables = new HashMap<String, Integer>();
 
@@ -51,6 +52,7 @@ public class StaticBranchVisitor extends MethodVisitor {
 
 	public StaticBranchVisitor(MethodVisitor mv, String className, String methodName) {
 		super(Opcodes.ASM5, mv);
+		this.mv = mv;
 		this.className = className;
 		this.methodName = methodName;
 		labelBranches = new HashMap<String, String>();
@@ -150,7 +152,7 @@ public class StaticBranchVisitor extends MethodVisitor {
 				visitLdcInsn(currentLine);
 				visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "branchExecuted",
 						Type.getMethodDescriptor(BRANCH_METHOD), false);
-				visitJumpInsn(Opcodes.GOTO, label);
+				mv.visitJumpInsn(Opcodes.GOTO, label);
 				visitLabel(l2);
 				ClassAnalyzer.branchFound(className, currentLine);
 				break;

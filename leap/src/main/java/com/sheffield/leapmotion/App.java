@@ -1,21 +1,5 @@
 package com.sheffield.leapmotion;
 
-import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.security.Permission;
-import java.util.Random;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-
 import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
@@ -24,6 +8,16 @@ import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import org.apache.commons.cli.*;
+
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.security.Permission;
+import java.util.Random;
 
 public class App implements ThrowableListener {
     public static Random random = new Random();
@@ -36,7 +30,6 @@ public class App implements ThrowableListener {
     private static Thread mainThread = null;
 
     public static DisplayWindow DISPLAY_WINDOW = null;
-
     private static PrintStream originalOut = System.out;
 
     public static PrintStream out = new PrintStream(originalOut) {
@@ -136,11 +129,10 @@ public class App implements ThrowableListener {
 
     public static void setTesting() {
         App.out.println("- Status changed to: Testing.");
+        App.getApp().setStatus(AppStatus.TESTING);
         if (getApp() == null) {
-            App.getApp().setStatus(AppStatus.TESTING);
             background(null);
         }
-        getApp().setStatus(AppStatus.TESTING);
     }
 
     public static void startTesting() {
@@ -187,6 +179,7 @@ public class App implements ThrowableListener {
 
     @SuppressWarnings("static-access")
     public static void setOptions(String[] args) {
+        //ClassAnalyzer.addThrowableListener(getApp());
         CommandLineParser parser = new GnuParser();
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("jar").withDescription("Jar file to run").hasArg()
@@ -390,9 +383,9 @@ public class App implements ThrowableListener {
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
-            App.out.print("\r\tWriting output to: " + output);
+            App.out.print("+ Writing output to: " + output);
             ClassAnalyzer.output(output);
-            App.out.println("\r\tWritten output to " + output);
+            App.out.println("\r+ Written output to " + output);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }

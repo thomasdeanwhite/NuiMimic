@@ -27,7 +27,7 @@ public class Properties implements PropertySource {
 		String description();
 	}
 
-	public static String DIRECTORY = "C:\\data\\leap-motion\\processed";
+	public static String DIRECTORY = "C:/data/leap-motion/processed";
 
 	public static String PLAYBACK_FILE = null;
 
@@ -89,16 +89,16 @@ public class Properties implements PropertySource {
 
 	public static String NGRAM_TYPE = "25-2";
 
-	public static String[] GESTURE_FILES = { "tom-gorogoa-300000ms-" + NGRAM_TYPE,
-			// "processed/bigcircle-25-2",
-			// "processed/circle-25-2",
-			// "processed/keytap-25-2",
-			// "processed/punch-25-2",
-			// "processed/swipe-down-25-2",
-			// "processed/swipe-left-25-2",
-			// "processed/swipe-right-25-2",
-			// "processed/swipe-up-25-2",
-			// "processed/screen-tap-25-2"
+	public static String[] GESTURE_FILES = {"tom-gorogoa-300000ms",
+//			"processed/bigcircle-25-2",
+//			"processed/circle-25-2",
+//			"processed/keytap-25-2",
+//			"processed/punch-25-2",
+//			"processed/swipe-down-25-2",
+//			"processed/swipe-left-25-2",
+//			"processed/swipe-right-25-2",
+//			"processed/swipe-up-25-2",
+//			"processed/screen-tap-25-2"
 	};
 
 	public static long SAMPLE_RATE = 300;

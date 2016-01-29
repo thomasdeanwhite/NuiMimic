@@ -1,24 +1,19 @@
 package com.sheffield.leapmotion.instrumentation.visitors;
 
-import org.objectweb.asm.ClassAdapter;
+import com.sheffield.leapmotion.instrumentation.modifiers.InstantiationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
-import com.sheffield.instrumenter.instrumentation.modifiers.StaticBranchVisitor;
-import com.sheffield.leapmotion.instrumentation.modifiers.InstantiationVisitor;
+public class TestingClassAdapter extends ClassVisitor {
 
-public class TestingClassAdapter extends ClassAdapter implements ClassVisitor {
+	private String className;
+	private ClassVisitor parent;
 
-	private final String className;
-
-	public TestingClassAdapter(ClassVisitor arg0, String clazz) {
-		super(arg0);
-		className = clazz;
-	}
-
-	@Override
-	public void visit(int arg0, int arg1, String arg2, String arg3, String superName, String[] arg5) {
-		super.visit(arg0, arg1, arg2, arg3, superName, arg5);
+	public TestingClassAdapter(ClassVisitor parent, String name) {
+		super(Opcodes.ASM5, parent);
+		className = name;
+		this.parent = parent;
 	}
 
 	@Override
@@ -26,9 +21,7 @@ public class TestingClassAdapter extends ClassAdapter implements ClassVisitor {
 			String[] exceptions) {
 		// MethodNode mn = new MethodNode(access, name, descriptor, signature,
 		// exceptions);
-		return new StaticBranchVisitor(
-				new InstantiationVisitor(super.visitMethod(access, name, descriptor, signature, exceptions), className),
-				className, name);
+		return new InstantiationVisitor(parent.visitMethod(access, name, descriptor, signature, exceptions), className);
 	}
 
 }

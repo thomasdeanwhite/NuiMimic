@@ -5,14 +5,13 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.mocks.SeededGesture;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
-public class InstantiationVisitor extends MethodAdapter {
+public class InstantiationVisitor extends MethodVisitor {
 
     private String className;
     private MethodVisitor methodVisitor;
@@ -28,6 +27,8 @@ public class InstantiationVisitor extends MethodAdapter {
     private static Method APP_METHOD_TO_CALL;
     private static Method CIRCLE_METHOD_TO_CALL;
 
+    private final static boolean DEBUG_MODE = false;
+
     static {
         try {
             METHOD_TO_CALL = SeededController.class.getMethod("getController", new Class[]{});
@@ -41,49 +42,54 @@ public class InstantiationVisitor extends MethodAdapter {
     }
 
     public InstantiationVisitor(MethodVisitor mv, String cName) {
-        super(mv);
+        super(Opcodes.ASM5, mv);
         methodVisitor = mv;
         className = cName;
 
     }
 
     @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+        if (DEBUG_MODE){
+            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
+        }
         boolean shouldCall = true;
         if (owner.equals(CONTROLLER_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
             try {
                 super.visitInsn(Opcodes.POP);
                 super.visitMethodInsn(Opcodes.INVOKESTATIC, NEW_CONTROLLER, "getController",
-                        Type.getMethodDescriptor(METHOD_TO_CALL));
+                        Type.getMethodDescriptor(METHOD_TO_CALL), itf);
                 super.visitMethodInsn(Opcodes.INVOKESTATIC, APP_CLASS, "setTesting",
-                        Type.getMethodDescriptor(APP_METHOD_TO_CALL));
-                /*
-				 * App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
-				 */
+                        Type.getMethodDescriptor(APP_METHOD_TO_CALL), itf);
+
+				 App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
+
             } catch (SecurityException e) {
                 e.printStackTrace();
             }
             shouldCall = false;
         } else if (owner.equals(HAND_LIST_CLASS) && name.equals("empty")) {
             // Convert from old API version to new one.
-            super.visitMethodInsn(opcode, owner, "isEmpty", desc);
+            super.visitMethodInsn(opcode, owner, "isEmpty", desc, false);
             shouldCall = false;
         } else if (owner.equals(CIRCLE_GESTURE_CLASS) && name.contains("<init>")) {
             super.visitInsn(Opcodes.DUP_X2);
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
             super.visitInsn(Opcodes.POP);
             super.visitMethodInsn(Opcodes.INVOKESTATIC, GESTURE_CLASS, "getCircleGesture",
-                    Type.getMethodDescriptor(CIRCLE_METHOD_TO_CALL));
+                    Type.getMethodDescriptor(CIRCLE_METHOD_TO_CALL), false);
             shouldCall = false;
         } else if (Properties.REPLACE_FINGERS_METHOD && owner.equals(HAND_CLASS) && name.equals("fingers") ){
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, false);
             owner = FINGER_LIST_CLASS;
             name = "extended";
         }
 
         if (shouldCall) {
-            super.visitMethodInsn(opcode, owner, name, desc);
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
         }
     }
 

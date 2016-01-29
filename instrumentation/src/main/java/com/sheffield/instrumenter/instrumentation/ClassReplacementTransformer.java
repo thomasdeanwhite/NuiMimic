@@ -76,7 +76,7 @@ public class ClassReplacementTransformer {
 				newClass = cw.toByteArray();
 				TaskTimer.taskEnd();
 			} catch (IOException e) {
-				e.printStackTrace();
+				e.printStackTrace(ClassAnalyzer.out);
 			}
 			if (shouldWriteClass) {
 				File file = new File("classes/" + cName + ".class");
