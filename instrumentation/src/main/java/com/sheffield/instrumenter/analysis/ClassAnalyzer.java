@@ -16,6 +16,8 @@ import java.util.Set;
 
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.analysis.task.AbstractTask;
+import com.sheffield.instrumenter.analysis.task.TaskTimer;
 import com.sheffield.instrumenter.instrumentation.ClassStore;
 import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
@@ -449,6 +451,9 @@ public class ClassAnalyzer {
 
 	public static void collectHitCounters() {
 		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
+			if(Properties.LOG){
+				TaskTimer.taskStart(new CollectHitCountersTimer());
+			}
 			Set<String> classNames = new HashSet<String>();
 			classNames.addAll(branches.keySet());
 			classNames.addAll(lines.keySet());
@@ -491,6 +496,7 @@ public class ClassAnalyzer {
 					e.printStackTrace();
 				}
 			}
+			TaskTimer.taskEnd();
 		}
 	}
 
@@ -540,5 +546,12 @@ public class ClassAnalyzer {
 			}
 		}
 		return changedClasses;
+	}
+	
+	private static final class CollectHitCountersTimer extends AbstractTask {
+		@Override
+		public String asString(){
+			return "Collecting hit counters";
+		}
 	}
 }

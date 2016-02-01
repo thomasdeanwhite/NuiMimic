@@ -70,7 +70,9 @@ public class ClassReplacementTransformer {
 			byte[] newClass = cBytes;
 			try {
 				ClassReader cr = new ClassReader(ins);
-				TaskTimer.taskStart(new InstrumentingTask(cName));
+				if (Properties.LOG) {
+					TaskTimer.taskStart(new InstrumentingTask(cName));
+				}
 				cr.accept(cv, ClassReader.EXPAND_FRAMES);
 
 				newClass = cw.toByteArray();
@@ -101,8 +103,10 @@ public class ClassReplacementTransformer {
 		String[] defaultHiddenPackages = new String[] { "com/sun", "java/", "sun/", "jdk/",
 				"com/sheffield/instrumenter" };
 
-		// String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
-		// "com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/", "org/json", "org/apache/commons/cli",
+		// String[] defaultHiddenPackages = new
+		// String[]{"com/sheffield/leapmotion", "com/google/gson",
+		// "com/sun", "java/", "sun/", "com/leapmotion", "jdk/", "javax/",
+		// "org/json", "org/apache/commons/cli",
 		// "com/sheffield/instrumenter", "com/dpaterson", "org/junit"};
 
 		for (String s : defaultHiddenPackages) {
@@ -114,7 +118,8 @@ public class ClassReplacementTransformer {
 	 * Add a package that should not be instrumented.
 	 *
 	 * @param forbiddenPackage
-	 *            the package name not to be instrumented, using / for subpackages (e.g. org/junit)
+	 *            the package name not to be instrumented, using / for
+	 *            subpackages (e.g. org/junit)
 	 */
 	public static void addForbiddenPackage(String forbiddenPackage) {
 		forbiddenPackages.add(forbiddenPackage);
