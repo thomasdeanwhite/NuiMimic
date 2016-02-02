@@ -5,7 +5,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
 
 public class StaticLineVisitor extends MethodVisitor {
 	private String className;
@@ -20,7 +20,7 @@ public class StaticLineVisitor extends MethodVisitor {
 		ClassAnalyzer.lineFound(className, lineNumber);
 		visitLdcInsn(className);
 		visitLdcInsn(lineNumber);
-		visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "lineExecuted",
+		visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "lineExecuted",
 				"(Ljava/lang/String;I)V", false);
 		mv.visitLineNumber(lineNumber, label);
 	}

@@ -10,7 +10,7 @@ import org.objectweb.asm.Type;
 
 import com.sheffield.instrumenter.analysis.BranchType;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
 
 public class StaticBranchVisitor extends MethodVisitor {
 	private int lastBranchDistance = 0;
@@ -143,14 +143,14 @@ public class StaticBranchVisitor extends MethodVisitor {
 				visitInsn(Opcodes.ICONST_0);
 				visitLdcInsn(className);
 				visitLdcInsn(currentLine);
-				visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "branchExecuted",
+				visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
 						Type.getMethodDescriptor(BRANCH_METHOD), false);
 				mv.visitJumpInsn(Opcodes.GOTO, l2);
 				visitLabel(l);
 				visitInsn(Opcodes.ICONST_1);
 				visitLdcInsn(className);
 				visitLdcInsn(currentLine);
-				visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "branchExecuted",
+				visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
 						Type.getMethodDescriptor(BRANCH_METHOD), false);
 				mv.visitJumpInsn(Opcodes.GOTO, label);
 				visitLabel(l2);

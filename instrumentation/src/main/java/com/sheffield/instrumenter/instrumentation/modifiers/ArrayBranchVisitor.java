@@ -6,15 +6,15 @@ import org.objectweb.asm.Opcodes;
 
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 
 public class ArrayBranchVisitor extends MethodVisitor {
-	private ArrayApproachClassVisitor parent;
+	private ArrayClassVisitor parent;
 	private String className;
 	private String methodName;
 	private int currentLine;
 
-	public ArrayBranchVisitor(ArrayApproachClassVisitor parent, MethodVisitor mv, String className, String methodName,
+	public ArrayBranchVisitor(ArrayClassVisitor parent, MethodVisitor mv, String className, String methodName,
 			String desc, int access) {
 		super(Opcodes.ASM5, mv);
 		this.className = className;
@@ -53,8 +53,8 @@ public class ArrayBranchVisitor extends MethodVisitor {
 				Label l = new Label();
 				Label l2 = new Label();
 				mv.visitJumpInsn(opcode, l);
-				visitFieldInsn(Opcodes.GETSTATIC, className, ArrayApproachClassVisitor.COUNTER_VARIABLE_NAME,
-						ArrayApproachClassVisitor.COUNTER_VARIABLE_DESC);
+				visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
+						ArrayClassVisitor.COUNTER_VARIABLE_DESC);
 				visitLdcInsn(trueCounter);
 				visitInsn(Opcodes.DUP2);
 				visitInsn(Opcodes.IALOAD);
@@ -63,8 +63,8 @@ public class ArrayBranchVisitor extends MethodVisitor {
 				visitInsn(Opcodes.IASTORE);
 				mv.visitJumpInsn(Opcodes.GOTO, l2);
 				visitLabel(l);
-				visitFieldInsn(Opcodes.GETSTATIC, className, ArrayApproachClassVisitor.COUNTER_VARIABLE_NAME,
-						ArrayApproachClassVisitor.COUNTER_VARIABLE_DESC);
+				visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
+						ArrayClassVisitor.COUNTER_VARIABLE_DESC);
 				visitLdcInsn(falseCounter);
 				visitInsn(Opcodes.DUP2);
 				visitInsn(Opcodes.IALOAD);

@@ -24,7 +24,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
@@ -535,7 +535,7 @@ public class ClassAnalyzer {
 //					}
 //				}
 				try {
-					Method getCounters = cl.getDeclaredMethod(ArrayApproachClassVisitor.COUNTER_METHOD_NAME,
+					Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME,
 							new Class<?>[] {});
 					getCounters.setAccessible(true);
 					int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
@@ -558,7 +558,7 @@ public class ClassAnalyzer {
 						}
 					}
 
-					Method resetCounters = cl.getDeclaredMethod(ArrayApproachClassVisitor.RESET_COUNTER_METHOD_NAME,
+					Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
 							new Class[] {});
 					resetCounters.setAccessible(true);
 					resetCounters.invoke(null, new Object[] {});
