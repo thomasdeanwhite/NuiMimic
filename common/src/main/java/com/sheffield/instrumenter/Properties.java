@@ -47,7 +47,7 @@ public class Properties implements PropertySource {
 	public static String CLASS_PATH = "";
 
 	public static String LM_AGENT_JAR = "lm-agent.jar";
-
+	
 	public static boolean RECORDING = false;
 
 	public static String[] EXILED_CLASSES;
@@ -116,7 +116,13 @@ public class Properties implements PropertySource {
 
 	@Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true")
 	public static String BYTECODE_DIR = System.getProperty("user.home") + "/.bytecode/";
+	
+	@Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)")
+	public static String LOG_DIR = System.getProperty("user.home")+"/.logs/";
 
+	@Parameter(key = "log_tinigs", description = "set whether application timings should be written to a log file")
+	public static boolean LOG = true;
+	
 	private Map<String, Field> parameterMap = new HashMap<String, Field>();
 
 	private void reflectMap() {

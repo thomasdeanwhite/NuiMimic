@@ -1,7 +1,23 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.analysis.task.AbstractTask;
+import com.sheffield.instrumenter.analysis.task.TaskTimer;
 import com.sheffield.instrumenter.instrumentation.ClassStore;
 import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
@@ -13,12 +29,6 @@ import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Method;
-import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -369,7 +379,7 @@ public class ClassAnalyzer {
 
 		String gestureFiles = "";
 
-		for (String s : Properties.GESTURE_FILES){
+		for (String s : Properties.GESTURE_FILES) {
 			gestureFiles += s + "/";
 		}
 		int totalLines = 0;
@@ -484,6 +494,9 @@ public class ClassAnalyzer {
 
 	public static void collectHitCounters() {
 		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
+			if(Properties.LOG){
+				TaskTimer.taskStart(new CollectHitCountersTimer());
+			}
 			Set<String> classNames = new HashSet<String>();
 			classNames.addAll(branches.keySet());
 			classNames.addAll(lines.keySet());
@@ -554,6 +567,7 @@ public class ClassAnalyzer {
 					e.printStackTrace(out);
 				}
 			}
+			TaskTimer.taskEnd();
 		}
 	}
 
@@ -603,5 +617,12 @@ public class ClassAnalyzer {
 			}
 		}
 		return changedClasses;
+	}
+	
+	private static final class CollectHitCountersTimer extends AbstractTask {
+		@Override
+		public String asString(){
+			return "Collecting hit counters";
+		}
 	}
 }
