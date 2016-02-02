@@ -17,7 +17,6 @@ import com.sheffield.leapmotion.sampler.FileHandler;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -139,7 +138,7 @@ public class ClassAnalyzer {
 
 	public static synchronized void branchExecuted(boolean hit, String className, int lineNumber) {
 		if (!branches.containsKey(className)) {
-			branches.put(className, new ArrayList<BranchHit>());
+			branchFound(className, lineNumber);
 		}
 		BranchHit bh = findOrCreateBranchHit(className, lineNumber);
 		if (hit) {
@@ -363,7 +362,7 @@ public class ClassAnalyzer {
 		String csv = "";
 
 		if (headers) {
-			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file\n";
+			csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage\n";
 		}
 		String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
 		String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
@@ -373,15 +372,26 @@ public class ClassAnalyzer {
 		for (String s : Properties.GESTURE_FILES){
 			gestureFiles += s + "/";
 		}
+		int totalLines = 0;
+		int coveredLines = 0;
+		for (String s : lines.keySet()){
+			Map<Integer, LineHit> lh = lines.get(s);
+			totalLines += lh.size();
+			for (int i : lh.keySet()){
+				if (lh.get(i).getLine().getHits() > 0){
+					coveredLines++;
+				}
+			}
+		}
 
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
 				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
-				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "\n";
+				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines + "," + ((float)coveredLines/(float)totalLines) + "\n";
 		return csv;
 
 	}
 
-	public static void output(String file) {
+	public static void output(String file, String file2) {
 
 		int counter = 0;
 		int bars = 50;
@@ -416,6 +426,38 @@ public class ClassAnalyzer {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		sb = new StringBuilder("");
+		int totalLines = lines.size();
+		for (String className : lines.keySet()) {
+			for (int b : lines.get(className).keySet()) {
+				sb.append(className);
+				sb.append("#");
+				sb.append(b);
+				sb.append(",");
+				String progress = "[";
+				float percent = counter / (float) totalBranches;
+				int b1 = (int) (percent * bars);
+				for (int i = 0; i < b1; i++) {
+					progress += "-";
+				}
+				progress += ">";
+				int b2 = bars - b1;
+				for (int i = 0; i < b2; i++) {
+					progress += " ";
+				}
+				progress += "] " + (int) (percent * 100) + "% [" + counter + " of " + totalBranches + "]";
+				out.print("\r" + progress);
+				counter++;
+			}
+		}
+		String lines = sb.substring(0, sb.length() - 1);
+
+		try {
+			FileHandler.writeToFile(new File(file2), lines);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void classAnalyzed(String className, List<BranchHit> branchHitCounterIds,
@@ -445,8 +487,40 @@ public class ClassAnalyzer {
 			Set<String> classNames = new HashSet<String>();
 			classNames.addAll(branches.keySet());
 			classNames.addAll(lines.keySet());
+
+			ClassAnalyzer.out.println(">> Found " + classNames.size() + " classes.");
+			int bars = 60;
+			int counter = 0;
+			int totalClasses = classNames.size();
 			for (String className : classNames) {
+				counter++;
+				String progress = "[";
+				float percent = counter / (float) totalClasses;
+				int b1 = (int) (percent * bars);
+				for (int i = 0; i < b1; i++) {
+					progress += "-";
+				}
+				progress += ">";
+				int b2 = bars - b1;
+				for (int i = 0; i < b2; i++) {
+					progress += " ";
+				}
+				progress += "] " + (int) (percent * 100) + "% [" + counter + " of " + totalClasses + "]";
+				out.print("\r" + progress);
+				counter++;
 				Class<?> cl = ClassStore.get(className);
+//				if (cl == null){
+//					URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+//					//InstrumentingClassLoader loader = InstrumentingClassLoader.getInstance();
+//					//loader.setShouldInstrument(false);
+//					try {
+//						cl = loader.loadClass(className);
+//						//cl = ClassStore.get(className);
+//
+//					} catch (ClassNotFoundException e) {
+//						e.printStackTrace();
+//					}
+//				}
 				try {
 					Method getCounters = cl.getDeclaredMethod(ArrayApproachClassVisitor.COUNTER_METHOD_NAME,
 							new Class<?>[] {});
@@ -458,7 +532,9 @@ public class ClassAnalyzer {
 							if (line != null) {
 								line.hit(counters[i]);
 							}
+
 							BranchHit branch = findBranchWithCounterId(className, i);
+
 							if (branch != null) {
 								if (branch.getTrueCounterId() == i) {
 									branch.getBranch().trueHit(counters[i]);
@@ -468,20 +544,14 @@ public class ClassAnalyzer {
 							}
 						}
 					}
+
 					Method resetCounters = cl.getDeclaredMethod(ArrayApproachClassVisitor.RESET_COUNTER_METHOD_NAME,
 							new Class[] {});
 					resetCounters.setAccessible(true);
 					resetCounters.invoke(null, new Object[] {});
-				} catch (NoSuchMethodException e) {
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
+
+				} catch (Exception e) {
+					e.printStackTrace(out);
 				}
 			}
 		}

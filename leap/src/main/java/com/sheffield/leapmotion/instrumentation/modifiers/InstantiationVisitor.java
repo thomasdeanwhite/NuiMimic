@@ -65,7 +65,7 @@ public class InstantiationVisitor extends MethodVisitor {
                 super.visitMethodInsn(Opcodes.INVOKESTATIC, APP_CLASS, "setTesting",
                         Type.getMethodDescriptor(APP_METHOD_TO_CALL), itf);
 
-				 App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
+				 //App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
 
             } catch (SecurityException e) {
                 e.printStackTrace();

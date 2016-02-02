@@ -17,14 +17,14 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 	public void output(String directory) {
 		String finalSequence = "";
 		for (int i = 0; i < AnalyzerApp.SEQUENCE_LENGTH; i++) {
-			String next = nextHand();
+			String next = next();
 			finalSequence += next + " ";
 		}
 		System.out.println(finalSequence);
 	}
 
 	@Override
-	public String nextHand() {
+	public String next() {
 		if (sequence.size() == 0) {
 			String start = (String) map.keySet().toArray()[0];
 			String[] ss = start.split(" ");
@@ -44,16 +44,16 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 		key = key.substring(0, key.length() - 1);
 		ArrayList<SequenceSimilarity> seqs = map.get(key);
 
-		SequenceSimilarity newValue = null;
-
 		if (seqs == null) {
 			String newHand = getBackupSequence();
 			sequence.add(newHand);
 			return newHand;
 		}
 
+		SequenceSimilarity newValue = null;
+
 		double r = Math.random();
-		// Apply additive smoothing: if r < n then select another candidate
+		// Apply additive smoothing: if r < n then select another random candidate
 		if (r < 1.0f - (ngramCandidates.size()/((float) totals.get(key) + ngramCandidates.size()))){
 			r = Math.random();
 			for (SequenceSimilarity s : seqs) {

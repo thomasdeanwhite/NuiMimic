@@ -7,6 +7,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 	protected HashMap<String, ArrayList<SequenceSimilarity>> map;
 	protected int ngramSize = 0;
+	//hashmap of cumulated frequences of candidates for key <String>
 	protected HashMap<String, Integer> totals;
 	protected ArrayList<String> ngramCandidates;
 
@@ -78,7 +79,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 				if (!exists) {
 					seqs.add(new SequenceSimilarity(seq, freq));
-					if (!ngramCandidates.contains(seq)){
+					if (!ngramCandidates.contains(seq) && !seq.equals("NULL")){
 						ngramCandidates.add(seq);
 					}
 				}
@@ -144,7 +145,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 		System.out.println(finalSequence);
 	}
 
-	public String nextHand() {
+	public String next() {
 		// TODO Auto-generated method stub
 		throw new IllegalStateException();
 	}

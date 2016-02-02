@@ -57,7 +57,7 @@ public class NGramFrameSelector extends FrameSelector {
 	@Override
 	public Frame newFrame() {
 		if (nextHand == null) {
-			nextHand = hands.get(analyzer.getDataAnalyzer().nextHand());
+			nextHand = hands.get(analyzer.getDataAnalyzer().next());
 		}
 
 		if (currentAnimationTime >= Properties.SWITCH_TIME) {
@@ -66,7 +66,7 @@ public class NGramFrameSelector extends FrameSelector {
 			lastHand = nextHand;
 			do {
 
-				nextHand = hands.get(analyzer.getDataAnalyzer().nextHand());
+				nextHand = hands.get(analyzer.getDataAnalyzer().next());
 			} while (nextHand == null || nextHand.fingers() == null);
 			lastSwitchTime = System.currentTimeMillis();
 		}

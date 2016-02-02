@@ -5,7 +5,6 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.AppStatus;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
-import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.sampler.SamplerApp;
 
@@ -20,7 +19,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 			CONTROLLER = new SeededController();
 			App.startTesting();
 			CONTROLLER.setup();
-			CONTROLLER.setGestureHandler(new RandomGestureHandler());
+			//CONTROLLER.setGestureHandler(new NGramGestureHandler(Properties.GESTURE_FILES[0]));
 		}
 		return CONTROLLER;
 	}

@@ -52,6 +52,7 @@ public class LeapMotionApplicationHandler {
 				return new TestingClassAdapter(parent, name);
 			}
 		});
+		
 		nonDependancies = new ArrayList<String>();
 	}
 

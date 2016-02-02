@@ -91,11 +91,11 @@ public class NGramFrameModifier implements FrameModifier {
         if (currentAnimationTime >= Properties.SWITCH_TIME) {
             lastPosition = newPosition;
             do {
-                newPosition = vectors.get(positionAnalyzer.getDataAnalyzer().nextHand());
+                newPosition = vectors.get(positionAnalyzer.getDataAnalyzer().next());
             } while (newPosition == null);
             lastRotation = newRotation;
             do {
-                newRotation = rotations.get(rotationAnalyzer.getDataAnalyzer().nextHand());
+                newRotation = rotations.get(rotationAnalyzer.getDataAnalyzer().next());
             } while (newRotation == null);
             lastSwitchTime = System.currentTimeMillis();
 

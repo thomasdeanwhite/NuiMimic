@@ -136,6 +136,7 @@ public class SamplerApp extends Listener {
     }
 
     public synchronized void frame(Frame frame) {
+        final long time = System.currentTimeMillis();
 
         if (!startedRecording) {
             boolean validHand = false;
@@ -154,8 +155,6 @@ public class SamplerApp extends Listener {
                 display.setFrame(frame);
             }
         } else {
-
-            long time = System.currentTimeMillis();
 
             if (breakIndex >= 0 && breakIndex < BREAK_TIMES.length) {
                 if (time - startTime > BREAK_TIMES[breakIndex]) {
@@ -203,12 +202,12 @@ public class SamplerApp extends Listener {
                     currentGesturesKeyTap.getParentFile().mkdirs();
                     currentGesturesKeyTap.createNewFile();
                 }
-
+                String gestureString = "";
                 if (frame.gestures().count() > 0) {
-                    String gestureString = "";
+
 
                     for (Gesture g : frame.gestures()) {
-                        gestureString += g.type() + ",";
+                        gestureString += g.type() + "+";
 
                         switch (g.type()) {
                             case TYPE_CIRCLE:
@@ -273,19 +272,17 @@ public class SamplerApp extends Listener {
 
                                 keyTapGesture += ktg.progress() + "\n";
 
-                                FileHandler.appendToFile(currentGesturesScreenTap, keyTapGesture);
+                                FileHandler.appendToFile(currentGesturesKeyTap, keyTapGesture);
                                 break;
                         }
                     }
-                    if (gestureString.length() == 0){
-                        gestureString = "INVALID";
-                    } else {
-                        gestureString.substring(0, gestureString.length()-1);
-                    }
-                    FileHandler.appendToFile(currentGestures, gestureString + "\n");
-                } else {
-                    FileHandler.appendToFile(currentGestures, "INVALID" + "\n");
                 }
+                if (gestureString.length() == 0){
+                    gestureString = Gesture.Type.TYPE_INVALID.toString();
+                } else {
+                    gestureString = gestureString.substring(0, gestureString.length()-1);
+                }
+                FileHandler.appendToFile(currentGestures, gestureString + " ");
             } catch (IOException e) {
                 e.printStackTrace(App.out);
             }
@@ -353,6 +350,27 @@ public class SamplerApp extends Listener {
 
                 }
             }
+            new Thread(){
+                @Override
+                public void start(){
+                    final int bars = 60;
+                    long total = BREAK_TIMES[BREAK_TIMES.length-1];
+                    long done = time - startTime;
+                    String progress = "[";
+                    float percent = done / (float) total;
+                    int b1 = (int) (percent * bars);
+                    for (int i = 0; i < b1; i++) {
+                        progress += "-";
+                    }
+                    progress += ">";
+                    int b2 = bars - b1;
+                    for (int i = 0; i < b2; i++) {
+                        progress += " ";
+                    }
+                    progress += "] " + (int) (percent * 100) + "%";
+                    out.print("\r" + progress);
+                }
+            }.start();
         }
 
     }
@@ -381,7 +399,8 @@ public class SamplerApp extends Listener {
                 boolean start = false;
 
                 if (sequenceFile == null) {
-                    sequenceFile = new File(FileHandler.generateFile() + "-" + BREAK_TIMES[breakIndex] + "ms.raw_frame_data");
+                    String addition = "-" + BREAK_TIMES[breakIndex];
+                    sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.raw_frame_data");
                     sequenceFile.getParentFile().mkdirs();
                     sequenceFile.createNewFile();
                     //com.sheffield.leapmotion.FileHandler.appendToFile(sequenceFile, "[");

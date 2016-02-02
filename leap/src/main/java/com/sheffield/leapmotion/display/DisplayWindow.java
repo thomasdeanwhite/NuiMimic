@@ -95,26 +95,28 @@ public class DisplayWindow extends JFrame {
 								// prevVect = prevVect.times(SCALE);
 								// prevVect = nextVect.times(SCALE);
 
-								float prevX = getWidth() / 4 + prevVect.getX();
-								float prevY = getHeight() / 4 - prevVect.getY();
-								float nextX = getWidth() / 4 + nextVect.getX();
-								float nextY = getHeight() / 4 - nextVect.getY();
+								Vector origin = h.palmPosition();
+
+								float prevX = getWidth() / 4 + prevVect.getX() - origin.getX();
+								float prevY = getHeight() / 4 - prevVect.getY() + origin.getY();
+								float nextX = getWidth() / 4 + nextVect.getX() - origin.getX();
+								float nextY = getHeight() / 4 - nextVect.getY() + origin.getY();
 								g2d.drawLine((int) prevX, (int) prevY, (int) nextX, (int) nextY);
 								g2d.fillOval((int) (prevX - RADIUS), (int) (prevY - RADIUS), (int) RADIUS * 2,
 										(int) RADIUS * 2);
 
-								prevX = 3 * getWidth() / 4 + prevVect.getX();
-								prevY = getHeight() / 4 - prevVect.getZ();
-								nextX = 3 * getWidth() / 4 + nextVect.getX();
-								nextY = getHeight() / 4 - nextVect.getZ();
+								prevX = 3 * getWidth() / 4 + prevVect.getX() - origin.getX();
+								prevY = getHeight() / 4 - prevVect.getZ() + origin.getZ();
+								nextX = 3 * getWidth() / 4 + nextVect.getX() - origin.getX();
+								nextY = getHeight() / 4 - nextVect.getZ() + origin.getZ();
 								g2d.drawLine((int) prevX, (int) prevY, (int) nextX, (int) nextY);
 								g2d.fillOval((int) (prevX - RADIUS), (int) (prevY - RADIUS), (int) RADIUS * 2,
 										(int) RADIUS * 2);
 
-								prevX = getWidth() / 4 - prevVect.getZ();
-								prevY = 3 * getHeight() / 4 - prevVect.getY();
-								nextX = getWidth() / 4 - nextVect.getZ();
-								nextY = 3 * getHeight() / 4 - nextVect.getY();
+								prevX = getWidth() / 4 - prevVect.getZ() + origin.getZ();
+								prevY = 3 * getHeight() / 4 - prevVect.getY() + origin.getY();
+								nextX = getWidth() / 4 - nextVect.getZ() + origin.getZ();
+								nextY = 3 * getHeight() / 4 - nextVect.getY() + origin.getY();
 								g2d.drawLine((int) prevX, (int) prevY, (int) nextX, (int) nextY);
 								g2d.fillOval((int) (prevX - RADIUS), (int) (prevY - RADIUS), (int) RADIUS * 2,
 										(int) RADIUS * 2);
@@ -124,6 +126,12 @@ public class DisplayWindow extends JFrame {
 							}
 						}
 					}
+
+					g2d.setColor(Color.LIGHT_GRAY);
+					int scale = (400 - (int)h.palmPosition().getZ()) / 30;
+					float scaleWindowX = (getWidth()/2) / 400f;
+					float scaleWindowY = (getHeight()/2) / 400f;
+					g2d.fillOval((3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)), getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)), scale, scale);
 				}
 			}
 

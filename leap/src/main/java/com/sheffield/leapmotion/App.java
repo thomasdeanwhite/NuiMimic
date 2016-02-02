@@ -5,12 +5,15 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import org.apache.commons.cli.*;
 
+import javax.imageio.ImageIO;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -320,6 +323,24 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                 }
+
+                File linesFile = new File("lines.csv");
+                if (linesFile.getAbsoluteFile().exists()) {
+                    try {
+                        String linesString = FileHandler.readFile(linesFile);
+
+                        String[] lines = linesString.split(",");
+
+                        for (String b : lines) {
+                            String[] info = b.split("#");
+                            ClassAnalyzer.lineFound(info[0].trim(), Integer.parseInt(info[1]));
+                        }
+
+                        App.out.println("- Found lines file (" + lines.length + " lines) at: " + linesFile.getAbsolutePath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             for (int i = 0; i < Properties.GESTURE_FILES.length; i++){
@@ -382,10 +403,12 @@ public class App implements ThrowableListener {
 
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
-            String output = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1) + "branches.csv";
-            App.out.print("+ Writing output to: " + output);
-            ClassAnalyzer.output(output);
-            App.out.println("\r+ Written output to " + output);
+            String dir = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1);
+            String output =  dir + "branches.csv";
+            String output2 = dir  + "lines.csv";
+            App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");
+            ClassAnalyzer.output(output, output2);
+            App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -403,6 +426,7 @@ public class App implements ThrowableListener {
     }
 
     public static void background(String[] args) {
+        Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.STATIC;
         if (mainThread != null) {
             App.out.println("Found thread already running!");
             return;
@@ -466,7 +490,8 @@ public class App implements ThrowableListener {
                 if (Properties.RECORDING) {
                     com.sheffield.leapmotion.sampler.SamplerApp.getApp().appFinished();
                 }
-
+                App.out.println("- Gathering Testing Information...");
+                ClassAnalyzer.collectHitCounters();
                 App.getApp().output();
 
 
@@ -496,6 +521,20 @@ public class App implements ThrowableListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        BufferedImage bi = ScreenGrabber.captureRobot();
+
+        File outFldr = new File("testing_output/result_states");
+        outFldr.mkdirs();
+
+        File output = new File(outFldr, + System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
+        App.DISPLAY_WINDOW.setVisible(false);
+        try {
+            ImageIO.write(bi, "png", output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
         System.exit(0);
     }

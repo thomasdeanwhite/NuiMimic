@@ -7,5 +7,5 @@ public interface DataAnalyzer {
 
 	public void output(String directory);
 
-	public String nextHand();
+	public String next();
 }

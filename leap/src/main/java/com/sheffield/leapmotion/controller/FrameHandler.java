@@ -2,6 +2,7 @@ package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
+import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
@@ -54,6 +55,13 @@ public class FrameHandler {
         if (frameSelector instanceof FrameModifier) {
             addFrameModifier((FrameModifier) frameSelector);
         }
+
+        if (frameSelector instanceof GestureHandler){
+            setGestureHandler((GestureHandler) frameSelector);
+        } else {
+            setGestureHandler(new RandomGestureHandler());
+        }
+
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();
 
         if (Properties.PLAYBACK_FILE != null) {
