@@ -3,7 +3,6 @@ package com.sheffield.instrumenter.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -237,21 +236,21 @@ public class ClassAnalyzer {
 		float bd = 0;
 
 		switch (bt) {
-			case BRANCH_E:
-				bd = Math.abs(b1 - b2);
-				break;
-			case BRANCH_GE:
-				bd = b1 - b2;
-				break;
-			case BRANCH_GT:
-				bd = b1 - b2;
-				break;
-			case BRANCH_LE:
-				bd = b2 - b1;
-				break;
-			case BRANCH_LT:
-				bd = b2 - b1;
-				break;
+		case BRANCH_E:
+			bd = Math.abs(b1 - b2);
+			break;
+		case BRANCH_GE:
+			bd = b1 - b2;
+			break;
+		case BRANCH_GT:
+			bd = b1 - b2;
+			break;
+		case BRANCH_LE:
+			bd = b2 - b1;
+			break;
+		case BRANCH_LT:
+			bd = b2 - b1;
+			break;
 		}
 		bd = Math.abs(bd / Float.MAX_VALUE);
 		bd = Math.min(1f, Math.max(0f, bd));
@@ -384,11 +383,11 @@ public class ClassAnalyzer {
 		}
 		int totalLines = 0;
 		int coveredLines = 0;
-		for (String s : lines.keySet()){
+		for (String s : lines.keySet()) {
 			Map<Integer, LineHit> lh = lines.get(s);
 			totalLines += lh.size();
-			for (int i : lh.keySet()){
-				if (lh.get(i).getLine().getHits() > 0){
+			for (int i : lh.keySet()) {
+				if (lh.get(i).getLine().getHits() > 0) {
 					coveredLines++;
 				}
 			}
@@ -396,7 +395,8 @@ public class ClassAnalyzer {
 
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
 				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
-				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines + "," + ((float)coveredLines/(float)totalLines) + "\n";
+				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + ","
+				+ totalLines + "," + coveredLines + "," + ((float) coveredLines / (float) totalLines) + "\n";
 		return csv;
 
 	}
@@ -494,7 +494,7 @@ public class ClassAnalyzer {
 
 	public static void collectHitCounters() {
 		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
-			if(Properties.LOG){
+			if (Properties.LOG) {
 				TaskTimer.taskStart(new CollectHitCountersTimer());
 			}
 			Set<String> classNames = new HashSet<String>();
@@ -505,8 +505,9 @@ public class ClassAnalyzer {
 			int bars = 60;
 			int counter = 0;
 			int totalClasses = classNames.size();
-			for (String className : classNames) {
-				counter++;
+			Iterator<String> it = classNames.iterator();
+			while (it.hasNext()) {
+				String className = it.next();
 				String progress = "[";
 				float percent = counter / (float) totalClasses;
 				int b1 = (int) (percent * bars);
@@ -520,23 +521,21 @@ public class ClassAnalyzer {
 				}
 				progress += "] " + (int) (percent * 100) + "% [" + counter + " of " + totalClasses + "]";
 				out.print("\r" + progress);
-				counter++;
 				Class<?> cl = ClassStore.get(className);
-//				if (cl == null){
-//					URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-//					//InstrumentingClassLoader loader = InstrumentingClassLoader.getInstance();
-//					//loader.setShouldInstrument(false);
-//					try {
-//						cl = loader.loadClass(className);
-//						//cl = ClassStore.get(className);
-//
-//					} catch (ClassNotFoundException e) {
-//						e.printStackTrace();
-//					}
-//				}
+				// if (cl == null){
+				// URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
+				// //InstrumentingClassLoader loader = InstrumentingClassLoader.getInstance();
+				// //loader.setShouldInstrument(false);
+				// try {
+				// cl = loader.loadClass(className);
+				// //cl = ClassStore.get(className);
+				//
+				// } catch (ClassNotFoundException e) {
+				// e.printStackTrace();
+				// }
+				// }
 				try {
-					Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME,
-							new Class<?>[] {});
+					Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
 					getCounters.setAccessible(true);
 					int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
 					if (counters != null) {
@@ -618,10 +617,10 @@ public class ClassAnalyzer {
 		}
 		return changedClasses;
 	}
-	
+
 	private static final class CollectHitCountersTimer extends AbstractTask {
 		@Override
-		public String asString(){
+		public String asString() {
 			return "Collecting hit counters";
 		}
 	}
