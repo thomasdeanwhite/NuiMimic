@@ -148,7 +148,7 @@ public class ClassAnalyzer {
 
 	public static synchronized void branchExecuted(boolean hit, String className, int lineNumber) {
 		if (!branches.containsKey(className)) {
-			branches.put(className, new ArrayList<BranchHit>());
+			branchFound(className, lineNumber);
 		}
 		BranchHit bh = findOrCreateBranchHit(className, lineNumber);
 		if (hit) {
