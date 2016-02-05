@@ -3,6 +3,7 @@ package com.sheffield.instrumenter.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -56,6 +57,8 @@ public class ClassAnalyzer {
 
 	private static final float BRANCH_DISTANCE_ADDITION = 50f;
 
+	private static ArrayList<Class<?>> changedClasses;
+
 	private static ArrayList<StateChangeListener> stateChangeListeners;
 
 	static {
@@ -78,11 +81,14 @@ public class ClassAnalyzer {
 		stateRecognizer = new EuclideanStateRecognizer();
 
 		stateChangeListeners = new ArrayList<StateChangeListener>();
+
+		changedClasses = new ArrayList<Class<?>>();
 	}
 
 	public static void reset() {
 		branches.clear();
 		lines.clear();
+		changedClasses.clear();
 	}
 
 	public static void resetCoverage() {
@@ -101,6 +107,16 @@ public class ClassAnalyzer {
 				}
 			}
 		}
+		for (Class<?> cl : changedClasses) {
+			try {
+				Field changed = cl.getDeclaredField("__changed");
+				changed.setAccessible(true);
+				changed.set(cl, false);
+			} catch (Exception e) {
+				e.printStackTrace(out);
+			}
+		}
+		changedClasses.clear();
 	}
 
 	public static void addThrowableListener(ThrowableListener tl) {
@@ -379,16 +395,16 @@ public class ClassAnalyzer {
 
 		String gestureFiles = "";
 
-		for (String s : Properties.GESTURE_FILES){
+		for (String s : Properties.GESTURE_FILES) {
 			gestureFiles += s + "/";
 		}
 		int totalLines = 0;
 		int coveredLines = 0;
-		for (String s : lines.keySet()){
+		for (String s : lines.keySet()) {
 			Map<Integer, LineHit> lh = lines.get(s);
 			totalLines += lh.size();
-			for (int i : lh.keySet()){
-				if (lh.get(i).getLine().getHits() > 0){
+			for (int i : lh.keySet()) {
+				if (lh.get(i).getLine().getHits() > 0) {
 					coveredLines++;
 				}
 			}
@@ -396,7 +412,8 @@ public class ClassAnalyzer {
 
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
 				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
-				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines + "," + ((float)coveredLines/(float)totalLines) + "\n";
+				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + ","
+				+ totalLines + "," + coveredLines + "," + (float) coveredLines / (float) totalLines + "\n";
 		return csv;
 
 	}
@@ -492,28 +509,42 @@ public class ClassAnalyzer {
 		return null;
 	}
 
+	public static void classChanged(String changedClass) {
+		Class<?> cl = ClassStore.get(changedClass);
+		if (cl != null) {
+			changedClasses.add(cl);
+		}
+	}
+
 	public static void collectHitCounters() {
 		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
-			if(Properties.LOG){
+			if (Properties.LOG) {
 				TaskTimer.taskStart(new CollectHitCountersTimer());
 			}
-			Set<String> classNames = new HashSet<String>();
-			classNames.addAll(branches.keySet());
-			classNames.addAll(lines.keySet());
-			for (String className : classNames) {
-				Class<?> cl = ClassStore.get(className);
+			List<Class<?>> classes = changedClasses;
+			if (!Properties.USE_CHANGED_FLAG) {
+				classes = new ArrayList<Class<?>>();
+				Set<String> names = new HashSet<String>();
+				names.addAll(lines.keySet());
+				names.addAll(branches.keySet());
+				for (String name : names) {
+					classes.add(ClassStore.get(name));
+				}
+				changedClasses.addAll(classes);
+
+			}
+			for (Class<?> cl : classes) {
 				try {
-					Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME,
-							new Class<?>[] {});
+					Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
 					getCounters.setAccessible(true);
 					int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
 					if (counters != null) {
 						for (int i = 0; i < counters.length; i++) {
-							Line line = findLineWithCounterId(className, i);
+							Line line = findLineWithCounterId(cl.getName(), i);
 							if (line != null) {
 								line.hit(counters[i]);
 							}
-							BranchHit branch = findBranchWithCounterId(className, i);
+							BranchHit branch = findBranchWithCounterId(cl.getName(), i);
 							if (branch != null) {
 								if (branch.getTrueCounterId() == i) {
 									branch.getBranch().trueHit(counters[i]);
@@ -565,35 +596,13 @@ public class ClassAnalyzer {
 		return coverableBranches;
 	}
 
-	public static List<String> getChangedClasses() {
-		List<String> changedClasses = new ArrayList<String>();
-		Iterator<String> it = branches.keySet().iterator();
-		while (it.hasNext()) {
-			String className = it.next();
-			List<BranchHit> branchHits = branches.get(className);
-			for (BranchHit bh : branchHits) {
-				if (bh.getBranch().getTrueHits() > 0 || bh.getBranch().getFalseHits() > 0) {
-					changedClasses.add(className);
-					break;
-				}
-			}
-		}
-		it = lines.keySet().iterator();
-		while (it.hasNext()) {
-			String className = it.next();
-			for (LineHit lh : lines.get(className).values()) {
-				if (lh.getLine().getHits() > 0) {
-					changedClasses.add(className);
-					break;
-				}
-			}
-		}
+	public static List<Class<?>> getChangedClasses() {
 		return changedClasses;
 	}
-	
+
 	private static final class CollectHitCountersTimer extends AbstractTask {
 		@Override
-		public String asString(){
+		public String asString() {
 			return "Collecting hit counters";
 		}
 	}

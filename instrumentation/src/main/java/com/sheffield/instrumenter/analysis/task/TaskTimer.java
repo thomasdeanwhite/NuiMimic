@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
@@ -14,10 +17,18 @@ public class TaskTimer {
 	private static FileOutputStream out;
 
 	static {
-		File file = new File(Properties.LOG_DIR + "timings-" + System.currentTimeMillis() + ".csv");
+		DateFormat format = new SimpleDateFormat("yyyyMMdd-HHmmss");
+
+		File file = new File(
+				Properties.LOG_DIR + "/timings/" + format.format(Calendar.getInstance().getTime()) + ".csv");
 		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
 			out = new FileOutputStream(file);
 		} catch (FileNotFoundException e) {
+			e.printStackTrace(ClassAnalyzer.out);
+		} catch (IOException e) {
 			e.printStackTrace(ClassAnalyzer.out);
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread() {

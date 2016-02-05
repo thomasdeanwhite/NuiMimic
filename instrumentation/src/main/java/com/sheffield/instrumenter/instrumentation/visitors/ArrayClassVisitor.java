@@ -22,18 +22,22 @@ public class ArrayClassVisitor extends ClassVisitor {
 	private String className;
 	public static final String COUNTER_VARIABLE_NAME = "__hitCounters";
 	public static final String COUNTER_VARIABLE_DESC = "[I";
+	public static final String CHANGED_VARIABLE_NAME = "__changed";
+	public static final String CHANGED_VARIABLE_DESC = "Z";
 	public static final String COUNTER_METHOD_NAME = "__getHitCounters";
 	public static final String COUNTER_METHOD_DESC = "()[I";
 	public static final String RESET_COUNTER_METHOD_NAME = "__resetCounters";
 	public static final String RESET_COUNTER_METHOD_DESC = "()V";
 	public static final String INIT_METHOD_NAME = "__instrumentationInit";
 	public static final String INIT_METHOD_DESC = "()V";
+	public static final String CHANGED_METHOD_NAME = "classChanged";
+	public static final String CHANGED_METHOD_DESC = "(Ljava/lang/String;)V";
 	private AtomicInteger counter = new AtomicInteger(0);
 	private List<BranchHit> branchHitCounterIds = new ArrayList<BranchHit>();
 	private List<LineHit> lineHitCounterIds = new ArrayList<LineHit>();
-	//itf represents whether or not the class we are visiting is an interface
+	// itf represents whether or not the class we are visiting is an interface
 	private boolean itf;
-	
+
 	public int newCounterId() {
 		return counter.getAndIncrement();
 	}
@@ -56,16 +60,34 @@ public class ArrayClassVisitor extends ClassVisitor {
 		super.visit(arg0, access, arg2, arg3, arg4, arg5);
 		itf = (access & Opcodes.ACC_INTERFACE) != 0;
 		if (!itf) {
+			// add hit counter array
 			FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
 					COUNTER_VARIABLE_DESC, null, null);
 			fv.visitEnd();
+
+			// add changed boolean
+			FieldVisitor changed = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, CHANGED_VARIABLE_NAME,
+					CHANGED_VARIABLE_DESC, null, null);
+			changed.visitEnd();
 		}
 	}
 
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		if (((access & Opcodes.ACC_STATIC) != 0) || "<init>".equals(name)) {
+		if (!itf && (access & Opcodes.ACC_ABSTRACT) == 0 && Properties.USE_CHANGED_FLAG) {
+			// add call to ClassAnalyzer.changed
+			mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
+			Label l = new Label();
+			mv.visitJumpInsn(Opcodes.IFGT, l);
+			mv.visitLdcInsn(className);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, CHANGED_METHOD_NAME,
+					CHANGED_METHOD_DESC, false);
+			mv.visitInsn(Opcodes.ICONST_1);
+			mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
+			mv.visitLabel(l);
+		}
+		if ((access & Opcodes.ACC_STATIC) != 0 || "<init>".equals(name)) {
 			mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
 		}
 		if (Properties.INSTRUMENT_BRANCHES) {
@@ -74,6 +96,7 @@ public class ArrayClassVisitor extends ClassVisitor {
 		if (Properties.INSTRUMENT_LINES) {
 			mv = new ArrayLineVisitor(this, mv, className);
 		}
+
 		return mv;
 	}
 
