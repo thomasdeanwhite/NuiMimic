@@ -66,9 +66,11 @@ public class ArrayClassVisitor extends ClassVisitor {
 			fv.visitEnd();
 
 			// add changed boolean
-			FieldVisitor changed = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, CHANGED_VARIABLE_NAME,
-					CHANGED_VARIABLE_DESC, null, null);
-			changed.visitEnd();
+			if (Properties.USE_CHANGED_FLAG) {
+				FieldVisitor changed = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, CHANGED_VARIABLE_NAME,
+						CHANGED_VARIABLE_DESC, null, null);
+				changed.visitEnd();
+			}
 		}
 	}
 

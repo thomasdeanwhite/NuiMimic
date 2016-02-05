@@ -45,4 +45,14 @@ public class Branch {
 		return lineNumber + "#true, " + lineNumber + "#false";
 	}
 
+	public boolean equals(Branch other) {
+		if (this == other) {
+			return true;
+		}
+		if (lineNumber == other.lineNumber && className.equals(other.className)) {
+			return true;
+		}
+		return false;
+	}
+
 }
