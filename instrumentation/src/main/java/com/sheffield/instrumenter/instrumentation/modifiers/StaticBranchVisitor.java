@@ -31,8 +31,7 @@ public class StaticBranchVisitor extends MethodVisitor {
 
 	static {
 		try {
-			BRANCH_METHOD = ClassAnalyzer.class.getMethod("branchExecuted",
-					new Class[] { boolean.class, String.class, int.class });
+			BRANCH_METHOD = ClassAnalyzer.class.getMethod("branchExecuted", new Class[] { boolean.class, int.class });
 			BRANCH_DISTANCE_METHOD_I = ClassAnalyzer.class.getMethod("branchExecutedDistance",
 					new Class[] { int.class, int.class, String.class });
 			BRANCH_DISTANCE_METHOD_F = ClassAnalyzer.class.getMethod("branchExecutedDistance",
@@ -86,78 +85,77 @@ public class StaticBranchVisitor extends MethodVisitor {
 
 		BranchType bt = null;
 		switch (opcode) {
-			case Opcodes.IF_ICMPEQ:
-			case Opcodes.IF_ICMPGE:
-			case Opcodes.IF_ICMPLE:
-			case Opcodes.IF_ICMPLT:
-			case Opcodes.IF_ICMPNE:
-			case Opcodes.IF_ICMPGT:
-				// visitInsn(Opcodes.DUP2);
-				// visitLdcInsn(branchName);
-				// visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecutedDistance",
-				// Type.getMethodDescriptor(BRANCH_DISTANCE_METHOD_I));
-				// lastBranchDistance = branch;
-				// lookNext = true;
-				// // visitInsn(Opcodes.DUP2);
-			case Opcodes.IFGE:
-			case Opcodes.IFGT:
-			case Opcodes.IFLE:
-			case Opcodes.IFLT:
-			case Opcodes.IFEQ:
-			case Opcodes.IFNE:
-			case Opcodes.IF_ACMPEQ:
-			case Opcodes.IF_ACMPNE:
-			case Opcodes.IFNONNULL:
-			case Opcodes.IFNULL:
+		case Opcodes.IF_ICMPEQ:
+		case Opcodes.IF_ICMPGE:
+		case Opcodes.IF_ICMPLE:
+		case Opcodes.IF_ICMPLT:
+		case Opcodes.IF_ICMPNE:
+		case Opcodes.IF_ICMPGT:
+			// visitInsn(Opcodes.DUP2);
+			// visitLdcInsn(branchName);
+			// visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecutedDistance",
+			// Type.getMethodDescriptor(BRANCH_DISTANCE_METHOD_I));
+			// lastBranchDistance = branch;
+			// lookNext = true;
+			// // visitInsn(Opcodes.DUP2);
+		case Opcodes.IFGE:
+		case Opcodes.IFGT:
+		case Opcodes.IFLE:
+		case Opcodes.IFLT:
+		case Opcodes.IFEQ:
+		case Opcodes.IFNE:
+		case Opcodes.IF_ACMPEQ:
+		case Opcodes.IF_ACMPNE:
+		case Opcodes.IFNONNULL:
+		case Opcodes.IFNULL:
 
-				// if (lookNext) {
-				// if (opcode == Opcodes.IF_ICMPEQ || opcode == Opcodes.IFEQ) {
-				// bt = BranchType.BRANCH_E;
-				// }
-				//
-				// if (opcode == Opcodes.IF_ICMPGE || opcode == Opcodes.IFGE) {
-				// bt = BranchType.BRANCH_GE;
-				// }
-				//
-				// if (opcode == Opcodes.IF_ICMPGT || opcode == Opcodes.IFGT) {
-				// bt = BranchType.BRANCH_GT;
-				// }
-				//
-				// if (opcode == Opcodes.IF_ICMPLE || opcode == Opcodes.IFLE) {
-				// bt = BranchType.BRANCH_LE;
-				// }
-				//
-				// if (opcode == Opcodes.IF_ICMPLT || opcode == Opcodes.IFLT) {
-				// bt = BranchType.BRANCH_LT;
-				// }
-				//
-				// if (bt != null) {
-				// lookNext = false;
-				// branchName = getBranchName(lastBranchDistance);
-				// ClassAnalyzer.branchDistanceFound(branchName, bt);
-				// }
-				// }
-				Label l = new Label();
-				Label l2 = new Label();
-				mv.visitJumpInsn(opcode, l);
-				visitInsn(Opcodes.ICONST_0);
-				visitLdcInsn(className);
-				visitLdcInsn(currentLine);
-				visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
-						Type.getMethodDescriptor(BRANCH_METHOD), false);
-				mv.visitJumpInsn(Opcodes.GOTO, l2);
-				visitLabel(l);
-				visitInsn(Opcodes.ICONST_1);
-				visitLdcInsn(className);
-				visitLdcInsn(currentLine);
-				visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
-						Type.getMethodDescriptor(BRANCH_METHOD), false);
-				mv.visitJumpInsn(Opcodes.GOTO, label);
-				visitLabel(l2);
-				ClassAnalyzer.branchFound(className, currentLine);
-				break;
-			default:
-				mv.visitJumpInsn(opcode, label);
+			// if (lookNext) {
+			// if (opcode == Opcodes.IF_ICMPEQ || opcode == Opcodes.IFEQ) {
+			// bt = BranchType.BRANCH_E;
+			// }
+			//
+			// if (opcode == Opcodes.IF_ICMPGE || opcode == Opcodes.IFGE) {
+			// bt = BranchType.BRANCH_GE;
+			// }
+			//
+			// if (opcode == Opcodes.IF_ICMPGT || opcode == Opcodes.IFGT) {
+			// bt = BranchType.BRANCH_GT;
+			// }
+			//
+			// if (opcode == Opcodes.IF_ICMPLE || opcode == Opcodes.IFLE) {
+			// bt = BranchType.BRANCH_LE;
+			// }
+			//
+			// if (opcode == Opcodes.IF_ICMPLT || opcode == Opcodes.IFLT) {
+			// bt = BranchType.BRANCH_LT;
+			// }
+			//
+			// if (bt != null) {
+			// lookNext = false;
+			// branchName = getBranchName(lastBranchDistance);
+			// ClassAnalyzer.branchDistanceFound(branchName, bt);
+			// }
+			// }
+			int branchId = ClassAnalyzer.branchFound(className, currentLine);
+			Label l = new Label();
+			Label l2 = new Label();
+			mv.visitJumpInsn(opcode, l);
+			visitInsn(Opcodes.ICONST_0);
+			visitLdcInsn(branchId);
+			visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
+					Type.getMethodDescriptor(BRANCH_METHOD), false);
+			mv.visitJumpInsn(Opcodes.GOTO, l2);
+			visitLabel(l);
+			visitInsn(Opcodes.ICONST_1);
+			visitLdcInsn(branchId);
+			visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
+					Type.getMethodDescriptor(BRANCH_METHOD), false);
+			mv.visitJumpInsn(Opcodes.GOTO, label);
+			visitLabel(l2);
+
+			break;
+		default:
+			mv.visitJumpInsn(opcode, label);
 		}
 
 	}
@@ -165,28 +163,28 @@ public class StaticBranchVisitor extends MethodVisitor {
 	@Override
 	public void visitInsn(int opcode) {
 		switch (opcode) {
+		case Opcodes.FCMPG:
+		case Opcodes.FCMPL: {
+			switch (opcode) {
 			case Opcodes.FCMPG:
-			case Opcodes.FCMPL: {
-				switch (opcode) {
-					case Opcodes.FCMPG:
-					case Opcodes.FCMPL:
-						// visitInsn(Opcodes.DUP2);
-						// visitLdcInsn(branchName);
-						// visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecutedDistance",
-						// Type.getMethodDescriptor(BRANCH_DISTANCE_METHOD_F));
-						// lookNext = true;
-						// lastBranchDistance = branch;
-						// break;
-				}
-
+			case Opcodes.FCMPL:
+				// visitInsn(Opcodes.DUP2);
+				// visitLdcInsn(branchName);
+				// visitMethodInsn(Opcodes.INVOKESTATIC, ANALYZER_CLASS, "branchExecutedDistance",
+				// Type.getMethodDescriptor(BRANCH_DISTANCE_METHOD_F));
+				// lookNext = true;
+				// lastBranchDistance = branch;
+				// break;
 			}
 
-			case Opcodes.LCMP:
-			case Opcodes.DCMPG:
-			case Opcodes.DCMPL: {
+		}
 
-			}
-				break;
+		case Opcodes.LCMP:
+		case Opcodes.DCMPG:
+		case Opcodes.DCMPL: {
+
+		}
+			break;
 
 		}
 		mv.visitInsn(opcode);

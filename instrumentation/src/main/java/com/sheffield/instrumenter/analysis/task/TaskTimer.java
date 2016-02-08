@@ -18,10 +18,12 @@ public class TaskTimer {
 
 	static {
 		DateFormat format = new SimpleDateFormat("yyyyMMdd-HHmmss");
-
-		File file = new File(
-				Properties.LOG_DIR + "/timings/" + format.format(Calendar.getInstance().getTime()) + ".csv");
+		File dir = new File(Properties.LOG_DIR + "/timings/");
+		File file = new File(dir.getAbsolutePath() + "/" + format.format(Calendar.getInstance().getTime()) + ".csv");
 		try {
+			if (!dir.exists()) {
+				dir.mkdir();
+			}
 			if (!file.exists()) {
 				file.createNewFile();
 			}
