@@ -575,7 +575,7 @@ public class ClassAnalyzer {
 	public static List<Branch> getCoverableBranches(String className) {
 		List<Branch> coverableBranches = new ArrayList<Branch>();
 		for (BranchHit bh : branches.values()) {
-			if (bh.getBranch().getClassName().equals(className)) {
+			if (bh.getBranch().getClassName().equals(className.replace('.', '/'))) {
 				coverableBranches.add(bh.getBranch());
 			}
 		}
