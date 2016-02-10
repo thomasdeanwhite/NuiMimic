@@ -145,7 +145,7 @@ public class ClassAnalyzer {
 
 	public static int branchFound(String className, int lineNumber) {
 		int branchId = getNewBranchId();
-		branches.put(branchId, new BranchHit(new Branch(className, lineNumber), 0, 0));
+		branches.put(branchId, new BranchHit(new Branch(className.replace('.', '/'), lineNumber), 0, 0));
 		return branchId;
 	}
 
@@ -492,7 +492,7 @@ public class ClassAnalyzer {
 
 	private static BranchHit findBranchWithCounterId(String className, int i) {
 		for (BranchHit bh : branches.values()) {
-			if (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i) {
+			if (bh.getBranch().getClassName().equals(className) && (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i)) {
 				return bh;
 			}
 		}
@@ -531,7 +531,8 @@ public class ClassAnalyzer {
 							if (line != null) {
 								line.hit(counters[i]);
 							}
-							BranchHit branch = findBranchWithCounterId(cl.getName(), i);
+							String clName = cl.getName().replace('.', '/');
+							BranchHit branch = findBranchWithCounterId(clName, i);
 							if (branch != null) {
 								if (branch.getTrueCounterId() == i) {
 									branch.getBranch().trueHit(counters[i]);

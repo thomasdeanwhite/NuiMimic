@@ -30,9 +30,6 @@ public class ArrayBranchVisitor extends MethodVisitor {
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
 		// TODO Auto-generated method stub
-		int trueCounter = parent.newCounterId();
-		int falseCounter = parent.newCounterId();
-		parent.addBranchHit(new BranchHit(new Branch(className, currentLine), trueCounter, falseCounter));
 		switch (opcode) {
 			case Opcodes.IF_ICMPEQ:
 			case Opcodes.IF_ICMPGE:
@@ -50,6 +47,10 @@ public class ArrayBranchVisitor extends MethodVisitor {
 			case Opcodes.IF_ACMPNE:
 			case Opcodes.IFNONNULL:
 			case Opcodes.IFNULL:
+				int trueCounter = parent.newCounterId();
+				int falseCounter = parent.newCounterId();
+				parent.addBranchHit(new BranchHit(new Branch(className, currentLine), trueCounter, falseCounter));
+
 				Label l = new Label();
 				Label l2 = new Label();
 				mv.visitJumpInsn(opcode, l);
