@@ -37,7 +37,8 @@ public class ArrayClassVisitor extends ClassVisitor {
 	private List<LineHit> lineHitCounterIds = new ArrayList<LineHit>();
 	// itf represents whether or not the class we are visiting is an interface
 	private boolean itf;
-
+	private int classId;
+	
 	public int newCounterId() {
 		return counter.getAndIncrement();
 	}
@@ -53,6 +54,7 @@ public class ArrayClassVisitor extends ClassVisitor {
 	public ArrayClassVisitor(ClassVisitor mv, String className) {
 		super(Opcodes.ASM5, mv);
 		this.className = className.replace('.', '/');
+		this.classId = ClassAnalyzer.registerClass(className);
 	}
 
 	@Override
@@ -109,7 +111,7 @@ public class ArrayClassVisitor extends ClassVisitor {
 			addGetCounterMethod(cv);
 			addResetCounterMethod(cv);
 			addInitMethod(cv);
-			ClassAnalyzer.classAnalyzed(className.replace('/', '.'), branchHitCounterIds, lineHitCounterIds);
+			ClassAnalyzer.classAnalyzed(classId, branchHitCounterIds, lineHitCounterIds);
 		}
 		super.visitEnd();
 	}

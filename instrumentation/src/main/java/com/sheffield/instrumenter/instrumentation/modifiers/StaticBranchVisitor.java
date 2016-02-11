@@ -16,6 +16,7 @@ public class StaticBranchVisitor extends MethodVisitor {
 	private int lastBranchDistance = 0;
 	private boolean lookNext = false;
 	private String className;
+	private int classId;
 	private String methodName;
 	private static Method BRANCH_METHOD;
 	private static Method BRANCH_DISTANCE_METHOD_I;
@@ -31,7 +32,7 @@ public class StaticBranchVisitor extends MethodVisitor {
 
 	static {
 		try {
-			BRANCH_METHOD = ClassAnalyzer.class.getMethod("branchExecuted", new Class[] { boolean.class, int.class });
+			BRANCH_METHOD = ClassAnalyzer.class.getMethod("branchExecuted", new Class[] { boolean.class, int.class, int.class });
 			BRANCH_DISTANCE_METHOD_I = ClassAnalyzer.class.getMethod("branchExecutedDistance",
 					new Class[] { int.class, int.class, String.class });
 			BRANCH_DISTANCE_METHOD_F = ClassAnalyzer.class.getMethod("branchExecutedDistance",
@@ -49,9 +50,10 @@ public class StaticBranchVisitor extends MethodVisitor {
 		}
 	}
 
-	public StaticBranchVisitor(MethodVisitor mv, String className, String methodName) {
+	public StaticBranchVisitor(MethodVisitor mv, int classId, String className, String methodName) {
 		super(Opcodes.ASM5, mv);
 		this.mv = mv;
+		this.classId = classId;
 		this.className = className;
 		this.methodName = methodName;
 		labelBranches = new HashMap<String, String>();
@@ -136,17 +138,19 @@ public class StaticBranchVisitor extends MethodVisitor {
 			// ClassAnalyzer.branchDistanceFound(branchName, bt);
 			// }
 			// }
-			int branchId = ClassAnalyzer.branchFound(className, currentLine);
+			int branchId = ClassAnalyzer.branchFound(classId, currentLine);
 			Label l = new Label();
 			Label l2 = new Label();
 			mv.visitJumpInsn(opcode, l);
 			visitInsn(Opcodes.ICONST_0);
+			visitLdcInsn(classId);
 			visitLdcInsn(branchId);
 			visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD), false);
 			mv.visitJumpInsn(Opcodes.GOTO, l2);
 			visitLabel(l);
 			visitInsn(Opcodes.ICONST_1);
+			visitLdcInsn(classId);
 			visitLdcInsn(branchId);
 			visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD), false);
