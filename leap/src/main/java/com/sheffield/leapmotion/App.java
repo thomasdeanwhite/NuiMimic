@@ -29,6 +29,7 @@ public class App implements ThrowableListener {
     public static boolean RECORDING_STARTED = false;
     private static boolean ENABLE_APPLICATION_OUTPUT = true;
     private static boolean IS_INSTRUMENTING = false;
+    public static int RECORDING_INTERVAL = 60000;
 
     private static Thread mainThread = null;
 
@@ -63,7 +64,7 @@ public class App implements ThrowableListener {
     @Override
     public void throwableThrown(Throwable t) {
         App.out.println("Throwable thrown! " + t.getLocalizedMessage());
-        output();
+        output(true, 0);
     }
 
     public static class ExitException extends SecurityException {
@@ -473,6 +474,8 @@ public class App implements ThrowableListener {
                 }
 
                 long lastTime = System.currentTimeMillis();
+                long startTime = lastTime;
+                long lastTimeRecorded = 0;
                 while (app.status() != AppStatus.FINISHED) {
                     int timePassed = (int) (System.currentTimeMillis() - lastTime);
                     try {
@@ -485,6 +488,11 @@ public class App implements ThrowableListener {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
+                    if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL){
+                        ClassAnalyzer.collectHitCounters();
+                        App.getApp().output(false, 0);
+                        lastTimeRecorded = lastTime;
+                    }
                     lastTime += timePassed;
                 }
                 if (Properties.RECORDING) {
@@ -492,8 +500,9 @@ public class App implements ThrowableListener {
                 }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters();
-                App.getApp().output();
-
+                int timePassed = (int) (System.currentTimeMillis() - startTime);
+                App.getApp().output(true, timePassed);
+                System.exit(0);
 
             }
 
@@ -502,10 +511,28 @@ public class App implements ThrowableListener {
 
     }
 
-    public void output(){
-        App.out.println("- Finished testing: ");
-        App.out.println("@ Coverage Report: ");
-        App.out.println(ClassAnalyzer.getReport());
+    public void output(boolean finished, int runtime){
+        if (finished) {
+            App.out.println("- Finished testing: ");
+            App.out.println("@ Coverage Report: ");
+            App.out.println(ClassAnalyzer.getReport());
+
+            App.DISPLAY_WINDOW.setVisible(false);
+
+            BufferedImage bi = ScreenGrabber.captureRobot();
+
+            File outFldr = new File("testing_output/result_states");
+            outFldr.mkdirs();
+
+            File output = new File(outFldr, + System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
+            try {
+                ImageIO.write(bi, "png", output);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
+        }
         File csv = new File("test-results.csv");
         if (csv.getParentFile() != null){
             csv.getParentFile().mkdirs();
@@ -513,30 +540,13 @@ public class App implements ThrowableListener {
         try {
             boolean newFile = !csv.getAbsoluteFile().exists();
             if (newFile){
-                App.out.println("Creating file " + csv.getAbsolutePath());
                 csv.createNewFile();
             }
             ClassAnalyzer.setOut(App.out);
-            FileHandler.appendToFile(csv, ClassAnalyzer.toCsv(newFile));
+            FileHandler.appendToFile(csv, ClassAnalyzer.toCsv(newFile, runtime));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        BufferedImage bi = ScreenGrabber.captureRobot();
-
-        File outFldr = new File("testing_output/result_states");
-        outFldr.mkdirs();
-
-        File output = new File(outFldr, + System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
-        App.DISPLAY_WINDOW.setVisible(false);
-        try {
-            ImageIO.write(bi, "png", output);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
-        System.exit(0);
     }
 
     public void start() {
@@ -552,7 +562,26 @@ public class App implements ThrowableListener {
             lastSwitchTime = time;
         }
 
-        if (System.currentTimeMillis() - startTime > Properties.RUNTIME) {
+        long runtime = System.currentTimeMillis() - startTime;
+
+        String progress = "[";
+
+        final int bars = 50;
+
+        float percent = runtime / (float) Properties.RUNTIME;
+        int b1 = (int) (percent * bars);
+        for (int i = 0; i < b1; i++) {
+            progress += "-";
+        }
+        progress += ">";
+        int b2 = bars - b1;
+        for (int i = 0; i < b2; i++) {
+            progress += " ";
+        }
+        progress += "] " + (int) (percent * 100);
+        out.print("\rExecuting: " + progress);
+
+        if (runtime > Properties.RUNTIME) {
             status = AppStatus.FINISHED;
         }
     }

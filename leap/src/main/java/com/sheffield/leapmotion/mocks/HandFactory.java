@@ -1,14 +1,12 @@
 package com.sheffield.leapmotion.mocks;
 
-import com.leapmotion.leap.Bone;
-import com.leapmotion.leap.Finger;
-import com.leapmotion.leap.FingerList;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Matrix;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
+
+import java.util.Random;
 
 public class HandFactory {
+
+	private static Random random = new Random();
 
 	public static final Bone.Type[] fingerBoneTypes = { Bone.Type.TYPE_METACARPAL, Bone.Type.TYPE_PROXIMAL,
 			Bone.Type.TYPE_INTERMEDIATE, Bone.Type.TYPE_DISTAL };
@@ -93,6 +91,74 @@ public class HandFactory {
 		hand.setFingerList(fl);
 		hand.pinchStrength = Float.parseFloat(info[offset++]);
 		hand.grabStrength = Float.parseFloat(info[offset++]);
+
+		return hand;
+	}
+
+	private static Vector randomVector(float scale, float transpose){
+		return new Vector(transpose + (random.nextFloat()*scale),
+				transpose + (random.nextFloat()*scale),
+				transpose + (random.nextFloat()*scale));
+	}
+
+
+	public static SeededHand createRandomHand(Frame frame, String id) {
+
+		SeededHand hand = new SeededHand();
+
+		// construct thumb
+		Finger[] fingers = new Finger[1 + fingerTypes.length];
+		int offset = 1;
+		SeededFinger thumb = new SeededFinger();
+		hand.uniqueId = id;
+
+		for (int i = 0; i < thumbBoneTypes.length; i++) {
+			int index = offset;
+			SeededBone b = new SeededBone();
+			b.type = thumbBoneTypes[i];
+			b.prevJoint = randomVector(100, 0);
+			b.nextJoint = randomVector(100, 0);
+			thumb.bones.put(b.type, b);
+			if (i == 0){
+				SeededBone b2 = new SeededBone();
+				b2.type = Bone.Type.TYPE_METACARPAL;
+				b2.prevJoint = b.prevJoint;
+				b2.nextJoint = b.prevJoint;
+				thumb.bones.put(Bone.Type.TYPE_METACARPAL, b2);
+			}
+			offset += 2;
+		}
+		thumb.frame = frame;
+		thumb.type = Finger.Type.TYPE_THUMB;
+		thumb.hand = hand;
+		thumb.normalize();
+		fingers[0] = thumb;
+
+		for (int j = 0; j < fingerTypes.length; j++) {
+			SeededFinger finger = new SeededFinger();
+			for (int i = 0; i < fingerBoneTypes.length; i++) {
+				int index = offset;
+				SeededBone b = new SeededBone();
+				b.type = fingerBoneTypes[i];
+				b.prevJoint = randomVector(100, 0);
+				b.nextJoint = randomVector(100, 0);
+				finger.bones.put(b.type, b);
+				offset += 2;
+			}
+			finger.frame = frame;
+			finger.hand = hand;
+			finger.type = fingerTypes[j];
+			fingers[j + 1] = finger;
+			finger.normalize();
+		}
+
+		SeededFingerList fl = new SeededFingerList();
+		for (Finger f : fingers) {
+			fl.addFinger(f);
+		}
+		hand.setFingerList(fl);
+		hand.pinchStrength = random.nextFloat();
+		hand.grabStrength = random.nextFloat();
 
 		return hand;
 	}

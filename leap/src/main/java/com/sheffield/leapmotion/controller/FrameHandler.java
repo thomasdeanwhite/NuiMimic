@@ -2,14 +2,13 @@ package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
-import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
-import com.sheffield.leapmotion.listeners.FrameSwitchListener;
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.frameselectors.*;
+import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
-import com.sheffield.instrumenter.Properties;
 
 import java.util.ArrayList;
 
@@ -47,6 +46,8 @@ public class FrameHandler {
             case EMPTY:
                 frameSelector = new EmptyFrameSelector();
                 break;
+            case RANDOM_TEMPLATE:
+                frameSelector = new RandomTemplateFrameSelector(Properties.GESTURE_FILES[0]);
             default:
                 break;
         }
@@ -59,7 +60,7 @@ public class FrameHandler {
         if (frameSelector instanceof GestureHandler){
             setGestureHandler((GestureHandler) frameSelector);
         } else {
-            setGestureHandler(new RandomGestureHandler());
+           //setGestureHandler(new RandomGestureHandler());
         }
 
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();
@@ -95,7 +96,9 @@ public class FrameHandler {
         Frame frame = null;
         if (i < frames.size() && i >= 0) {
             frame = frames.get(i);
-        } else {
+        }
+
+        if (frame == null){
             frame = Frame.invalid();
         }
 
@@ -105,7 +108,6 @@ public class FrameHandler {
     public void loadNewFrame() {
         Frame frame = frameSelector.newFrame();
         if (frameSelector instanceof EmptyFrameSelector){
-            loadNewFrame();
             final Frame last = getFrame(1);
             final Frame next = frame;
             for (FrameSwitchListener fsl : frameSwitchListeners) {

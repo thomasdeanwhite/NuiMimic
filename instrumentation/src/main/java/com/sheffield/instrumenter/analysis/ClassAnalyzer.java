@@ -1,19 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.task.AbstractTask;
@@ -29,6 +15,12 @@ import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -367,7 +359,7 @@ public class ClassAnalyzer {
 
 	}
 
-	public static String toCsv(boolean headers) {
+	public static String toCsv(boolean headers, int runtime) {
 		double bCoverage = branchCoverage();
 		String csv = "";
 
@@ -395,7 +387,7 @@ public class ClassAnalyzer {
 		}
 
 		csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
-				+ "," + bCoverage + "," + Properties.RUNTIME + "," + clusters + "," + ngram + ","
+				+ "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + ","
 				+ getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines + "," + ((float)coveredLines/(float)totalLines) + "\n";
 		return csv;
 

@@ -105,7 +105,7 @@ public class NGramFrameModifier implements FrameModifier {
             h = hand;
         }
         if (h instanceof SeededHand) {
-            float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
+            float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
             SeededHand sh = (SeededHand) h;
             sh.setBasis(fadeVector(lastRotation[0], newRotation[0], modifier),
                     fadeVector(lastRotation[1], newRotation[1], modifier),
