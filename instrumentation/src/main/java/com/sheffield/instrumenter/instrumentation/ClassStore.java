@@ -14,6 +14,9 @@ public class ClassStore {
 	}
 
 	public static Class<?> get(String name) {
+		if(store.containsKey(name)){
+			return store.get(name);
+		}
 		name = name.replace('/', '.');
 		if(store.containsKey(name)){
 			return store.get(name);

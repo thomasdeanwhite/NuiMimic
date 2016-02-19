@@ -6,13 +6,13 @@ import org.objectweb.asm.Opcodes;
 
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 
 public class ArrayLineVisitor extends MethodVisitor {
-	private ArrayApproachClassVisitor parent;
+	private ArrayClassVisitor parent;
 	private String className;
 
-	public ArrayLineVisitor(ArrayApproachClassVisitor parent, MethodVisitor mv, String className) {
+	public ArrayLineVisitor(ArrayClassVisitor parent, MethodVisitor mv, String className) {
 		super(Opcodes.ASM5, mv);
 		this.className = className;
 		this.parent = parent;
@@ -22,8 +22,8 @@ public class ArrayLineVisitor extends MethodVisitor {
 	public void visitLineNumber(int lineNumber, Label label) {
 		int counterId = parent.newCounterId();
 		parent.addLineHit(new LineHit(new Line(className, lineNumber), counterId));
-		visitFieldInsn(Opcodes.GETSTATIC, className, ArrayApproachClassVisitor.COUNTER_VARIABLE_NAME,
-				ArrayApproachClassVisitor.COUNTER_VARIABLE_DESC);
+		visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
+				ArrayClassVisitor.COUNTER_VARIABLE_DESC);
 		visitLdcInsn(counterId);
 		visitInsn(Opcodes.DUP2);
 		visitInsn(Opcodes.IALOAD);

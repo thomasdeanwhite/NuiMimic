@@ -5,23 +5,23 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
 
 public class StaticLineVisitor extends MethodVisitor {
-	private String className;
+	private int classId;
 
-	public StaticLineVisitor(MethodVisitor arg0, String className) {
+	public StaticLineVisitor(MethodVisitor arg0, String className, int classId) {
 		super(Opcodes.ASM5, arg0);
-		this.className = className;
+		this.classId = classId;
 	}
 
 	@Override
 	public void visitLineNumber(int lineNumber, Label label) {
-		ClassAnalyzer.lineFound(className, lineNumber);
-		visitLdcInsn(className);
+		ClassAnalyzer.lineFound(classId, lineNumber);
+		visitLdcInsn(classId);
 		visitLdcInsn(lineNumber);
-		visitMethodInsn(Opcodes.INVOKESTATIC, StaticApproachClassVisitor.ANALYZER_CLASS, "lineExecuted",
-				"(Ljava/lang/String;I)V", false);
+		visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "lineExecuted",
+				"(II)V", false);
 		mv.visitLineNumber(lineNumber, label);
 	}
 

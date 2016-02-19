@@ -2,8 +2,8 @@ package com.sheffield.instrumenter.instrumentation;
 
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.objectweb.asm.ClassVisitor;
@@ -112,7 +112,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
             }
 
             ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == Properties.InstrumentationApproach.STATIC
-                    ? new StaticApproachClassVisitor(cw, name) : new ArrayApproachClassVisitor(cw, name);
+                    ? new StaticClassVisitor(cw, name) : new ArrayClassVisitor(cw, name);
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
 			if (Properties.WRITE_CLASS) {
 				String outputDir = Properties.BYTECODE_DIR + "/" + name.replace(".", "/").substring(0, name.lastIndexOf("."));

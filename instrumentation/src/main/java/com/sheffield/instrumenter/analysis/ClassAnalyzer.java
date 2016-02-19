@@ -1,5 +1,19 @@
 package com.sheffield.instrumenter.analysis;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.task.AbstractTask;
@@ -10,17 +24,11 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayApproachClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Method;
-import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -30,9 +38,12 @@ public class ClassAnalyzer {
 
 	public static PrintStream out = System.out;
 
-	private static Map<String, Map<Integer, LineHit>> lines;
+	private static Map<Integer, Map<Integer, LineHit>> lines;
 
-	private static Map<String, List<BranchHit>> branches;
+	private static Map<Integer, Map<Integer, BranchHit>> branches;
+
+	private static Map<Integer, String> classIds;
+	private static Map<String, Integer> classNames;
 
 	private static ArrayList<String> distancesWaiting;
 
@@ -48,6 +59,8 @@ public class ClassAnalyzer {
 
 	private static final float BRANCH_DISTANCE_ADDITION = 50f;
 
+	private static ArrayList<Class<?>> changedClasses;
+
 	private static ArrayList<StateChangeListener> stateChangeListeners;
 
 	static {
@@ -56,13 +69,14 @@ public class ClassAnalyzer {
 
 		branchesToCover = new ArrayList<String>();
 
-		branches = new HashMap<String, List<BranchHit>>();
+		branches = new HashMap<Integer, Map<Integer, BranchHit>>();
 
 		branchesDistance = new ArrayList<String>();
-
+		classIds = new HashMap<Integer, String>();
+		classNames = new HashMap<String, Integer>();
 		branchTypes = new HashMap<String, BranchType>();
 		branchDistance = new HashMap<String, Float>();
-		lines = new HashMap<String, Map<Integer, LineHit>>();
+		lines = new HashMap<Integer, Map<Integer, LineHit>>();
 		distancesWaiting = new ArrayList<String>();
 
 		callFrequencies = new HashMap<String, Integer>();
@@ -70,29 +84,40 @@ public class ClassAnalyzer {
 		stateRecognizer = new EuclideanStateRecognizer();
 
 		stateChangeListeners = new ArrayList<StateChangeListener>();
+
+		changedClasses = new ArrayList<Class<?>>();
 	}
 
 	public static void reset() {
 		branches.clear();
 		lines.clear();
+		changedClasses.clear();
 	}
 
 	public static void resetCoverage() {
-		Set<String> classNames = new HashSet<String>();
-		classNames.addAll(branches.keySet());
-		classNames.addAll(lines.keySet());
-		for (String className : classNames) {
-			if (branches.containsKey(className)) {
-				for (BranchHit bh : branches.get(className)) {
-					bh.reset();
-				}
+		for (int classId : branches.keySet()) {
+			for (BranchHit bh : branches.get(classId).values()) {
+				bh.reset();
 			}
-			if (lines.containsKey(className)) {
-				for (LineHit lh : lines.get(className).values()) {
-					lh.reset();
+		}
+
+		for (int classId : lines.keySet()) {
+			for (LineHit lh : lines.get(classId).values()) {
+				lh.reset();
+			}
+		}
+		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY && Properties.USE_CHANGED_FLAG) {
+			for (Class<?> cl : changedClasses) {
+				try {
+					Field changed = cl.getDeclaredField("__changed");
+					changed.setAccessible(true);
+					changed.set(cl, false);
+				} catch (Exception e) {
+					e.printStackTrace(out);
 				}
 			}
 		}
+		changedClasses.clear();
 	}
 
 	public static void addThrowableListener(ThrowableListener tl) {
@@ -117,11 +142,27 @@ public class ClassAnalyzer {
 		stateChangeListeners.add(scl);
 	}
 
-	public static void branchFound(String className, int lineNumber) {
-		if (!branches.containsKey(className)) {
-			branches.put(className, new ArrayList<BranchHit>());
+	private static int branchId = 0;
+
+	private static int getNewBranchId() {
+		return ++branchId;
+	}
+
+	private static int classId = -1;
+
+	public static int registerClass(String className) {
+		classIds.put(++classId, className);
+		classNames.put(className, classId);
+		return classId;
+	}
+
+	public static int branchFound(int classId, int lineNumber) {
+		if (!branches.containsKey(classId)) {
+			branches.put(classId, new HashMap<Integer, BranchHit>());
 		}
-		branches.get(className).add(new BranchHit(new Branch(className, lineNumber), 0, 0));
+		int branchId = getNewBranchId();
+		branches.get(classId).put(branchId, new BranchHit(new Branch(classIds.get(classId), lineNumber), 0, 0));
+		return branchId;
 	}
 
 	public static BranchType getBranchType(String branch) {
@@ -138,27 +179,19 @@ public class ClassAnalyzer {
 
 	}
 
-	public static synchronized void branchExecuted(boolean hit, String className, int lineNumber) {
-		if (!branches.containsKey(className)) {
-			branchFound(className, lineNumber);
-		}
-		BranchHit bh = findOrCreateBranchHit(className, lineNumber);
-		if (hit) {
-			bh.getBranch().trueHit(1);
-		} else {
-			bh.getBranch().falseHit(1);
-		}
-	}
-
-	private static BranchHit findOrCreateBranchHit(String className, int lineNumber) {
-		for (BranchHit bh : branches.get(className)) {
-			if (bh.getBranch().getClassName().equals(className) && bh.getBranch().getLineNumber() == lineNumber) {
-				return bh;
+	public static synchronized void branchExecuted(boolean hit, int classId, int branchId) {
+		BranchHit bh = branches.get(classId).get(branchId);
+		if (bh != null) {
+			if (hit) {
+				bh.getBranch().trueHit(1);
+			} else {
+				bh.getBranch().falseHit(1);
+			}
+			Class<?> cl = ClassStore.get(bh.getBranch().getClassName());
+			if (!changedClasses.contains(cl)) {
+				changedClasses.add(cl);
 			}
 		}
-		BranchHit bh = new BranchHit(new Branch(className, lineNumber), -1, -1);
-		branches.get(className).add(bh);
-		return bh;
 	}
 
 	public static void branchExecutedDistance(int i, int j, String branch) {
@@ -201,8 +234,8 @@ public class ClassAnalyzer {
 	public static double branchCoverage() {
 		int branchesTotal = 0;
 		int branchesExecuted = 0;
-		for (String className : branches.keySet()) {
-			for (BranchHit b : branches.get(className)) {
+		for (int classId : branches.keySet()) {
+			for (BranchHit b : branches.get(classId).values()) {
 				if (b.getBranch().getFalseHits() > 0) {
 					branchesExecuted++;
 				}
@@ -212,6 +245,7 @@ public class ClassAnalyzer {
 				branchesTotal += 2;
 			}
 		}
+
 		return branchesExecuted / (double) branchesTotal;
 	}
 
@@ -229,21 +263,21 @@ public class ClassAnalyzer {
 		float bd = 0;
 
 		switch (bt) {
-			case BRANCH_E:
-				bd = Math.abs(b1 - b2);
-				break;
-			case BRANCH_GE:
-				bd = b1 - b2;
-				break;
-			case BRANCH_GT:
-				bd = b1 - b2;
-				break;
-			case BRANCH_LE:
-				bd = b2 - b1;
-				break;
-			case BRANCH_LT:
-				bd = b2 - b1;
-				break;
+		case BRANCH_E:
+			bd = Math.abs(b1 - b2);
+			break;
+		case BRANCH_GE:
+			bd = b1 - b2;
+			break;
+		case BRANCH_GT:
+			bd = b1 - b2;
+			break;
+		case BRANCH_LE:
+			bd = b2 - b1;
+			break;
+		case BRANCH_LT:
+			bd = b2 - b1;
+			break;
 		}
 		bd = Math.abs(bd / Float.MAX_VALUE);
 		bd = Math.min(1f, Math.max(0f, bd));
@@ -255,7 +289,8 @@ public class ClassAnalyzer {
 	}
 
 	/**
-	 * Returns distance between negative and positive branch hit. 0 is a positive hit, 1 is as far away from positive as possible.
+	 * Returns distance between negative and positive branch hit. 0 is a
+	 * positive hit, 1 is as far away from positive as possible.
 	 *
 	 * @param branch
 	 * @return
@@ -267,20 +302,10 @@ public class ClassAnalyzer {
 		return branchDistance.get(branch);
 	}
 
-	public static List<Branch> getBranchesExecuted(String className) {
-		List<Branch> branchesHit = new ArrayList<Branch>();
-		for (BranchHit bh : branches.get(className)) {
-			if (bh.getBranch().getTrueHits() > 0) {
-				branchesHit.add(bh.getBranch());
-			}
-		}
-		return branchesHit;
-	}
-
 	public static synchronized List<BranchHit> getBranchesExecuted() {
 		List<BranchHit> branchesHit = new ArrayList<BranchHit>();
-		for (Map.Entry<String, List<BranchHit>> entry : branches.entrySet()) {
-			for (BranchHit b : branches.get(entry.getKey())) {
+		for (int classId : branches.keySet()) {
+			for (BranchHit b : branches.get(classId).values()) {
 				if (b.getBranch().getTrueHits() > 0) {
 					branchesHit.add(b);
 				}
@@ -291,8 +316,8 @@ public class ClassAnalyzer {
 
 	public static synchronized List<BranchHit> getBranchesNotExecuted() {
 		List<BranchHit> branchesHit = new ArrayList<BranchHit>();
-		for (Map.Entry<String, List<BranchHit>> entry : branches.entrySet()) {
-			for (BranchHit b : branches.get(entry.getKey())) {
+		for (int classId : branches.keySet()) {
+			for (BranchHit b : branches.get(classId).values()) {
 				if (b.getBranch().getFalseHits() > 0) {
 					branchesHit.add(b);
 				}
@@ -303,45 +328,49 @@ public class ClassAnalyzer {
 
 	public static synchronized List<BranchHit> getAllBranches() {
 		List<BranchHit> branchesHit = new ArrayList<BranchHit>();
-		for (Map.Entry<String, List<BranchHit>> entry : branches.entrySet()) {
-			for (BranchHit b : branches.get(entry.getKey())) {
+		for (int classId : branches.keySet()) {
+			for (BranchHit b : branches.get(classId).values()) {
 				branchesHit.add(b);
 			}
 		}
 		return branchesHit;
 	}
 
-	public static void lineFound(String className, int lineNumber) {
-		if (!lines.containsKey(className)) {
-			lines.put(className, new HashMap<Integer, LineHit>());
+	public static void lineFound(int classId, int lineNumber) {
+		if (!lines.containsKey(classId)) {
+			lines.put(classId, new HashMap<Integer, LineHit>());
 		}
-		lines.get(className).put(lineNumber, new LineHit(new Line(className, lineNumber), -1));
+		lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), lineNumber), -1));
 	}
 
-	public static void lineExecuted(String className, int lineNumber) {
-		if (!lines.containsKey(className)) {
-			lines.put(className, new HashMap<Integer, LineHit>());
+	public static void lineExecuted(int classId, int lineNumber) {
+		if (!lines.containsKey(classId)) {
+			lines.put(classId, new HashMap<Integer, LineHit>());
 		}
-		LineHit lh = findOrCreateLine(className, lineNumber);
+		LineHit lh = findOrCreateLine(classId, lineNumber);
 		lh.getLine().hit(1);
+		Class<?> cl = ClassStore.get(lh.getLine().getClassName());
+		if (!changedClasses.contains(cl)) {
+			changedClasses.add(cl);
+		}
 	}
 
-	private static LineHit findOrCreateLine(String className, int lineNumber) {
-		if (lines.get(className).containsKey(lineNumber)) {
-			return lines.get(className).get(lineNumber);
+	private static LineHit findOrCreateLine(int classId, int lineNumber) {
+		if (lines.get(classId).containsKey(lineNumber)) {
+			return lines.get(classId).get(lineNumber);
 		}
-		LineHit lh = new LineHit(new Line(className, lineNumber), -1);
-		lines.get(className).put(lineNumber, lh);
+		LineHit lh = new LineHit(new Line(classIds.get(classId), lineNumber), -1);
+		lines.get(classId).put(lineNumber, lh);
 		return lh;
 	}
 
 	public static double lineCoverage() {
 		int totalLines = 0;
 		int coveredLines = 0;
-		String className = "";
-		for (Iterator<String> it = lines.keySet().iterator(); it.hasNext();) {
-			className = it.next();
-			for (LineHit lh : lines.get(className).values()) {
+		int classId = -1;
+		for (Iterator<Integer> it = lines.keySet().iterator(); it.hasNext();) {
+			classId = it.next();
+			for (LineHit lh : lines.get(classId).values()) {
 				if (lh.getLine().getHits() > 0) {
 					coveredLines++;
 				}
@@ -376,11 +405,11 @@ public class ClassAnalyzer {
 		}
 		int totalLines = 0;
 		int coveredLines = 0;
-		for (String s : lines.keySet()){
+		for (int s : lines.keySet()) {
 			Map<Integer, LineHit> lh = lines.get(s);
 			totalLines += lh.size();
-			for (int i : lh.keySet()){
-				if (lh.get(i).getLine().getHits() > 0){
+			for (int i : lh.keySet()) {
+				if (lh.get(i).getLine().getHits() > 0) {
 					coveredLines++;
 				}
 			}
@@ -399,9 +428,9 @@ public class ClassAnalyzer {
 		int bars = 50;
 		StringBuilder sb = new StringBuilder("");
 		int totalBranches = getAllBranches().size();
-		for (String className : branches.keySet()) {
-			for (BranchHit b : branches.get(className)) {
-				sb.append(className);
+		for (int classId : branches.keySet()) {
+			for (BranchHit b : branches.get(classId).values()) {
+				sb.append(b.getBranch().getClassName());
 				sb.append("#");
 				sb.append(b.getBranch().getLineNumber());
 				sb.append(",");
@@ -421,6 +450,7 @@ public class ClassAnalyzer {
 				counter++;
 			}
 		}
+
 		String branches = sb.substring(0, sb.length() - 1);
 
 		try {
@@ -431,9 +461,9 @@ public class ClassAnalyzer {
 
 		sb = new StringBuilder("");
 		int totalLines = lines.size();
-		for (String className : lines.keySet()) {
-			for (int b : lines.get(className).keySet()) {
-				sb.append(className);
+		for (int classId : lines.keySet()) {
+			for (int b : lines.get(classId).keySet()) {
+				sb.append(classId);
 				sb.append("#");
 				sb.append(b);
 				sb.append(",");
@@ -462,21 +492,25 @@ public class ClassAnalyzer {
 		}
 	}
 
-	public static void classAnalyzed(String className, List<BranchHit> branchHitCounterIds,
+	public static void classAnalyzed(int classId, List<BranchHit> branchHitCounterIds,
 			List<LineHit> lineHitCounterIds) {
-		lines.put(className, new HashMap<Integer, LineHit>());
+		lines.put(classId, new HashMap<Integer, LineHit>());
 		for (LineHit lh : lineHitCounterIds) {
-			lines.get(className).put(lh.getCounterId(), lh);
+			lines.get(classId).put(lh.getCounterId(), lh);
 		}
-		branches.put(className, branchHitCounterIds);
+		branches.put(classId, new HashMap<Integer, BranchHit>());
+		for (BranchHit b : branchHitCounterIds) {
+			int branchId = getNewBranchId();
+			branches.get(classId).put(branchId, b);
+		}
 	}
 
-	private static Line findLineWithCounterId(String className, int i) {
-		return lines.get(className).containsKey(i) ? lines.get(className).get(i).getLine() : null;
+	private static Line findLineWithCounterId(int classId, int i) {
+		return lines.get(classId).containsKey(i) ? lines.get(classId).get(i).getLine() : null;
 	}
 
-	private static BranchHit findBranchWithCounterId(String className, int i) {
-		for (BranchHit bh : branches.get(className)) {
+	private static BranchHit findBranchWithCounterId(int classId, int i) {
+		for (BranchHit bh : branches.get(classId).values()) {
 			if (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i) {
 				return bh;
 			}
@@ -484,62 +518,40 @@ public class ClassAnalyzer {
 		return null;
 	}
 
+	public static void classChanged(String changedClass) {
+		Class<?> cl = ClassStore.get(changedClass);
+		if (cl != null) {
+			changedClasses.add(cl);
+		}
+	}
+
 	public static void collectHitCounters() {
 		if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
-			if(Properties.LOG){
+			if (Properties.LOG) {
 				TaskTimer.taskStart(new CollectHitCountersTimer());
 			}
-			Set<String> classNames = new HashSet<String>();
-			classNames.addAll(branches.keySet());
-			classNames.addAll(lines.keySet());
+			List<Class<?>> classes = changedClasses;
+			if (!Properties.USE_CHANGED_FLAG) {
+				classes = new ArrayList<Class<?>>();
+				for (int classId : lines.keySet()) {
+					classes.add(ClassStore.get(classIds.get(classId)));
+				}
+				changedClasses.addAll(classes);
 
-			ClassAnalyzer.out.println(">> Found " + classNames.size() + " classes.");
-			int bars = 60;
-			int counter = 0;
-			int totalClasses = classNames.size();
-			for (String className : classNames) {
-				counter++;
-				String progress = "[";
-				float percent = counter / (float) totalClasses;
-				int b1 = (int) (percent * bars);
-				for (int i = 0; i < b1; i++) {
-					progress += "-";
-				}
-				progress += ">";
-				int b2 = bars - b1;
-				for (int i = 0; i < b2; i++) {
-					progress += " ";
-				}
-				progress += "] " + (int) (percent * 100) + "% [" + counter + " of " + totalClasses + "]";
-				out.print("\r" + progress);
-				counter++;
-				Class<?> cl = ClassStore.get(className);
-//				if (cl == null){
-//					URLClassLoader loader = (URLClassLoader) Thread.currentThread().getContextClassLoader();
-//					//InstrumentingClassLoader loader = InstrumentingClassLoader.getInstance();
-//					//loader.setShouldInstrument(false);
-//					try {
-//						cl = loader.loadClass(className);
-//						//cl = ClassStore.get(className);
-//
-//					} catch (ClassNotFoundException e) {
-//						e.printStackTrace();
-//					}
-//				}
+			}
+			for (Class<?> cl : classes) {
 				try {
-					Method getCounters = cl.getDeclaredMethod(ArrayApproachClassVisitor.COUNTER_METHOD_NAME,
-							new Class<?>[] {});
+					Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
 					getCounters.setAccessible(true);
 					int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
 					if (counters != null) {
 						for (int i = 0; i < counters.length; i++) {
-							Line line = findLineWithCounterId(className, i);
+							int classId = classNames.get(cl.getName());
+							Line line = findLineWithCounterId(classId, i);
 							if (line != null) {
 								line.hit(counters[i]);
 							}
-
-							BranchHit branch = findBranchWithCounterId(className, i);
-
+							BranchHit branch = findBranchWithCounterId(classId, i);
 							if (branch != null) {
 								if (branch.getTrueCounterId() == i) {
 									branch.getBranch().trueHit(counters[i]);
@@ -549,14 +561,20 @@ public class ClassAnalyzer {
 							}
 						}
 					}
-
-					Method resetCounters = cl.getDeclaredMethod(ArrayApproachClassVisitor.RESET_COUNTER_METHOD_NAME,
+					Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
 							new Class[] {});
 					resetCounters.setAccessible(true);
 					resetCounters.invoke(null, new Object[] {});
-
-				} catch (Exception e) {
-					e.printStackTrace(out);
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					e.printStackTrace();
 				}
 			}
 			TaskTimer.taskEnd();
@@ -564,56 +582,36 @@ public class ClassAnalyzer {
 	}
 
 	public static List<Line> getCoverableLines(String className) {
-		if (!lines.containsKey(className)) {
+		int classId = classNames.get(className);
+		if (!lines.containsKey(classId)) {
 			return Collections.<Line> emptyList();
 		}
 		List<Line> coverableLines = new ArrayList<Line>();
-		for (LineHit lh : lines.get(className).values()) {
+		for (LineHit lh : lines.get(classId).values()) {
 			coverableLines.add(lh.getLine());
 		}
 		return coverableLines;
 	}
 
 	public static List<Branch> getCoverableBranches(String className) {
-		if (!branches.containsKey(className)) {
-			return Collections.<Branch> emptyList();
+		int classId = classNames.get(className);
+		if(!branches.containsKey(classId)){
+			return Collections.<Branch>emptyList();
 		}
 		List<Branch> coverableBranches = new ArrayList<Branch>();
-		for (BranchHit bh : branches.get(className)) {
-			coverableBranches.add(bh.getBranch());
+		for (BranchHit bh : branches.get(classId).values()) {
+				coverableBranches.add(bh.getBranch());
 		}
 		return coverableBranches;
 	}
 
-	public static List<String> getChangedClasses() {
-		List<String> changedClasses = new ArrayList<String>();
-		Iterator<String> it = branches.keySet().iterator();
-		while (it.hasNext()) {
-			String className = it.next();
-			List<BranchHit> branchHits = branches.get(className);
-			for (BranchHit bh : branchHits) {
-				if (bh.getBranch().getTrueHits() > 0 || bh.getBranch().getFalseHits() > 0) {
-					changedClasses.add(className);
-					break;
-				}
-			}
-		}
-		it = lines.keySet().iterator();
-		while (it.hasNext()) {
-			String className = it.next();
-			for (LineHit lh : lines.get(className).values()) {
-				if (lh.getLine().getHits() > 0) {
-					changedClasses.add(className);
-					break;
-				}
-			}
-		}
-		return changedClasses;
+	public static List<Class<?>> getChangedClasses() {
+		return new ArrayList<Class<?>>(changedClasses);
 	}
-	
+
 	private static final class CollectHitCountersTimer extends AbstractTask {
 		@Override
-		public String asString(){
+		public String asString() {
 			return "Collecting hit counters";
 		}
 	}

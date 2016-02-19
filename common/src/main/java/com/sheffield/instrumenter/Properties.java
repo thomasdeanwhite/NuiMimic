@@ -47,7 +47,7 @@ public class Properties implements PropertySource {
 	public static String CLASS_PATH = "";
 
 	public static String LM_AGENT_JAR = "lm-agent.jar";
-	
+
 	public static boolean RECORDING = false;
 
 	public static String[] EXILED_CLASSES;
@@ -89,16 +89,16 @@ public class Properties implements PropertySource {
 
 	public static String NGRAM_TYPE = "25-2";
 
-	public static String[] GESTURE_FILES = {"tom-gorogoa-300000ms",
-//			"processed/bigcircle-25-2",
-//			"processed/circle-25-2",
-//			"processed/keytap-25-2",
-//			"processed/punch-25-2",
-//			"processed/swipe-down-25-2",
-//			"processed/swipe-left-25-2",
-//			"processed/swipe-right-25-2",
-//			"processed/swipe-up-25-2",
-//			"processed/screen-tap-25-2"
+	public static String[] GESTURE_FILES = { "tom-gorogoa-300000ms",
+			// "processed/bigcircle-25-2",
+			// "processed/circle-25-2",
+			// "processed/keytap-25-2",
+			// "processed/punch-25-2",
+			// "processed/swipe-down-25-2",
+			// "processed/swipe-left-25-2",
+			// "processed/swipe-right-25-2",
+			// "processed/swipe-up-25-2",
+			// "processed/screen-tap-25-2"
 	};
 
 	public static long SAMPLE_RATE = 300;
@@ -116,13 +116,16 @@ public class Properties implements PropertySource {
 
 	@Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true")
 	public static String BYTECODE_DIR = System.getProperty("user.home") + "/.bytecode/";
-	
-	@Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)")
-	public static String LOG_DIR = System.getProperty("user.home")+"/.logs/";
 
-	@Parameter(key = "log_tinigs", description = "set whether application timings should be written to a log file")
+	@Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)")
+	public static String LOG_DIR = System.getProperty("user.home") + "/.logs/";
+
+	@Parameter(key = "log_timings", description = "set whether application timings should be written to a log file")
 	public static boolean LOG = true;
-	
+
+	@Parameter(key = "use_changed_flag", description = "It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data")
+	public static boolean USE_CHANGED_FLAG = true;
+
 	private Map<String, Field> parameterMap = new HashMap<String, Field>();
 
 	private void reflectMap() {
