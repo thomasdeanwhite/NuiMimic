@@ -34,4 +34,8 @@ public class Line {
 	public String toString() {
 		return String.valueOf(lineNumber);
 	}
+
+	public void setClassName (String name){
+		className = name;
+	}
 }

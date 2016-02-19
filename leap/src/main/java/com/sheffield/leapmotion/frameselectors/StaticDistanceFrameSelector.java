@@ -38,6 +38,7 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
         gestureHandlers = new HashMap<String, GestureHandler>();
 		for (String s : gestures){
             try {
+                App.out.println(s);
                 frameModifiers.put(s, new NGramFrameModifier(s));
                 frameSelectors.put(s, new NGramFrameSelector(s));
                 gestureHandlers.put(s, new NGramGestureHandler(s));

@@ -55,4 +55,8 @@ public class Branch {
 		return false;
 	}
 
+	public void setClassName (String name){
+		className = name;
+	}
+
 }

@@ -74,12 +74,10 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	@Override
 	public GestureList handleFrame(Frame frame) {
 		frame = clearFrame(frame);
-		
 		SeededGestureList gl = new SeededGestureList();
 
 		advanceGestures();
 		gestureCount++;
-
 		if (gestureTypes.size() <= 0)
 			return gl;
 		int counter = gestureTypes.size();
