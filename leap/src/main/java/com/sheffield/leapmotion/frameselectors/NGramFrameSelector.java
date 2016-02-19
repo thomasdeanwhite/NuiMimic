@@ -50,7 +50,7 @@ public class NGramFrameSelector extends FrameSelector {
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace(App.out);
-
+			System.exit(0);
 		}
 
 	}

@@ -14,12 +14,23 @@ public class ClassStore {
 	}
 
 	public static Class<?> get(String name) {
+		if (name == null){
+			return null;
+		}
 		if(store.containsKey(name)){
 			return store.get(name);
 		}
 		name = name.replace('/', '.');
 		if(store.containsKey(name)){
 			return store.get(name);
+		}
+
+		try {
+			Class c = ClassLoader.getSystemClassLoader().loadClass(name);
+			store.put(name, c);
+			return c;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
