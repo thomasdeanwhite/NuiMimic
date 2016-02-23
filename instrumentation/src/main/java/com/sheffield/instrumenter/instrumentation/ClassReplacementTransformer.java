@@ -1,17 +1,22 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.ArrayList;
+
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.InstrumentingTask;
 import com.sheffield.instrumenter.analysis.task.TaskTimer;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
-import java.io.*;
-import java.lang.instrument.IllegalClassFormatException;
-import java.util.ArrayList;
 
 public class ClassReplacementTransformer {
 
@@ -68,8 +73,11 @@ public class ClassReplacementTransformer {
 				if (Properties.LOG) {
 					TaskTimer.taskStart(new InstrumentingTask(cName));
 				}
-				cr.accept(cv, ClassReader.EXPAND_FRAMES);
-
+				try {
+					cr.accept(cv, ClassReader.EXPAND_FRAMES);
+				} catch (Throwable t) {
+					t.printStackTrace(ClassAnalyzer.out);
+				}
 				newClass = cw.toByteArray();
 				if (Properties.LOG) {
 					TaskTimer.taskEnd();
@@ -115,8 +123,7 @@ public class ClassReplacementTransformer {
 	 * Add a package that should not be instrumented.
 	 *
 	 * @param forbiddenPackage
-	 *            the package name not to be instrumented, using / for
-	 *            subpackages (e.g. org/junit)
+	 *            the package name not to be instrumented, using / for subpackages (e.g. org/junit)
 	 */
 	public static void addForbiddenPackage(String forbiddenPackage) {
 		forbiddenPackages.add(forbiddenPackage);

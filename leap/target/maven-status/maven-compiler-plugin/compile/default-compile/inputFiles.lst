@@ -38,6 +38,7 @@
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/frameselectors/PlaybackFrameSelector.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededFinger.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/Serializer.java
+/Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/frameselectors/RandomTemplateFrameSelector.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededSwipeGesture.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/display/LeapmotionDisplay.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededFrame.java

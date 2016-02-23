@@ -14,8 +14,16 @@ public class CustomLoaderClassWriter extends ClassWriter {
 	protected String getCommonSuperClass(String type1, String type2) {
 		Class<?> c, d;
 		try {
-			c = loader.loadOriginalClass(type1);
-			d = loader.loadOriginalClass(type2);
+			if (ClassStore.containsKey(type1)) {
+				c = ClassStore.get(type1);
+			} else {
+				c = loader.loadOriginalClass(type1);
+			}
+			if (ClassStore.containsKey(type2)) {
+				d = ClassStore.get(type2);
+			} else {
+				d = loader.loadOriginalClass(type2);
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e.toString());
 		}

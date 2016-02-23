@@ -13,20 +13,24 @@ public class ClassStore {
 		store.put(name, cl);
 	}
 
+	public static boolean containsKey(String name) {
+		return store.containsKey(name.replace('.', '/')) || store.containsKey(name.replace('/', '.'));
+	}
+
 	public static Class<?> get(String name) {
-		if (name == null){
+		if (name == null) {
 			return null;
 		}
-		if(store.containsKey(name)){
+		if (store.containsKey(name)) {
 			return store.get(name);
 		}
 		name = name.replace('/', '.');
-		if(store.containsKey(name)){
+		if (store.containsKey(name)) {
 			return store.get(name);
 		}
 
 		try {
-			Class c = ClassLoader.getSystemClassLoader().loadClass(name);
+			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(name);
 			store.put(name, c);
 			return c;
 		} catch (ClassNotFoundException e) {
