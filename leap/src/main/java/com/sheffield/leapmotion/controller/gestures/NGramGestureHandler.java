@@ -49,9 +49,11 @@ public class NGramGestureHandler extends RandomGestureHandler {
 			gestureDuration = 3;
 			gestureStart = System.currentTimeMillis()-gestureDuration;
 			for (String s : gestures){
-				gestureTypes.add(Gesture.Type.valueOf(s));
+				if (s != null && !s.equalsIgnoreCase("null")){
+					gestureTypes.add(Gesture.Type.valueOf(s));
 
-				gestureId++;
+					gestureId++;
+				}
 			}
 			gestureCount = 0;
 		} else {
