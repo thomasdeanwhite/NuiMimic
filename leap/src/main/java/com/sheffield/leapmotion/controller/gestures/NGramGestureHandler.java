@@ -15,8 +15,6 @@ import java.util.ArrayList;
 
 public class NGramGestureHandler extends RandomGestureHandler {
 
-	private SeededCircleGesture scg;
-	private SeededSwipeGesture ssg;
 	private AnalyzerApp analyzer;
 	private ArrayList<Gesture.Type> gestureTypes;
 	private String currentGesture;
