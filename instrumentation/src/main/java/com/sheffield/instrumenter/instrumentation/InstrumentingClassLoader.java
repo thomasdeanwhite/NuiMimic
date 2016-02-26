@@ -1,5 +1,15 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,16 +20,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
-
 public class InstrumentingClassLoader extends URLClassLoader {
 
 	private static InstrumentingClassLoader instance;
@@ -29,8 +29,14 @@ public class InstrumentingClassLoader extends URLClassLoader {
 	private MockClassLoader loader;
 	private ArrayList<ClassInstrumentingInterceptor> classInstrumentingInterceptors;
 
+	private boolean buildDependencyTree = false;
+
 	public interface ClassInstrumentingInterceptor {
 		public ClassVisitor intercept(ClassVisitor parent, String className);
+	}
+
+	public void setBuildDependencyTree(boolean b){
+		buildDependencyTree = true;
 	}
 
 	public void addClassInstrumentingInterceptor(ClassInstrumentingInterceptor cii) {
@@ -117,6 +123,11 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
 			ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == Properties.InstrumentationApproach.STATIC
 					? new StaticClassVisitor(cw, name) : new ArrayClassVisitor(cw, name);
+
+			if (buildDependencyTree){
+				cv = new DependencyTreeClassVisitor(cv, name);
+			}
+
 			byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
 			if (Properties.WRITE_CLASS) {
 				String outputDir = Properties.BYTECODE_DIR + "/"
