@@ -566,7 +566,8 @@ public class ClassAnalyzer {
 
             }
             int counter = 0;
-            for (Class<?> cl : classes) {
+            while (counter < classes.size()) {
+                Class cl = classes.get(counter);
                 try {
                     Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[]{});
                     getCounters.setAccessible(true);
@@ -598,6 +599,7 @@ public class ClassAnalyzer {
                 } catch (Exception e){
                     e.printStackTrace(out);
                 }
+                counter++;
             }
             if (Properties.LOG) {
                 TaskTimer.taskEnd();
