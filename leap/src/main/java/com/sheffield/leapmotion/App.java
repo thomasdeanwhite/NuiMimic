@@ -500,7 +500,7 @@ public class App implements ThrowableListener {
                     com.sheffield.leapmotion.sampler.SamplerApp.getApp().appFinished();
                 }
                 App.out.println("- Gathering Testing Information...");
-                ClassAnalyzer.collectHitCounters();
+                ClassAnalyzer.collectHitCounters(false);
                 int timePassed = (int) (System.currentTimeMillis() - startTime);
                 App.getApp().output(true, timePassed);
                 System.exit(0);

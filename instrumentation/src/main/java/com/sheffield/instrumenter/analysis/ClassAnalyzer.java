@@ -609,9 +609,8 @@ public class ClassAnalyzer {
     }
 
     public static void resetHitCounters(Class<?> cl){
-        Method resetCounters = null;
         try {
-            resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
+            Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
             new Class[]{});
             resetCounters.setAccessible(true);
             resetCounters.invoke(null, new Object[]{});

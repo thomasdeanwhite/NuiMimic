@@ -56,6 +56,14 @@ public class DependancyTree {
 			return null;
 
 		}
+
+		public void clear() {
+			ArrayList<ClassNode> childrenBackup = new ArrayList<ClassNode>(children);
+			children.clear();
+			for (ClassNode cn : childrenBackup){
+				cn.clear();
+			}
+		}
 	}
 	
 	private ClassNode root;
@@ -84,6 +92,10 @@ public class DependancyTree {
 		cn.addChild(child);
 		
 		
+	}
+
+	public void clear(){
+		root.clear();
 	}
 	
 	
