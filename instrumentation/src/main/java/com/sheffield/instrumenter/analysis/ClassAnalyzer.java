@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -524,7 +525,25 @@ public class ClassAnalyzer {
         }
     }
 
-    public static void collectHitCounters() {
+    public static boolean collectingHitCounters = false;
+
+    @Deprecated
+    /**
+     * Please use collectHitCounters(boolean reset)
+     */
+    public static void collectHitCounters(){
+        collectHitCounters(true);
+    }
+
+    public static void collectHitCounters(boolean reset) {
+        while(collectingHitCounters){
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        collectingHitCounters = true;
         if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
             if (Properties.LOG) {
                 TaskTimer.taskStart(new CollectHitCountersTimer());
@@ -573,10 +592,9 @@ public class ClassAnalyzer {
                             }
                         }
                     }
-//                    Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
-//                            new Class[]{});
-//                    resetCounters.setAccessible(true);
-//                    resetCounters.invoke(null, new Object[]{});
+                    if (reset){
+                        resetHitCounters(cl);
+                    }
                 } catch (Exception e){
                     e.printStackTrace(out);
                 }
@@ -584,8 +602,25 @@ public class ClassAnalyzer {
             if (Properties.LOG) {
                 TaskTimer.taskEnd();
             }
-
+            collectingHitCounters = false;
         }
+    }
+
+    public static void resetHitCounters(Class<?> cl){
+        Method resetCounters = null;
+        try {
+            resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
+            new Class[]{});
+            resetCounters.setAccessible(true);
+            resetCounters.invoke(null, new Object[]{});
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static List<Line> getCoverableLines(String className) {
