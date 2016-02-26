@@ -1,15 +1,15 @@
 package com.sheffield.instrumenter.analysis;
 
-import com.sheffield.instrumenter.analysis.DependancyTree.ClassNode;
+import com.sheffield.instrumenter.analysis.DependencyTree.ClassNode;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class DependancyTreeTest {
+public class DependencyTreeTest {
 
 	@Test
 	public void testChild (){
-		DependancyTree dt = DependancyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependancyTree();
 		dt.clear();
 		dt.addDependancy("foo.Bar", "bar.Foo");
 		
@@ -22,7 +22,7 @@ public class DependancyTreeTest {
 
 	@Test
 	public void testGrandChild (){
-		DependancyTree dt = DependancyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependancyTree();
 		dt.clear();
 		dt.addDependancy("foo.Bar", "step");
 
@@ -36,7 +36,7 @@ public class DependancyTreeTest {
 
 	@Test
 	public void testRecursion (){
-		DependancyTree dt = DependancyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependancyTree();
 		dt.clear();
 		dt.addDependancy("foo.Bar", "step");
 
@@ -49,7 +49,7 @@ public class DependancyTreeTest {
 
 	@Test
 	public void testSecondChild (){
-		DependancyTree dt = DependancyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependancyTree();
 		dt.clear();
 		dt.addDependancy("foo.Bar", "step");
 
@@ -64,7 +64,7 @@ public class DependancyTreeTest {
 
 	@Test
 	public void testDoubleRecursion (){
-		DependancyTree dt = DependancyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependancyTree();
 		dt.clear();
 		dt.addDependancy("foo.Bar", "step");
 		dt.addDependancy("step", "step2");

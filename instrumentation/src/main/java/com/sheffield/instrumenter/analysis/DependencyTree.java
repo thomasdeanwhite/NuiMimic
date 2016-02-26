@@ -2,13 +2,13 @@ package com.sheffield.instrumenter.analysis;
 
 import java.util.ArrayList;
 
-public class DependancyTree {
+public class DependencyTree {
 	
-	private static DependancyTree depTree;
+	private static DependencyTree depTree;
 	
-	public static DependancyTree getDependancyTree(){
+	public static DependencyTree getDependancyTree(){
 		if (depTree == null){
-			depTree = new DependancyTree();
+			depTree = new DependencyTree();
 		}
 		return depTree;
 	}
@@ -46,7 +46,7 @@ public class DependancyTree {
 				if (cn.getClassName().equals(className)){
 					return cn;
 				} else {
-					ClassNode result = cn.findClassNode(className);
+					ClassNode result = cn.findClassNode(className, seen);
 					if (result != null && !seen.contains(result.getClassName())){
 						seen.add(result.getClassName());
 						return result;
@@ -68,7 +68,7 @@ public class DependancyTree {
 	
 	private ClassNode root;
 	
-	private DependancyTree(){
+	private DependencyTree(){
 		root = new ClassNode("root");
 	}
 	
