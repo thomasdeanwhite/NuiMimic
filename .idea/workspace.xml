@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17190a71-dd8a-460d-867a-0c0b041b1145" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependancyTree.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependancyTreeTest.java" afterPath="$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependencyTreeTest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java" afterPath="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependencyTreeTest.java" afterPath="$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependencyTreeTest.java" />
     </list>
     <ignored path="leapmotion-tester.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -59,16 +58,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="NGramFrameSelector.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/frameselectors/NGramFrameSelector.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="63" column="61" selection-start-line="63" selection-start-column="61" selection-end-line="63" selection-end-column="61" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ClassAnalyzer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/ClassAnalyzer.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -83,28 +72,62 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DependencyTree.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="DependencyTree.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-5.6666665">
-              <caret line="82" column="42" selection-start-line="82" selection-start-column="42" selection-end-line="82" selection-end-column="42" />
+            <state vertical-scroll-proportion="0.5417559">
+              <caret line="50" column="30" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
               <folding>
-                <element signature="e#1434#1445#0" expanded="true" />
-                <element signature="e#2100#2101#0" expanded="true" />
-                <element signature="e#2119#2120#0" expanded="true" />
+                <element signature="e#1354#1365#0" expanded="true" />
+                <element signature="e#2020#2021#0" expanded="true" />
+                <element signature="e#2039#2040#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DependencyTreeTest.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="DependencyTreeTest.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependencyTreeTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.3669355">
-              <caret line="18" column="51" selection-start-line="18" selection-start-column="51" selection-end-line="18" selection-end-column="51" />
+            <state vertical-scroll-proportion="-4.851852">
+              <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ReflectiveCallable.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/internal/runners/model/ReflectiveCallable.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-8.814815">
+              <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ParentRunner.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/runners/ParentRunner.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-5.9259257">
+              <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+              <folding>
+                <element signature="e#2137#2138#0" expanded="true" />
+                <element signature="e#6429#6593#0" expanded="true" />
+                <element signature="e#6592#6593#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BlockJUnit4ClassRunner.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/runners/BlockJUnit4ClassRunner.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-13.222222">
+              <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -124,26 +147,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="-5.5471697">
               <caret line="50" column="34" selection-start-line="50" selection-start-column="34" selection-end-line="50" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Properties.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/common/src/main/java/com/sheffield/instrumenter/Properties.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="67" column="36" selection-start-line="67" selection-start-column="36" selection-end-line="67" selection-end-column="36" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Branch.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/objectrepresentation/Branch.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="58" column="25" selection-start-line="58" selection-start-column="25" selection-end-line="58" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -169,7 +172,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/ExceptionLoggingVisitor.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/ThrowableLoggingVisitor.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/LoggingUncaughtExceptionHandler.java" />
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/BranchVisitor.java" />
@@ -220,6 +222,7 @@
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependancyTree.java" />
         <option value="$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependancyTreeTest.java" />
         <option value="$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependencyTreeTest.java" />
+        <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java" />
       </list>
     </option>
   </component>
@@ -1342,17 +1345,11 @@
       <workItem from="1455714368474" duration="3511000" />
       <workItem from="1455884211186" duration="12346000" />
       <workItem from="1455896584795" duration="1790000" />
-      <workItem from="1456478860491" duration="3280000" />
+      <workItem from="1456478860491" duration="3820000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 23m 05s.xml">
-      <configuration name="Instrumentation test" configurationId="JUnit" />
-    </history-entry>
-    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 24m 12s.xml">
-      <configuration name="Instrumentation test" configurationId="JUnit" />
-    </history-entry>
     <history-entry file="Instrumentation_test - 2016.02.26 at 10h 25m 40s.xml">
       <configuration name="Instrumentation test" configurationId="JUnit" />
     </history-entry>
@@ -1368,9 +1365,24 @@
     <history-entry file="Instrumentation_test - 2016.02.26 at 10h 35m 37s.xml">
       <configuration name="Instrumentation test" configurationId="JUnit" />
     </history-entry>
+    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 37m 56s.xml">
+      <configuration name="Instrumentation test" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 39m 48s.xml">
+      <configuration name="Instrumentation test" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 40m 52s.xml">
+      <configuration name="Instrumentation test" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 42m 22s.xml">
+      <configuration name="Instrumentation test" configurationId="JUnit" />
+    </history-entry>
+    <history-entry file="Instrumentation_test - 2016.02.26 at 10h 44m 36s.xml">
+      <configuration name="Instrumentation test" configurationId="JUnit" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="323819000" />
+    <option name="totallyTimeSpent" value="324359000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1288" y="4" width="1291" height="999" extended-state="0" />
@@ -1383,7 +1395,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.36958817" sideWeight="0.503125" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38089886" sideWeight="0.496875" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38089886" sideWeight="0.496875" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946146" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27764705" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -1392,7 +1404,7 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3970433" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3966292" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -1453,11 +1465,17 @@
           <properties />
           <option name="timeStamp" value="44" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java</url>
+          <line>44</line>
+          <properties />
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="54" />
+      <option name="time" value="55" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -1466,27 +1484,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/asm/asm/3.3.1/asm-3.3.1.jar!/org/objectweb/asm/ClassReader.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-4.148148">
-          <caret line="215" column="16" selection-start-line="215" selection-start-column="16" selection-end-line="215" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/modifiers/ArrayBranchVisitor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="93" column="32" selection-start-line="93" selection-start-column="32" selection-end-line="93" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/instrumentation/LoggingUncaughtExceptionHandler.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.12125535">
-          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1864,24 +1861,52 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java">
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/internal/runners/model/ReflectiveCallable.class">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.6666665">
-          <caret line="82" column="42" selection-start-line="82" selection-start-column="42" selection-end-line="82" selection-end-column="42" />
+        <state vertical-scroll-proportion="-8.814815">
+          <caret line="17" column="0" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/runners/BlockJUnit4ClassRunner.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-13.222222">
+          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/junit/junit/4.12/junit-4.12.jar!/org/junit/runners/ParentRunner.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.9259257">
+          <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
           <folding>
-            <element signature="e#1434#1445#0" expanded="true" />
-            <element signature="e#2100#2101#0" expanded="true" />
-            <element signature="e#2119#2120#0" expanded="true" />
+            <element signature="e#2137#2138#0" expanded="true" />
+            <element signature="e#6429#6593#0" expanded="true" />
+            <element signature="e#6592#6593#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/test/com/sheffield/instrumenter/analysis/DependencyTreeTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3669355">
-          <caret line="18" column="51" selection-start-line="18" selection-start-column="51" selection-end-line="18" selection-end-column="51" />
+        <state vertical-scroll-proportion="-4.851852">
+          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5417559">
+          <caret line="50" column="30" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
+          <folding>
+            <element signature="e#1354#1365#0" expanded="true" />
+            <element signature="e#2020#2021#0" expanded="true" />
+            <element signature="e#2039#2040#0" expanded="true" />
           </folding>
         </state>
       </provider>

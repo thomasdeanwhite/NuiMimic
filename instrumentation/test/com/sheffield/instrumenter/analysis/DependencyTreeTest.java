@@ -9,9 +9,9 @@ public class DependencyTreeTest {
 
 	@Test
 	public void testChild (){
-		DependencyTree dt = DependencyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
-		dt.addDependancy("foo.Bar", "bar.Foo");
+		dt.addDependency("foo.Bar", "bar.Foo");
 		
 		ClassNode cn = dt.getClassNode("bar.Foo");
 		
@@ -22,11 +22,11 @@ public class DependencyTreeTest {
 
 	@Test
 	public void testGrandChild (){
-		DependencyTree dt = DependencyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
-		dt.addDependancy("foo.Bar", "step");
+		dt.addDependency("foo.Bar", "step");
 
-		dt.addDependancy("step", "bar.Foo");
+		dt.addDependency("step", "bar.Foo");
 
 		ClassNode cn = dt.getClassNode("bar.Foo");
 
@@ -36,11 +36,11 @@ public class DependencyTreeTest {
 
 	@Test
 	public void testRecursion (){
-		DependencyTree dt = DependencyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
-		dt.addDependancy("foo.Bar", "step");
+		dt.addDependency("foo.Bar", "step");
 
-		dt.addDependancy("step", "foo.bar");
+		dt.addDependency("step", "foo.bar");
 
 		ClassNode cn = dt.getClassNode("invalid");
 
@@ -49,12 +49,12 @@ public class DependencyTreeTest {
 
 	@Test
 	public void testSecondChild (){
-		DependencyTree dt = DependencyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
-		dt.addDependancy("foo.Bar", "step");
+		dt.addDependency("foo.Bar", "step");
 
 
-		dt.addDependancy("foo.Bar", "bar.Foo");
+		dt.addDependency("foo.Bar", "bar.Foo");
 
 		ClassNode cn = dt.getClassNode("bar.Foo");
 
@@ -64,13 +64,13 @@ public class DependencyTreeTest {
 
 	@Test
 	public void testDoubleRecursion (){
-		DependencyTree dt = DependencyTree.getDependancyTree();
+		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
-		dt.addDependancy("foo.Bar", "step");
-		dt.addDependancy("step", "step2");
-		dt.addDependancy("step2", "foo.Bar");
-		dt.addDependancy("foo.Bar", "step2");
-		dt.addDependancy("foo.bar", "bar.Foo");
+		dt.addDependency("foo.Bar", "step");
+		dt.addDependency("step", "step2");
+		dt.addDependency("step2", "foo.Bar");
+		dt.addDependency("foo.Bar", "step2");
+		dt.addDependency("foo.bar", "bar.Foo");
 		ClassNode cn = dt.getClassNode("bar.Foo");
 
 		assertNotNull(cn);

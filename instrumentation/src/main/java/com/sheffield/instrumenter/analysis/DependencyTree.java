@@ -6,7 +6,7 @@ public class DependencyTree {
 	
 	private static DependencyTree depTree;
 	
-	public static DependencyTree getDependancyTree(){
+	public static DependencyTree getDependencyTree(){
 		if (depTree == null){
 			depTree = new DependencyTree();
 		}
@@ -47,8 +47,7 @@ public class DependencyTree {
 					return cn;
 				} else {
 					ClassNode result = cn.findClassNode(className, seen);
-					if (result != null && !seen.contains(result.getClassName())){
-						seen.add(result.getClassName());
+					if (result != null){
 						return result;
 					}
 				}
@@ -76,7 +75,7 @@ public class DependencyTree {
 		return root.findClassNode(className);
 	}
 	
-	public void addDependancy(String className, String childName){
+	public void addDependency(String className, String childName){
 		ClassNode cn = root.findClassNode(className);
 		
 		if (cn == null){
