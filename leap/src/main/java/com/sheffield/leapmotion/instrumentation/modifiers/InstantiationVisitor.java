@@ -2,6 +2,7 @@ package com.sheffield.leapmotion.instrumentation.modifiers;
 
 import com.leapmotion.leap.*;
 import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.mocks.SeededGesture;
@@ -56,21 +57,24 @@ public class InstantiationVisitor extends MethodVisitor {
             methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
         }
         boolean shouldCall = true;
-        if (owner.equals(CONTROLLER_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
-            super.visitMethodInsn(opcode, owner, name, desc, itf);
-            try {
-                super.visitInsn(Opcodes.POP);
-                super.visitMethodInsn(Opcodes.INVOKESTATIC, NEW_CONTROLLER, "getController",
-                        Type.getMethodDescriptor(METHOD_TO_CALL), itf);
-                super.visitMethodInsn(Opcodes.INVOKESTATIC, APP_CLASS, "setTesting",
-                        Type.getMethodDescriptor(APP_METHOD_TO_CALL), itf);
+        if (owner.equals(CONTROLLER_CLASS)){
+            DependencyTree.getDependencyTree().addDependency("com.leapmotion.leap.Controller", className);
+            if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+                super.visitMethodInsn(opcode, owner, name, desc, itf);
+                try {
+                    super.visitInsn(Opcodes.POP);
+                    super.visitMethodInsn(Opcodes.INVOKESTATIC, NEW_CONTROLLER, "getController",
+                            Type.getMethodDescriptor(METHOD_TO_CALL), itf);
+                    super.visitMethodInsn(Opcodes.INVOKESTATIC, APP_CLASS, "setTesting",
+                            Type.getMethodDescriptor(APP_METHOD_TO_CALL), itf);
 
-				 //App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
+                    //App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
 
-            } catch (SecurityException e) {
-                e.printStackTrace();
+                } catch (SecurityException e) {
+                    e.printStackTrace();
+                }
+                shouldCall = false;
             }
-            shouldCall = false;
         } else if (owner.equals(HAND_LIST_CLASS) && name.equals("empty")) {
             // Convert from old API version to new one.
             super.visitMethodInsn(opcode, owner, "isEmpty", desc, false);

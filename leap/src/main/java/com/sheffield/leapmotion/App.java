@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
@@ -23,8 +24,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Type;
-import java.net.MalformedURLException;
 import java.security.Permission;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
@@ -400,7 +401,6 @@ public class App implements ThrowableListener {
         setOptions(args);
 
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
-
         try {
             LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
             String dir = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1);
@@ -409,8 +409,14 @@ public class App implements ThrowableListener {
             App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");
             ClassAnalyzer.output(output, output2);
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+
+
+            ArrayList<DependencyTree.ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
+            for (DependencyTree.ClassNode cn : nodes){
+                App.out.println(cn.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace(App.out);
         }
     }
 
@@ -500,7 +506,7 @@ public class App implements ThrowableListener {
                     com.sheffield.leapmotion.sampler.SamplerApp.getApp().appFinished();
                 }
                 App.out.println("- Gathering Testing Information...");
-                ClassAnalyzer.collectHitCounters();
+                ClassAnalyzer.collectHitCounters(false);
                 int timePassed = (int) (System.currentTimeMillis() - startTime);
                 App.getApp().output(true, timePassed);
                 System.exit(0);
