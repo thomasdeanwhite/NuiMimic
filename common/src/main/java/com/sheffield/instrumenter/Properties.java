@@ -120,6 +120,9 @@ public class Properties implements PropertySource {
 	@Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)")
 	public static String LOG_DIR = System.getProperty("user.home") + "/.logs/";
 
+	@Parameter(key = "log_filename", description = "Filename of the log file - if null, the current date/time will be used")
+	public static String LOG_FILENAME = null;
+
 	@Parameter(key = "log_timings", description = "set whether application timings should be written to a log file")
 	public static boolean LOG = true;
 
