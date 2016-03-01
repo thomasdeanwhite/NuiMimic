@@ -1,21 +1,17 @@
 package com.sheffield.instrumenter.states;
 
-import java.awt.AWTException;
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.awt.Robot;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.net.Socket;
 
 public class ScreenGrabber {
 
-	public static final Dimension DIMENSION = Toolkit.getDefaultToolkit().getScreenSize();
+	public static final Dimension DIMENSION;
 
 	public static Robot robot = null;
 
-	public static final Rectangle dimensions = new Rectangle(DIMENSION);// Toolkit.getDefaultToolkit().getScreenSize());
+	public static final Rectangle dimensions;// Toolkit.getDefaultToolkit().getScreenSize());
 
 	public static String HOST = "localhost";
 	public static int PORT = 1935;
@@ -29,7 +25,15 @@ public class ScreenGrabber {
 	// 1920, 1080);
 
 	static {
+		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+		GraphicsDevice gd = gds[0];
+		if (gds.length > 1){
+			gd = gds[1];
+		}
 
+		DIMENSION = new Dimension(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
+
+		dimensions = new Rectangle(DIMENSION);
 		// try {
 		// String subFolder = APPLICATION + "/" + STREAM;
 		// String host = HOST;
