@@ -545,8 +545,9 @@ public class ClassAnalyzer {
                 e.printStackTrace();
             }
         }
-        collectingHitCounters = true;
+
         if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
+            collectingHitCounters = true;
             if (Properties.LOG) {
                 TaskTimer.taskStart(new CollectHitCountersTimer());
             }
@@ -567,9 +568,7 @@ public class ClassAnalyzer {
                 changedClasses.addAll(classes);
 
             }
-            int counter = 0;
-            while (counter < classes.size()) {
-                Class<?> cl = classes.get(counter);
+            for (Class<?> cl : classes) {
                 try {
                     Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
                     getCounters.setAccessible(true);
@@ -601,7 +600,6 @@ public class ClassAnalyzer {
                 } catch (Exception e) {
                     e.printStackTrace(out);
                 }
-                counter++;
             }
             if (Properties.LOG) {
                 TaskTimer.taskEnd();
