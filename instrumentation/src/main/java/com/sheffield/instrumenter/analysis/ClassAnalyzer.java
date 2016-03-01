@@ -1,5 +1,17 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.Properties;
@@ -17,14 +29,6 @@ import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -126,7 +130,6 @@ public class ClassAnalyzer {
 
         lines = l;
     }
-
 
     public static void resetCoverage() {
         for (int classId : branches.keySet()) {
@@ -317,21 +320,21 @@ public class ClassAnalyzer {
         float bd = 0;
 
         switch (bt) {
-            case BRANCH_E:
-                bd = Math.abs(b1 - b2);
-                break;
-            case BRANCH_GE:
-                bd = b1 - b2;
-                break;
-            case BRANCH_GT:
-                bd = b1 - b2;
-                break;
-            case BRANCH_LE:
-                bd = b2 - b1;
-                break;
-            case BRANCH_LT:
-                bd = b2 - b1;
-                break;
+        case BRANCH_E:
+            bd = Math.abs(b1 - b2);
+            break;
+        case BRANCH_GE:
+            bd = b1 - b2;
+            break;
+        case BRANCH_GT:
+            bd = b1 - b2;
+            break;
+        case BRANCH_LE:
+            bd = b2 - b1;
+            break;
+        case BRANCH_LT:
+            bd = b2 - b1;
+            break;
         }
         bd = Math.abs(bd / Float.MAX_VALUE);
         bd = Math.min(1f, Math.max(0f, bd));
@@ -343,8 +346,7 @@ public class ClassAnalyzer {
     }
 
     /**
-     * Returns distance between negative and positive branch hit. 0 is a
-     * positive hit, 1 is as far away from positive as possible.
+     * Returns distance between negative and positive branch hit. 0 is a positive hit, 1 is as far away from positive as possible.
      *
      * @param branch
      * @return
@@ -425,7 +427,7 @@ public class ClassAnalyzer {
         int totalLines = 0;
         int coveredLines = 0;
         int classId = -1;
-        for (Iterator<Integer> it = lines.keySet().iterator(); it.hasNext(); ) {
+        for (Iterator<Integer> it = lines.keySet().iterator(); it.hasNext();) {
             classId = it.next();
             for (LineHit lh : lines.get(classId).values()) {
                 if (lh.getLine().getHits() > 0) {
@@ -473,9 +475,9 @@ public class ClassAnalyzer {
         }
 
         csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
-                + "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + ","
-                + getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + ","
-                + gestureFiles + "," + totalLines + "," + coveredLines + "," + ((float) coveredLines / (float) totalLines) + "\n";
+                + "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + "," + getBranchesExecuted().size()
+                + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines
+                + "," + ((float) coveredLines / (float) totalLines) + "\n";
         return csv;
 
     }
@@ -493,7 +495,7 @@ public class ClassAnalyzer {
     }
 
     public static void classAnalyzed(int classId, List<BranchHit> branchHitCounterIds,
-                                     List<LineHit> lineHitCounterIds) {
+            List<LineHit> lineHitCounterIds) {
         lines.put(classId, new HashMap<Integer, LineHit>());
         for (LineHit lh : lineHitCounterIds) {
             lines.get(classId).put(lh.getCounterId(), lh);
@@ -531,12 +533,12 @@ public class ClassAnalyzer {
     /**
      * Please use collectHitCounters(boolean reset)
      */
-    public static void collectHitCounters(){
+    public static void collectHitCounters() {
         collectHitCounters(true);
     }
 
     public static void collectHitCounters(boolean reset) {
-        while(collectingHitCounters){
+        while (collectingHitCounters) {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
@@ -552,7 +554,7 @@ public class ClassAnalyzer {
             if (!Properties.USE_CHANGED_FLAG) {
                 classes = new ArrayList<Class<?>>();
                 for (int classId : lines.keySet()) {
-                    Class c = ClassStore.get(classIds.get(classId));
+                    Class<?> c = ClassStore.get(classIds.get(classId));
                     if (c == null) {
                         try {
                             c = ClassLoader.getSystemClassLoader().loadClass(classIds.get(classId));
@@ -567,15 +569,15 @@ public class ClassAnalyzer {
             }
             int counter = 0;
             while (counter < classes.size()) {
-                Class cl = classes.get(counter);
+                Class<?> cl = classes.get(counter);
                 try {
-                    Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[]{});
+                    Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
                     getCounters.setAccessible(true);
-                    int[] counters = (int[]) getCounters.invoke(null, new Object[]{});
+                    int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
                     if (counters != null) {
                         for (int i = 0; i < counters.length; i++) {
                             Object o = classNames.get(cl.getName());
-                            if (o == null){
+                            if (o == null) {
                                 o = classNames.get(cl.getName().replace(".", "/"));
                             }
                             int classId = (Integer) o;
@@ -593,10 +595,10 @@ public class ClassAnalyzer {
                             }
                         }
                     }
-                    if (reset){
+                    if (reset) {
                         resetHitCounters(cl);
                     }
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace(out);
                 }
                 counter++;
@@ -608,12 +610,11 @@ public class ClassAnalyzer {
         }
     }
 
-    public static void resetHitCounters(Class<?> cl){
+    public static void resetHitCounters(Class<?> cl) {
         try {
-            Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME,
-            new Class[]{});
+            Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME, new Class[] {});
             resetCounters.setAccessible(true);
-            resetCounters.invoke(null, new Object[]{});
+            resetCounters.invoke(null, new Object[] {});
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
@@ -627,7 +628,7 @@ public class ClassAnalyzer {
     public static List<Line> getCoverableLines(String className) {
         int classId = classNames.get(className);
         if (!lines.containsKey(classId)) {
-            return Collections.<Line>emptyList();
+            return Collections.<Line> emptyList();
         }
         List<Line> coverableLines = new ArrayList<Line>();
         for (LineHit lh : lines.get(classId).values()) {
@@ -639,7 +640,7 @@ public class ClassAnalyzer {
     public static List<Branch> getCoverableBranches(String className) {
         int classId = classNames.get(className);
         if (!branches.containsKey(classId)) {
-            return Collections.<Branch>emptyList();
+            return Collections.<Branch> emptyList();
         }
         List<Branch> coverableBranches = new ArrayList<Branch>();
         for (BranchHit bh : branches.get(classId).values()) {
