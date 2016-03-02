@@ -1,13 +1,12 @@
 package com.sheffield.leapmotion.sampler;
 
 import com.leapmotion.leap.*;
+import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.mocks.HandFactory;
-import org.apache.commons.math3.transform.DctNormalization;
-import org.apache.commons.math3.transform.FastCosineTransformer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -49,8 +48,6 @@ public class SamplerApp extends Listener {
     private File currentDct;
 
     private int dctFeatures = 512;
-
-    private FastCosineTransformer dct = new FastCosineTransformer(DctNormalization.STANDARD_DCT_I);
 
     private String filenameStart = "gorogoa";
 
@@ -382,54 +379,33 @@ public class SamplerApp extends Listener {
                         BufferedImage bi = ScreenGrabber.captureRobot();
                         int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
 
-                        int dataLength = data.length;//dctFeatures;
+                        double[] dImage = new double[data.length];
+                        for (int i = 0; i < data.length; i++){
+                            dImage[i] = data[i];
+                        }
 
-//                        //this will compress the screenshot by this factor
-//                        while (1+(dataLength * dctFeatures) < data.length){
-//                            dataLength *= dctFeatures;
-//                        }
+                        int blocks = 2;
 
+                        DiscreteCosineTransformer dct = new DiscreteCosineTransformer(dImage, bi.getWidth(), bi.getHeight(), blocks);
 
-                        dataLength++;
-
-                        double[] blurred = new double[dataLength];
-
-                        //TODO: Replace 3 and dctFeatures with a variable property
-                        int blurAmount = 1 + (int)((data.length) / (float)(dataLength));
-
-                        App.out.println("- Sampling every " + blurAmount + "pixels (compressing " + data.length + " to " + dataLength + " [" + (100*(1f - (dataLength / (float)data.length))) + "%])");
-
-//                        for (int i = 0; i < (dataLength/3); i++){
-//                            int r = 0; int g = 0; int b = 0;
-//                            int ind = 3 * (int) (i * blurAmount);
-//                            for (int j = 0; j < blurAmount; j++) {
-//                                int index = ind + (j * 3);
-//                                r += data[index];
-//                                g += data[index + 1];
-//                                b += data[index + 2];
-//                            }
-//                            blurred[i] = r / blurAmount;
-//                            blurred[i+1] = g / blurAmount;
-//                            blurred[i+2] = b / blurAmount;
-//                        }
-
-                        int[] image = new int[dataLength];
-                        Dct.
+                        dct.calculateDct();
 
 
 
-                       // double[] transform = dct.transform(blurred, TransformType.FORWARD);
+                       double[] transform = dct.inverse();
 
-                        //StringBuilder sb = new StringBuilder(transform.length);
 
-                        BufferedImage compressed = bi;// new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_INT_RGB);
+                        int width = bi.getWidth();
+                        int height = bi.getHeight();
+                        BufferedImage compressed =  new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                        for (int i = 0; i < width - blocks; i++){
+                            for (int j = 0; j < height - blocks; j++) {
+                                compressed.setRGB(i, j, (int) transform[(j * width) + i]);
+                            }
+                        }
                         ImageIO.write(compressed, "jpg", new File("COMPRESSED.jpg"));
 //
-//                        for (int i = 0; i < width; i++){
-//                            for (int j = 0; j < bi.getHeight(); j++) {
-//                                compressed.setRGB(i, j, (int) transform[(i * width) + j]);
-//                            }
-//                        }
+
 //
 //                        sb.append(uniqueId);
 //                        for (int i = 0; i < transform.length; i++){
