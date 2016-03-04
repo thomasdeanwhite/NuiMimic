@@ -27,9 +27,6 @@ public class ScreenGrabber {
 	static {
 		GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
 		GraphicsDevice gd = gds[0];
-		if (gds.length > 1){
-			gd = gds[1];
-		}
 
 		DIMENSION = new Dimension(gd.getDisplayMode().getWidth(), gd.getDisplayMode().getHeight());
 
