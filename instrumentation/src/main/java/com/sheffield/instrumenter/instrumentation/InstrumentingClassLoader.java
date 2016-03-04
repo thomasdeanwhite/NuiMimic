@@ -124,7 +124,6 @@ public class InstrumentingClassLoader extends URLClassLoader {
             if (buildDependencyTree) {
                 cv = new DependencyTreeClassVisitor(cv, name);
             }
-
             byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
             if (Properties.WRITE_CLASS) {
                 String outputDir = Properties.BYTECODE_DIR + "/"
@@ -139,6 +138,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
                 outFile.flush();
                 outFile.close();
             }
+
             Class<?> cl = null;
             try {
                 cl = defineClass(className, bytes, 0, bytes.length);
@@ -175,14 +175,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
     public Class<?> loadOriginalClass(String name) throws ClassNotFoundException {
         name = name.replace("/", ".");
         try {
-            if (!crt.shouldInstrumentClass(name.replace(".", "/")) || !shouldInstrument) {
-                Class<?> cl = findLoadedClass(name);
-                if (cl != null) {
-                    return cl;
-                }
-                URL[] urls = getURLs();
-                return loader.loadClass(name);
-            }
+
             Class<?> cl = loader.loadOriginalClass(name);
             return cl;
         } catch (ClassNotFoundException e) {
@@ -221,6 +214,9 @@ public class InstrumentingClassLoader extends URLClassLoader {
         private Class<?> loadOriginalClass(String name) throws IOException, ClassNotFoundException {
             InputStream stream;
             Class<?> cl = findLoadedClass(name);
+            if (!crt.shouldInstrumentClass(name) || !shouldInstrument) {
+                return super.loadClass(name);
+            }
             if (cl == null) {
                 stream = getInputStreamForClass(name);
                 byte[] bytes = IOUtils.toByteArray(stream);
@@ -229,15 +225,25 @@ public class InstrumentingClassLoader extends URLClassLoader {
             return cl;
         }
 
-        private Class<?> defClass(String name, byte[] bytes, int offset, int length) {
-            return super.defineClass(name, bytes, offset, length);
+        @Override
+        public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            String localMessage = "";
+            if (!crt.shouldInstrumentClass(name) || !shouldInstrument) {
+                return super.loadClass(name, resolve);
+            }
+            try {
+                return loadOriginalClass(name);
+            } catch (IOException e) {
+                localMessage = e.getLocalizedMessage();
+                e.printStackTrace(ClassAnalyzer.out);
+            }
+            throw new ClassNotFoundException(localMessage);
         }
 
         @Override
         protected void addURL(URL u) {
             super.addURL(u);
         }
-
     }
 
 }
