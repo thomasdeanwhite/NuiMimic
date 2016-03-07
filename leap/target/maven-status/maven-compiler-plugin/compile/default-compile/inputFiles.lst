@@ -3,6 +3,7 @@
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/analyzer/DataAnalyzer.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/display/DisplayWindow.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/mocks/SeededCircleGesture.java
+/Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/controller/SeededController.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/frameselectors/StaticDistanceFrameSelector.java
 /Users/davidpaterson/Documents/phdexperiments/leapmotion-tester/leap/src/main/java/com/sheffield/leapmotion/instrumentation/visitors/TestingClassAdapter.java
