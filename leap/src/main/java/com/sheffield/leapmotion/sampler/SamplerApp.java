@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.sampler;
 
 import com.leapmotion.leap.*;
+import com.leapmotion.leap.Frame;
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.states.ScreenGrabber;
@@ -10,12 +11,14 @@ import com.sheffield.leapmotion.mocks.HandFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 
 
 /**
@@ -31,6 +34,10 @@ public class SamplerApp extends Listener {
     public static PrintStream out = System.out;
 
     public static boolean SHOW_GUI = false;
+
+    private DiscreteCosineTransformer dct;
+
+    private static double[] lastImage;
 
     private AppStatus status;
     private long startTime;
@@ -380,30 +387,76 @@ public class SamplerApp extends Listener {
                         int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
 
                         double[] dImage = new double[data.length];
+
+                        ArrayList<Point> changes = new ArrayList<Point>();
+
+                        int blocks = bi.getWidth() / DiscreteCosineTransformer.BLOCKS;
+
+                        ArrayList<Integer> xBlocks = new ArrayList<Integer>();
                         for (int i = 0; i < data.length; i++){
-                            dImage[i] = data[i];
+                            int blackAndWhite = data[i];
+                            blackAndWhite = (((blackAndWhite >> 16) & 0x0FF) + ((blackAndWhite >> 8) & 0x0FF) + (blackAndWhite & 0x0FF))/3;
+                            //blackAndWhite = ((blackAndWhite&0x0ff)<<16)|((blackAndWhite&0x0ff)<<8)|(blackAndWhite&0x0ff);
+
+                            dImage[i] = blackAndWhite;
+                            if (lastImage != null) {
+                                int y =  i / bi.getWidth();
+                                int x = i - (y * bi.getWidth());
+                                int block = (y / DiscreteCosineTransformer.BLOCKS * blocks) + (x / DiscreteCosineTransformer.BLOCKS);
+                                if (!xBlocks.contains(i)) {
+                                    int li = (int) lastImage[i];
+                                    int di = blackAndWhite;
+                                    if ((1 + Math.abs(li - di)) / (1 + Math.abs(li + di)) > 0.15) {
+                                        xBlocks.add(block);
+                                    }
+                                }
+                            }
+
                         }
 
-                        int blocks = 2;
+                        for (int i : xBlocks){
+                            int y = i / blocks;
+                            int x = i - (y * blocks);
+                            changes.add(new Point(x, y));
+                        }
 
-                        DiscreteCosineTransformer dct = new DiscreteCosineTransformer(dImage, bi.getWidth(), bi.getHeight(), blocks);
 
-                        dct.calculateDct();
-
+                        if (lastImage == null) {
 
 
-                       double[] transform = dct.inverse();
+                            dct = new DiscreteCosineTransformer(dImage, bi.getWidth(), bi.getHeight());
+
+                            dct.calculateDct();
+
+
+                        } else {
+
+                            App.out.println(changes.size());
+
+                            dct.updateImage(dImage);
+
+                            dct.calculateDctFromChanges(changes);
+                        }
+
+                        lastImage = dImage;
+
+
+                       double[] transform = dct.inverse(1);
 
 
                         int width = bi.getWidth();
                         int height = bi.getHeight();
                         BufferedImage compressed =  new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                        for (int i = 0; i < width - blocks; i++){
-                            for (int j = 0; j < height - blocks; j++) {
-                                compressed.setRGB(i, j, (int) transform[(j * width) + i]);
+                        for (int i = 0; i < width - DiscreteCosineTransformer.BLOCKS; i++){
+                            for (int j = 0; j < height - DiscreteCosineTransformer.BLOCKS; j++) {
+                                int value = (int)(transform[(j*width) + i]);
+//                                value = (((value >> 16) & 0x0FF) + ((value >> 8) & 0x0FF) + (value & 0x0FF))/3;
+                                value = 0xFF000000 | ((value&0x0ff)<<16)|((value&0x0ff)<<8)|(value&0x0ff);
+                                compressed.setRGB(i, j, value);
                             }
                         }
-                        ImageIO.write(compressed, "jpg", new File("COMPRESSED.jpg"));
+                        ImageIO.write(compressed, "bmp", new File("COMPRESSED.bmp"));
+
 //
 
 //
