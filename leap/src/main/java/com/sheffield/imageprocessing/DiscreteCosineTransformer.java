@@ -1,11 +1,14 @@
 package com.sheffield.imageprocessing;
 
-import java.util.Arrays;
+import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Created by thomas on 02/03/2016.
  */
 public class DiscreteCosineTransformer {
+
+    public static final int BLOCKS = 8;
 
     private double[] originalImage;
     private int imageWidth = 0;
@@ -15,12 +18,22 @@ public class DiscreteCosineTransformer {
     private double[] dctImage;
     private double[] coefficients;
 
-    private static final double ONE_OVER_ROOT_TWO = 1d/ Math.sqrt(2);
+    private static final double[][] COSINES = new double[BLOCKS][BLOCKS];
+    private static final double[][] COEFFICIENTS = new double[BLOCKS][BLOCKS];
 
-    private int blocks = 0;
+    static {
+        for (int i = 0; i < BLOCKS; i++){
+            for (int j = 0; j < BLOCKS; j++){
+                COSINES[i][j] = Math.cos((i*Math.PI*(2*j+1))/(double)(2*BLOCKS));
+                COEFFICIENTS[i][j] = c(i) * c(j);
+            }
+        }
+    }
 
-    public DiscreteCosineTransformer(double[] image, int width, int height, int blocks){
-        originalImage = Arrays.copyOf(image, image.length);
+    private static final double ONE_OVER_ROOT_TWO = 1 / Math.sqrt(2);
+
+    public DiscreteCosineTransformer(double[] image, int width, int height){
+        originalImage = image;
 
         if (originalImage.length != width * height){
             throw new IllegalArgumentException("Size of image array must be equal to width * height");
@@ -28,42 +41,60 @@ public class DiscreteCosineTransformer {
 
         imageWidth = width;
         imageHeight = height;
-        newWidth = imageWidth - blocks;
+        newWidth = imageWidth;// - BLOCKS;
+    }
 
-        this.blocks = blocks;
+    public void updateImage(double[] image){
+        originalImage = image;
     }
 
     public void calculateDct(){
 
-        coefficients = new double[originalImage.length];
+        coefficients = new double[(imageWidth + BLOCKS) * (imageHeight + BLOCKS)];
 
-        for (int i = 0; i < imageWidth/blocks; i++) {
-            for (int j = 0; j < imageHeight/blocks; j++) {
-                    dct(i * blocks, j * blocks);
+        for (int i = 0; i < 1 + imageWidth/BLOCKS; i++) {
+            for (int j = 0; j < 1 + imageHeight/BLOCKS; j++) {
+                dct(i * BLOCKS, j * BLOCKS);
             }
         }
 
 
     }
 
+    public void calculateDctFromChanges(ArrayList<Point> changes){
+
+        for (Point p : changes){
+            int x = (int)p.getX();
+            int y = (int)p.getY();
+
+            dct(x * BLOCKS, y * BLOCKS);
+        }
+
+
+    }
+
+    public double[] getCoefficients (){
+        return coefficients;
+    }
+
     private int i(int x, int y){
         return (y * imageWidth) + x;
     }
 
-    private double c(int u){
-        return u != 0 ? 1 : ONE_OVER_ROOT_TWO;
+    private static double c(int u){
+        return u == 0 ? 1/Math.sqrt(BLOCKS) : Math.sqrt(2 / (double) BLOCKS);
     }
 
-    public double[] inverse(){
+    public double[] inverse(int coeffQuantity){
         if (coefficients == null){
             calculateDct();
         }
 
         double[] newImage = new double[coefficients.length];
 
-        for (int i = 0; i < imageWidth/blocks; i++){
-            for (int j = 0; j < imageHeight/blocks; j++){
-                    idct(i * blocks, j * blocks, newImage);
+        for (int i = 0; i < 1 + imageWidth/BLOCKS; i++){
+            for (int j = 0; j < 1 + imageHeight/BLOCKS; j++){
+                    idct(i * BLOCKS, j * BLOCKS, newImage, coeffQuantity);
             }
         }
 
@@ -73,40 +104,52 @@ public class DiscreteCosineTransformer {
 
     }
 
-    private void idct(int xpos, int ypos, double[] newImage){
-        for (int x = 0; x < blocks; x++){
-            for (int y = 0; y < blocks; y++){
+    private void idct(int xpos, int ypos, double[] newImage, int coeffQuantity){
+        //double divider = 1 / Math.sqrt(2 * BLOCKS);
+        for (int x = 0; x < BLOCKS; x++){
+            if (x >= imageWidth){
+                continue;
+            }
+            for (int y = 0; y < BLOCKS; y++){
+                if (y >= imageHeight)
+                    continue;
                 double value = 0;
-                for (int i = 0; i < blocks; i++){
-                    for (int j = 0; j < blocks; j++){
-                        value += (c(i) * c(j)) * coefficients[i(i+xpos, j+ypos)] *
-                                Math.cos(i*Math.PI*((2*x+1)/(2*blocks))) *
-                                Math.cos(j*Math.PI*((2*y+1)/(2*blocks)));
+                for (int i = 0; i < coeffQuantity; i++){
+                    for (int j = 0; j < coeffQuantity; j++){
+                        value += COEFFICIENTS[i][j] * coefficients[i(i+xpos, j+ypos)] *
+                                COSINES[i][x] * COSINES[j][y];
                     }
                 }
-                value = value / 4d;
-//                if (value > 255)
-//                    value = 255;
-//                else if (value < 0)
-//                    value = 0;
+                //value = (value*divider);
                 newImage[i(xpos+x, ypos+y)] = value;
             }
         }
     }
 
     private void dct(int xpos, int ypos){
-        for (int i = 0; i < blocks; i++){
-            for (int j = 0; j < blocks; j++){
+        //double divider = 1 / Math.sqrt(2 * BLOCKS);
+
+        for (int i = 0; i < BLOCKS; i++){
+            for (int j = 0; j < BLOCKS; j++){
                 double value = 0;
-                for (int x = 0; x < blocks; x++){
-                    for (int y = 0; y < blocks; y++){
-                        value += originalImage[i(xpos + x, ypos + y)] *
-                                Math.cos(i*Math.PI*((2*x+1)/(2*blocks))) *
-                                Math.cos(j*Math.PI*((2*y+1)/(2 * blocks)));
+                for (int x = 0; x < BLOCKS; x++){
+                    for (int y = 0; y < BLOCKS; y++){
+                        int xv = x + xpos;
+                        if (xv >= imageWidth){
+                            xv = imageWidth - (xv - imageWidth) - 1;
+                        }
+
+                        int yv = y + ypos;
+                        if (yv >= imageHeight){
+                            yv = imageHeight - (yv - imageHeight) - 1;
+                        }
+                        double multi =  COSINES[i][x] * COSINES[j][y];
+                        value += originalImage[i(xv, yv)] * multi;
                     }
                 }
-                coefficients[i(xpos+i, ypos+j)] = c(i) * c(j) * value / 4d;
+                coefficients[i(xpos+i, ypos+j)] = value*COEFFICIENTS[i][j];
             }
         }
+
     }
 }
