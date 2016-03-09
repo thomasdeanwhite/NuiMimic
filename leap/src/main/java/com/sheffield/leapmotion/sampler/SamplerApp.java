@@ -54,6 +54,8 @@ public class SamplerApp extends Listener {
     private File currentRotation;
     private File currentDct;
 
+    private ArrayList<Integer[]> states;
+
     private int dctFeatures = 512;
 
     private String filenameStart = "gorogoa";
@@ -70,21 +72,7 @@ public class SamplerApp extends Listener {
 
     private SamplerApp() {
         super();
-
-        double factor = Math.log(dctFeatures) / Math.log(2);
-
-        if (factor != (int)factor){
-            int newScale = 1;
-
-            while (newScale * 2 < dctFeatures){
-                newScale *= 2;
-            }
-
-            App.out.println("- Changed compression to factor of 2 (" + dctFeatures + "->" + newScale + ")");
-            dctFeatures = newScale;
-        } else {
-            App.out.println("- Compressing screenshots to " + dctFeatures + " features");
-        }
+        states = new ArrayList<Integer[]>();
 
         status = AppStatus.DISCONNECTED;
         startTime = System.currentTimeMillis();
@@ -383,7 +371,23 @@ public class SamplerApp extends Listener {
                             currentDct.createNewFile();
                         }
 
-                        BufferedImage bi = ScreenGrabber.captureRobot();
+                        BufferedImage original = ScreenGrabber.captureRobot();
+
+                        final int COMPRESSION = 8;
+
+                        BufferedImage bi = new BufferedImage(original.getWidth()/COMPRESSION, original.getHeight()/COMPRESSION, original.getType());
+
+                        Graphics2D g = bi.createGraphics();
+
+                        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+
+                        g.drawImage(original, 0, 0, original.getWidth()/COMPRESSION, original.getHeight()/COMPRESSION, 0, 0, original.getWidth(), original.getHeight(), null);
+
+                        g.dispose();
+
+                        //
                         int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
 
                         double[] dImage = new double[data.length];
@@ -392,11 +396,18 @@ public class SamplerApp extends Listener {
 
                         int blocks = bi.getWidth() / DiscreteCosineTransformer.BLOCKS;
 
+                        //Change contrast by this amount (0 to disable)
+                        final int contrastIterations = 0;
+
                         ArrayList<Integer> xBlocks = new ArrayList<Integer>();
                         for (int i = 0; i < data.length; i++){
                             int blackAndWhite = data[i];
                             blackAndWhite = (((blackAndWhite >> 16) & 0x0FF) + ((blackAndWhite >> 8) & 0x0FF) + (blackAndWhite & 0x0FF))/3;
                             //blackAndWhite = ((blackAndWhite&0x0ff)<<16)|((blackAndWhite&0x0ff)<<8)|(blackAndWhite&0x0ff);
+
+                            for (int s = 0; s < contrastIterations; s++){
+                                blackAndWhite = (int)(255 * (1 + Math.sin((((blackAndWhite) * Math.PI)/255d) - Math.PI/2d)));
+                            }
 
                             dImage[i] = blackAndWhite;
                             if (lastImage != null) {
@@ -406,8 +417,10 @@ public class SamplerApp extends Listener {
                                 if (!xBlocks.contains(i)) {
                                     int li = (int) lastImage[i];
                                     int di = blackAndWhite;
-                                    if ((1 + Math.abs(li - di)) / (1 + Math.abs(li + di)) > 0.15) {
-                                        xBlocks.add(block);
+                                    if (li != di) {
+                                        if (!xBlocks.contains(block)) {
+                                            xBlocks.add(block);
+                                        }
                                     }
                                 }
                             }
@@ -431,8 +444,6 @@ public class SamplerApp extends Listener {
 
                         } else {
 
-                            App.out.println(changes.size());
-
                             dct.updateImage(dImage);
 
                             dct.calculateDctFromChanges(changes);
@@ -444,31 +455,75 @@ public class SamplerApp extends Listener {
                        double[] transform = dct.inverse(1);
 
 
+
+
                         int width = bi.getWidth();
                         int height = bi.getHeight();
                         BufferedImage compressed =  new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                         for (int i = 0; i < width - DiscreteCosineTransformer.BLOCKS; i++){
                             for (int j = 0; j < height - DiscreteCosineTransformer.BLOCKS; j++) {
                                 int value = (int)(transform[(j*width) + i]);
-//                                value = (((value >> 16) & 0x0FF) + ((value >> 8) & 0x0FF) + (value & 0x0FF))/3;
+
                                 value = 0xFF000000 | ((value&0x0ff)<<16)|((value&0x0ff)<<8)|(value&0x0ff);
                                 compressed.setRGB(i, j, value);
                             }
                         }
-                        ImageIO.write(compressed, "bmp", new File("COMPRESSED.bmp"));
+
+                        double[] resultData = dct.getInterleavedData();
+
+                        StringBuilder sb = new StringBuilder();
+                        Integer[] thisState = new Integer[resultData.length];
+
+                        int differences = 0;
+
+                        int maxDifference = resultData.length;
+
+                        for (int i = 0; i < resultData.length; i++){
+                            thisState[i] = (int)(resultData[i] / COMPRESSION);
+                            sb.append("," + thisState[i]);
+                        }
+
+                        for (Integer[] ss : states){
+                            differences = 0;
+                            for (int i = 0; i < resultData.length; i++){
+                                if (ss[i] != thisState[i]){
+                                    differences++;
+                                }
+                            }
+
+                            if (differences < maxDifference){
+                                maxDifference = differences;
+                            }
+
+                        }
+
+
+
+                        String state = sb.toString();
+
+                        sb.insert(0, uniqueId);
+
+                        bi.flush();
 
 //
 
-//
-//                        sb.append(uniqueId);
-//                        for (int i = 0; i < transform.length; i++){
-//                            sb.append(",");
-//                            sb.append(transform[i]);
-//                        }
-//
-//                        FileHandler.appendToFile(currentDct, sb.toString());
-//
-//                        sb.append("\n");
+                        int stateNumber = states.size();
+
+                        //50% screen difference
+                        double difference = maxDifference / (double)thisState.length;
+                        App.out.println(maxDifference + " " + difference);
+                        if (difference > 0.005 || states.size() == 0) {
+                            states.add(thisState);
+                            sb.append("\n");
+                            FileHandler.appendToFile(currentDct, sb.toString());
+                        } else {
+                            stateNumber = states.indexOf(state);
+                        }
+
+                        ImageIO.write(compressed, "bmp", new File("STATE" + stateNumber + ".bmp"));
+
+
+
 
                     } catch (Exception e) {
                         // TODO Auto-generated catch block
