@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class DiscreteCosineTransformer {
 
-    public static final int BLOCKS = 4;
+    public static final int BLOCKS = 16;
 
     private double[] originalImage;
     private int imageWidth = 0;
