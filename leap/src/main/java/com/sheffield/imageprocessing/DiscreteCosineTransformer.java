@@ -8,7 +8,7 @@ import java.util.ArrayList;
  */
 public class DiscreteCosineTransformer {
 
-    public static final int BLOCKS = 16;
+    public static final int BLOCKS = 8;
 
     private double[] originalImage;
     private int imageWidth = 0;
@@ -17,6 +17,8 @@ public class DiscreteCosineTransformer {
     private int newWidth = 0;
     private double[] dctImage;
     private double[] coefficients;
+
+    public static final int THRESHOLD = 100;
 
     private static final double[][] COSINES = new double[BLOCKS][BLOCKS];
     private static final double[][] COEFFICIENTS = new double[BLOCKS][BLOCKS];
@@ -29,8 +31,6 @@ public class DiscreteCosineTransformer {
             }
         }
     }
-
-    private static final double ONE_OVER_ROOT_TWO = 1 / Math.sqrt(2);
 
     public DiscreteCosineTransformer(double[] image, int width, int height){
         originalImage = image;
@@ -52,8 +52,8 @@ public class DiscreteCosineTransformer {
 
         coefficients = new double[(imageWidth+BLOCKS) * (imageHeight + BLOCKS)];
 
-        for (int i = 0; i < imageWidth/BLOCKS; i++) {
-            for (int j = 0; j < imageHeight/BLOCKS; j++) {
+        for (int i = 0; i < 1 + imageWidth/BLOCKS; i++) {
+            for (int j = 0; j < 1 + imageHeight/BLOCKS; j++) {
                 dct(i * BLOCKS, j * BLOCKS);
             }
         }
@@ -123,7 +123,7 @@ public class DiscreteCosineTransformer {
                     }
                 }
                 //value = (value*divider);
-                newImage[i(xpos+x, ypos+y)] = value;
+                    newImage[i(xpos + x, ypos + y)] = Math.abs(value);
             }
         }
     }
@@ -149,7 +149,11 @@ public class DiscreteCosineTransformer {
                         value += originalImage[i(xv, yv)] * multi;
                     }
                 }
-                coefficients[i2(xpos+i, ypos+j)] = value*COEFFICIENTS[i][j];
+                value *= COEFFICIENTS[i][j];
+
+                if (Math.abs(value) > THRESHOLD) {
+                    coefficients[i2(xpos + i, ypos + j)] = value;
+                }
             }
         }
 
@@ -163,7 +167,7 @@ public class DiscreteCosineTransformer {
 
         for (int i = 0; i < width; i++){
             for (int j = 0; j < height; j++){
-                highFrequencies[(j * width) + i] = coefficients[i2(i, j)];
+                highFrequencies[(j * width) + i] = coefficients[i2(i*BLOCKS, j*BLOCKS)];
             }
         }
 

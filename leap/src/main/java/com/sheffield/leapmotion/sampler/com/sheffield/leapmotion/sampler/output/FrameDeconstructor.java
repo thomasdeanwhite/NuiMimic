@@ -27,6 +27,8 @@ public class FrameDeconstructor {
     private String filenameStart = "";
     private String addition = "";
 
+    private boolean calculatingScreenshot = false;
+
 
     private File currentDct;
     private File currentSequence;
@@ -158,7 +160,15 @@ public class FrameDeconstructor {
         FileHandler.appendToFile(currentRotation, rotation);
     }
 
+    public boolean isCalculating(){
+        return calculatingScreenshot;
+    }
+
     public void outputCurrentState() throws IOException {
+        if (calculatingScreenshot){
+            return;
+        }
+        calculatingScreenshot = true;
         if (lastStateCapture + stateCaptureTime < System.currentTimeMillis()) {
             App.out.print(" Capturing State");
             lastStateCapture = System.currentTimeMillis();
@@ -191,11 +201,20 @@ public class FrameDeconstructor {
             //
             int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
 
+            int width = bi.getWidth();
+            int height = bi.getHeight();
+
+            bi.flush();
+
+            bi = null;
+
+            System.gc();
+
             double[] dImage = new double[data.length];
 
             ArrayList<Point> changes = new ArrayList<Point>();
 
-            int blocks = bi.getWidth() / DiscreteCosineTransformer.BLOCKS;
+            int blocks = width / DiscreteCosineTransformer.BLOCKS;
 
             //Change contrast by this amount (0 to disable)
             final int contrastIterations = 0;
@@ -203,8 +222,7 @@ public class FrameDeconstructor {
             ArrayList<Integer> xBlocks = new ArrayList<Integer>();
             for (int i = 0; i < data.length; i++) {
                 int blackAndWhite = data[i];
-                blackAndWhite = (((blackAndWhite >> 16) & 0x0FF) + ((blackAndWhite >> 8) & 0x0FF) + (blackAndWhite & 0x0FF)) / 3;
-                //blackAndWhite = ((blackAndWhite&0x0ff)<<16)|((blackAndWhite&0x0ff)<<8)|(blackAndWhite&0x0ff);
+                blackAndWhite = (int)((0.3*((blackAndWhite >> 16) & 0x0FF) + 0.59*((blackAndWhite >> 8) & 0x0FF) + 0.11*(blackAndWhite & 0x0FF)));
 
                 for (int s = 0; s < contrastIterations; s++) {
                     blackAndWhite = (int) (255 * (1 + Math.sin((((blackAndWhite) * Math.PI) / 255d) - Math.PI / 2d)));
@@ -212,8 +230,8 @@ public class FrameDeconstructor {
 
                 dImage[i] = blackAndWhite;
                 if (lastImage != null) {
-                    int y = i / bi.getWidth();
-                    int x = i - (y * bi.getWidth());
+                    int y = i / width;
+                    int x = i - (y * width);
                     int block = (y / DiscreteCosineTransformer.BLOCKS * blocks) + (x / DiscreteCosineTransformer.BLOCKS);
                     if (!xBlocks.contains(i)) {
                         int li = (int) lastImage[i];
@@ -238,7 +256,7 @@ public class FrameDeconstructor {
             if (lastImage == null) {
 
 
-                dct = new DiscreteCosineTransformer(dImage, bi.getWidth(), bi.getHeight());
+                dct = new DiscreteCosineTransformer(dImage, width, height);
 
                 dct.calculateDct();
 
@@ -288,9 +306,6 @@ public class FrameDeconstructor {
 
             }
 
-
-            String state = sb.toString();
-
             sb.insert(0, uniqueId);
 
 //
@@ -299,13 +314,11 @@ public class FrameDeconstructor {
 
             //50% screen difference
             double difference = maxDifference / (double) thisState.length;
-            //App.out.println(maxDifference + " " + difference);
+            App.out.println(maxDifference + " " + difference);
             if (difference > 0.1 || states.size() == 0) {
-                int width = bi.getWidth();
-                int height = bi.getHeight();
                 BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                for (int i = 0; i < width - DiscreteCosineTransformer.BLOCKS; i++) {
-                    for (int j = 0; j < height - DiscreteCosineTransformer.BLOCKS; j++) {
+                for (int i = 0; i < width; i++) {
+                    for (int j = 0; j < height; j++) {
                         int value = (int) (transform[(j * width) + i]);
 
                         value = 0xFF000000 | ((value & 0x0ff) << 16) | ((value & 0x0ff) << 8) | (value & 0x0ff);
@@ -325,13 +338,8 @@ public class FrameDeconstructor {
             } else {
                 stateNumber = closestState;
             }
-
-            bi.flush();
-
-            bi = null;
-
-            System.gc();
         }
+        calculatingScreenshot = false;
     }
 
     public void outputGestureModel(Frame frame) throws IOException {

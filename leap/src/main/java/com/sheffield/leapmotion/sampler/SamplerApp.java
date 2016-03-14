@@ -203,7 +203,9 @@ public class SamplerApp extends Listener {
                         frameDeconstructor.outputSequence();
                         frameDeconstructor.outputHandPositionModel(h);
                         frameDeconstructor.outputHandRotationModel(h);
-                        frameDeconstructor.outputCurrentState();
+                        if (!frameDeconstructor.isCalculating()) {
+                            frameDeconstructor.outputCurrentState();
+                        }
 
                         } catch (IOException e) {
                         e.printStackTrace();

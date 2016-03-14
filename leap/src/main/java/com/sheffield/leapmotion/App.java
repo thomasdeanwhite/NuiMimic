@@ -26,6 +26,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 
@@ -411,9 +412,17 @@ public class App implements ThrowableListener {
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
 
 
-            ArrayList<DependencyTree.ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
+            ArrayList<DependencyTree.ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.sodiumarc.leapmotion");
+            HashSet<String> lines = new HashSet<String>();
             for (DependencyTree.ClassNode cn : nodes){
-                App.out.println(cn.toString());
+                String[] link = cn.toString().split("\n");
+                for (String s : link){
+                    lines.add(s);
+                }
+            }
+
+            for (String s : lines){
+                App.out.println(s);
             }
         } catch (Exception e) {
             e.printStackTrace(App.out);
