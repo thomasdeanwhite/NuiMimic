@@ -18,7 +18,7 @@ public class DiscreteCosineTransformer {
     private double[] dctImage;
     private double[] coefficients;
 
-    public static final int THRESHOLD = 100;
+    public static final int THRESHOLD = 600;
 
     private static final double[][] COSINES = new double[BLOCKS][BLOCKS];
     private static final double[][] COEFFICIENTS = new double[BLOCKS][BLOCKS];

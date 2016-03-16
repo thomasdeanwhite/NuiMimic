@@ -1,19 +1,12 @@
 package com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output;
 
 import com.leapmotion.leap.*;
-import com.leapmotion.leap.Frame;
-import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.sampler.FileHandler;
 import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.sampler.Serializer;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,32 +37,30 @@ public class FrameDeconstructor {
 
     private int breakIndex = 0;
 
-    private ArrayList<Integer[]> states;
+    private ArrayList<String> handIds;
 
-    private static double[] lastImage;
-    private DiscreteCosineTransformer dct;
 
     //1 state capture/second
     private static final int stateCaptureTime = 5000;
     private long lastStateCapture = 0;
 
-    public FrameDeconstructor (){
-        states = new ArrayList<Integer[]>();
+    public FrameDeconstructor() {
+        handIds = new ArrayList<String>();
     }
 
-    public void setUniqueId(String uId){
+    public void setUniqueId(String uId) {
         uniqueId = uId;
     }
 
-    public void setFilenameStart(String fns){
+    public void setFilenameStart(String fns) {
         filenameStart = fns;
     }
 
-    public void setAddition(String add){
+    public void setAddition(String add) {
         addition = add;
     }
 
-    public void resetFiles(int breakIndex){
+    public void resetFiles(int breakIndex) {
         sequenceFile = null;
         currentHands = null;
         currentRotation = null;
@@ -81,7 +72,7 @@ public class FrameDeconstructor {
         this.breakIndex = breakIndex;
     }
 
-    public void outputRawFrameData(Frame frame){
+    public void outputRawFrameData(Frame frame) {
         if (Properties.SEQUENCE) {
             String dir = "/sequences";
             try {
@@ -95,7 +86,6 @@ public class FrameDeconstructor {
                     //com.sheffield.leapmotion.FileHandler.appendToFile(sequenceFile, "[");
                     start = true;
                 }
-                //SamplerApp.out.println("Writing to file: " + sequenceFile.getAbsolutePath());
                 String content = Serializer.sequenceToJson(frame);
                 if (!start) {
                     content = "\n" + content;
@@ -160,12 +150,12 @@ public class FrameDeconstructor {
         FileHandler.appendToFile(currentRotation, rotation);
     }
 
-    public boolean isCalculating(){
+    public boolean isCalculating() {
         return calculatingScreenshot;
     }
 
     public void outputCurrentState() throws IOException {
-        if (calculatingScreenshot){
+        if (calculatingScreenshot) {
             return;
         }
         calculatingScreenshot = true;
@@ -178,168 +168,23 @@ public class FrameDeconstructor {
                 currentDct.createNewFile();
             }
 
-            BufferedImage original = ScreenGrabber.captureRobot();
 
-            final int COMPRESSION = 2;
+            String output = DctStateComparator.captureState();
 
-            BufferedImage bi = new BufferedImage(original.getWidth() / COMPRESSION, original.getHeight() / COMPRESSION, original.getType());
-
-            Graphics2D g = bi.createGraphics();
-
-            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-
-            g.drawImage(original, 0, 0, original.getWidth() / COMPRESSION, original.getHeight() / COMPRESSION, 0, 0, original.getWidth(), original.getHeight(), null);
-
-            g.dispose();
-
-            original.flush();
-
-            original = null;
-
-            //
-            int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
-
-            int width = bi.getWidth();
-            int height = bi.getHeight();
-
-            bi.flush();
-
-            bi = null;
-
-            System.gc();
-
-            double[] dImage = new double[data.length];
-
-            ArrayList<Point> changes = new ArrayList<Point>();
-
-            int blocks = width / DiscreteCosineTransformer.BLOCKS;
-
-            //Change contrast by this amount (0 to disable)
-            final int contrastIterations = 0;
-
-            ArrayList<Integer> xBlocks = new ArrayList<Integer>();
-            for (int i = 0; i < data.length; i++) {
-                int blackAndWhite = data[i];
-                blackAndWhite = (int)((0.3*((blackAndWhite >> 16) & 0x0FF) + 0.59*((blackAndWhite >> 8) & 0x0FF) + 0.11*(blackAndWhite & 0x0FF)));
-
-                for (int s = 0; s < contrastIterations; s++) {
-                    blackAndWhite = (int) (255 * (1 + Math.sin((((blackAndWhite) * Math.PI) / 255d) - Math.PI / 2d)));
-                }
-
-                dImage[i] = blackAndWhite;
-                if (lastImage != null) {
-                    int y = i / width;
-                    int x = i - (y * width);
-                    int block = (y / DiscreteCosineTransformer.BLOCKS * blocks) + (x / DiscreteCosineTransformer.BLOCKS);
-                    if (!xBlocks.contains(i)) {
-                        int li = (int) lastImage[i];
-                        int di = blackAndWhite;
-                        if (li != di) {
-                            if (!xBlocks.contains(block)) {
-                                xBlocks.add(block);
-                            }
-                        }
-                    }
-                }
-
-            }
-
-            for (int i : xBlocks) {
-                int y = i / blocks;
-                int x = i - (y * blocks);
-                changes.add(new Point(x, y));
-            }
-
-
-            if (lastImage == null) {
-
-
-                dct = new DiscreteCosineTransformer(dImage, width, height);
-
-                dct.calculateDct();
-
-
-            } else {
-
-                dct.updateImage(dImage);
-
-                dct.calculateDctFromChanges(changes);
-            }
-
-            lastImage = dImage;
-
-
-            double[] transform = dct.inverse(1);
-
-            double[] resultData = dct.getInterleavedData();
-
-            StringBuilder sb = new StringBuilder();
-            Integer[] thisState = new Integer[resultData.length];
-
-            int differences = 0;
-
-            int maxDifference = resultData.length;
-
-            for (int i = 0; i < resultData.length; i++) {
-                thisState[i] = (int) resultData[i];
-                sb.append("," + thisState[i]);
-            }
-
-
-            int closestState = -1;
-
-            for (int i = 0; i < states.size(); i++) {
-                Integer[] ss = states.get(i);
-                differences = 0;
-                for (int j = 0; j < resultData.length; j++) {
-                    if (ss[j] != thisState[j]) {
-                        differences++;
-                    }
-                }
-
-                if (differences < maxDifference) {
-                    maxDifference = differences;
-                    closestState = i;
-                }
-
-            }
-
-            sb.insert(0, uniqueId);
-
-//
-
-            int stateNumber = states.size();
-
-            //50% screen difference
-            double difference = maxDifference / (double) thisState.length;
-            App.out.println(maxDifference + " " + difference);
-            if (difference > 0.1 || states.size() == 0) {
-                BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                for (int i = 0; i < width; i++) {
-                    for (int j = 0; j < height; j++) {
-                        int value = (int) (transform[(j * width) + i]);
-
-                        value = 0xFF000000 | ((value & 0x0ff) << 16) | ((value & 0x0ff) << 8) | (value & 0x0ff);
-                        compressed.setRGB(i, j, value);
-                    }
-                }
-
-                ImageIO.write(compressed, "bmp", new File("STATE" + stateNumber + ".bmp"));
-
-                compressed.flush();
-
-                compressed = null;
-
-                states.add(thisState);
-                sb.append("\n");
-                FileHandler.appendToFile(currentDct, sb.toString());
-            } else {
-                stateNumber = closestState;
+            if (output != null && output.length() > 0) {
+                FileHandler.appendToFile(currentDct, "\n" + output + ":");
             }
         }
+        handIds.add(uniqueId);
         calculatingScreenshot = false;
+        if (handIds.size() > 0) {
+            String hands = "";
+            for (int i = 0; i < handIds.size(); i++) {
+                hands += handIds.get(i) + ",";
+            }
+            FileHandler.appendToFile(currentDct, hands);
+            handIds.clear();
+        }
     }
 
     public void outputGestureModel(Frame frame) throws IOException {
@@ -440,10 +285,10 @@ public class FrameDeconstructor {
                 }
             }
         }
-        if (gestureString.length() == 0){
+        if (gestureString.length() == 0) {
             gestureString = Gesture.Type.TYPE_INVALID.toString();
         } else {
-            gestureString = gestureString.substring(0, gestureString.length()-1);
+            gestureString = gestureString.substring(0, gestureString.length() - 1);
         }
         FileHandler.appendToFile(currentGestures, gestureString + " ");
     }

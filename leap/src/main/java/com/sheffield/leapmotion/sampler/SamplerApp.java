@@ -118,15 +118,7 @@ public class SamplerApp extends Listener {
     public void onFrame(Controller arg0) {
         final Frame frame = arg0.frame();
         if (frame.isValid()) {
-            new Thread(new Runnable(){
-                @Override
-                public void run() {
-                    frame(frame);
-                }
-
-
-            }).start();
-            // super.onFrame(arg0);
+            frame(frame);
         }
     }
 
@@ -214,27 +206,22 @@ public class SamplerApp extends Listener {
 
                 }
             }
-            new Thread(){
-                @Override
-                public void start(){
-                    final int bars = 60;
-                    long total = BREAK_TIMES[BREAK_TIMES.length-1];
-                    long done = time - startTime;
-                    String progress = "[";
-                    float percent = done / (float) total;
-                    int b1 = (int) (percent * bars);
-                    for (int i = 0; i < b1; i++) {
-                        progress += "-";
-                    }
-                    progress += ">";
-                    int b2 = bars - b1;
-                    for (int i = 0; i < b2; i++) {
-                        progress += " ";
-                    }
-                    progress += "] " + (int) (percent * 100) + "%";
-                    out.print("\r" + progress);
-                }
-            }.start();
+            final int bars = 60;
+            long total = BREAK_TIMES[BREAK_TIMES.length-1];
+            long done = time - startTime;
+            String progress = "[";
+            float percent = done / (float) total;
+            int b1 = (int) (percent * bars);
+            for (int i = 0; i < b1; i++) {
+                progress += "-";
+            }
+            progress += ">";
+            int b2 = bars - b1;
+            for (int i = 0; i < b2; i++) {
+                progress += " ";
+            }
+            progress += "] " + (int) (percent * 100) + "%";
+            out.print("\r" + progress);
         }
 
     }
