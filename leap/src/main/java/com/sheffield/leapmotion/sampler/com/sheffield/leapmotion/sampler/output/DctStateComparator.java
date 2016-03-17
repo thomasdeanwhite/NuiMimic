@@ -20,6 +20,8 @@ public class DctStateComparator {
 
     private static ArrayList<Integer[]> states;
 
+    private static final boolean ONLY_WRITE_SCREENSHOT = true;
+
     private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
 
     static {
@@ -164,7 +166,7 @@ public class DctStateComparator {
 
         //50% screen difference
         double difference = maxDifference / (double) (255 * thisState.length);
-        if (difference > 0.1 || states.size() == 0) {
+        if ((difference > 0.1 || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
             BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {

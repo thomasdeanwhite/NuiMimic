@@ -41,7 +41,7 @@ public class FrameDeconstructor {
 
 
     //1 state capture/second
-    private static final int stateCaptureTime = 5000;
+    private static final int STATE_CAPTURE_TIME = 1000;
     private long lastStateCapture = 0;
 
     public FrameDeconstructor() {
@@ -159,7 +159,7 @@ public class FrameDeconstructor {
             return;
         }
         calculatingScreenshot = true;
-        if (lastStateCapture + stateCaptureTime < System.currentTimeMillis()) {
+        if (lastStateCapture + STATE_CAPTURE_TIME < System.currentTimeMillis()) {
             App.out.print(" Capturing State");
             lastStateCapture = System.currentTimeMillis();
             if (currentDct == null) {

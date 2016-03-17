@@ -5,15 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="17190a71-dd8a-460d-867a-0c0b041b1145" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/DCT1in16.bmp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/DCT1in2.bmp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/DCT1in4.bmp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/DCT1in8.bmp" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/gorogoa-dct.zip" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/FrameDeconstructor.java" afterPath="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/FrameDeconstructor.java" />
     </list>
     <ignored path="leapmotion-tester.iws" />
@@ -69,7 +63,15 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="17" column="44" selection-start-line="17" selection-start-column="44" selection-end-line="17" selection-end-column="44" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#1005#1006#0" expanded="false" />
+                <element signature="e#1031#1032#0" expanded="false" />
+                <element signature="e#1688#1689#0" expanded="false" />
+                <element signature="e#1730#1731#0" expanded="false" />
+                <element signature="e#1755#1756#0" expanded="false" />
+                <element signature="e#1799#1800#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -78,9 +80,11 @@
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/FrameDeconstructor.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="48" column="5" selection-start-line="48" selection-start-column="5" selection-end-line="48" selection-end-column="5" />
+              <caret line="49" column="0" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1300#1301#0" expanded="true" />
+                <element signature="e#1349#1350#0" expanded="true" />
                 <element signature="method#resetFiles#0;class#FrameDeconstructor#0" expanded="false" />
                 <element signature="method#outputSequence#0;class#FrameDeconstructor#0" expanded="false" />
                 <element signature="method#outputJointPositionModel#0;class#FrameDeconstructor#0" expanded="false" />
@@ -96,7 +100,7 @@
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+              <caret line="18" column="31" selection-start-line="18" selection-start-column="31" selection-end-line="18" selection-end-column="31" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -104,10 +108,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SamplerApp.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SamplerApp.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5726316">
+            <state vertical-scroll-proportion="0.0">
               <caret line="18" column="42" selection-start-line="18" selection-start-column="42" selection-end-line="18" selection-end-column="42" />
               <folding>
                 <element signature="imports" expanded="true" />
@@ -116,11 +120,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DiscreteCosineTransformer.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="DiscreteCosineTransformer.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-8.793103">
-              <caret line="17" column="30" selection-start-line="17" selection-start-column="30" selection-end-line="17" selection-end-column="30" />
+            <state vertical-scroll-proportion="0.13412228">
+              <caret line="104" column="24" selection-start-line="104" selection-start-column="24" selection-end-line="104" selection-end-column="24" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -133,9 +137,7 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="135" column="0" selection-start-line="135" selection-start-column="0" selection-end-line="135" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -254,8 +256,8 @@
         <option value="$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/analysis/DependencyTree.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/App.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java" />
-        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/FrameDeconstructor.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java" />
+        <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/FrameDeconstructor.java" />
         <option value="$PROJECT_DIR$/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java" />
       </list>
     </option>
@@ -278,10 +280,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1288" />
+    <option name="x" value="-8" />
     <option name="y" value="-8" />
-    <option name="width" value="1296" />
-    <option name="height" value="1000" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -324,6 +326,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -398,9 +401,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
-      <pane id="Scratches" />
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1157,7 +1159,8 @@
       <workItem from="1457691312771" duration="10253000" />
       <workItem from="1457947944848" duration="10155000" />
       <workItem from="1458040005684" duration="9362000" />
-      <workItem from="1458132789201" duration="6304000" />
+      <workItem from="1458132789201" duration="6365000" />
+      <workItem from="1458209521427" duration="2698000" />
     </task>
     <servers />
   </component>
@@ -1194,10 +1197,10 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="434814000" />
+    <option name="totallyTimeSpent" value="437573000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1288" y="-8" width="1296" height="1000" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1207,10 +1210,10 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.43611404" sideWeight="0.5104167" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.43546578" sideWeight="0.48958334" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4350581" sideWeight="0.48958334" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946146" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23828125" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15885417" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1652,30 +1655,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="44" selection-start-line="17" selection-start-column="44" selection-end-line="17" selection-end-column="44" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1005#1006#0" expanded="false" />
+            <element signature="e#1031#1032#0" expanded="false" />
+            <element signature="e#1688#1689#0" expanded="false" />
+            <element signature="e#1730#1731#0" expanded="false" />
+            <element signature="e#1755#1756#0" expanded="false" />
+            <element signature="e#1799#1800#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/instrumentation/src/main/java/com/sheffield/instrumenter/states/ScreenGrabber.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="135" column="0" selection-start-line="135" selection-start-column="0" selection-end-line="135" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-8.793103">
-          <caret line="17" column="30" selection-start-line="17" selection-start-column="30" selection-end-line="17" selection-end-column="30" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java">
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+          <caret line="18" column="42" selection-start-line="18" selection-start-column="42" selection-end-line="18" selection-end-column="42" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1685,9 +1692,11 @@
     <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/FrameDeconstructor.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="48" column="5" selection-start-line="48" selection-start-column="5" selection-end-line="48" selection-end-column="5" />
+          <caret line="49" column="0" selection-start-line="49" selection-start-column="0" selection-end-line="49" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#1300#1301#0" expanded="true" />
+            <element signature="e#1349#1350#0" expanded="true" />
             <element signature="method#resetFiles#0;class#FrameDeconstructor#0" expanded="false" />
             <element signature="method#outputSequence#0;class#FrameDeconstructor#0" expanded="false" />
             <element signature="method#outputJointPositionModel#0;class#FrameDeconstructor#0" expanded="false" />
@@ -1698,18 +1707,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/analyzer/AnalyzerApp.java">
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/com/sheffield/leapmotion/sampler/output/DctStateComparator.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="17" column="44" selection-start-line="17" selection-start-column="44" selection-end-line="17" selection-end-column="44" />
-          <folding />
+          <caret line="18" column="31" selection-start-line="18" selection-start-column="31" selection-end-line="18" selection-end-column="31" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/leapmotion/sampler/SamplerApp.java">
+    <entry file="file://$PROJECT_DIR$/leap/src/main/java/com/sheffield/imageprocessing/DiscreteCosineTransformer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5726316">
-          <caret line="18" column="42" selection-start-line="18" selection-start-column="42" selection-end-line="18" selection-end-column="42" />
+        <state vertical-scroll-proportion="0.13412228">
+          <caret line="104" column="24" selection-start-line="104" selection-start-column="24" selection-end-line="104" selection-end-column="24" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
