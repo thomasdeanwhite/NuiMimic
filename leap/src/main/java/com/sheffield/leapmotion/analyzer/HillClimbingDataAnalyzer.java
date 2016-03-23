@@ -11,26 +11,15 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	protected HashMap<String, Integer> totals;
 	protected ArrayList<String> ngramCandidates;
 
-	public class SequenceSimilarity {
-		public String sequence;
-		public int freq;
-		public float probability;
+	protected ArrayList<ProbabilityListener> probabilityListeners;
 
-		public SequenceSimilarity(String seq, int freq) {
-			sequence = seq;
-			this.freq = freq;
-		}
 
-		@Override
-		public String toString() {
-			return sequence + " {" + freq + "}: " + probability;
-		}
-	}
 
 	public HillClimbingDataAnalyzer() {
 		map = new HashMap<String, ArrayList<SequenceSimilarity>>();
 		totals = new HashMap<String, Integer>();
 		ngramCandidates = new ArrayList<String>();
+		probabilityListeners = new ArrayList<ProbabilityListener>();
 	}
 
 
@@ -148,6 +137,11 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	public String next() {
 		// TODO Auto-generated method stub
 		throw new IllegalStateException();
+	}
+
+	@Override
+	public void addProbabilityListener(ProbabilityListener pbl) {
+		probabilityListeners.add(pbl);
 	}
 
 }

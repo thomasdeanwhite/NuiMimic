@@ -41,9 +41,12 @@ public class HMMDataAnalyzer extends HillClimbingDataAnalyzer {
 
 			for (SequenceSimilarity s : seqs) {
 				float probability = s.probability;
-				if (sequence.contains(s)) {
-					probability /= 3;
+				for (ProbabilityListener pbl : probabilityListeners){
+					probability = pbl.changeProbability(s);
 				}
+//				if (sequence.contains(s)) {
+//					probability /= 3;
+//				}
 				if (probability <= r) {
 					newValue = s;
 					break;

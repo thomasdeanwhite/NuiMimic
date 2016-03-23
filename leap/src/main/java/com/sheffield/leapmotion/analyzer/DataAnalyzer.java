@@ -8,4 +8,6 @@ public interface DataAnalyzer {
 	public void output(String directory);
 
 	public String next();
+
+	void addProbabilityListener(ProbabilityListener pbl);
 }

@@ -58,6 +58,9 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 			r = Math.random();
 			for (SequenceSimilarity s : seqs) {
 				float probability = s.probability;
+				for (ProbabilityListener pbl : probabilityListeners){
+					probability = pbl.changeProbability(s);
+				}
 				if (r < probability) {
 					newValue = s;
 					break;

@@ -67,4 +67,8 @@ public class AnalyzerApp {
 		dataAnalyzer.output("processed-data");
 	}
 
+	public void addProbabilityListener(ProbabilityListener pbl){
+		dataAnalyzer.addProbabilityListener(pbl);
+	}
+
 }
