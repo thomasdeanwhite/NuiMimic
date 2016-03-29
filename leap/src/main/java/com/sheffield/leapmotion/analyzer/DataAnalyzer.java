@@ -3,11 +3,11 @@ package com.sheffield.leapmotion.analyzer;
 import java.util.ArrayList;
 
 public interface DataAnalyzer {
-	public void analyze(ArrayList<String> frames);
+	void analyze(ArrayList<String> frames);
 
-	public void output(String directory);
+	void output(String directory);
 
-	public String next();
+	String next();
 
 	void addProbabilityListener(ProbabilityListener pbl);
 }

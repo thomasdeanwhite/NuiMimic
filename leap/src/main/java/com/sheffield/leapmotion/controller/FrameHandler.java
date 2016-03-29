@@ -23,33 +23,39 @@ public class FrameHandler {
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
         frameModifiers = new ArrayList<FrameModifier>();
         frames = new ArrayList<Frame>();
-
-        switch (Properties.FRAME_SELECTION_STRATEGY) {
-            case RANDOM:
-                frameSelector = new RandomFrameSelector();
-                break;
-            case EUCLIDEAN:
-                frameSelector = new EuclideanFrameSelector();
-                break;
-            case RANDOM_DISTANCE:
-                frameSelector = new RandomDistanceFrameSelector();
-                break;
-            case ADAPTIVE_RANDOM_DISTANCE:
-                frameSelector = new AdaptiveRandomDistanceFrameSelector();
-                break;
-            case STATIC_DISTANCE:
-                frameSelector = new StaticDistanceFrameSelector();
-                break;
-            case N_GRAM:
-                frameSelector = new NGramFrameSelector("");
-                break;
-            case EMPTY:
-                frameSelector = new EmptyFrameSelector();
-                break;
-            case RANDOM_TEMPLATE:
-                frameSelector = new RandomTemplateFrameSelector(Properties.GESTURE_FILES[0]);
-            default:
-                break;
+        try {
+            switch (Properties.FRAME_SELECTION_STRATEGY) {
+                case RANDOM:
+                    frameSelector = new RandomFrameSelector();
+                    break;
+                case EUCLIDEAN:
+                    frameSelector = new EuclideanFrameSelector();
+                    break;
+                case RANDOM_DISTANCE:
+                    frameSelector = new RandomDistanceFrameSelector();
+                    break;
+                case ADAPTIVE_RANDOM_DISTANCE:
+                    frameSelector = new AdaptiveRandomDistanceFrameSelector();
+                    break;
+                case STATIC_DISTANCE:
+                    frameSelector = new StaticDistanceFrameSelector();
+                    break;
+                case N_GRAM:
+                    frameSelector = new NGramFrameSelector("");
+                    break;
+                case EMPTY:
+                    frameSelector = new EmptyFrameSelector();
+                    break;
+                case RANDOM_TEMPLATE:
+                    frameSelector = new RandomTemplateFrameSelector(Properties.GESTURE_FILES[0]);
+                    break;
+                case STATE_RELATED_STATIC_DISTANCE:
+                    frameSelector = new StateRelatedStaticDistanceFrameSelector();
+                default:
+                    break;
+            }
+        } catch (Exception e){
+            e.printStackTrace(App.out);
         }
 
         // addFrameModifier(new RandomFrameModifier());

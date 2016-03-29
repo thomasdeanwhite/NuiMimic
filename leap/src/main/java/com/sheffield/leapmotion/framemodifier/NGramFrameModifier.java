@@ -2,12 +2,13 @@ package com.sheffield.leapmotion.framemodifier;
 
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
-import com.sheffield.instrumenter.Properties;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,8 +16,8 @@ import java.util.HashMap;
 
 public class NGramFrameModifier implements FrameModifier {
     private HashMap<String, SeededHand> hands;
-    private AnalyzerApp positionAnalyzer;
-    private AnalyzerApp rotationAnalyzer;
+    protected AnalyzerApp positionAnalyzer;
+    protected AnalyzerApp rotationAnalyzer;
     private HashMap<String, Vector> vectors;
     private HashMap<String, Vector[]> rotations;
     private Vector lastPosition;
@@ -27,6 +28,14 @@ public class NGramFrameModifier implements FrameModifier {
 
     private int currentAnimationTime = 0;
     private long lastSwitchTime = 0;
+
+    public void addPositionProbabilityListener(ProbabilityListener pbl){
+        positionAnalyzer.addProbabilityListener(pbl);
+    }
+
+    public void addRotationProbabilityListener(ProbabilityListener pbl){
+        rotationAnalyzer.addProbabilityListener(pbl);
+    }
 
     public NGramFrameModifier(String filename) {
         try {

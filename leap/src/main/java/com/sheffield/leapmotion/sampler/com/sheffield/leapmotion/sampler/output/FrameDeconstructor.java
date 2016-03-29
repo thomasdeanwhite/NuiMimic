@@ -168,12 +168,17 @@ public class FrameDeconstructor {
                 currentDct.createNewFile();
             }
 
+            try {
+                String output = DctStateComparator.captureState();
 
-            String output = DctStateComparator.captureState();
-
-            if (output != null && output.length() > 0) {
-                FileHandler.appendToFile(currentDct, "\n" + output + ":");
+                if (output != null && output.length() > 0) {
+                    FileHandler.appendToFile(currentDct, "\n" + output + ":");
+                }
+            } catch (Exception e){
+                e.printStackTrace(App.out);
             }
+
+
         }
         handIds.add(uniqueId);
         calculatingScreenshot = false;

@@ -53,10 +53,10 @@ public class Properties implements PropertySource {
 	public static String[] EXILED_CLASSES;
 
 	public enum FrameSelectionStrategy {
-		RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, STATIC_DISTANCE, RANDOM_TEMPLATE
+		RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, STATIC_DISTANCE, RANDOM_TEMPLATE, STATE_RELATED_STATIC_DISTANCE
 	}
 
-	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATIC_DISTANCE;
+	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_RELATED_STATIC_DISTANCE;
 
 	public enum InstrumentationApproach {
 		STATIC, ARRAY, NONE

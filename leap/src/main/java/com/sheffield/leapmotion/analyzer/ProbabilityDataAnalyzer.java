@@ -56,6 +56,9 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 		// Apply additive smoothing: if r < n then select another random candidate
 		if (r < 1.0f - (ngramCandidates.size()/((float) totals.get(key) + ngramCandidates.size()))){
 			r = Math.random();
+			for (ProbabilityListener pbl : probabilityListeners){
+				pbl.probabilityListLoaded(seqs);
+			}
 			for (SequenceSimilarity s : seqs) {
 				float probability = s.probability;
 				for (ProbabilityListener pbl : probabilityListeners){

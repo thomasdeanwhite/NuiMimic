@@ -6,6 +6,7 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededHand;
@@ -22,6 +23,10 @@ public class NGramFrameSelector extends FrameSelector {
 	private SeededHand lastHand;
 	private SeededHand nextHand;
 	private AnalyzerApp analyzer;
+
+	public void addProbabilityListener(ProbabilityListener pbl){
+		analyzer.addProbabilityListener(pbl);
+	}
 
 	public NGramFrameSelector(String filename) {
 		try {

@@ -14,6 +14,7 @@ import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output.DctStateComparator;
 import org.apache.commons.cli.*;
 
 import javax.imageio.ImageIO;
@@ -38,6 +39,10 @@ public class App implements ThrowableListener {
     private static boolean ENABLE_APPLICATION_OUTPUT = true;
     private static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
+
+    //check states every x-ms
+    public static final long STATE_CHECK_TIME = 5000;
+    public long lastStateCheck = 0;
 
     private static Thread mainThread = null;
 
@@ -157,6 +162,14 @@ public class App implements ThrowableListener {
         if (Properties.SHOW_HAND) {
             DISPLAY_WINDOW = new DisplayWindow();
         }
+
+        ClassAnalyzer.addThrowableListener(new ThrowableListener() {
+            @Override
+            public void throwableThrown(Throwable t) {
+                t.printStackTrace(App.out);
+            }
+        });
+
         SeededController.getController();
         startTime = System.currentTimeMillis();
         lastSwitchTime = startTime;
@@ -169,7 +182,7 @@ public class App implements ThrowableListener {
                 @Override
                 public void write(int b) throws IOException {
                     // TODO Auto-generated method stub
-                    // App.out.write(b);
+                    App.out.write(b);
                 }
 
             }, true);
@@ -578,6 +591,15 @@ public class App implements ThrowableListener {
             lastSwitchTime = time;
         }
 
+        if (time - lastStateCheck > STATE_CHECK_TIME){
+            lastStateCheck = time;
+            try {
+                DctStateComparator.captureState();
+            } catch (Exception e){
+                e.printStackTrace(App.out);
+            }
+        }
+
         long runtime = System.currentTimeMillis() - startTime;
 
         String progress = "[";
@@ -594,7 +616,7 @@ public class App implements ThrowableListener {
             progress += " ";
         }
         progress += "] " + ((int) (percent * 1000))/10f + "%";
-        out.print("\rExecuting: " + progress);
+        out.print("\rExecuting: " + progress + " (state " + DctStateComparator.getCurrentState() + ")");
 
         if (runtime > Properties.RUNTIME) {
             status = AppStatus.FINISHED;
