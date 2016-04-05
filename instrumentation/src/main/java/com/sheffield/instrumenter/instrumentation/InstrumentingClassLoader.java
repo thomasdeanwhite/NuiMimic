@@ -82,7 +82,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
         if ("".equals(className)) {
             throw new ClassNotFoundException();
         }
-
+        // check if the class comes from the Java API (i.e. javax/swing or java.io.*)
         if (!crt.shouldInstrumentClass(className)) {
             Class<?> cl = findLoadedClass(className);
             if (cl != null) {
@@ -90,6 +90,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
             }
             return super.loadClass(className, resolve);
         }
+        // this is most likely a testing class or something similar, but still requires being loaded by this class loader
         if (!shouldInstrument) {
             try {
                 InputStream stream = getInputStreamForClass(name);

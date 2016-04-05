@@ -16,6 +16,7 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.InstrumentingTask;
+import com.sheffield.instrumenter.analysis.task.Task;
 import com.sheffield.instrumenter.analysis.task.TaskTimer;
 
 public class ClassReplacementTransformer {
@@ -69,9 +70,10 @@ public class ClassReplacementTransformer {
 			InputStream ins = new ByteArrayInputStream(cBytes);
 			byte[] newClass = cBytes;
 			try {
+				Task timerTask = new InstrumentingTask(cName);
 				ClassReader cr = new ClassReader(ins);
 				if (Properties.LOG) {
-					TaskTimer.taskStart(new InstrumentingTask(cName));
+					TaskTimer.taskStart(timerTask);
 				}
 				try {
 					cr.accept(cv, ClassReader.EXPAND_FRAMES);
@@ -80,7 +82,7 @@ public class ClassReplacementTransformer {
 				}
 				newClass = cw.toByteArray();
 				if (Properties.LOG) {
-					TaskTimer.taskEnd();
+					TaskTimer.taskEnd(timerTask);
 				}
 			} catch (IOException e) {
 				e.printStackTrace(ClassAnalyzer.out);

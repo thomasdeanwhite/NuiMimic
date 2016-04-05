@@ -14,9 +14,8 @@ import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 
 public class TaskTimer {
 	private static long applicationStart = System.currentTimeMillis();
-	private static Task currentTask;
 	private static ArrayList<String> buffer = new ArrayList<String>();
-
+	private static ArrayList<Task> activeTasks = new ArrayList<Task>();
 	static {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -59,19 +58,18 @@ public class TaskTimer {
 	}
 
 	public static void taskStart(Task task) {
-		currentTask = task;
 		task.start();
+		activeTasks.add(task);
 	}
 
-	public static void taskEnd() {
-		if (currentTask != null) {
-			currentTask.end();
-			report();
-			currentTask = null;
+	public static void taskEnd(Task task) {
+		if(activeTasks.contains(task)){
+			report(task);
+			activeTasks.remove(task);
 		}
 	}
 
-	public static void report() {
+	private static void report(Task currentTask) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(currentTask.asString());
 		sb.append(",");
