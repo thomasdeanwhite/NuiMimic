@@ -2,7 +2,6 @@ package com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.instrumenter.states.ScreenGrabber;
-import com.sheffield.leapmotion.App;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -154,7 +153,7 @@ public class DctStateComparator {
 
         long differences = 0;
 
-        long maxDifference = resultData.length * 255;
+        long maxDifference = resultData.length * 2048;
 
         for (int i = 0; i < resultData.length; i++) {
             thisState[i] = (int) resultData[i];
@@ -174,7 +173,7 @@ public class DctStateComparator {
                 differences += Math.abs(result - state);
             }
 
-            App.out.println(i + ":" + ((float)differences/(float)resultData.length));
+            ///App.out.println(i + ":" + ((float)differences/(float)resultData.length));
 
             if (differences < maxDifference) {
                 maxDifference = differences;
@@ -189,8 +188,6 @@ public class DctStateComparator {
 
         //10% screen difference
         double difference = maxDifference / (double) (255 * thisState.length);
-
-        App.out.println(difference + " " + closestState);
 
         if ((difference > threshold || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
             BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);

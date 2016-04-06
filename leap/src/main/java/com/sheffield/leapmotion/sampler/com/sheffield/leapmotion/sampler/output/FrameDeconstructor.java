@@ -41,7 +41,7 @@ public class FrameDeconstructor {
 
 
     //1 state capture/second
-    private static final int STATE_CAPTURE_TIME = 1000;
+    private static final int STATE_CAPTURE_TIME = 300;
     private long lastStateCapture = 0;
 
     public FrameDeconstructor() {
@@ -159,14 +159,14 @@ public class FrameDeconstructor {
             return;
         }
         calculatingScreenshot = true;
+        if (currentDct == null) {
+            currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct");
+            currentDct.getParentFile().mkdirs();
+            currentDct.createNewFile();
+        }
         if (lastStateCapture + STATE_CAPTURE_TIME < System.currentTimeMillis()) {
             App.out.print(" Capturing State");
             lastStateCapture = System.currentTimeMillis();
-            if (currentDct == null) {
-                currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct");
-                currentDct.getParentFile().mkdirs();
-                currentDct.createNewFile();
-            }
 
             try {
                 String output = DctStateComparator.captureState();

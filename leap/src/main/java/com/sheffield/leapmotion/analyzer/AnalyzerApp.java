@@ -13,11 +13,17 @@ public class AnalyzerApp {
 	public static final int SEQUENCE_LENGTH = 1000;
 	public static final boolean REMOVE_REPEATED = false;
 
+	private boolean logBase = false;
+
 	private String contents;
 	private DataAnalyzer dataAnalyzer;
 	private ArrayList<String> probabilities;
 
 	public static long framesBeingProcessed = 0;
+
+	public void setLogBase(boolean logBase){
+		this.logBase = logBase;
+	}
 
 	public static void main(String[] args) {
 		System.out.println("- Loading probabilities...");
@@ -60,7 +66,7 @@ public class AnalyzerApp {
 	}
 
 	public void analyze() {
-		dataAnalyzer.analyze(probabilities);
+		dataAnalyzer.analyze(probabilities, logBase);
 	}
 
 	public void output() {
