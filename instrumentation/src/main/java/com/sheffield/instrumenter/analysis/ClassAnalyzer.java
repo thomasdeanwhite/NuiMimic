@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.task.AbstractTask;
+import com.sheffield.instrumenter.analysis.task.Task;
 import com.sheffield.instrumenter.analysis.task.TaskTimer;
 import com.sheffield.instrumenter.instrumentation.ClassStore;
 import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
@@ -540,11 +541,11 @@ public class ClassAnalyzer {
                 e.printStackTrace();
             }
         }
-
+        Task timerTask = new CollectHitCountersTimer();
         if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
             collectingHitCounters = true;
             if (Properties.LOG) {
-                TaskTimer.taskStart(new CollectHitCountersTimer());
+                TaskTimer.taskStart(timerTask);
             }
             List<Class<?>> classes = changedClasses;
             if (!Properties.USE_CHANGED_FLAG) {
@@ -598,7 +599,7 @@ public class ClassAnalyzer {
                 }
             }
             if (Properties.LOG) {
-                TaskTimer.taskEnd();
+                TaskTimer.taskEnd(timerTask);
             }
             collectingHitCounters = false;
         }
