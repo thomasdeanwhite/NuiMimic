@@ -21,6 +21,8 @@ import java.util.Random;
 public class StateRelatedStaticDistanceFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
 
 	private Random r = new Random();
+	
+	private static final boolean WRITE_LOGS_TO_FILE = true;
 
     private long lastGestureChange = 0;
     private final static int GESTURE_CHANGE_TIME = 10000;
@@ -38,12 +40,29 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
     public static final String[] STATE_MODELS = {".state.hand_position_data",
     ".state.hand_rotation_data", ".state.joint_position_data"};
+    
+    private int testIndex = 0;
+    
+    public File generateFile(String name){
+    	return new File("test_output/unit_tests/" + name + ".lmut");
+    }
 
 	public StateRelatedStaticDistanceFrameSelector() {
 		String[] gestures = Properties.GESTURE_FILES;
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
+        if (WRITE_LOGS_TO_FILE){
+        	File f = null;
+
+        	do {
+        		f = generateFile("hand_positions-" + testIndex);
+        		if (f.getParentFile() != null && !f.getParentFile().exists()){
+        			f.getParentFile().mkdirs();
+        		}
+        		testIndex++;
+        	} while(f.exists());
+        }
 
         HashMap<String, Integer[]> stateCache = new HashMap<String, Integer[]>();
 		for (String s : gestures){
@@ -120,14 +139,17 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 ProbabilityTracker positionPbt = new ProbabilityTracker(stateModels.get(0), totalModels.get(0));
                 ProbabilityTracker rotationPbt = new ProbabilityTracker(stateModels.get(1), totalModels.get(1));
                 NGramFrameModifier ngfm = new NGramFrameModifier(s);
+                ngfm.setOutputFiles(generateFile("hand_positions-" + testIndex), generateFile("hand_rotations-" + testIndex));
                 ngfm.addPositionProbabilityListener(positionPbt);
                 ngfm.addRotationProbabilityListener(rotationPbt);
                 frameModifiers.put(s, ngfm);
 
                 NGramFrameSelector ngfs = new NGramFrameSelector(s);
                 ngfs.addProbabilityListener(new ProbabilityTracker(stateModels.get(2), totalModels.get(2)));
+                ngfs.setOutputFile(generateFile("joint_positions-" + testIndex));
                 frameSelectors.put(s, ngfs);
-                gestureHandlers.put(s, new NGramGestureHandler(s));
+                NGramGestureHandler nggh = new NGramGestureHandler(s);
+                gestureHandlers.put(s, nggh);
             } catch (Exception e){
                 e.printStackTrace(App.out);
             }

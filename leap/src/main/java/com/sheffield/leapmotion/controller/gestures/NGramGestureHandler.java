@@ -7,10 +7,12 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 import com.sheffield.leapmotion.mocks.SeededSwipeGesture;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class NGramGestureHandler extends RandomGestureHandler {
@@ -18,6 +20,12 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	private AnalyzerApp analyzer;
 	private ArrayList<Gesture.Type> gestureTypes;
 	private String currentGesture;
+	
+	private File outputFile;
+	
+	public void setOutputFile(File f){
+		outputFile = f;
+	}
 
 	public NGramGestureHandler(String filename) {
 		try {
@@ -38,7 +46,8 @@ public class NGramGestureHandler extends RandomGestureHandler {
 				currentGesture = analyzer.getDataAnalyzer().next();
 			}
 			gestureState = Gesture.State.STATE_START;
-			currentGesture = analyzer.getDataAnalyzer().next();
+			//currentGesture = analyzer.getDataAnalyzer().next();
+
 			gestureTypes.clear();
 			cumalitiveGesturePositions = Vector.zero();
 			gestureCount = 0;
@@ -61,6 +70,11 @@ public class NGramGestureHandler extends RandomGestureHandler {
 
 				if (chance > GESTURE_TIME_LIMIT) {
 					gestureState = Gesture.State.STATE_STOP;
+					if (outputFile != null){
+						NGramLog nLog = new NGramLog();
+						nLog.element = currentGesture;
+						nLog.timeSeeded = gestureDuration;
+					}
 				}
 
 			} else {
