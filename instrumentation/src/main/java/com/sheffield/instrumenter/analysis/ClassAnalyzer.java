@@ -443,12 +443,16 @@ public class ClassAnalyzer {
 
     }
 
-    public static String toCsv(boolean headers, int runtime) {
+    public static String toCsv(boolean headers, int runtime, String additionalHeaders) {
+        if (additionalHeaders != null && additionalHeaders.length() > 0){
+            additionalHeaders = "," + additionalHeaders;
+        }
         double bCoverage = branchCoverage();
         String csv = "";
 
         if (headers) {
-            csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage\n";
+            csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage"
+            + additionalHeaders + "\n";
         }
         String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
         String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
@@ -473,7 +477,7 @@ public class ClassAnalyzer {
         csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
                 + "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + "," + getBranchesExecuted().size()
                 + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines
-                + "," + ((float) coveredLines / (float) totalLines) + "\n";
+                + "," + ((float) coveredLines / (float) totalLines);
         return csv;
 
     }
