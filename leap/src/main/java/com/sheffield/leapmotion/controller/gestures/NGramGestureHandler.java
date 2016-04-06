@@ -7,9 +7,7 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
-import com.sheffield.leapmotion.mocks.SeededSwipeGesture;
 
 import java.util.ArrayList;
 
@@ -24,6 +22,7 @@ public class NGramGestureHandler extends RandomGestureHandler {
 			gestureTypes = new ArrayList<Gesture.Type>();
 			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".gesture_type_ngram";
 			analyzer = new AnalyzerApp(sequenceFile);
+			analyzer.setLogBase(true);
 			analyzer.analyze();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

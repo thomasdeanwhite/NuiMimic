@@ -81,7 +81,7 @@ public class Properties implements PropertySource {
 
 	public static boolean SHOW_GUI = false;
 
-	public static boolean SHOW_HAND = true;
+	public static boolean SHOW_HAND = false;
 
 	public static boolean DELAY_LIBRARY = false;
 

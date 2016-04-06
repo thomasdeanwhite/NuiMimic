@@ -23,7 +23,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	}
 
 
-	public void analyze(ArrayList<String> ps) {
+	public void analyze(ArrayList<String> ps, boolean logBase) {
 
 		for (String s : ps) {
 			String[] d = s.split(":");
@@ -32,7 +32,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 			String last = series[series.length - 1];
 			ngramSize = series.length;
 			ArrayList<SequenceSimilarity> seqs = new ArrayList<SequenceSimilarity>();
-			float total = 0;
+			float total = 1;
 			for (int i = 0; i < d2.length; i++) {
 				d2[i] = d2[i].trim();
 				if (d2[i].length() <= 1) {
@@ -72,9 +72,16 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 						ngramCandidates.add(seq);
 					}
 				}
-				total += freq;
+				if (logBase) {
+					total *= Math.log(freq);
+				} else {
+					total += freq;
+				}
 			}
 			for (SequenceSimilarity ss : seqs) {
+				if (logBase) {
+					ss.freq = (int)Math.log(ss.freq);
+				}
 				ss.probability = ss.freq / total;
 				// System.out.println(d[0] + ":" + ss.sequence + " " + ss.freq +
 				// " " + ss.probability);
