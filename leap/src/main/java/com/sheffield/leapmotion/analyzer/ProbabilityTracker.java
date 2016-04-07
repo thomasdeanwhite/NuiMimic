@@ -1,9 +1,9 @@
 package com.sheffield.leapmotion.analyzer;
 
-import com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output.DctStateComparator;
-
 import java.util.HashMap;
 import java.util.List;
+
+import com.sheffield.leapmotion.sampler.output.DctStateComparator;
 
 /**
  * Created by thomas on 29/03/2016.
@@ -21,7 +21,7 @@ public class ProbabilityTracker implements ProbabilityListener {
     }
 
     @Override
-    public void probabilityListLoaded(List<SequenceSimilarity> sequences) {
+    public void probabilityListLoaded(List<SequenceSimilarity> sequences, float maxProbability) {
         currentProbabilities.clear();
         int currState = DctStateComparator.getCurrentState();
 
@@ -37,11 +37,12 @@ public class ProbabilityTracker implements ProbabilityListener {
                 stateProbability = currentState.get(s.sequence);
             }
             float prob = s.probability * stateProbability;
-            currentProbabilities.put(s.sequence, prob);
+            currentProbabilities.put(s.sequence, stateProbability);
             total += prob;
         }
 
-        float scalar = 1f / total;
+
+        float scalar = maxProbability / total;
 
         for (String s : currentProbabilities.keySet()){
             currentProbabilities.put(s, currentProbabilities.get(s) * scalar);
@@ -50,6 +51,9 @@ public class ProbabilityTracker implements ProbabilityListener {
 
     @Override
     public float changeProbability(SequenceSimilarity output) {
+        if (output == null){
+            return 0;
+        }
         if (currentProbabilities.size() == 0){
             //in an unseen state
             return output.probability;

@@ -161,8 +161,8 @@ public class FrameHandler {
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-        for (FrameSwitchListener fsl : frameSwitchListeners) {
-            final FrameSwitchListener fl = fsl;
+        for (int i = 0; i < frameSwitchListeners.size(); i++) {
+            final FrameSwitchListener fl = frameSwitchListeners.get(i);
 
             new Thread(new Runnable() {
 

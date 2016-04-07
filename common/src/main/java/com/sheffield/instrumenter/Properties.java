@@ -81,13 +81,15 @@ public class Properties implements PropertySource {
 
 	public static boolean SHOW_GUI = false;
 
-	public static boolean SHOW_HAND = true;
+	public static boolean SHOW_HAND = false;
 
 	public static boolean DELAY_LIBRARY = false;
 
 	public static String[] INSTRUMENTED_PACKAGES = null;
 
 	public static String NGRAM_TYPE = "25-2";
+
+	public static int CURRENT_RUN = 0;
 
 	public static String[] GESTURE_FILES = { "tom-gorogoa-300000ms",
 			// "processed/bigcircle-25-2",

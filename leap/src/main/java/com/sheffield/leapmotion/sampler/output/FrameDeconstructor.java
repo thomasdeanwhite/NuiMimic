@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output;
+package com.sheffield.leapmotion.sampler.output;
 
 import com.leapmotion.leap.*;
 import com.sheffield.instrumenter.Properties;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class FrameDeconstructor {
 
     private String uniqueId = "";
+    private String currentGesture = "";
     private String filenameStart = "";
     private String addition = "";
 
@@ -38,18 +39,24 @@ public class FrameDeconstructor {
     private int breakIndex = 0;
 
     private ArrayList<String> handIds;
+    private ArrayList<String> gestures;
 
 
     //1 state capture/second
-    private static final int STATE_CAPTURE_TIME = 1000;
+    private static final int STATE_CAPTURE_TIME = 300;
     private long lastStateCapture = 0;
 
     public FrameDeconstructor() {
         handIds = new ArrayList<String>();
+        gestures = new ArrayList<String>();
     }
 
     public void setUniqueId(String uId) {
         uniqueId = uId;
+    }
+    
+    public void setCurrentGesture(String g) {
+        currentGesture = g;
     }
 
     public void setFilenameStart(String fns) {
@@ -159,14 +166,14 @@ public class FrameDeconstructor {
             return;
         }
         calculatingScreenshot = true;
+        if (currentDct == null) {
+            currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct");
+            currentDct.getParentFile().mkdirs();
+            currentDct.createNewFile();
+        }
         if (lastStateCapture + STATE_CAPTURE_TIME < System.currentTimeMillis()) {
             App.out.print(" Capturing State");
             lastStateCapture = System.currentTimeMillis();
-            if (currentDct == null) {
-                currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct");
-                currentDct.getParentFile().mkdirs();
-                currentDct.createNewFile();
-            }
 
             try {
                 String output = DctStateComparator.captureState();
@@ -181,6 +188,7 @@ public class FrameDeconstructor {
 
         }
         handIds.add(uniqueId);
+        gestures.add(currentGesture);
         calculatingScreenshot = false;
         if (handIds.size() > 0) {
             String hands = "";
@@ -189,6 +197,17 @@ public class FrameDeconstructor {
             }
             FileHandler.appendToFile(currentDct, hands);
             handIds.clear();
+        }
+        
+        FileHandler.appendToFile(currentDct, ":");
+        
+        if (gestures.size() > 0) {
+            String gests= "";
+            for (int i = 0; i < gestures.size(); i++) {
+                gests += gestures.get(i) + ",";
+            }
+            FileHandler.appendToFile(currentDct, gests);
+            gestures.clear();
         }
     }
 

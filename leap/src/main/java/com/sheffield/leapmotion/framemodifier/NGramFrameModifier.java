@@ -7,6 +7,8 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
+import com.sheffield.leapmotion.frameselectors.NGramFrameSelector;
+import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
 
@@ -28,6 +30,14 @@ public class NGramFrameModifier implements FrameModifier {
 
     private int currentAnimationTime = 0;
     private long lastSwitchTime = 0;
+    
+    private File outputPosFile;
+    private File outputRotFile;
+    
+    public void setOutputFiles(File pos, File rot){
+    	outputPosFile = pos;
+    	outputRotFile = rot;
+    }
 
     public void addPositionProbabilityListener(ProbabilityListener pbl){
         positionAnalyzer.addProbabilityListener(pbl);
@@ -99,13 +109,43 @@ public class NGramFrameModifier implements FrameModifier {
         }
         if (currentAnimationTime >= Properties.SWITCH_TIME) {
             lastPosition = newPosition;
+            String posCluster = "";
+            String rotCluster = "";
             do {
-                newPosition = vectors.get(positionAnalyzer.getDataAnalyzer().next());
+            	posCluster = positionAnalyzer.getDataAnalyzer().next();
+                newPosition = vectors.get(posCluster);
+                
             } while (newPosition == null);
             lastRotation = newRotation;
             do {
-                newRotation = rotations.get(rotationAnalyzer.getDataAnalyzer().next());
+            	rotCluster = rotationAnalyzer.getDataAnalyzer().next();
+                newRotation = rotations.get(rotCluster);
             } while (newRotation == null);
+            NGramLog posLog = new NGramLog();
+            posLog.element = posCluster;
+            posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+            
+            NGramLog rotLog = new NGramLog();
+            rotLog.element = rotCluster;
+            rotLog.timeSeeded = posLog.timeSeeded;
+			if (outputPosFile != null){
+				try {
+					FileHandler.appendToFile(outputPosFile, posLog.toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(App.out);
+				}
+			}
+			
+			if (outputRotFile != null){
+				try {
+					FileHandler.appendToFile(outputRotFile, rotLog.toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(App.out);
+				}
+			}
+            
             lastSwitchTime = System.currentTimeMillis();
 
         }

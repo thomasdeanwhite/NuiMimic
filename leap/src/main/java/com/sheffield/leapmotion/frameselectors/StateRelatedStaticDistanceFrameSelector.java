@@ -11,7 +11,7 @@ import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
-import com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output.DctStateComparator;
+import com.sheffield.leapmotion.sampler.output.DctStateComparator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,6 +21,8 @@ import java.util.Random;
 public class StateRelatedStaticDistanceFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
 
 	private Random r = new Random();
+	
+	private static final boolean WRITE_LOGS_TO_FILE = true;
 
     private long lastGestureChange = 0;
     private final static int GESTURE_CHANGE_TIME = 10000;
@@ -37,13 +39,33 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
     private final int POSITION_CHANGE_TIME = 4000;
 
     public static final String[] STATE_MODELS = {".state.hand_position_data",
-    ".state.hand_rotation_data", ".state.joint_position_data"};
+    ".state.hand_rotation_data", ".state.joint_position_data", ".state.gesture_data"};
+    
+    private int testIndex = 0;
+    
+    public File generateFile(String name){
+    	File f = new File("testing_output/unit_tests/" + name + ".lmut");
+        return f;
+    }
 
 	public StateRelatedStaticDistanceFrameSelector() {
 		String[] gestures = Properties.GESTURE_FILES;
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
+        if (WRITE_LOGS_TO_FILE){
+        	File f = null;
+
+        	while (f == null || f.exists()) {
+                testIndex++;
+                f = generateFile("hand_positions-" + testIndex);
+        		if (f.getParentFile() != null && !f.getParentFile().exists()){
+        			f.getParentFile().mkdirs();
+        		}
+        	}
+        }
+
+        Properties.CURRENT_RUN = testIndex;
 
         HashMap<String, Integer[]> stateCache = new HashMap<String, Integer[]>();
 		for (String s : gestures){
@@ -120,14 +142,30 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 ProbabilityTracker positionPbt = new ProbabilityTracker(stateModels.get(0), totalModels.get(0));
                 ProbabilityTracker rotationPbt = new ProbabilityTracker(stateModels.get(1), totalModels.get(1));
                 NGramFrameModifier ngfm = new NGramFrameModifier(s);
+                File pFile = generateFile("hand_positions-" + testIndex);
+                pFile.createNewFile();
+                File rFile = generateFile("hand_rotations-" + testIndex);
+                rFile.createNewFile();
+                ngfm.setOutputFiles(pFile, rFile);
                 ngfm.addPositionProbabilityListener(positionPbt);
                 ngfm.addRotationProbabilityListener(rotationPbt);
                 frameModifiers.put(s, ngfm);
 
                 NGramFrameSelector ngfs = new NGramFrameSelector(s);
                 ngfs.addProbabilityListener(new ProbabilityTracker(stateModels.get(2), totalModels.get(2)));
+                File jFile = generateFile("joint_positions-" + testIndex);
+                jFile.createNewFile();
+                ngfs.setOutputFile(jFile);
                 frameSelectors.put(s, ngfs);
-                gestureHandlers.put(s, new NGramGestureHandler(s));
+                NGramGestureHandler nggh = new NGramGestureHandler(s);
+                
+                
+                ProbabilityTracker gesturePbt = new ProbabilityTracker(stateModels.get(3), totalModels.get(3));
+                nggh.addProbabilityListener(gesturePbt);
+                File gFile = generateFile("gestures-" + testIndex);
+                gFile.createNewFile();
+                nggh.setOutputFile(gFile);
+                gestureHandlers.put(s, nggh);
             } catch (Exception e){
                 e.printStackTrace(App.out);
             }

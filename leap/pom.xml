@@ -21,7 +21,7 @@
 
 		<dependency>
 			<groupId>com.leapmotion</groupId>
-			<artifactId>leapmotion-api</artifactId>
+			<artifactId>leapmotion.sdk</artifactId>
 			<version>1.0</version>
 		</dependency>
 		<dependency>

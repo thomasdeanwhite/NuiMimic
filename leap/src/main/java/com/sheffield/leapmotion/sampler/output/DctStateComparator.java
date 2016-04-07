@@ -1,8 +1,7 @@
-package com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output;
+package com.sheffield.leapmotion.sampler.output;
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.instrumenter.states.ScreenGrabber;
-import com.sheffield.leapmotion.App;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -11,6 +10,7 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by thomas on 15/03/2016.
@@ -18,6 +18,8 @@ import java.util.ArrayList;
 public class DctStateComparator {
     private static double[] lastImage;
     private static DiscreteCosineTransformer dct;
+
+    public static int statesFound = 0;
 
     private static ArrayList<Integer[]> states;
 
@@ -28,6 +30,8 @@ public class DctStateComparator {
     private static int currentState = -1;
 
     public static String SCREENSHOT_DIRECTORY = "";
+
+    public static HashMap<Integer, Integer> statesVisited = new HashMap<Integer, Integer>();
 
     private static float threshold = 0.1f;
 
@@ -48,7 +52,9 @@ public class DctStateComparator {
             return -1;
         }
         states.add(state);
-        return states.lastIndexOf(state);
+        int index = states.lastIndexOf(state);
+        statesVisited.put(index, 0);
+        return index;
     }
 
     public static String captureState(){
@@ -154,7 +160,7 @@ public class DctStateComparator {
 
         long differences = 0;
 
-        long maxDifference = resultData.length * 255;
+        long maxDifference = resultData.length * 2048;
 
         for (int i = 0; i < resultData.length; i++) {
             thisState[i] = (int) resultData[i];
@@ -174,7 +180,7 @@ public class DctStateComparator {
                 differences += Math.abs(result - state);
             }
 
-            App.out.println(i + ":" + ((float)differences/(float)resultData.length));
+            ///App.out.println(i + ":" + ((float)differences/(float)resultData.length));
 
             if (differences < maxDifference) {
                 maxDifference = differences;
@@ -189,8 +195,6 @@ public class DctStateComparator {
 
         //10% screen difference
         double difference = maxDifference / (double) (255 * thisState.length);
-
-        App.out.println(difference + " " + closestState);
 
         if ((difference > threshold || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
             BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -218,12 +222,14 @@ public class DctStateComparator {
 
             compressed = null;
             currentState = states.size();
-            states.add(thisState);
+            addState(thisState);
+            statesFound++;
             return sb.toString().substring(1);
         } else if (difference <= threshold) {
             if (currentState != closestState) {
                 currentState = closestState;
             }
+            statesVisited.put(currentState, statesVisited.get(currentState)+1);
         }
         return null;
     }
