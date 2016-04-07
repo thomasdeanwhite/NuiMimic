@@ -53,10 +53,10 @@ public class Properties implements PropertySource {
 	public static String[] EXILED_CLASSES;
 
 	public enum FrameSelectionStrategy {
-		RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, STATIC_DISTANCE, RANDOM_TEMPLATE
+		RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, STATIC_DISTANCE, RANDOM_TEMPLATE, STATE_RELATED_STATIC_DISTANCE
 	}
 
-	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATIC_DISTANCE;
+	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_RELATED_STATIC_DISTANCE;
 
 	public enum InstrumentationApproach {
 		STATIC, ARRAY, NONE
@@ -81,13 +81,15 @@ public class Properties implements PropertySource {
 
 	public static boolean SHOW_GUI = false;
 
-	public static boolean SHOW_HAND = true;
+	public static boolean SHOW_HAND = false;
 
 	public static boolean DELAY_LIBRARY = false;
 
 	public static String[] INSTRUMENTED_PACKAGES = null;
 
 	public static String NGRAM_TYPE = "25-2";
+
+	public static int CURRENT_RUN = 0;
 
 	public static String[] GESTURE_FILES = { "tom-gorogoa-300000ms",
 			// "processed/bigcircle-25-2",

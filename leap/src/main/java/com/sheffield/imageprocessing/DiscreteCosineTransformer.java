@@ -18,6 +18,8 @@ public class DiscreteCosineTransformer {
     private double[] dctImage;
     private double[] coefficients;
 
+    public static final int THRESHOLD = 100;
+
     private static final double[][] COSINES = new double[BLOCKS][BLOCKS];
     private static final double[][] COEFFICIENTS = new double[BLOCKS][BLOCKS];
 
@@ -29,8 +31,6 @@ public class DiscreteCosineTransformer {
             }
         }
     }
-
-    private static final double ONE_OVER_ROOT_TWO = 1 / Math.sqrt(2);
 
     public DiscreteCosineTransformer(double[] image, int width, int height){
         originalImage = image;
@@ -50,7 +50,7 @@ public class DiscreteCosineTransformer {
 
     public void calculateDct(){
 
-        coefficients = new double[(imageWidth + BLOCKS) * (imageHeight + BLOCKS)];
+        coefficients = new double[(imageWidth+BLOCKS) * (imageHeight + BLOCKS)];
 
         for (int i = 0; i < 1 + imageWidth/BLOCKS; i++) {
             for (int j = 0; j < 1 + imageHeight/BLOCKS; j++) {
@@ -81,6 +81,8 @@ public class DiscreteCosineTransformer {
         return (y * imageWidth) + x;
     }
 
+    private int i2(int x, int y) { return (y * (imageWidth+BLOCKS)) + x;}
+
     private static double c(int u){
         return u == 0 ? 1/Math.sqrt(BLOCKS) : Math.sqrt(2 / (double) BLOCKS);
     }
@@ -92,8 +94,8 @@ public class DiscreteCosineTransformer {
 
         double[] newImage = new double[coefficients.length];
 
-        for (int i = 0; i < 1 + imageWidth/BLOCKS; i++){
-            for (int j = 0; j < 1 + imageHeight/BLOCKS; j++){
+        for (int i = 0; i < imageWidth/BLOCKS; i++){
+            for (int j = 0; j < imageHeight/BLOCKS; j++){
                     idct(i * BLOCKS, j * BLOCKS, newImage, coeffQuantity);
             }
         }
@@ -107,21 +109,21 @@ public class DiscreteCosineTransformer {
     private void idct(int xpos, int ypos, double[] newImage, int coeffQuantity){
         //double divider = 1 / Math.sqrt(2 * BLOCKS);
         for (int x = 0; x < BLOCKS; x++){
-            if (x >= imageWidth){
+            if (x + xpos >= imageWidth){
                 continue;
             }
             for (int y = 0; y < BLOCKS; y++){
-                if (y >= imageHeight)
+                if (y + ypos >= imageHeight)
                     continue;
                 double value = 0;
                 for (int i = 0; i < coeffQuantity; i++){
                     for (int j = 0; j < coeffQuantity; j++){
-                        value += COEFFICIENTS[i][j] * coefficients[i(i+xpos, j+ypos)] *
+                        value += COEFFICIENTS[i][j] * coefficients[i2(i+xpos, j+ypos)] *
                                 COSINES[i][x] * COSINES[j][y];
                     }
                 }
                 //value = (value*divider);
-                newImage[i(xpos+x, ypos+y)] = value;
+                    newImage[i(xpos + x, ypos + y)] = Math.abs(value);
             }
         }
     }
@@ -147,9 +149,28 @@ public class DiscreteCosineTransformer {
                         value += originalImage[i(xv, yv)] * multi;
                     }
                 }
-                coefficients[i(xpos+i, ypos+j)] = value*COEFFICIENTS[i][j];
+                value *= COEFFICIENTS[i][j];
+
+                if (Math.abs(value) > THRESHOLD) {
+                    coefficients[i2(xpos + i, ypos + j)] = value;
+                }
             }
         }
 
+    }
+
+    public double[] getInterleavedData(){
+        double[] highFrequencies = new double[imageWidth/BLOCKS * imageHeight/BLOCKS];
+
+        int width = imageWidth/BLOCKS;
+        int height = imageHeight/BLOCKS;
+
+        for (int i = 0; i < width; i++){
+            for (int j = 0; j < height; j++){
+                highFrequencies[(j * width) + i] = coefficients[i2(i*BLOCKS, j*BLOCKS)];
+            }
+        }
+
+        return highFrequencies;
     }
 }

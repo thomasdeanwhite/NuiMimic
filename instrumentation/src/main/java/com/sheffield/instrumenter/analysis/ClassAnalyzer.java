@@ -1,18 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
@@ -30,6 +17,14 @@ import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -448,12 +443,16 @@ public class ClassAnalyzer {
 
     }
 
-    public static String toCsv(boolean headers, int runtime) {
+    public static String toCsv(boolean headers, int runtime, String additionalHeaders) {
+        if (additionalHeaders != null && additionalHeaders.length() > 0){
+            additionalHeaders = "," + additionalHeaders;
+        }
         double bCoverage = branchCoverage();
         String csv = "";
 
         if (headers) {
-            csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage\n";
+            csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage"
+            + additionalHeaders + "\n";
         }
         String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
         String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
@@ -478,7 +477,7 @@ public class ClassAnalyzer {
         csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
                 + "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + "," + getBranchesExecuted().size()
                 + "," + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines
-                + "," + ((float) coveredLines / (float) totalLines) + "\n";
+                + "," + ((float) coveredLines / (float) totalLines);
         return csv;
 
     }
@@ -546,11 +545,11 @@ public class ClassAnalyzer {
                 e.printStackTrace();
             }
         }
-        Task task = new CollectHitCountersTimer();
+        Task timerTask = new CollectHitCountersTimer();
         if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
             collectingHitCounters = true;
             if (Properties.LOG) {
-                TaskTimer.taskStart(task);
+                TaskTimer.taskStart(timerTask);
             }
             List<Class<?>> classes = changedClasses;
             if (!Properties.USE_CHANGED_FLAG) {
@@ -569,7 +568,8 @@ public class ClassAnalyzer {
                 changedClasses.addAll(classes);
 
             }
-            for (Class<?> cl : classes) {
+            for (int c = 0; c < classes.size(); c++) {
+                Class<?> cl = classes.get(c);
                 try {
                     Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
                     getCounters.setAccessible(true);
@@ -603,7 +603,7 @@ public class ClassAnalyzer {
                 }
             }
             if (Properties.LOG) {
-                TaskTimer.taskEnd(task);
+                TaskTimer.taskEnd(timerTask);
             }
             collectingHitCounters = false;
         }

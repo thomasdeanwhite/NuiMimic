@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 
 public class DependencyTreeTest {
 
-	@Test
+	@Test(timeout = 10000)
 	public void testChild (){
 		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
@@ -20,7 +20,7 @@ public class DependencyTreeTest {
 		
 	}
 
-	@Test
+	@Test(timeout = 10000)
 	public void testGrandChild (){
 		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
@@ -34,7 +34,7 @@ public class DependencyTreeTest {
 		assertEquals("bar.Foo", cn.getClassName());
 	}
 
-	@Test
+	@Test(timeout = 10000)
 	public void testRecursion (){
 		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
@@ -47,7 +47,7 @@ public class DependencyTreeTest {
 		assertNull(cn);
 	}
 
-	@Test
+	@Test(timeout = 10000)
 	public void testSecondChild (){
 		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();
@@ -62,7 +62,7 @@ public class DependencyTreeTest {
 		assertEquals("bar.Foo", cn.getClassName());
 	}
 
-	@Test
+	@Test(timeout = 10000)
 	public void testDoubleRecursion (){
 		DependencyTree dt = DependencyTree.getDependencyTree();
 		dt.clear();

@@ -127,6 +127,12 @@ public class ScreenGrabber {
 	}
 
 	public static BufferedImage captureRobot() {
+		try {
+			robot = new Robot();
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		BufferedImage bi = robot.createScreenCapture(dimensions);
 		return bi;
 	}

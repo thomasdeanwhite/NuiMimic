@@ -1,5 +1,16 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import com.sheffield.util.ArrayUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,17 +19,10 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import static java.lang.System.getenv;
 
 public class InstrumentingClassLoader extends URLClassLoader {
 
@@ -54,6 +58,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
     private InstrumentingClassLoader(URL[] urls) {
         super(urls);
+        ClassAnalyzer.out.println("Created InstrumentingClassLoader with URLS "+ Arrays.toString(urls));
         loader = new MockClassLoader(urls);
         this.classLoader = getClass().getClassLoader();
         classInstrumentingInterceptors = new ArrayList<ClassInstrumentingInterceptor>();
@@ -83,7 +88,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
         if ("".equals(className)) {
             throw new ClassNotFoundException();
         }
-
+        // check if the class comes from the Java API (i.e. javax/swing or java.io.*)
         if (!crt.shouldInstrumentClass(className)) {
             Class<?> cl = findLoadedClass(className);
             if (cl != null) {
@@ -91,6 +96,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
             }
             return super.loadClass(className, resolve);
         }
+        // this is most likely a testing class or something similar, but still requires being loaded by this class loader
         if (!shouldInstrument) {
             try {
                 InputStream stream = getInputStreamForClass(name);
@@ -126,8 +132,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
             }
             byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
             if (Properties.WRITE_CLASS) {
+                int lastIndex = name.lastIndexOf(".");
                 String outputDir = Properties.BYTECODE_DIR + "/"
-                        + name.replace(".", "/").substring(0, name.lastIndexOf("."));
+                        + name.replace(".", "/");
+                if (lastIndex > -1) {
+                    outputDir = outputDir.substring(0, lastIndex);
+                }
                 File folder = new File(outputDir);
                 folder.mkdirs();
                 File output = new File(
@@ -201,7 +211,8 @@ public class InstrumentingClassLoader extends URLClassLoader {
     public static InstrumentingClassLoader getInstance() {
         if (instance == null) {
             URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            instance = new InstrumentingClassLoader(loader.getURLs());
+            URL[] urls = ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs();
+            instance = new InstrumentingClassLoader(ArrayUtils.combineArrays(URL.class, true, urls, loader.getURLs()));
         }
         return instance;
     }
