@@ -556,7 +556,7 @@ public class App implements ThrowableListener {
             File outFldr = new File("testing_output/result_states");
             outFldr.mkdirs();
 
-            File output = new File(outFldr, +System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
+            File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
             try {
                 ImageIO.write(bi, "png", output);
             } catch (IOException e) {
@@ -566,7 +566,7 @@ public class App implements ThrowableListener {
             if (Properties.SHOW_HAND)
                 App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
         }
-        File csv = new File("test-results.csv");
+        File csv = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
         if (csv.getParentFile() != null) {
             csv.getParentFile().mkdirs();
         }
@@ -576,7 +576,10 @@ public class App implements ThrowableListener {
                 csv.createNewFile();
             }
             ClassAnalyzer.setOut(App.out);
-            FileHandler.appendToFile(csv, ClassAnalyzer.toCsv(newFile, runtime));
+            String info = ClassAnalyzer.toCsv(newFile, runtime, "startingStates,statesFound,finalState");
+            int states = DctStateComparator.statesVisited.size();
+            info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getCurrentState();
+            FileHandler.appendToFile(csv, info + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

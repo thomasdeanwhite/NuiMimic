@@ -89,6 +89,8 @@ public class Properties implements PropertySource {
 
 	public static String NGRAM_TYPE = "25-2";
 
+	public static int CURRENT_RUN = 0;
+
 	public static String[] GESTURE_FILES = { "tom-gorogoa-300000ms",
 			// "processed/bigcircle-25-2",
 			// "processed/circle-25-2",

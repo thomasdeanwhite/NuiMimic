@@ -6,4 +6,8 @@ public class NGramLog {
 
 	public NGramLog() {
 	}
+
+	public String toString(){
+		return element + ":" + timeSeeded + "\n";
+	}
 }

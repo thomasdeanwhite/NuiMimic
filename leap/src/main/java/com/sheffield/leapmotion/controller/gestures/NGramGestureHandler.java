@@ -6,13 +6,14 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Vector;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.frameselectors.NGramLog;
-import com.sheffield.leapmotion.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class NGramGestureHandler extends RandomGestureHandler {
@@ -77,8 +78,18 @@ public class NGramGestureHandler extends RandomGestureHandler {
 					gestureState = Gesture.State.STATE_STOP;
 					if (outputFile != null){
 						NGramLog nLog = new NGramLog();
-						nLog.element = currentGesture;
+						String gestures = "";
+						for (Gesture.Type gt : gestureTypes) {
+							gestures += gt + ",";
+						}
+						gestures = gestures.substring(0, gestures.length()-1);
+						nLog.element = gestures;
 						nLog.timeSeeded = gestureDuration;
+						try {
+							FileHandler.appendToFile(outputFile, nLog.toString());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 
