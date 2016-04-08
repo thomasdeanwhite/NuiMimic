@@ -5,6 +5,7 @@ import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import com.sheffield.util.ArrayUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.objectweb.asm.ClassVisitor;
@@ -18,6 +19,10 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+
+import static java.lang.System.getenv;
 
 public class InstrumentingClassLoader extends URLClassLoader {
 
@@ -53,6 +58,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
     private InstrumentingClassLoader(URL[] urls) {
         super(urls);
+        ClassAnalyzer.out.println("Created InstrumentingClassLoader with URLS "+ Arrays.toString(urls));
         loader = new MockClassLoader(urls);
         this.classLoader = getClass().getClassLoader();
         classInstrumentingInterceptors = new ArrayList<ClassInstrumentingInterceptor>();
@@ -205,7 +211,8 @@ public class InstrumentingClassLoader extends URLClassLoader {
     public static InstrumentingClassLoader getInstance() {
         if (instance == null) {
             URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            instance = new InstrumentingClassLoader(loader.getURLs());
+            URL[] urls = ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs();
+            instance = new InstrumentingClassLoader(ArrayUtils.combineArrays(URL.class, true, urls, loader.getURLs()));
         }
         return instance;
     }
