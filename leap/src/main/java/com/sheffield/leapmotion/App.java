@@ -14,7 +14,8 @@ import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output.DctStateComparator;
+import com.sheffield.leapmotion.sampler.output.DctStateComparator;
+
 import org.apache.commons.cli.*;
 
 import javax.imageio.ImageIO;

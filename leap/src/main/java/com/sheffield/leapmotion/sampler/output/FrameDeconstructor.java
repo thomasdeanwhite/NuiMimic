@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output;
+package com.sheffield.leapmotion.sampler.output;
 
 import com.leapmotion.leap.*;
 import com.sheffield.instrumenter.Properties;
@@ -17,6 +17,7 @@ import java.util.ArrayList;
 public class FrameDeconstructor {
 
     private String uniqueId = "";
+    private String currentGesture = "";
     private String filenameStart = "";
     private String addition = "";
 
@@ -38,6 +39,7 @@ public class FrameDeconstructor {
     private int breakIndex = 0;
 
     private ArrayList<String> handIds;
+    private ArrayList<String> gestures;
 
 
     //1 state capture/second
@@ -46,10 +48,15 @@ public class FrameDeconstructor {
 
     public FrameDeconstructor() {
         handIds = new ArrayList<String>();
+        gestures = new ArrayList<String>();
     }
 
     public void setUniqueId(String uId) {
         uniqueId = uId;
+    }
+    
+    public void setCurrentGesture(String g) {
+        currentGesture = g;
     }
 
     public void setFilenameStart(String fns) {
@@ -181,6 +188,7 @@ public class FrameDeconstructor {
 
         }
         handIds.add(uniqueId);
+        gestures.add(currentGesture);
         calculatingScreenshot = false;
         if (handIds.size() > 0) {
             String hands = "";
@@ -189,6 +197,17 @@ public class FrameDeconstructor {
             }
             FileHandler.appendToFile(currentDct, hands);
             handIds.clear();
+        }
+        
+        FileHandler.appendToFile(currentDct, ":");
+        
+        if (gestures.size() > 0) {
+            String gests= "";
+            for (int i = 0; i < gestures.size(); i++) {
+                gests += gestures.get(i) + ",";
+            }
+            FileHandler.appendToFile(currentDct, gests);
+            gestures.clear();
         }
     }
 

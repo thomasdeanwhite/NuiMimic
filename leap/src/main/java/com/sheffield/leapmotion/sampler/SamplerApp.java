@@ -5,7 +5,7 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.mocks.HandFactory;
-import com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output.FrameDeconstructor;
+import com.sheffield.leapmotion.sampler.output.FrameDeconstructor;
 
 import javax.swing.*;
 import java.io.IOException;

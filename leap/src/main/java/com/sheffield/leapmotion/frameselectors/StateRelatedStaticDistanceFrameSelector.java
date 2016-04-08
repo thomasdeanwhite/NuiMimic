@@ -11,7 +11,7 @@ import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
-import com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output.DctStateComparator;
+import com.sheffield.leapmotion.sampler.output.DctStateComparator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
     private final int POSITION_CHANGE_TIME = 4000;
 
     public static final String[] STATE_MODELS = {".state.hand_position_data",
-    ".state.hand_rotation_data", ".state.joint_position_data"};
+    ".state.hand_rotation_data", ".state.joint_position_data", ".state.gesture_data"};
     
     private int testIndex = 0;
     
@@ -158,6 +158,10 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 ngfs.setOutputFile(jFile);
                 frameSelectors.put(s, ngfs);
                 NGramGestureHandler nggh = new NGramGestureHandler(s);
+                
+                
+                ProbabilityTracker gesturePbt = new ProbabilityTracker(stateModels.get(3), totalModels.get(3));
+                nggh.addProbabilityListener(gesturePbt);
                 File gFile = generateFile("gestures-" + testIndex);
                 gFile.createNewFile();
                 nggh.setOutputFile(gFile);

@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.sampler.com.sheffield.leapmotion.sampler.output;
+package com.sheffield.leapmotion.sampler.output;
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.instrumenter.states.ScreenGrabber;

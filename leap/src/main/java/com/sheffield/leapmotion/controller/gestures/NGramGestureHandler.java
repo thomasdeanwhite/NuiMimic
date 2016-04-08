@@ -8,6 +8,7 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 
@@ -25,6 +26,10 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	
 	public void setOutputFile(File f){
 		outputFile = f;
+	}
+	
+	public void addProbabilityListener(ProbabilityListener pbl){
+		analyzer.addProbabilityListener(pbl);
 	}
 
 	public NGramGestureHandler(String filename) {
