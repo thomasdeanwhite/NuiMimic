@@ -40,6 +40,7 @@ public class App implements ThrowableListener {
     private static boolean ENABLE_APPLICATION_OUTPUT = false;
     private static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
+    public static boolean INSTRUMENT_FOR_TESTING = true;
 
     //check states every x-ms
     public static final long STATE_CHECK_TIME = 5000;
@@ -257,6 +258,10 @@ public class App implements ThrowableListener {
                 .withDescription("If using an older API, the Hand.fingers() method returns only extended fingers. If so use this flag.")
                 .create("replace_fingers_method"));
 
+        options.addOption(OptionBuilder.withLongOpt("leave_leapmotion_alone")
+                .withDescription("This will only instrument testing options into SUT.")
+                .create("leave_leapmotion_alone"));
+
         options.addOption(OptionBuilder.withLongOpt("delayLibrary")
                 .withDescription("Use if getting a Library Already Loaded error.")
                 .create("delayLibrary"));
@@ -371,6 +376,10 @@ public class App implements ThrowableListener {
             if (cmd.hasOption("recording")) {
                 App.out.println("- Recording mode activated.");
                 Properties.RECORDING = true;
+            }
+
+            if (cmd.hasOption("leave_leapmotion_alone")){
+                INSTRUMENT_FOR_TESTING = false;
             }
 
             if (cmd.hasOption("replace_fingers_method")) {

@@ -3,3 +3,5 @@
 **/*.bmp
 **/*.png
 **/*.pdf
+.idea/*
+**.idea/**

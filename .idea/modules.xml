@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/instrumentation/instrumentation.iml" filepath="$PROJECT_DIR$/instrumentation/instrumentation.iml" />
       <module fileurl="file://$PROJECT_DIR$/leap/leap.iml" filepath="$PROJECT_DIR$/leap/leap.iml" />
-      <module fileurl="file://$PROJECT_DIR$/leapmotion-tester.iml" filepath="$PROJECT_DIR$/leapmotion-tester.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/leapmotion-tester.iml" filepath="$PROJECT_DIR$/.idea/leapmotion-tester.iml" />
     </modules>
   </component>
 </project>
