@@ -165,6 +165,13 @@ public class App implements ThrowableListener {
             DISPLAY_WINDOW = new DisplayWindow();
         }
 
+        File f = null;
+        Properties.CURRENT_RUN = 0;
+        while (f == null || f.exists()){
+            f = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
+            Properties.CURRENT_RUN++;
+        }
+
         ClassAnalyzer.addThrowableListener(new ThrowableListener() {
             @Override
             public void throwableThrown(Throwable t) {
