@@ -15,7 +15,6 @@ import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.sampler.output.DctStateComparator;
-
 import org.apache.commons.cli.*;
 
 import javax.imageio.ImageIO;
@@ -45,6 +44,8 @@ public class App implements ThrowableListener {
     //check states every x-ms
     public static final long STATE_CHECK_TIME = 5000;
     public long lastStateCheck = 0;
+
+    ArrayList<String> classSeen = new ArrayList<String>();
 
     private static Thread mainThread = null;
 
@@ -164,6 +165,16 @@ public class App implements ThrowableListener {
         if (Properties.SHOW_HAND) {
             DISPLAY_WINDOW = new DisplayWindow();
         }
+        File f = null;
+        int testIndex = 0;
+        while (f == null || f.exists()) {
+            testIndex++;
+            f = FileHandler.generateTestingOutputFile("RUN" + testIndex + "-test-results");
+            if (f.getParentFile() != null && !f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
+            }
+        }
+        Properties.CURRENT_RUN = testIndex;
 
         File f = null;
         Properties.CURRENT_RUN = 0;
@@ -191,7 +202,7 @@ public class App implements ThrowableListener {
                 @Override
                 public void write(int b) throws IOException {
                     // TODO Auto-generated method stub
-                    App.out.write(b);
+                    //App.out.write(b);
                 }
 
             }, true);
@@ -373,7 +384,7 @@ public class App implements ThrowableListener {
             }
 
             for (int i = 0; i < Properties.GESTURE_FILES.length; i++) {
-                Properties.GESTURE_FILES[i] = Properties.GESTURE_FILES[i] + "-" + Properties.NGRAM_TYPE;
+                Properties.GESTURE_FILES[i] = Properties.GESTURE_FILES[i];
             }
 
             if (Properties.INSTRUMENTED_PACKAGES == null) {
@@ -592,10 +603,41 @@ public class App implements ThrowableListener {
                 csv.createNewFile();
             }
             ClassAnalyzer.setOut(App.out);
-            String info = ClassAnalyzer.toCsv(newFile, runtime, "startingStates,statesFound,finalState");
+            StringBuilder linesHit = new StringBuilder();
+
+            for (LineHit lh : ClassAnalyzer.getLinesCovered()) {
+                String className = lh.getLine().getClassName();
+                if (classSeen.contains(className)){
+                    className = "" + classSeen.indexOf(className);
+                } else {
+                    File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                    if (classes.getParentFile() != null) {
+                        classes.getParentFile().mkdirs();
+                    }
+                    if (!classes.exists()){
+                        classes.createNewFile();
+                    }
+                    classSeen.add(className);
+                    FileHandler.appendToFile(classes, className + ":");
+                    className = "" + classSeen.indexOf(className);
+                    FileHandler.appendToFile(classes, className + "\n");
+                }
+                linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
+            }
+            String info = ClassAnalyzer.toCsv(newFile, runtime, "starting_states,states_found,states_discovered,final_sate");
             int states = DctStateComparator.statesVisited.size();
-            info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getCurrentState();
+            info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
             FileHandler.appendToFile(csv, info + "\n");
+
+            File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
+            if (classes.getParentFile() != null) {
+                classes.getParentFile().mkdirs();
+            }
+            if (!classes.exists()){
+                classes.createNewFile();
+            }
+
+            FileHandler.appendToFile(classes, linesHit.toString() + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

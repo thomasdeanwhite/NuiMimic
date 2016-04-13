@@ -20,9 +20,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-
-import static java.lang.System.getenv;
 
 public class InstrumentingClassLoader extends URLClassLoader {
 
@@ -36,7 +33,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
     private boolean buildDependencyTree = false;
 
     public interface ClassInstrumentingInterceptor {
-        public ClassVisitor intercept(ClassVisitor parent, String className);
+        ClassVisitor intercept(ClassVisitor parent, String className);
     }
 
     public void setBuildDependencyTree(boolean b) {
@@ -132,16 +129,21 @@ public class InstrumentingClassLoader extends URLClassLoader {
             }
             byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
             if (Properties.WRITE_CLASS) {
-                int lastIndex = name.lastIndexOf(".");
                 String outputDir = Properties.BYTECODE_DIR + "/"
                         + name.replace(".", "/");
-                if (lastIndex > -1) {
-                    outputDir = outputDir.substring(0, lastIndex);
+                File output = new File(outputDir + ".class");
+
+//                if (lastIndex > -1) {
+//                    outputDir = outputDir.substring(0, lastIndex);
+//                    File folder = new File(outputDir);
+//                    folder.mkdirs();
+//                    output = new File(outputDir.substring(outputDir.lastIndexOf(".") + 1) + ".class");
+//                }
+
+                if (output.getParentFile() != null){
+                    output.getParentFile().mkdirs();
                 }
-                File folder = new File(outputDir);
-                folder.mkdirs();
-                File output = new File(
-                        folder.getAbsolutePath() + "/" + name.substring(name.lastIndexOf(".") + 1) + ".class");
+
                 output.createNewFile();
                 FileOutputStream outFile = new FileOutputStream(output);
                 outFile.write(bytes);
