@@ -52,12 +52,6 @@ public class LeapMotionApplicationHandler {
 
 
 		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
-		INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
-			@Override
-			public ClassVisitor intercept(ClassVisitor parent, String name) {
-				return new TestingClassAdapter(parent, name);
-			}
-		});
 		
 		nonDependancies = new ArrayList<String>();
 	}
@@ -118,6 +112,16 @@ public class LeapMotionApplicationHandler {
 
 	public static void instrumentJar(String jar) throws MalformedURLException {
 		String jarFilePath = "file:/" + jar;
+
+		if (App.INSTRUMENT_FOR_TESTING){
+			INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
+				@Override
+				public ClassVisitor intercept(ClassVisitor parent, String name) {
+					return new TestingClassAdapter(parent, name);
+				}
+			});
+		}
+
 
 		if (!JAR_LOADED) {
 			loadJar(jar);
