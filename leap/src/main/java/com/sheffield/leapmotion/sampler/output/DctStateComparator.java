@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.sampler.output;
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.states.ScreenGrabber;
 
 import javax.imageio.ImageIO;
@@ -29,11 +30,13 @@ public class DctStateComparator {
 
     private static int currentState = -1;
 
-    public static String SCREENSHOT_DIRECTORY = "";
+    public static String SCREENSHOT_DIRECTORY = "testing_output/screenshots";
 
     public static HashMap<Integer, Integer> statesVisited = new HashMap<Integer, Integer>();
 
     private static float threshold = 0.1f;
+
+    private static ArrayList<Integer> statesActuallyVisited = new ArrayList<Integer>();
 
     static {
         states = new ArrayList<Integer[]>();
@@ -60,7 +63,7 @@ public class DctStateComparator {
     public static String captureState(){
         BufferedImage original = ScreenGrabber.captureRobot();
 
-        final int COMPRESSION = 2;
+        final int COMPRESSION = 4;
 
         BufferedImage bi = new BufferedImage(original.getWidth() / COMPRESSION, original.getHeight() / COMPRESSION, original.getType());
 
@@ -209,7 +212,7 @@ public class DctStateComparator {
 
             if (WRITE_SCREENSHOTS_TO_FILE) {
                 try {
-                    File f = new File(SCREENSHOT_DIRECTORY + "STATE" + stateNumber + ".png");
+                    File f = new File(SCREENSHOT_DIRECTORY + "/" + Properties.CURRENT_RUN + "/" + "STATE" + stateNumber + ".png");
                     if (f.getParentFile() != null)
                         f.getParentFile().mkdirs();
                     ImageIO.write(compressed, "png", f);
@@ -223,6 +226,8 @@ public class DctStateComparator {
             compressed = null;
             currentState = states.size();
             addState(thisState);
+            statesVisited.put(currentState, 1);
+            statesActuallyVisited.add(currentState);
             statesFound++;
             return sb.toString().substring(1);
         } else if (difference <= threshold) {
@@ -230,8 +235,15 @@ public class DctStateComparator {
                 currentState = closestState;
             }
             statesVisited.put(currentState, statesVisited.get(currentState)+1);
+            if (!statesActuallyVisited.contains(currentState)){
+                statesActuallyVisited.add(currentState);
+            }
         }
         return null;
+    }
+
+    public static ArrayList<Integer> getStatesVisited (){
+        return statesActuallyVisited;
     }
 
 }

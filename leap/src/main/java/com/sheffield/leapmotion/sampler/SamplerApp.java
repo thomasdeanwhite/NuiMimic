@@ -190,6 +190,11 @@ public class SamplerApp extends Listener {
                                 + ManagementFactory.getRuntimeMXBean().getName();
 
                         frameDeconstructor.setUniqueId(uniqueId);
+                        if (frame.gestures().count() > 0){
+                            for (Gesture g : frame.gestures()){
+                                frameDeconstructor.setCurrentGesture(g.type().name());
+                            }
+                        }
                         String frameAsString = HandFactory.handToString(uniqueId, h);
                         try {
                             frameDeconstructor.outputJointPositionModel(frameAsString);

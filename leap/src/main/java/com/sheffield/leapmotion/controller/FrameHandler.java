@@ -20,6 +20,10 @@ public class FrameHandler {
     private ArrayList<FrameModifier> frameModifiers;
 
     public FrameHandler() {
+
+    }
+
+    public void init (){
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
         frameModifiers = new ArrayList<FrameModifier>();
         frames = new ArrayList<Frame>();
@@ -66,7 +70,7 @@ public class FrameHandler {
         if (frameSelector instanceof GestureHandler){
             setGestureHandler((GestureHandler) frameSelector);
         } else {
-           //setGestureHandler(new RandomGestureHandler());
+            //setGestureHandler(new RandomGestureHandler());
         }
 
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();

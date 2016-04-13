@@ -47,6 +47,10 @@ public class LeapMotionApplicationHandler {
 
 		INSTRUMENTING_CLASS_LOADER.setBuildDependencyTree(true);
 
+		INSTRUMENTING_CLASS_LOADER.getClassReplacementTransformer().setWriteClasses(true);
+
+
+
 		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
 		INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
 			@Override

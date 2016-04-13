@@ -50,6 +50,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		App.out.println("- Controller Initialized.");
 		listeners = new ArrayList<Listener>();
 		frameHandler = new FrameHandler();
+		frameHandler.init();
 		frameHandler.addFrameSwitchListener(this);
 		CONTROLLER = this;
 		setPolicyFlags(Controller.PolicyFlag.POLICY_BACKGROUND_FRAMES);

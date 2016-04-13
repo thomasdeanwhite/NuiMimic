@@ -609,6 +609,26 @@ public class ClassAnalyzer {
         }
     }
 
+    public static ArrayList<LineHit> getLinesCovered() {
+        collectHitCounters(false);
+
+        ArrayList<LineHit> coveredLines = new ArrayList<LineHit>();
+
+        for (Integer i : lines.keySet()){
+            Map<Integer, LineHit> h = lines.get(i);
+
+            for (LineHit l : h.values()){
+                if (l.getLine().getHits() > 0){
+                    coveredLines.add(l);
+                }
+            }
+        }
+
+        return coveredLines;
+
+
+    }
+
     public static void resetHitCounters(Class<?> cl) {
         try {
             Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME, new Class[] {});
