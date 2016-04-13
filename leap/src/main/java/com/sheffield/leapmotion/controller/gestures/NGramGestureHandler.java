@@ -37,7 +37,7 @@ public class NGramGestureHandler extends RandomGestureHandler {
 			gestureTypes = new ArrayList<Gesture.Type>();
 			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".gesture_type_ngram";
 			analyzer = new AnalyzerApp(sequenceFile);
-			analyzer.setLogBase(true);
+			//analyzer.setLogBase(true);
 			analyzer.analyze();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

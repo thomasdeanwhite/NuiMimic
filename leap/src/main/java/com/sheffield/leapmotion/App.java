@@ -80,6 +80,27 @@ public class App implements ThrowableListener {
     @Override
     public void throwableThrown(Throwable t) {
         App.out.println("Throwable thrown! " + t.getLocalizedMessage());
+        File classes = new File("testing_output/errors/RUN" + Properties.CURRENT_RUN + "-error.log");
+        if (classes.getParentFile() != null) {
+            classes.getParentFile().mkdirs();
+        }
+        if (!classes.exists()){
+            try {
+                classes.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        String output = "";
+
+        for (StackTraceElement ste : t.getStackTrace()){
+            output += ste.getClassName() + "::" + ste.getMethodName() + "#" + ste.getLineNumber() + "\n";
+        }
+        try {
+            FileHandler.appendToFile(classes, output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         output(true, 0);
     }
 
@@ -175,13 +196,6 @@ public class App implements ThrowableListener {
             }
         }
         Properties.CURRENT_RUN = testIndex;
-
-        File f = null;
-        Properties.CURRENT_RUN = 0;
-        while (f == null || f.exists()){
-            f = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
-            Properties.CURRENT_RUN++;
-        }
 
         ClassAnalyzer.addThrowableListener(new ThrowableListener() {
             @Override

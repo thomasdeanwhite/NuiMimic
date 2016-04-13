@@ -1,17 +1,17 @@
 package com.sheffield.leapmotion.analyzer;
 
+import com.sheffield.leapmotion.sampler.output.DctStateComparator;
+
 import java.util.HashMap;
 import java.util.List;
-
-import com.sheffield.leapmotion.sampler.output.DctStateComparator;
 
 /**
  * Created by thomas on 29/03/2016.
  */
 public class ProbabilityTracker implements ProbabilityListener {
-    private HashMap<Integer, HashMap<String, Float>> states;
-    private HashMap<Integer, Integer> totals;
-    private HashMap<String, Float> currentProbabilities;
+    protected HashMap<Integer, HashMap<String, Float>> states;
+    protected HashMap<Integer, Integer> totals;
+    protected HashMap<String, Float> currentProbabilities;
 
     public ProbabilityTracker(HashMap<Integer, HashMap<String, Float>> states,
                               HashMap<Integer, Integer> totals){
