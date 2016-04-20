@@ -103,7 +103,7 @@ public class ClassReplacementTransformer {
 
     static {
         String[] defaultHiddenPackages = new String[] { "com/sun", "java/", "sun/", "jdk/",
-                "com/sheffield/instrumenter" };
+                "com/sheffield/instrumenter", "org/eclipse" };
 
         // String[] defaultHiddenPackages = new
         // String[]{"com/sheffield/leapmotion", "com/google/gson",

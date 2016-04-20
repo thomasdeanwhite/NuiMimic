@@ -645,6 +645,10 @@ public class ClassAnalyzer {
     }
 
     public static List<Line> getCoverableLines(String className) {
+        if (className == null){
+            return new ArrayList<Line>();
+        }
+        className = className.replace("/", ".");
         int classId = classNames.get(className);
         if (!lines.containsKey(classId)) {
             return Collections.<Line> emptyList();
@@ -657,7 +661,10 @@ public class ClassAnalyzer {
     }
 
     public static List<Branch> getCoverableBranches(String className) {
-        int classId = classNames.get(className);
+        if (className == null){
+            return new ArrayList<Branch>();
+        }
+        int classId = classNames.get(className.replace("/", "."));
         if (!branches.containsKey(classId)) {
             return Collections.<Branch> emptyList();
         }
