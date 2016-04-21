@@ -73,14 +73,14 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 					}
 				}
 				if (logBase) {
-					total *= Math.log(freq);
+					total *= log(freq);
 				} else {
 					total += freq;
 				}
 			}
 			for (SequenceSimilarity ss : seqs) {
 				if (logBase) {
-					ss.freq = (int)Math.log(ss.freq);
+					ss.freq = (int)log(ss.freq);
 				}
 				ss.probability = ss.freq / total;
 				// System.out.println(d[0] + ":" + ss.sequence + " " + ss.freq +
@@ -149,6 +149,10 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	@Override
 	public void addProbabilityListener(ProbabilityListener pbl) {
 		probabilityListeners.add(pbl);
+	}
+
+	public double log(float f){
+		return Math.log(f);
 	}
 
 }

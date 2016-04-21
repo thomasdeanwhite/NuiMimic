@@ -7,6 +7,7 @@ import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -36,6 +37,7 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 	public RandomTemplateFrameSelector(String filename) {
 		try {
+			SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
 			App.out.println("* Setting up NGram Frame Selection");
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;

@@ -8,14 +8,15 @@ import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
+import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.sampler.output.DctStateComparator;
-
 import org.apache.commons.cli.*;
 
 import javax.imageio.ImageIO;
@@ -40,10 +41,21 @@ public class App implements ThrowableListener {
     private static boolean ENABLE_APPLICATION_OUTPUT = false;
     private static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
+    public static boolean INSTRUMENT_FOR_TESTING = true;
+
+
+    private static int relatedLines = 0;
+    private static int relatedBranches = 0;
+
+    private static ArrayList<ClassTracker> relatedClasses = new ArrayList<ClassTracker>();
+
+    public static int timePassed = 0;
 
     //check states every x-ms
     public static final long STATE_CHECK_TIME = 5000;
     public long lastStateCheck = 0;
+
+    ArrayList<String> classSeen = new ArrayList<String>();
 
     private static Thread mainThread = null;
 
@@ -78,7 +90,28 @@ public class App implements ThrowableListener {
     @Override
     public void throwableThrown(Throwable t) {
         App.out.println("Throwable thrown! " + t.getLocalizedMessage());
-        output(true, 0);
+        File classes = new File("testing_output/errors/RUN" + Properties.CURRENT_RUN + "-error.log");
+        if (classes.getParentFile() != null) {
+            classes.getParentFile().mkdirs();
+        }
+        if (!classes.exists()){
+            try {
+                classes.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        String output = "";
+
+        for (StackTraceElement ste : t.getStackTrace()){
+            output += ste.getClassName() + "::" + ste.getMethodName() + "#" + ste.getLineNumber() + "\n";
+        }
+        try {
+            FileHandler.appendToFile(classes, output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        output(true, timePassed);
     }
 
     public static class ExitException extends SecurityException {
@@ -107,6 +140,10 @@ public class App implements ThrowableListener {
                     // throw new SecurityException("Cannot load LeapLibrary");
                 }
             }
+
+            if (perm.getName().toLowerCase().contains("fullscreen")){
+                throw new SecurityException("NO!");
+            }
         }
 
         @Override
@@ -127,6 +164,7 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                 }
+                App.getApp().output(true, timePassed);
                 super.checkExit(status);
             }
         }
@@ -163,6 +201,16 @@ public class App implements ThrowableListener {
         if (Properties.SHOW_HAND) {
             DISPLAY_WINDOW = new DisplayWindow();
         }
+        File f = null;
+        int testIndex = 0;
+        while (f == null || f.exists()) {
+            testIndex++;
+            f = FileHandler.generateTestingOutputFile("RUN" + testIndex + "-test-results");
+            if (f.getParentFile() != null && !f.getParentFile().exists()) {
+                f.getParentFile().mkdirs();
+            }
+        }
+        Properties.CURRENT_RUN = testIndex;
 
         ClassAnalyzer.addThrowableListener(new ThrowableListener() {
             @Override
@@ -183,7 +231,7 @@ public class App implements ThrowableListener {
                 @Override
                 public void write(int b) throws IOException {
                     // TODO Auto-generated method stub
-                    App.out.write(b);
+                    //App.out.write(b);
                 }
 
             }, true);
@@ -256,6 +304,10 @@ public class App implements ThrowableListener {
         options.addOption(OptionBuilder.withLongOpt("replace_fingers_method")
                 .withDescription("If using an older API, the Hand.fingers() method returns only extended fingers. If so use this flag.")
                 .create("replace_fingers_method"));
+
+        options.addOption(OptionBuilder.withLongOpt("leave_leapmotion_alone")
+                .withDescription("This will only instrument testing options into SUT.")
+                .create("leave_leapmotion_alone"));
 
         options.addOption(OptionBuilder.withLongOpt("delayLibrary")
                 .withDescription("Use if getting a Library Already Loaded error.")
@@ -330,15 +382,15 @@ public class App implements ThrowableListener {
             }
             if (!IS_INSTRUMENTING) {
                 Gson g = new Gson();
-                File playback = new File("branches.csv");
-                if (playback.getAbsoluteFile().exists()) {
+                File branches = new File("branches.csv");
+                if (branches.getAbsoluteFile().exists()) {
                     try {
-                        String branchesString = FileHandler.readFile(playback);
+                        String branchesString = FileHandler.readFile(branches);
                         Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
                         }.getType();
                         ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
 
-                        App.out.println("- Found branches file at: " + playback.getAbsolutePath());
+                        App.out.println("- Found branches file at: " + branches.getAbsolutePath());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -358,10 +410,34 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                 }
+
+                File relatedFile = new File("related_classes.csv");
+                if (relatedFile.getAbsoluteFile().exists()) {
+                    try {
+                        String[] classes = FileHandler.readFile(relatedFile).split("\n");
+                        ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length-1);
+                        for (int i = 1; i < classes.length; i++){
+                            if (classes[i].length() > 0) {
+                                String[] clInfo = classes[i].split(",");
+                                int lines = Integer.parseInt(clInfo[1]);
+                                relatedLines += lines;
+                                int brans = Integer.parseInt(clInfo[2]);
+                                relatedBranches += brans;
+                                clas.add(new ClassTracker(clInfo[0], lines, brans));
+                            }
+                        }
+                        relatedClasses = clas;
+
+                        App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
+                        App.out.println("[" + relatedLines + " related lines, " + relatedBranches + " related branches]");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             for (int i = 0; i < Properties.GESTURE_FILES.length; i++) {
-                Properties.GESTURE_FILES[i] = Properties.GESTURE_FILES[i] + "-" + Properties.NGRAM_TYPE;
+                Properties.GESTURE_FILES[i] = Properties.GESTURE_FILES[i];
             }
 
             if (Properties.INSTRUMENTED_PACKAGES == null) {
@@ -371,6 +447,10 @@ public class App implements ThrowableListener {
             if (cmd.hasOption("recording")) {
                 App.out.println("- Recording mode activated.");
                 Properties.RECORDING = true;
+            }
+
+            if (cmd.hasOption("leave_leapmotion_alone")){
+                INSTRUMENT_FOR_TESTING = false;
             }
 
             if (cmd.hasOption("replace_fingers_method")) {
@@ -403,7 +483,7 @@ public class App implements ThrowableListener {
         App.out.print("- Instrumenting JAR with options: ");
         String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
                 "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
-                "org/junit"};
+                "org/junit", "Launcher"};
         for (String s : defaultHiddenPackages) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
@@ -428,18 +508,56 @@ public class App implements ThrowableListener {
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
 
 
-            ArrayList<DependencyTree.ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.sodiumarc.leapmotion");
+            ArrayList<DependencyTree.ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
             HashSet<String> lines = new HashSet<String>();
+            ArrayList<String> relatedClasses = new ArrayList<String>();
             for (DependencyTree.ClassNode cn : nodes) {
-                String[] link = cn.toString().split("\n");
+                String[] link = cn.toNomnoml().split("\n");
                 for (String s : link) {
                     lines.add(s);
                 }
+                String[] classes = cn.toString().split("\n");
+
+                for (String s : classes){
+                    if (s.length() > 0){
+                        if (!s.contains("com.leapmotion.leap") && !relatedClasses.contains(s)){
+                            relatedClasses.add(s);
+                            App.out.println(s);
+                        }
+                    }
+                }
             }
+
+            ArrayList<DependencyTree.ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
+
+            for (DependencyTree.ClassNode cn : options){
+                App.out.println("OPTIONS: " + cn.toNomnoml());
+            }
+
 
             for (String s : lines) {
                 App.out.println(s);
             }
+
+            String related = dir + "related_classes.csv";
+
+            File relatedFile = new File(related);
+
+            if (!relatedFile.exists()){
+                relatedFile.createNewFile();
+            }
+
+            String classes = "";
+
+            for (String c: relatedClasses){
+                if (c == null || c.length() == 0){
+                    continue;
+                }
+                classes += c + "," + ClassAnalyzer.getCoverableLines(c).size() + "," + ClassAnalyzer.getCoverableBranches(c).size() + "\n";
+            }
+            FileHandler.writeToFile(relatedFile, "class,lines,branches\n");
+            FileHandler.appendToFile(relatedFile, classes);
+
         } catch (Exception e) {
             e.printStackTrace(App.out);
         }
@@ -510,8 +628,8 @@ public class App implements ThrowableListener {
                 long lastTimeRecorded = 0;
                 while (app.status() != AppStatus.FINISHED) {
                     int timePassed = (int) (System.currentTimeMillis() - lastTime);
+                    app.tick();
                     try {
-                        app.tick();
                         int d = delay - timePassed;
                         if (d >= 0) {
                             Thread.sleep(d);
@@ -521,7 +639,7 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                     if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL) {
-                        ClassAnalyzer.collectHitCounters();
+                        ClassAnalyzer.collectHitCounters(false);
                         App.getApp().output(false, (int) (System.currentTimeMillis() - startTime));
                         lastTimeRecorded = lastTime;
                     }
@@ -532,7 +650,7 @@ public class App implements ThrowableListener {
                 }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters(false);
-                int timePassed = (int) (System.currentTimeMillis() - startTime);
+                timePassed = (int) (System.currentTimeMillis() - startTime);
                 App.getApp().output(true, timePassed);
                 System.exit(0);
 
@@ -576,10 +694,66 @@ public class App implements ThrowableListener {
                 csv.createNewFile();
             }
             ClassAnalyzer.setOut(App.out);
-            String info = ClassAnalyzer.toCsv(newFile, runtime, "startingStates,statesFound,finalState");
+            StringBuilder linesHit = new StringBuilder();
+
+            for (LineHit lh : ClassAnalyzer.getLinesCovered()) {
+                String className = lh.getLine().getClassName();
+                if (classSeen.contains(className)){
+                    className = "" + classSeen.indexOf(className);
+                } else {
+                    File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                    if (classes.getParentFile() != null) {
+                        classes.getParentFile().mkdirs();
+                    }
+                    if (!classes.exists()){
+                        classes.createNewFile();
+                    }
+                    classSeen.add(className);
+                    FileHandler.appendToFile(classes, className + ":");
+                    className = "" + classSeen.indexOf(className);
+                    FileHandler.appendToFile(classes, className + "\n");
+                }
+                linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
+            }
+            String info = ClassAnalyzer.toCsv(newFile, runtime, "starting_states,states_found,states_discovered," +
+                    "final_sate,related_lines_total,related_lines_covered,related_line_coverage," +
+                    "related_branches_total,related_branches_covered,relate_branch_coverage");
             int states = DctStateComparator.statesVisited.size();
-            info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getCurrentState();
+            info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
+
+
+            int lineHits = 0;
+            int branchHits = 0;
+            if (relatedClasses.size() > 0){
+                for (ClassTracker ct : relatedClasses){
+                    for (Line l : ClassAnalyzer.getCoverableLines(ct.className)){
+                        if (l.getHits() > 0){
+                            lineHits++;
+                        }
+                    }
+
+                    for (Branch b : ClassAnalyzer.getCoverableBranches(ct.className)){
+                        if (b.getFalseHits() > 0 && b.getTrueHits() > 0){
+                            branchHits++;
+                        }
+                    }
+                }
+                info += "," + relatedLines + "," + lineHits + "," + (lineHits/(float)relatedLines) + "," +
+                relatedBranches + "," + branchHits + "," + (branchHits/(float)relatedBranches);
+            } else {
+                info += ",0,0,0,0,0,0";
+            }
             FileHandler.appendToFile(csv, info + "\n");
+
+            File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
+            if (classes.getParentFile() != null) {
+                classes.getParentFile().mkdirs();
+            }
+            if (!classes.exists()){
+                classes.createNewFile();
+            }
+
+            FileHandler.appendToFile(classes, linesHit.toString() + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

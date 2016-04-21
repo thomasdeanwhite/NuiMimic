@@ -40,12 +40,10 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
     public static final String[] STATE_MODELS = {".state.hand_position_data",
     ".state.hand_rotation_data", ".state.joint_position_data", ".state.gesture_data"};
-    
-    private int testIndex = 0;
-    
-    public File generateFile(String name){
-    	File f = new File("testing_output/unit_tests/" + name + ".lmut");
-        return f;
+
+
+    public File generateFile(String filename){
+        return FileHandler.generateTestingOutputFile(filename);
     }
 
 	public StateRelatedStaticDistanceFrameSelector() {
@@ -53,19 +51,6 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
-        if (WRITE_LOGS_TO_FILE){
-        	File f = null;
-
-        	while (f == null || f.exists()) {
-                testIndex++;
-                f = generateFile("hand_positions-" + testIndex);
-        		if (f.getParentFile() != null && !f.getParentFile().exists()){
-        			f.getParentFile().mkdirs();
-        		}
-        	}
-        }
-
-        Properties.CURRENT_RUN = testIndex;
 
         HashMap<String, Integer[]> stateCache = new HashMap<String, Integer[]>();
 		for (String s : gestures){
@@ -142,6 +127,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 ProbabilityTracker positionPbt = new ProbabilityTracker(stateModels.get(0), totalModels.get(0));
                 ProbabilityTracker rotationPbt = new ProbabilityTracker(stateModels.get(1), totalModels.get(1));
                 NGramFrameModifier ngfm = new NGramFrameModifier(s);
+                int testIndex = Properties.CURRENT_RUN;
                 File pFile = generateFile("hand_positions-" + testIndex);
                 pFile.createNewFile();
                 File rFile = generateFile("hand_rotations-" + testIndex);

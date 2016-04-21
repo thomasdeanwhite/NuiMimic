@@ -8,7 +8,6 @@ import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,13 +46,11 @@ public class LeapMotionApplicationHandler {
 
 		INSTRUMENTING_CLASS_LOADER.setBuildDependencyTree(true);
 
+		INSTRUMENTING_CLASS_LOADER.getClassReplacementTransformer().setWriteClasses(true);
+
+
+
 		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
-		INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
-			@Override
-			public ClassVisitor intercept(ClassVisitor parent, String name) {
-				return new TestingClassAdapter(parent, name);
-			}
-		});
 		
 		nonDependancies = new ArrayList<String>();
 	}
@@ -114,6 +111,14 @@ public class LeapMotionApplicationHandler {
 
 	public static void instrumentJar(String jar) throws MalformedURLException {
 		String jarFilePath = "file:/" + jar;
+
+			INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
+				@Override
+				public ClassVisitor intercept(ClassVisitor parent, String name) {
+					return new TestingClassAdapter(parent, name);
+				}
+			});
+
 
 		if (!JAR_LOADED) {
 			loadJar(jar);
@@ -181,60 +186,8 @@ public class LeapMotionApplicationHandler {
 
 	}
 
-	public static void loadAgent(String agentJar) {
-		// String runningVm = ManagementFactory.getRuntimeMXBean().getName();
-		// int endOfPId = runningVm.indexOf("@");
-		// String pId = runningVm.substring(0, endOfPId);
-		//
-		// try {
-		// virtualMachine = VirtualMachine.attach(pId);
-		//
-		// virtualMachine.loadAgent(agentJar);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-	}
-
-	public static void cleanUp() {
-		// try {
-		// virtualMachine.detach();
-		// } catch (Throwable t) {
-		// // TODO Auto-generated catch block
-		// t.printStackTrace();
-		// }
-	}
-
-	private static Method classpathMethod = null;
-
 	public static void addUrlToSystemClasspath(URL url) {
 		INSTRUMENTING_CLASS_LOADER.addURL(url);
-
-//		try {
-//			URLClassLoader sloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-//			if (classpathMethod == null) {
-//				Class sclass = URLClassLoader.class;
-//				Method method = sclass.getDeclaredMethod("addURL", parameters);
-//				method.setAccessible(true);
-//				classpathMethod = method;
-//			}
-//			classpathMethod.invoke(sloader, new Object[] { url });
-//		} catch (IllegalAccessException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IllegalArgumentException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (InvocationTargetException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (NoSuchMethodException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (SecurityException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//
-//		}
 	}
 
 }

@@ -20,7 +20,7 @@ public class SamplerApp extends Listener {
 
     private static SamplerApp APP;
 
-    public static final long[] BREAK_TIMES = new long[]{300000, 600000, 1200000};
+    public static final long[] BREAK_TIMES = new long[]{1200000};
 
     public static boolean USE_CONTROLLER = true;
     public static PrintStream out = System.out;
@@ -190,6 +190,11 @@ public class SamplerApp extends Listener {
                                 + ManagementFactory.getRuntimeMXBean().getName();
 
                         frameDeconstructor.setUniqueId(uniqueId);
+                        if (frame.gestures().count() > 0){
+                            for (Gesture g : frame.gestures()){
+                                frameDeconstructor.setCurrentGesture(g.type().name());
+                            }
+                        }
                         String frameAsString = HandFactory.handToString(uniqueId, h);
                         try {
                             frameDeconstructor.outputJointPositionModel(frameAsString);

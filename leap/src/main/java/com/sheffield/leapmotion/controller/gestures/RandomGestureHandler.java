@@ -11,13 +11,14 @@ public class RandomGestureHandler extends NoneGestureHandler {
 	private SeededCircleGesture scg;
 	private SeededSwipeGesture ssg;
 
+
 	@Override
 	public GestureList handleFrame(Frame frame) {
 		frame = clearFrame(frame);
 		
 		SeededGestureList gl = new SeededGestureList();
 
-		super.advanceGestures();
+		advanceGestures();
 
 		if (gestureType == Gesture.Type.TYPE_INVALID)
 			return gl;
@@ -68,5 +69,36 @@ public class RandomGestureHandler extends NoneGestureHandler {
 		}
 		return g;
 	}
-	
+
+	public void advanceGestures(){
+		super.advanceGestures();
+		if (gestureState == null || gestureType == null || gestureState == Gesture.State.STATE_STOP){
+			gestureState = Gesture.State.STATE_START;
+			//currentGesture = analyzer.getDataAnalyzer().next();
+			gestureType = randomType();
+
+			cumalitiveGesturePositions = Vector.zero();
+			gestureCount = 0;
+			cumalitiveGesturePositions = Vector.zero();
+			gestureDuration = 3;
+			gestureStart = System.currentTimeMillis()-gestureDuration;
+			gestureCount = 0;
+		} else {
+			if (gestureState == Gesture.State.STATE_UPDATE) {
+				long chance = random.nextInt(gestureDuration);
+
+
+				if (chance > GESTURE_TIME_LIMIT) {
+					gestureState = Gesture.State.STATE_STOP;
+				}
+
+			} else {
+				gestureState = Gesture.State.STATE_UPDATE;
+			}
+			//update times
+			gestureDuration = (int) (System.currentTimeMillis() - gestureStart);
+		}
+	}
+
+
 }

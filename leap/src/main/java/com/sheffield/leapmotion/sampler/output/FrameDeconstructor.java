@@ -25,6 +25,7 @@ public class FrameDeconstructor {
 
 
     private File currentDct;
+    private File currentDctGestures;
     private File currentSequence;
     private File currentHands;
     private File currentPosition;
@@ -56,7 +57,7 @@ public class FrameDeconstructor {
     }
     
     public void setCurrentGesture(String g) {
-        currentGesture = g;
+        gestures.add(g);
     }
 
     public void setFilenameStart(String fns) {
@@ -75,6 +76,7 @@ public class FrameDeconstructor {
         currentSequence = null;
         currentGestures = null;
         currentDct = null;
+        currentDctGestures = null;
 
         this.breakIndex = breakIndex;
     }
@@ -171,6 +173,11 @@ public class FrameDeconstructor {
             currentDct.getParentFile().mkdirs();
             currentDct.createNewFile();
         }
+        if (currentDctGestures == null) {
+            currentDctGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct_gestures");
+            currentDctGestures.getParentFile().mkdirs();
+            currentDctGestures.createNewFile();
+        }
         if (lastStateCapture + STATE_CAPTURE_TIME < System.currentTimeMillis()) {
             App.out.print(" Capturing State");
             lastStateCapture = System.currentTimeMillis();
@@ -180,6 +187,8 @@ public class FrameDeconstructor {
 
                 if (output != null && output.length() > 0) {
                     FileHandler.appendToFile(currentDct, "\n" + output + ":");
+                    FileHandler.appendToFile(currentDctGestures, "\n" + output + ":");
+
                 }
             } catch (Exception e){
                 e.printStackTrace(App.out);
@@ -199,14 +208,18 @@ public class FrameDeconstructor {
             handIds.clear();
         }
         
-        FileHandler.appendToFile(currentDct, ":");
-        
         if (gestures.size() > 0) {
             String gests= "";
             for (int i = 0; i < gestures.size(); i++) {
-                gests += gestures.get(i) + ",";
+                if (gestures.get(i).length() > 1) {
+                    gests += gestures.get(i) + ",";
+                } else {
+                    gests += Gesture.Type.TYPE_INVALID + ",";
+                }
             }
-            FileHandler.appendToFile(currentDct, gests);
+            if (gests.length() > 1) {
+                FileHandler.appendToFile(currentDctGestures, gests);
+            }
             gestures.clear();
         }
     }

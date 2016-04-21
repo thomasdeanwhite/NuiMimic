@@ -53,4 +53,9 @@ public class FileHandler {
 	public static void appendToFile(File file, String data) throws IOException {
 		Files.write(Paths.get(file.getAbsolutePath()), data.getBytes(), StandardOpenOption.APPEND);
 	}
+
+	public static File generateTestingOutputFile(String name){
+		File f = new File("testing_output/logs/" + name + ".csv");
+		return f;
+	}
 }

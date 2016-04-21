@@ -99,7 +99,32 @@ public class DependencyTree {
 
         }
 
+        public String toNomnoml() {
+            ArrayList<String> seen = new ArrayList<String>(children.size());
+            return toNomnoml(seen);
+
+        }
+
         private String toString(ArrayList<String> seen) {
+            String s = "";//[" + className + "]";
+            if (seen.contains(className)) {
+                return "";
+            } else {
+                s += className + "\n";
+            }
+            seen.add(className);
+            for (ClassNode cn : children) {
+                if (seen.contains(cn.getClassName())) {
+                    continue;
+                }
+                s += cn.getClassName() + "\n";
+                s += cn.toString(seen);
+                //seen.remove(cn.getClassName());
+            }
+            return s;
+        }
+
+        private String toNomnoml(ArrayList<String> seen) {
             String s = "";//[" + className + "]";
             if (seen.contains(className)) {
                 return "";
@@ -110,7 +135,7 @@ public class DependencyTree {
                     continue;
                 }
                 s += "\n[" + className + "]<--[" + cn.getClassName() + "]\n";
-                s += cn.toString(seen);
+                s += cn.toNomnoml(seen);
                 //seen.remove(cn.getClassName());
             }
             return s;

@@ -36,7 +36,7 @@ public class Properties implements PropertySource {
 
 	public static int SWITCH_TIME = 500;
 
-	public static long DELAY_TIME = 2000;
+	public static long DELAY_TIME = 500;
 
 	public static boolean SMOOTH_ANIMATION = true;
 

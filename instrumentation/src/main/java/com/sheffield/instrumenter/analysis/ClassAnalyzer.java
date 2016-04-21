@@ -618,6 +618,29 @@ public class ClassAnalyzer {
     }
   }
 
+  public static int getClassId(String className) {
+    return classNames.get(className);
+  }
+
+  public static ArrayList<LineHit> getLinesCovered() {
+    collectHitCounters(false);
+
+    ArrayList<LineHit> coveredLines = new ArrayList<LineHit>();
+
+    for (Integer i : lines.keySet()) {
+      Map<Integer, LineHit> h = lines.get(i);
+
+      for (LineHit l : h.values()) {
+        if (l.getLine().getHits() > 0) {
+          coveredLines.add(l);
+        }
+      }
+    }
+
+    return coveredLines;
+
+  }
+
   public static void resetHitCounters(Class<?> cl) {
     try {
       Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME, new Class[] {});
@@ -634,6 +657,10 @@ public class ClassAnalyzer {
   }
 
   public static List<Line> getCoverableLines(String className) {
+    if (className == null) {
+      return new ArrayList<Line>();
+    }
+    className = className.replace("/", ".");
     int classId = classNames.get(className);
     if (!lines.containsKey(classId)) {
       return Collections.<Line> emptyList();
@@ -645,12 +672,11 @@ public class ClassAnalyzer {
     return coverableLines;
   }
 
-  public static int getClassId(String className) {
-    return classNames.get(className);
-  }
-
   public static List<Branch> getCoverableBranches(String className) {
-    int classId = classNames.get(className);
+    if (className == null) {
+      return new ArrayList<Branch>();
+    }
+    int classId = classNames.get(className.replace("/", "."));
     if (!branches.containsKey(classId)) {
       return Collections.<Branch> emptyList();
     }
