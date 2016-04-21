@@ -1,14 +1,11 @@
 package com.sheffield.instrumenter.instrumentation.objectrepresentation;
 
-public class Branch {
-	private String className;
-	private int lineNumber;
+public class Branch extends CoverableGoal {
 	private int trueHits;
 	private int falseHits;
 
 	public Branch(String className, int lineNumber) {
-		this.className = className;
-		this.lineNumber = lineNumber;
+		super(className, lineNumber);
 	}
 
 	public void trueHit(int trueHits) {
@@ -30,14 +27,6 @@ public class Branch {
 	public void reset() {
 		trueHits = 0;
 		falseHits = 0;
-	}
-
-	public String getClassName() {
-		return className;
-	}
-
-	public int getLineNumber() {
-		return lineNumber;
 	}
 
 	@Override

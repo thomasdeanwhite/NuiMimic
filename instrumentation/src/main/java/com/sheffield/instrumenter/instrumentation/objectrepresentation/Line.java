@@ -1,13 +1,10 @@
 package com.sheffield.instrumenter.instrumentation.objectrepresentation;
 
-public class Line {
-	private String className;
-	private int lineNumber;
+public class Line extends CoverableGoal {
 	private int hits;
 
 	public Line(String className, int lineNumber) {
-		this.className = className;
-		this.lineNumber = lineNumber;
+		super(className, lineNumber);
 	}
 
 	public void hit(int newHits) {
@@ -22,20 +19,8 @@ public class Line {
 		hits = 0;
 	}
 
-	public String getClassName() {
-		return className;
-	}
-
-	public int getLineNumber() {
-		return lineNumber;
-	}
-
 	@Override
 	public String toString() {
 		return String.valueOf(lineNumber);
-	}
-
-	public void setClassName (String name){
-		className = name;
 	}
 }
