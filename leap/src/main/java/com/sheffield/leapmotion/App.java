@@ -639,7 +639,7 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                     if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL) {
-                        ClassAnalyzer.collectHitCounters();
+                        ClassAnalyzer.collectHitCounters(false);
                         App.getApp().output(false, (int) (System.currentTimeMillis() - startTime));
                         lastTimeRecorded = lastTime;
                     }
