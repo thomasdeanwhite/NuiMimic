@@ -57,7 +57,7 @@ public class MockJOptionPane {
 
     public static Object showInputDialog(Component c, Object m, String t, int mt,
                                   Icon i, Object[] sv, Object isv){
-        if (sv.length > 0){
+        if (sv != null && sv.length > 0){
             return sv[r.nextInt(sv.length)];
         }
         return showInputDialog(c, m);
