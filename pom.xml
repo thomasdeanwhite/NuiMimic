@@ -87,7 +87,6 @@
 	</build>
 
 	<modules>
-		<module>instrumentation</module>
 		<module>common</module>
 		<module>leap</module>
 	</modules>
