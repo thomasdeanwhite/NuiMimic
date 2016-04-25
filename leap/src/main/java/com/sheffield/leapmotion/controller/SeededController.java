@@ -41,6 +41,10 @@ public class SeededController extends Controller implements FrameSwitchListener 
 
 	public SeededController() {
 		super();
+		enableGesture(Gesture.Type.TYPE_SWIPE);
+		enableGesture(Gesture.Type.TYPE_KEY_TAP);
+		enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
+		enableGesture(Gesture.Type.TYPE_CIRCLE);
         App.getApp().setStatus(AppStatus.TESTING);
 		CONTROLLER = this;
 
@@ -262,7 +266,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 
 	@Override
 	public void enableGesture(Gesture.Type type) {
-		//super.enableGesture(type);
+		super.enableGesture(type);
 	}
 
 	@Override

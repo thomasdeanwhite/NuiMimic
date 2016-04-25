@@ -32,13 +32,11 @@ public class Properties implements PropertySource {
 	public static String PLAYBACK_FILE = null;
 
 	// Number of times to change frames per second
-	public static long SWITCH_RATE = 100;
+	public static long SWITCH_RATE = 30;
 
 	public static int SWITCH_TIME = 500;
 
 	public static long DELAY_TIME = 500;
-
-	public static boolean SMOOTH_ANIMATION = true;
 
 	public static String SUT = null;
 
@@ -53,10 +51,10 @@ public class Properties implements PropertySource {
 	public static String[] EXILED_CLASSES;
 
 	public enum FrameSelectionStrategy {
-		RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, STATIC_DISTANCE, RANDOM_TEMPLATE, STATE_RELATED_STATIC_DISTANCE
+		RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, SINGLE_MODEL, RANDOM_POOL, STATE_DEPENDANT
 	}
 
-	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_RELATED_STATIC_DISTANCE;
+	public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDANT;
 
 	public enum InstrumentationApproach {
 		STATIC, ARRAY, NONE

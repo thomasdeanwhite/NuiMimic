@@ -134,6 +134,7 @@ public class ScreenGrabber {
 			e.printStackTrace();
 		}
 		BufferedImage bi = robot.createScreenCapture(dimensions);
+		robot = null;
 		return bi;
 	}
 }
