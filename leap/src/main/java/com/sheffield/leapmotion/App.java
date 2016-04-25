@@ -483,7 +483,8 @@ public class App implements ThrowableListener {
         App.out.print("- Instrumenting JAR with options: ");
         String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
                 "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
-                "org/junit", "Launcher"};
+                "org/junit", "Launcher", "com/google", "org/apache", "net", "com/garg", "net/sourceforge",
+        "org", "java", "com/steady", "com/thought"};
         for (String s : defaultHiddenPackages) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }

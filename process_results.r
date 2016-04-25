@@ -1,4 +1,6 @@
-require(gtools)
+library(devtools)
+install_github("ndphillips/yarrr")
+library("yarrr")
 
 load_data <- function(filename){
   files <- list.files(path=filename, pattern="*test-results.csv", full.names=T, recursive=FALSE)
