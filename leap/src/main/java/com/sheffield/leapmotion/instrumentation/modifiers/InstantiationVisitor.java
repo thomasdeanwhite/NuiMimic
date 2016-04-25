@@ -116,13 +116,6 @@ public class InstantiationVisitor extends MethodVisitor {
         } else if (owner.equalsIgnoreCase(GD_CLASS)){
             //shouldCall = false;
             //super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(GE_CLASS) && name.equalsIgnoreCase("getDefaultScreenDevice")){
-            shouldCall = false;
-            super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_GD_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(GE_CLASS) && name.equalsIgnoreCase("getLocalGraphicsEnvironment")){
-            super.visitMethodInsn(opcode, owner, name, desc, itf);
-            //super.visitInsn(Opcodes.POP);
-            shouldCall = false;
         }
 
         if (shouldCall) {

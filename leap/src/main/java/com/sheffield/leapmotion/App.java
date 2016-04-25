@@ -28,10 +28,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Type;
 import java.security.Permission;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class App implements ThrowableListener {
     public static Random random = new Random();
@@ -43,6 +40,8 @@ public class App implements ThrowableListener {
     public static int RECORDING_INTERVAL = 60000;
     public static boolean INSTRUMENT_FOR_TESTING = true;
 
+
+    public static float LAST_LINE_COVERAGE = 0f;
 
     private static int relatedLines = 0;
     private static int relatedBranches = 0;
@@ -696,8 +695,8 @@ public class App implements ThrowableListener {
             }
             ClassAnalyzer.setOut(App.out);
             StringBuilder linesHit = new StringBuilder();
-
-            for (LineHit lh : ClassAnalyzer.getLinesCovered()) {
+            ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
+            for (LineHit lh : linesCovered) {
                 String className = lh.getLine().getClassName();
                 if (classSeen.contains(className)){
                     className = "" + classSeen.indexOf(className);
@@ -719,6 +718,7 @@ public class App implements ThrowableListener {
             String info = ClassAnalyzer.toCsv(newFile, runtime, "starting_states,states_found,states_discovered," +
                     "final_sate,related_lines_total,related_lines_covered,related_line_coverage," +
                     "related_branches_total,related_branches_covered,relate_branch_coverage");
+            LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = DctStateComparator.statesVisited.size();
             info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
 
@@ -726,21 +726,22 @@ public class App implements ThrowableListener {
             int lineHits = 0;
             int branchHits = 0;
             if (relatedClasses.size() > 0){
-                for (ClassTracker ct : relatedClasses){
-                    for (Line l : ClassAnalyzer.getCoverableLines(ct.className)){
-                        if (l.getHits() > 0){
-                            lineHits++;
+                    for (ClassTracker ct : relatedClasses) {
+                        List<Line> lines = ClassAnalyzer.getCoverableLines(ct.className);
+                        for (Line l : lines) {
+                            if (l.getHits() > 0) {
+                                lineHits++;
+                            }
+                        }
+                        List<Branch> branches = ClassAnalyzer.getCoverableBranches(ct.className);
+                        for (Branch b : branches) {
+                            if (b.getFalseHits() > 0 && b.getTrueHits() > 0) {
+                                branchHits++;
+                            }
                         }
                     }
-
-                    for (Branch b : ClassAnalyzer.getCoverableBranches(ct.className)){
-                        if (b.getFalseHits() > 0 && b.getTrueHits() > 0){
-                            branchHits++;
-                        }
-                    }
-                }
-                info += "," + relatedLines + "," + lineHits + "," + (lineHits/(float)relatedLines) + "," +
-                relatedBranches + "," + branchHits + "," + (branchHits/(float)relatedBranches);
+                    info += "," + relatedLines + "," + lineHits + "," + (lineHits / (float) relatedLines) + "," +
+                            relatedBranches + "," + branchHits + "," + (branchHits / (float) relatedBranches);
             } else {
                 info += ",0,0,0,0,0,0";
             }
@@ -766,6 +767,7 @@ public class App implements ThrowableListener {
 
     public void tick() {
         long time = System.currentTimeMillis();
+        timeBetweenSwitch = 1000 / Properties.SWITCH_RATE;
 
         if (time - lastSwitchTime > timeBetweenSwitch) {
             SeededController sc = SeededController.getSeededController();
@@ -786,7 +788,7 @@ public class App implements ThrowableListener {
 
         String progress = "[";
 
-        final int bars = 50;
+        final int bars = 30;
         float percent = runtime / (float) Properties.RUNTIME;
         int b1 = (int) (percent * bars);
         for (int i = 0; i < b1; i++) {
@@ -798,7 +800,7 @@ public class App implements ThrowableListener {
             progress += " ";
         }
         progress += "] " + ((int) (percent * 1000)) / 10f + "%";
-        out.print("\rExecuting: " + progress);
+        out.print("\rExecuting: " + progress + ". Coverage: " + LAST_LINE_COVERAGE);
 
         if (runtime > Properties.RUNTIME) {
             status = AppStatus.FINISHED;

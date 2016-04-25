@@ -5,7 +5,6 @@ import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -35,7 +34,7 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 
 	@Override
 	public Frame newFrame() {
-		SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
+		//SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
 		Frame f = SeededController.newFrame();
 		if (nextHand == null) {
 			nextHand = HandFactory.createRandomHand(f, "hand" + handId++);

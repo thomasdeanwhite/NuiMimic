@@ -25,7 +25,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 	
 	public UserPlaybackFrameSelector(FrameSelector frameSelector) {
 		lastSwitchRate = Properties.SWITCH_RATE;
-		Properties.SWITCH_RATE = lastSwitchRate;
+		Properties.SWITCH_RATE = 30;
 		backupFrameSelector = frameSelector;
 		try {
 			lineIterator = FileUtils.lineIterator(new File(Properties.PLAYBACK_FILE));
