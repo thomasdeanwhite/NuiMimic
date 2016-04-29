@@ -4,6 +4,7 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
@@ -22,11 +23,14 @@ public class NGramFrameSelector extends FrameSelector {
 	
 	private ArrayList<NGramLog> logs;
 
-	private int currentFrame;
 	private int currentAnimationTime = 0;
 	private long lastSwitchTime = 0;
+
+	private ArrayList<SeededHand> seededHands;
+	private ArrayList<String> seededLabels;
+
 	private SeededHand lastHand;
-	private SeededHand nextHand;
+	private String lastLabel;
 	private AnalyzerApp analyzer;
 	private File outputFile;
 	
@@ -50,6 +54,9 @@ public class NGramFrameSelector extends FrameSelector {
 			logs = new ArrayList<NGramLog>();
 			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
 			hands = new HashMap<String, SeededHand>();
+
+			seededHands = new ArrayList<SeededHand>();
+			seededLabels = new ArrayList<String>();
 
 			String contents = FileHandler.readFile(new File(clusterFile));
 			String[] lines = contents.split("\n");
@@ -77,19 +84,43 @@ public class NGramFrameSelector extends FrameSelector {
 
 	@Override
 	public Frame newFrame() {
-		if (nextHand == null) {
-			nextHand = hands.get(analyzer.getDataAnalyzer().next());
+		while (lastHand == null){
+			lastLabel = analyzer.getDataAnalyzer().next();
+			lastHand = hands.get(lastLabel);
 		}
+		while (seededHands.size() < BezierHelper.BEZIER_NUMBER){
+			if (!seededHands.contains(lastHand)){
+				seededHands.clear();
+				seededHands.add(0, lastHand);
+				seededLabels.clear();
+				seededLabels.add(lastLabel);
+			} else {
+				String label = analyzer.getDataAnalyzer().next();
+				Hand h = hands.get(label);
+				if (h != null && h instanceof SeededHand) {
+					seededHands.add((SeededHand) h);
+					seededLabels.add(label);
+				}
+			}
+		}
+//		if (nextHand == null) {
+//			nextHand = hands.get(analyzer.getDataAnalyzer().next());
+//		}
 
 		if (currentAnimationTime >= Properties.SWITCH_TIME) {
 			// load next frame
-			currentAnimationTime -= Properties.SWITCH_TIME;
-			lastHand = nextHand;
+			currentAnimationTime = 0;
+			lastHand = seededHands.get(seededHands.size() - 1);
+			lastLabel = seededLabels.get(seededLabels.size() - 1);
 			String handValue = "";
-			do {
-				handValue = analyzer.getDataAnalyzer().next();
-				nextHand = hands.get(handValue);
-			} while (nextHand == null || nextHand.fingers() == null);
+
+			for (int i = 0; i < seededLabels.size(); i++){
+				handValue += seededLabels.get(i) + ",";
+			}
+
+			seededHands.clear();
+			seededLabels.clear();
+
 			NGramLog ngLog = new NGramLog();
 			ngLog.element = handValue;
 			ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
@@ -103,12 +134,13 @@ public class NGramFrameSelector extends FrameSelector {
 				}
 			}
 			lastSwitchTime = System.currentTimeMillis();
+			return newFrame();
 		} else {
 			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 		}
 		Frame f = SeededController.newFrame();
 		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
-		Hand newHand = lastHand.fadeHand(nextHand, modifier);
+		Hand newHand = lastHand.fadeHand(seededHands, modifier);
 		f = HandFactory.injectHandIntoFrame(f, newHand);
 
 		return f;

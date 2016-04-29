@@ -13,12 +13,22 @@ import java.util.ArrayList;
 public class SeededController extends Controller implements FrameSwitchListener {
 
 	public static SeededController CONTROLLER;
+	private static boolean initializing = false;
 
 	public static SeededController getSeededController() {
+		while (initializing){
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		if (CONTROLLER == null) {
+			initializing = true;
 			CONTROLLER = new SeededController();
 			App.startTesting();
 			CONTROLLER.setup();
+			initializing = false;
 			//CONTROLLER.setGestureHandler(new NGramGestureHandler(Properties.GESTURE_FILES[0]));
 		}
 		return CONTROLLER;

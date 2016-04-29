@@ -7,7 +7,6 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.ClassTracker;
 import com.sheffield.leapmotion.FileHandler;
-import sun.plugin.dom.exception.InvalidStateException;
 
 import java.io.File;
 import java.io.IOException;
@@ -103,7 +102,7 @@ public class ResultProcessor {
                     lineInfo = l[l.length - trim];
                     trim++;
                     if (trim > l.length) {
-                        throw new InvalidStateException(linesCovered + " is in an invalid format (maybe empty).");
+                        throw new Exception(linesCovered + " is in an invalid format (maybe empty).");
                     }
                 }
 

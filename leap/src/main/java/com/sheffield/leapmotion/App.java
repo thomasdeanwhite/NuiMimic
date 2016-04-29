@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
@@ -508,10 +509,10 @@ public class App implements ThrowableListener {
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
 
 
-            ArrayList<DependencyTree.ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
+            ArrayList<ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
             HashSet<String> lines = new HashSet<String>();
             ArrayList<String> relatedClasses = new ArrayList<String>();
-            for (DependencyTree.ClassNode cn : nodes) {
+            for (ClassNode cn : nodes) {
                 String[] link = cn.toNomnoml().split("\n");
                 for (String s : link) {
                     lines.add(s);
@@ -528,9 +529,9 @@ public class App implements ThrowableListener {
                 }
             }
 
-            ArrayList<DependencyTree.ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
+            ArrayList<ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
 
-            for (DependencyTree.ClassNode cn : options){
+            for (ClassNode cn : options){
                 App.out.println("OPTIONS: " + cn.toNomnoml());
             }
 
@@ -768,9 +769,8 @@ public class App implements ThrowableListener {
     public void tick() {
         long time = System.currentTimeMillis();
         timeBetweenSwitch = 1000 / Properties.SWITCH_RATE;
-
+        SeededController sc = SeededController.getSeededController();
         if (time - lastSwitchTime > timeBetweenSwitch) {
-            SeededController sc = SeededController.getSeededController();
             sc.tick();
             lastSwitchTime = time;
         }
