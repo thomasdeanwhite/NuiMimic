@@ -50,7 +50,6 @@ public class NGramGestureHandler extends RandomGestureHandler {
 		if (gestureState == null || gestureTypes.size() == 0 || gestureState == Gesture.State.STATE_STOP){
 			while (currentGesture == null || currentGesture.equals("NULL")){
 				currentGesture = analyzer.getDataAnalyzer().next();
-				App.out.println(currentGesture);
 			}
 			gestureState = Gesture.State.STATE_START;
 			//currentGesture = analyzer.getDataAnalyzer().next();

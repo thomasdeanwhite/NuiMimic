@@ -169,6 +169,7 @@ public class NGramFrameModifier implements FrameModifier {
         if (currentAnimationTime >= Properties.SWITCH_TIME) {
             NGramLog posLog = new NGramLog();
             posLog.element = "";
+            currentAnimationTime = 0;
 
             for (String s : positionLabels){
                 posLog.element += s + ",";
@@ -214,6 +215,9 @@ public class NGramFrameModifier implements FrameModifier {
             seededRotations.clear();
             positionLabels.clear();
             rotationLabels.clear();
+
+            modifyFrame(frame);
+            return;
 
         }
         Hand h = Hand.invalid();
