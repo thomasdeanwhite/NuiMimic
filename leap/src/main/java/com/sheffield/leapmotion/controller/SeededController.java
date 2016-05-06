@@ -19,7 +19,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 			try {
 				Thread.sleep(200);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				e.printStackTrace(App.out);
 			}
 		}
 		if (CONTROLLER == null) {
