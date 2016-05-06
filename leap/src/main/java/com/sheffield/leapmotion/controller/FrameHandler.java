@@ -2,8 +2,8 @@ package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
@@ -51,7 +51,7 @@ public class FrameHandler {
                 case EMPTY:
                     frameSelector = new EmptyFrameSelector();
                     break;
-                case RANDOM_POOL:
+                case VQ:
                     frameSelector = new RandomTemplateFrameSelector(Properties.GESTURE_FILES[0]);
                     break;
                 case STATE_DEPENDANT:

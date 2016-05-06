@@ -8,14 +8,12 @@ import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
-import com.sheffield.leapmotion.frameselectors.NGramFrameSelector;
 import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.BindException;
 import java.util.ArrayList;
 import java.util.HashMap;
 

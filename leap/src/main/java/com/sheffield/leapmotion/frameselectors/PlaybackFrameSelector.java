@@ -1,17 +1,17 @@
 package com.sheffield.leapmotion.frameselectors;
 
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.sheffield.instrumenter.Properties;
+import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.mocks.HandFactory;
+import com.sheffield.leapmotion.mocks.SeededHand;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.sheffield.leapmotion.mocks.HandFactory;
-import com.sheffield.leapmotion.mocks.SeededHand;
-import com.sheffield.leapmotion.FileHandler;
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.leapmotion.controller.SeededController;
 
 public class PlaybackFrameSelector extends FrameSelector {
 	private HashMap<String, SeededHand> hands;

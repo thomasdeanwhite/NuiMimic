@@ -1,8 +1,8 @@
 package com.sheffield.leapmotion.mocks;
 
 import com.leapmotion.leap.*;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.BezierHelper;
+import com.sheffield.leapmotion.Properties;
 
 import java.io.Serializable;
 import java.util.ArrayList;

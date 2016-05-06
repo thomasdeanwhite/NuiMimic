@@ -1,12 +1,10 @@
 package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.*;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.AppStatus;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
-import com.sheffield.leapmotion.sampler.SamplerApp;
 
 import java.util.ArrayList;
 
@@ -16,6 +14,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	private static boolean initializing = false;
 
 	public static SeededController getSeededController() {
+		App.out.println("Entered Seeded Controller");
 		while (initializing){
 			try {
 				Thread.sleep(200);
@@ -98,9 +97,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	@Override
 	public boolean addListener(Listener arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
-		if (Properties.RECORDING) {
-			return super.addListener(arg0);
-		}
+
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
 		}
@@ -131,17 +128,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	public Frame frame(int arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
 		frameRequested = true;
-		if (Properties.RECORDING) {
-			final Frame f = super.frame(arg0);
-			new Thread(new Runnable() {
-
-				public void run() {
-					SamplerApp.getApp().frame(f);
-				}
-
-			}).start();
-			return f;
-		}
 
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
@@ -154,9 +140,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	public boolean removeListener(Listener arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
 
-		if (Properties.RECORDING) {
-			return super.removeListener(arg0);
-		}
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
 		}

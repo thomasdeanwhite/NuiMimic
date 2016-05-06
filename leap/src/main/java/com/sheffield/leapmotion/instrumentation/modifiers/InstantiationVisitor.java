@@ -1,9 +1,9 @@
 package com.sheffield.leapmotion.instrumentation.modifiers;
 
 import com.leapmotion.leap.*;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
 import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
@@ -75,7 +75,7 @@ public class InstantiationVisitor extends MethodVisitor {
             methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
         }
         boolean shouldCall = true;
-        if (App.INSTRUMENT_FOR_TESTING) {
+        if (!Properties.LEAVE_LEAPMOTION_ALONE) {
             if (owner.equals(CONTROLLER_CLASS)) {
                 DependencyTree.getDependencyTree().addDependency("com.leapmotion.leap.Controller", className);
                 if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {

@@ -6,8 +6,6 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
-import com.sheffield.leapmotion.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
@@ -15,9 +13,7 @@ import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 public class ClusterPlaybackFrameSelector extends FrameSelector implements FrameModifier {

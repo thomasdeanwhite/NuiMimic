@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.sampler;
+package com.sheffield.instrumenter;
 
 import com.google.gson.Gson;
 import com.leapmotion.leap.Frame;

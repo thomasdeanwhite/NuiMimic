@@ -5,9 +5,9 @@ import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -15,6 +15,7 @@ import com.sheffield.leapmotion.mocks.SeededHand;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -23,22 +24,34 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 	private int currentAnimationTime = 0;
 	private long lastSwitchTime = 0;
+
 	private SeededHand lastHand;
-	private SeededHand nextHand;
+	private String lastLabel = null;
+	private ArrayList<SeededHand> seededHands;
+	private ArrayList<String> seededLabels;
+
 	private Random random = new Random();
 
 	private HashMap<String, Vector> vectors;
 	private HashMap<String, Vector[]> rotations;
+
 	private Vector lastPosition;
-	private Vector newPosition;
+	private String lastPositionLabel;
+	private ArrayList<Vector> seededPositions = new ArrayList<Vector>();
+	private ArrayList<String> positionLabels = new ArrayList<String>();
 
 	private Vector[] lastRotation;
-	private Vector[] newRotation;
+	private String lastRotationLabel;
+	private ArrayList<Vector[]> seededRotations = new ArrayList<Vector[]>();
+	private ArrayList<String> rotationLabels = new ArrayList<String>();
+
 
 	public RandomTemplateFrameSelector(String filename) {
 		try {
-			SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
-			App.out.println("* Setting up NGram Frame Selection");
+			seededHands = new ArrayList<SeededHand>();
+			seededLabels = new ArrayList<String>();
+			//SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
+			App.out.println("* Setting up VQ Frame Selector");
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
 			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
@@ -99,26 +112,72 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 	}
 
+	public String randomHand(){
+		return (String) hands.keySet().toArray()[random.nextInt(hands.keySet().size())];
+	}
+
+	public String randomPosition(){
+		return (String) vectors.keySet().toArray()[random.nextInt(vectors.keySet().size())];
+	}
+
+	public String randomRotation(){
+		return (String) rotations.keySet().toArray()[random.nextInt(rotations.keySet().size())];
+	}
+
 	@Override
 	public Frame newFrame() {
-		if (nextHand == null) {
-			nextHand = hands.get(hands.keySet().iterator().next());
+		while (lastHand == null){
+			lastLabel = randomHand();
+			lastHand = hands.get(lastLabel);
 		}
+		while (seededHands.size() < BezierHelper.BEZIER_NUMBER){
+			if (!seededHands.contains(lastHand)){
+				seededHands.clear();
+				seededHands.add(0, lastHand);
+				seededLabels.clear();
+				seededLabels.add(lastLabel);
+			} else {
+				String label = randomHand();
+				Hand h = hands.get(label);
+				if (h != null && h instanceof SeededHand) {
+					seededHands.add((SeededHand) h);
+					seededLabels.add(label);
+				}
+			}
+		}
+
+		System.out.println("HELLO");
 
 		if (currentAnimationTime >= Properties.SWITCH_TIME) {
 			// load next frame
-			currentAnimationTime -= Properties.SWITCH_TIME;
-			lastHand = nextHand;
-			do {
-				String key = (String) hands.keySet().toArray()[random.nextInt(hands.keySet().size())];
-				nextHand = hands.get(key);
-			} while (nextHand == null || nextHand.fingers() == null);
+			lastHand = seededHands.get(seededHands.size() - 1);
+			lastLabel = seededLabels.get(seededLabels.size() - 1);
+			seededHands.clear();
+			seededLabels.clear();
+
+			if (seededPositions.size() > 0 &&
+					seededRotations.size() > 0) {
+
+				lastPosition = seededPositions.get(seededPositions.size() - 1);
+				lastPositionLabel = positionLabels.get(positionLabels.size() - 1);
+				lastRotation = seededRotations.get(seededRotations.size() - 1);
+				lastRotationLabel = rotationLabels.get(rotationLabels.size() - 1);
+
+			}
+
+			seededPositions.clear();
+			seededRotations.clear();
+			positionLabels.clear();
+			rotationLabels.clear();
+
+			currentAnimationTime = 0;
 			lastSwitchTime = System.currentTimeMillis();
+			return newFrame();
 		}
 		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 		Frame f = SeededController.newFrame();
 		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
-		Hand newHand = lastHand.fadeHand(nextHand, modifier);
+		Hand newHand = lastHand.fadeHand(seededHands, modifier);
 		f = HandFactory.injectHandIntoFrame(f, newHand);
 
 		return f;
@@ -126,26 +185,63 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 	@Override
 	public void modifyFrame(SeededFrame frame) {
-		if (newPosition == null) {
-			newPosition = vectors.values().iterator().next();
+		while (lastPosition == null){
+			lastPositionLabel =  randomPosition();
+			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
+				lastPosition = vectors.get(lastPositionLabel);
+			}
 		}
-		if (newRotation == null){
-			newRotation = rotations.values().iterator().next();
-		}
-		if (currentAnimationTime >= Properties.SWITCH_TIME || lastPosition == null || lastRotation == null) {
-			lastPosition = newPosition;
-			do {
-				String key = (String) vectors.keySet().toArray()[random.nextInt(vectors.keySet().size())];
-				newPosition = vectors.get(key);
-			} while (newPosition == null);
-			lastRotation = newRotation;
-			do {
-				String key = (String) rotations.keySet().toArray()[random.nextInt(rotations.keySet().size())];
-				newRotation = rotations.get(key);
-			} while (newRotation == null);
-			lastSwitchTime = System.currentTimeMillis();
 
+		while (lastRotation== null){
+			lastRotationLabel = randomRotation();
+			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
+				lastRotation = rotations.get(lastRotationLabel);
+			}
 		}
+
+
+		while (seededPositions.size() < BezierHelper.BEZIER_NUMBER){
+			if (seededPositions.contains(lastPosition)){
+				Vector position = null;
+				String pLabel = null;
+				while (position == null){
+					pLabel = randomPosition();
+
+					if (pLabel != null){
+						position = vectors.get(pLabel);
+						if (position != null) {
+							positionLabels.add(pLabel);
+							seededPositions.add(position);
+						}
+					}
+				}
+			} else {
+				seededPositions.add(0, lastPosition);
+				positionLabels.add(0, lastPositionLabel);
+			}
+		}
+
+		while (seededRotations.size() < BezierHelper.BEZIER_NUMBER){
+			if (seededRotations.contains(lastRotation)){
+				Vector[] rotation = null;
+				String rLabel = null;
+				while (rotation == null){
+					rLabel = randomRotation();
+
+					if (rLabel != null){
+						rotation = rotations.get(rLabel);
+						if (rotation != null) {
+							rotationLabels.add(rLabel);
+							seededRotations.add(rotation);
+						}
+					}
+				}
+			} else {
+				seededRotations.add(0, lastRotation);
+				rotationLabels.add(0, lastRotationLabel);
+			}
+		}
+
 		Hand h = Hand.invalid();
 		for (Hand hand : frame.hands()) {
 			h = hand;
@@ -153,10 +249,19 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 		if (h instanceof SeededHand) {
 			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
 			SeededHand sh = (SeededHand) h;
-			sh.setBasis(fadeVector(lastRotation[0], newRotation[0], modifier),
-					fadeVector(lastRotation[1], newRotation[1], modifier),
-					fadeVector(lastRotation[2], newRotation[2], modifier));
-			sh.setOrigin(fadeVector(lastPosition, newPosition, modifier));
+
+			Vector[] rotationVectors = new Vector[lastRotation.length];
+			for (int i = 0; i < lastRotation.length; i++){
+				ArrayList<Vector> vs = new ArrayList<Vector>();
+				for (Vector[] vects : seededRotations){
+					vs.add(vects[i]);
+				}
+				rotationVectors[i] = BezierHelper.bezier(vs, modifier);
+			}
+
+			sh.setBasis(rotationVectors[0], rotationVectors[1],
+					rotationVectors[2]);
+			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
 		}
 		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 	}

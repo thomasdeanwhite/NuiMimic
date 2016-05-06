@@ -1,6 +1,6 @@
 package com.sheffield.leapmotion;
 
-import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.InstrumentationProperties;
 
 import java.io.File;
 import java.io.FileWriter;

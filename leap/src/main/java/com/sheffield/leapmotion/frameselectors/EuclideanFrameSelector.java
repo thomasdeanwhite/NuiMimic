@@ -1,24 +1,15 @@
 package com.sheffield.leapmotion.frameselectors;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
-
-import com.leapmotion.leap.Bone;
-import com.leapmotion.leap.Finger;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.*;
 import com.leapmotion.leap.Vector;
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Serializer;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class EuclideanFrameSelector extends FrameSelector {
 	private HashMap<Long, Frame> frames;

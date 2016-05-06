@@ -42,7 +42,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 				d3[0] = d3[0].trim();
 
-				if (d3[0].equals(last) && AnalyzerApp.REMOVE_REPEATED) {
+				if (AnalyzerApp.REMOVE_REPEATED && d3[0].equals(last)) {
 					continue;
 				}
 

@@ -2873,13 +2873,13 @@ CodeCache: size=32768Kb used=1324Kb max_used=1716Kb free=31443Kb
 Compilation events (10 events):
 Event: 359.144 Thread 0x150ab800  359 % !         java.lang.ref.Finalizer$FinalizerThread::run @ 33 (55 bytes)
 Event: 359.144 Thread 0x150ab800 nmethod 359% 0x02c2b508 code [0x02c2b660, 0x02c2ba34]
-Event: 778.864 Thread 0x150ab800  360             com.sheffield.leapmotion.sampler.SamplerApp::onFrame (32 bytes)
+Event: 778.864 Thread 0x150ab800  360             SamplerApp::onFrame (32 bytes)
 Event: 778.865 Thread 0x150ab800 nmethod 360 0x02c2bdc8 code [0x02c2bf00, 0x02c2c15c]
-Event: 1209.083 Thread 0x150ab800  361             com.sheffield.leapmotion.sampler.SamplerApp::onFrame (32 bytes)
+Event: 1209.083 Thread 0x150ab800  361             SamplerApp::onFrame (32 bytes)
 Event: 1209.084 Thread 0x150ab800 nmethod 361 0x02c2c3c8 code [0x02c2c500, 0x02c2c75c]
-Event: 1321.395 Thread 0x150ab800  362             com.sheffield.leapmotion.sampler.SamplerApp$1::<init> (15 bytes)
+Event: 1321.395 Thread 0x150ab800  362             SamplerApp$1::<init> (15 bytes)
 Event: 1321.395 Thread 0x150ab800 nmethod 362 0x02c2c9c8 code [0x02c2cac0, 0x02c2cb60]
-Event: 1336.757 Thread 0x150ab800  363             com.sheffield.leapmotion.sampler.SamplerApp::onFrame (32 bytes)
+Event: 1336.757 Thread 0x150ab800  363             SamplerApp::onFrame (32 bytes)
 Event: 1336.757 Thread 0x150ab800 nmethod 363 0x02c2cbc8 code [0x02c2cd00, 0x02c2cf5c]
 
 GC Heap History (10 events):
@@ -3090,7 +3090,7 @@ Dynamic libraries:
 
 VM Arguments:
 jvm_args: -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:57595,suspend=y,server=n -Dfile.encoding=UTF-8 
-java_command: com.sheffield.leapmotion.sampler.SamplerApp
+java_command: SamplerApp
 java_class_path (initial): C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\charsets.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\deploy.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\access-bridge-32.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\cldrdata.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\dnsns.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\jaccess.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\jfxrt.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\localedata.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\nashorn.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\sunec.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\sunjce_provider.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\sunmscapi.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\sunpkcs11.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\ext\zipfs.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\javaws.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\jce.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\jfr.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\jfxswt.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\jsse.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\management-agent.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\plugin.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\resources.jar;C:\Program Files (x86)\Java\jdk1.8.0_60\jre\lib\rt.jar;C:\Users\thomas\IdeaProjects\leapmotion-tester\leap\target\classes;C:\Users\thomas\.m2\repository\com\leapmotion\leapmotion-api\1.0\leapmotion-api-1.0.jar;C:\Users\thomas\IdeaProjects\leapmotion-tester\common\target\classes;C:\Users\thomas\.m2\repository\org\apache\logging\log4j\log4j-api\2.5\log4j-api-2.5.jar;C:\Users\thomas\.m2\repository\org\apache\logging\log4j\log4j-core\2.5\log4j-core-2.5.jar;C:\Users\thomas\IdeaProjects\leapmotion-tester\instrumentation\target\classes;C:\Users\thomas\.m2\repository\org\ow2\asm\asm\5.0.3\a
 Launcher Type: SUN_STANDARD
 

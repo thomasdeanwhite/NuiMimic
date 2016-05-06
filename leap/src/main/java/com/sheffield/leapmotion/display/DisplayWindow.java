@@ -3,7 +3,6 @@ package com.sheffield.leapmotion.display;
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
 import com.sheffield.leapmotion.App;
-import com.sheffield.instrumenter.Properties;
 
 import javax.swing.*;
 import java.awt.*;
@@ -150,10 +149,6 @@ public class DisplayWindow extends JFrame {
 		hand = new HandCanvas();
 		hand.setDoubleBuffered(true);
 		add(hand);
-
-		if (!Properties.SEQUENCE) {
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		}
 
 		setVisible(true);
 		setSize(600, 600);

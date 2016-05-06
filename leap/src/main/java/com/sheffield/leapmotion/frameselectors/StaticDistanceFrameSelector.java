@@ -27,12 +27,21 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
 
     private HashMap<String, GestureHandler> gestureHandlers;
 
+    private boolean changeGestures = false;
+
     private long lastPositionChange = 0;
     private final int POSITION_LOCATE_TIME = 500;
     private final int POSITION_CHANGE_TIME = 4000;
 
 	public StaticDistanceFrameSelector() {
 		String[] gestures = Properties.GESTURE_FILES;
+
+        if (gestures.length > 1){
+            changeGestures = true;
+            currentGesture = gestures[r.nextInt(gestures.length)];
+        } else {
+            currentGesture = gestures[0];
+        }
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
@@ -46,7 +55,7 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
                 e.printStackTrace(App.out);
             }
 		}
-		currentGesture = gestures[r.nextInt(gestures.length)];
+
 	}
 
 	@Override

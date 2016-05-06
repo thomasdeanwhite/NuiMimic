@@ -1,24 +1,19 @@
 package com.sheffield.leapmotion;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.sheffield.instrumenter.Display;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.sheffield.instrumenter.output.DctStateComparator;
 import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.sampler.output.DctStateComparator;
-import org.apache.commons.cli.*;
 
 import javax.imageio.ImageIO;
 import java.awt.event.WindowEvent;
@@ -27,9 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Type;
 import java.security.Permission;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
 
 public class App implements ThrowableListener {
     public static Random random = new Random();
@@ -37,17 +34,16 @@ public class App implements ThrowableListener {
     public static boolean CLOSING = false;
     public static boolean RECORDING_STARTED = false;
     private static boolean ENABLE_APPLICATION_OUTPUT = false;
-    private static boolean IS_INSTRUMENTING = false;
+    public static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
-    public static boolean INSTRUMENT_FOR_TESTING = true;
 
 
     public static float LAST_LINE_COVERAGE = 0f;
 
-    private static int relatedLines = 0;
-    private static int relatedBranches = 0;
+    public static int relatedLines = 0;
+    public static int relatedBranches = 0;
 
-    private static ArrayList<ClassTracker> relatedClasses = new ArrayList<ClassTracker>();
+    public static ArrayList<ClassTracker> relatedClasses = new ArrayList<ClassTracker>();
 
     public static int timePassed = 0;
 
@@ -94,7 +90,7 @@ public class App implements ThrowableListener {
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
         }
-        if (!classes.exists()){
+        if (!classes.exists()) {
             try {
                 classes.createNewFile();
             } catch (IOException e) {
@@ -103,7 +99,7 @@ public class App implements ThrowableListener {
         }
         String output = "";
 
-        for (StackTraceElement ste : t.getStackTrace()){
+        for (StackTraceElement ste : t.getStackTrace()) {
             output += ste.getClassName() + "::" + ste.getMethodName() + "#" + ste.getLineNumber() + "\n";
         }
         try {
@@ -141,7 +137,7 @@ public class App implements ThrowableListener {
                 }
             }
 
-            if (perm.getName().toLowerCase().contains("fullscreen")){
+            if (perm.getName().toLowerCase().contains("fullscreen")) {
                 throw new SecurityException("NO!");
             }
         }
@@ -198,7 +194,7 @@ public class App implements ThrowableListener {
     }
 
     public void setup() {
-        if (Properties.SHOW_HAND) {
+        if (Properties.VISUALISE_DATA) {
             DISPLAY_WINDOW = new DisplayWindow();
         }
         File f = null;
@@ -222,9 +218,7 @@ public class App implements ThrowableListener {
         SeededController.getController();
         startTime = System.currentTimeMillis();
         lastSwitchTime = startTime;
-        timeBetweenSwitch = 1000 / Properties.SWITCH_RATE;
-        stateTracker = new StateTracker();
-        ClassAnalyzer.addStateChangeListener(stateTracker);
+        timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         if (!ENABLE_APPLICATION_OUTPUT) {
             PrintStream dummyStream = new PrintStream(new OutputStream() {
 
@@ -251,240 +245,12 @@ public class App implements ThrowableListener {
         return APP;
     }
 
-    @SuppressWarnings("static-access")
-    public static void setOptions(String[] args) {
-        //ClassAnalyzer.addThrowableListener(getApp());
-        CommandLineParser parser = new GnuParser();
-        Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("jar").withDescription("Jar file to run").hasArg()
-                .withArgName("jar").create("jar"));
-
-        options.addOption(OptionBuilder.withLongOpt("ngramType").withDescription("ngramType to run").hasArg()
-                .withArgName("ngramType").create("ngramType"));
-
-        options.addOption(OptionBuilder.withLongOpt("runtime").withDescription("Time for testing to run").hasArg()
-                .withArgName("runtime").create("runtime"));
-
-        options.addOption(OptionBuilder.withLongOpt("library").withDescription("path to leapmotion natives").hasArg()
-                .withArgName("lib").create("lib"));
-
-        options.addOption(OptionBuilder.withLongOpt("cp").withDescription("ClassPath containing dependant JARs")
-                .hasArg().withArgName("cp").create("cp"));
-
-        options.addOption(OptionBuilder.withLongOpt("switch_rate").withDescription("times per second to change frames")
-                .hasArg().withArgName("switch_rate").create("switch_rate"));
-
-        options.addOption(OptionBuilder.withLongOpt("agentJar").withDescription("path to agent jar for instrumentation")
-                .hasArg().withArgName("agentJar").create("agentJar"));
-
-        options.addOption(OptionBuilder.withLongOpt("frameSelectionStrategy")
-                .withDescription("strategy for selecting new frames to seed").hasArg()
-                .withArgName("frameSelectionStrategy").create("frameSelectionStrategy"));
-
-        options.addOption(OptionBuilder.withLongOpt("maxLoadedFrames")
-                .withDescription("max frames to retain in memory for Controller.frame(i)").hasArg()
-                .withArgName("maxLoadedFrames").create("maxLoadedFrames"));
-
-        options.addOption(OptionBuilder.withLongOpt("delayTime")
-                .withDescription("Time to wait before seeding (ms)").hasArg()
-                .withArgName("delayTime").create("delayTime"));
-
-        options.addOption(OptionBuilder.withLongOpt("backgroundFrames")
-                .withDescription("max frames loaded in memory to use for selecting the next frame").hasArg()
-                .withArgName("backgroundFrames").create("backgroundFrames"));
-
-        options.addOption(OptionBuilder.withLongOpt("playback")
-                .withDescription("The file to use for Playback before generation begins").hasArg()
-                .withArgName("playback").create("playback"));
-
-        options.addOption(OptionBuilder.withLongOpt("recording")
-                .withDescription("Used when a pre-sequence of data should be recorded and played back.")
-                .create("recording"));
-
-        options.addOption(OptionBuilder.withLongOpt("replace_fingers_method")
-                .withDescription("If using an older API, the Hand.fingers() method returns only extended fingers. If so use this flag.")
-                .create("replace_fingers_method"));
-
-        options.addOption(OptionBuilder.withLongOpt("leave_leapmotion_alone")
-                .withDescription("This will only instrument testing options into SUT.")
-                .create("leave_leapmotion_alone"));
-
-        options.addOption(OptionBuilder.withLongOpt("delayLibrary")
-                .withDescription("Use if getting a Library Already Loaded error.")
-                .create("delayLibrary"));
-
-        options.addOption(OptionBuilder.withLongOpt("branches").withDescription("The branches to use as goals to cover")
-                .hasArg().withArgName("branches").create("branches"));
-
-        options.addOption(OptionBuilder.withLongOpt("exiledClasses")
-                .withDescription(
-                        "The classes which shouldn't be loaded by the class loader (could be loaded by reflection later)")
-                .hasArg().withArgName("exiledClasses").create("exiledClasses"));
-
-
-        options.addOption(OptionBuilder.withLongOpt("packages")
-                .withDescription(
-                        "Packages that should be instrumented")
-                .hasArg().withArgName("packages").create("packages"));
-
-        options.addOption(OptionBuilder.withLongOpt("gestureFiles")
-                .withDescription(
-                        "Gesture Files to use in NGram")
-                .hasArg().withArgName("gestureFiles").create("gestureFiles"));
-
-        try {
-            CommandLine cmd = parser.parse(options, args);
-            for (Option o : cmd.getOptions()) {
-                if (o.getArgName().equals("jar")) {
-                    Properties.SUT = o.getValue().replace("\\", "/");
-                } else if (o.getArgName().equals("ngramType")) {
-                    Properties.NGRAM_TYPE = o.getValue();
-                } else if (o.getArgName().equals("runtime")) {
-                    Properties.RUNTIME = Long.parseLong(o.getValue());
-                } else if (o.getArgName().equals("lib")) {
-                    Properties.LIBRARY = o.getValue();
-                } else if (o.getArgName().equals("cp")) {
-                    Properties.CLASS_PATH = o.getValue();
-                } else if (o.getArgName().equals("switch_rate")) {
-                    Properties.SWITCH_RATE = Long.parseLong(o.getValue());
-                } else if (o.getArgName().equals("agentJar")) {
-                    Properties.LM_AGENT_JAR = o.getValue();
-                } else if (o.getArgName().equals("frameSelectionStrategy")) {
-                    Properties.FRAME_SELECTION_STRATEGY = Properties.FRAME_SELECTION_STRATEGY.valueOf(o.getValue());
-                } else if (o.getArgName().equals("maxLoadedFrames")) {
-                    Properties.MAX_LOADED_FRAMES = Integer.parseInt(o.getValue());
-                } else if (o.getArgName().equals("backgroundFrames")) {
-                    Properties.BACKGROUND_FRAMES = Long.parseLong(o.getValue());
-                } else if (o.getArgName().equals("delayTime")) {
-                    Properties.DELAY_TIME = Long.parseLong(o.getValue());
-                } else if (o.getArgName().equals("playback")) {
-                    Properties.PLAYBACK_FILE = o.getValue();
-                } else if (o.getArgName().equals("branches")) {
-                    Properties.BRANCHES_TO_COVER = o.getValue();
-                } else if (o.getArgName().equals("exiledClasses")) {
-                    Properties.EXILED_CLASSES = o.getValue().split(";");
-                } else if (o.getArgName().equals("packages")) {
-                    App.out.println("- Only instrumenting " + o.getValue());
-                    Properties.INSTRUMENTED_PACKAGES = o.getValue().split(";");
-                } else if (o.getArgName().equals("gestureFiles")) {
-                    App.out.println("- Using gesture files: " + o.getValue());
-                    Properties.GESTURE_FILES = o.getValue().split(";");
-                }
-
-            }
-
-            if (Properties.PLAYBACK_FILE == null) {
-                File playback = new File("playback.sequence");
-                if (playback.exists()) {
-                    Properties.PLAYBACK_FILE = playback.getAbsolutePath();
-                    App.out.println("- Found sequence file at: " + Properties.PLAYBACK_FILE);
-                }
-            }
-            if (!IS_INSTRUMENTING) {
-                Gson g = new Gson();
-                File branches = new File("branches.csv");
-                if (branches.getAbsoluteFile().exists()) {
-                    try {
-                        String branchesString = FileHandler.readFile(branches);
-                        Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
-                        }.getType();
-                        ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
-
-                        App.out.println("- Found branches file at: " + branches.getAbsolutePath());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                File linesFile = new File("lines.csv");
-                if (linesFile.getAbsoluteFile().exists()) {
-                    try {
-                        String linesString = FileHandler.readFile(linesFile);
-
-                        Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
-                        }.getType();
-                        ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
-
-                        App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                File relatedFile = new File("related_classes.csv");
-                if (relatedFile.getAbsoluteFile().exists()) {
-                    try {
-                        String[] classes = FileHandler.readFile(relatedFile).split("\n");
-                        ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length-1);
-                        for (int i = 1; i < classes.length; i++){
-                            if (classes[i].length() > 0) {
-                                String[] clInfo = classes[i].split(",");
-                                int lines = Integer.parseInt(clInfo[1]);
-                                relatedLines += lines;
-                                int brans = Integer.parseInt(clInfo[2]);
-                                relatedBranches += brans;
-                                clas.add(new ClassTracker(clInfo[0], lines, brans));
-                            }
-                        }
-                        relatedClasses = clas;
-
-                        App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
-                        App.out.println("[" + relatedLines + " related lines, " + relatedBranches + " related branches]");
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
-            for (int i = 0; i < Properties.GESTURE_FILES.length; i++) {
-                Properties.GESTURE_FILES[i] = Properties.GESTURE_FILES[i];
-            }
-
-            if (Properties.INSTRUMENTED_PACKAGES == null) {
-                App.out.println("- Instrumenting All Classes");
-            }
-
-            if (cmd.hasOption("recording")) {
-                App.out.println("- Recording mode activated.");
-                Properties.RECORDING = true;
-            }
-
-            if (cmd.hasOption("leave_leapmotion_alone")){
-                INSTRUMENT_FOR_TESTING = false;
-            }
-
-            if (cmd.hasOption("replace_fingers_method")) {
-                App.out.println("- Replacing calls to Hand.fingers() with Hand.fingers().extended()");
-                Properties.REPLACE_FINGERS_METHOD = true;
-            }
-
-            if (cmd.hasOption("delayLibrary")) {
-                App.out.println("- Delaying Library Load.");
-                Properties.DELAY_LIBRARY = true;
-            }
-
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace(App.out);
-        }
-
-        if (Properties.BRANCHES_TO_COVER != null) {
-            // we have target branches to cover!
-            String[] branchesToCover = Properties.BRANCHES_TO_COVER.split("\\|");
-            for (String s : branchesToCover) {
-                ClassAnalyzer.addBranchToCover(s);
-            }
-            App.out.println("Added " + branchesToCover.length + " branch goals.");
-        }
-
-    }
-
     public static void main(String[] args) {
         App.out.print("- Instrumenting JAR with options: ");
         String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
                 "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
                 "org/junit", "Launcher", "com/google", "org/apache", "net", "com/garg", "net/sourceforge",
-        "org", "java", "com/steady", "com/thought"};
+                "org", "java", "com/steady", "com/thought"};
         for (String s : defaultHiddenPackages) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
@@ -496,12 +262,12 @@ public class App implements ThrowableListener {
             App.out.print(s + " ");
         }
         App.out.println(".");
-        setOptions(args);
+        Properties.instance().setOptions(args);
 
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         try {
-            LeapMotionApplicationHandler.instrumentJar(Properties.SUT);
-            String dir = Properties.SUT.substring(0, Properties.SUT.lastIndexOf("/") + 1);
+            LeapMotionApplicationHandler.instrumentJar(Properties.JAR_UNDER_TEST);
+            String dir = Properties.JAR_UNDER_TEST.substring(0, Properties.JAR_UNDER_TEST.lastIndexOf("/") + 1);
             String output = dir + "branches.csv";
             String output2 = dir + "lines.csv";
             App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");
@@ -519,9 +285,9 @@ public class App implements ThrowableListener {
                 }
                 String[] classes = cn.toString().split("\n");
 
-                for (String s : classes){
-                    if (s.length() > 0){
-                        if (!s.contains("com.leapmotion.leap") && !relatedClasses.contains(s)){
+                for (String s : classes) {
+                    if (s.length() > 0) {
+                        if (!s.contains("com.leapmotion.leap") && !relatedClasses.contains(s)) {
                             relatedClasses.add(s);
                             App.out.println(s);
                         }
@@ -531,7 +297,7 @@ public class App implements ThrowableListener {
 
             ArrayList<ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
 
-            for (ClassNode cn : options){
+            for (ClassNode cn : options) {
                 App.out.println("OPTIONS: " + cn.toNomnoml());
             }
 
@@ -544,14 +310,14 @@ public class App implements ThrowableListener {
 
             File relatedFile = new File(related);
 
-            if (!relatedFile.exists()){
+            if (!relatedFile.exists()) {
                 relatedFile.createNewFile();
             }
 
             String classes = "";
 
-            for (String c: relatedClasses){
-                if (c == null || c.length() == 0){
+            for (String c : relatedClasses) {
+                if (c == null || c.length() == 0) {
                     continue;
                 }
                 classes += c + "," + ClassAnalyzer.getCoverableLines(c).size() + "," + ClassAnalyzer.getCoverableBranches(c).size() + "\n";
@@ -565,7 +331,7 @@ public class App implements ThrowableListener {
     }
 
     public static void runAgent() {
-        String command = "java -javaagent:lm-agent.jar -jar " + Properties.SUT;
+        String command = "java -javaagent:lm-agent.jar -jar " + Properties.JAR_UNDER_TEST;
         App.out.print("Executing command: \n\t" + command);
         try {
             Process p = Runtime.getRuntime().exec(command);
@@ -579,13 +345,14 @@ public class App implements ThrowableListener {
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         Properties.USE_CHANGED_FLAG = true;
         Properties.LOG = false;
+
         if (mainThread != null) {
             App.out.println("Found thread already running!");
             return;
         }
-        //Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
+
         if (args != null && args.length > 0) {
-            setOptions(args);
+            Properties.instance().setOptions(args);
             App.out.println("Options setup");
         } else {
             File options = new File("testing-options");
@@ -595,14 +362,14 @@ public class App implements ThrowableListener {
 
                     App.out.println("- Found options: " + opts);
 
-                    setOptions(opts.split(" "));
+                    Properties.instance().setOptions(opts.split(" "));
 
                 } catch (IOException e) {
-                    setOptions(new String[]{});
+                    Properties.instance().setOptions(new String[]{});
                     e.printStackTrace(App.out);
                 }
             } else {
-                setOptions(new String[]{});
+                Properties.instance().setOptions(new String[]{});
             }
         }
         App.out.println("- Starting background testing thread.");
@@ -616,7 +383,7 @@ public class App implements ThrowableListener {
                 app.setup();
                 app.start();
                 App.out.println("- Starting Frame Seeding");
-                int delay = (int) (1000f / Properties.SWITCH_RATE);
+                int delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
 
                 try {
                     Thread.sleep(Properties.DELAY_TIME);
@@ -646,9 +413,6 @@ public class App implements ThrowableListener {
                     }
                     lastTime += timePassed;
                 }
-                if (Properties.RECORDING) {
-                    com.sheffield.leapmotion.sampler.SamplerApp.getApp().appFinished();
-                }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters(false);
                 timePassed = (int) (System.currentTimeMillis() - startTime);
@@ -667,7 +431,7 @@ public class App implements ThrowableListener {
             App.out.println("- Finished testing: ");
             App.out.println("@ Coverage Report: ");
             App.out.println(ClassAnalyzer.getReport());
-            if (Properties.SHOW_HAND)
+            if (Properties.VISUALISE_DATA)
                 App.DISPLAY_WINDOW.setVisible(false);
 
             BufferedImage bi = ScreenGrabber.captureRobot();
@@ -682,7 +446,7 @@ public class App implements ThrowableListener {
                 e.printStackTrace();
             }
 
-            if (Properties.SHOW_HAND)
+            if (Properties.VISUALISE_DATA)
                 App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
         }
         File csv = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
@@ -699,14 +463,14 @@ public class App implements ThrowableListener {
             ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
             for (LineHit lh : linesCovered) {
                 String className = lh.getLine().getClassName();
-                if (classSeen.contains(className)){
+                if (classSeen.contains(className)) {
                     className = "" + classSeen.indexOf(className);
                 } else {
                     File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
                     if (classes.getParentFile() != null) {
                         classes.getParentFile().mkdirs();
                     }
-                    if (!classes.exists()){
+                    if (!classes.exists()) {
                         classes.createNewFile();
                     }
                     classSeen.add(className);
@@ -716,43 +480,62 @@ public class App implements ThrowableListener {
                 }
                 linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
             }
-            String info = ClassAnalyzer.toCsv(newFile, runtime, "starting_states,states_found,states_discovered," +
+
+            String gestureFiles = "";
+            for (String s : Properties.GESTURE_FILES) {
+                gestureFiles += s + ";";
+            }
+
+            if (gestureFiles.length() > 0)
+                gestureFiles.substring(0, gestureFiles.length()-1);
+
+
+            String info = ClassAnalyzer.toCsv(newFile, runtime, "frame_selector,gesture_files,starting_states,states_found,states_discovered," +
                     "final_sate,related_lines_total,related_lines_covered,related_line_coverage," +
-                    "related_branches_total,related_branches_covered,relate_branch_coverage");
+                    "related_branches_total,related_branches_covered,relate_branch_coverage,bezier_points,switch_time");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = DctStateComparator.statesVisited.size();
-            info += "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
+            info += Properties.FRAME_SELECTION_STRATEGY + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
 
 
             int lineHits = 0;
             int branchHits = 0;
-            if (relatedClasses.size() > 0){
-                    for (ClassTracker ct : relatedClasses) {
-                        List<Line> lines = ClassAnalyzer.getCoverableLines(ct.className);
-                        for (Line l : lines) {
-                            if (l.getHits() > 0) {
-                                lineHits++;
-                            }
-                        }
-                        List<Branch> branches = ClassAnalyzer.getCoverableBranches(ct.className);
-                        for (Branch b : branches) {
-                            if (b.getFalseHits() > 0 && b.getTrueHits() > 0) {
-                                branchHits++;
-                            }
+            if (relatedClasses.size() > 0) {
+                for (ClassTracker ct : relatedClasses) {
+                    List<Line> lines = ClassAnalyzer.getCoverableLines(ct.className);
+                    for (Line l : lines) {
+                        if (l.getHits() > 0) {
+                            lineHits++;
                         }
                     }
-                    info += "," + relatedLines + "," + lineHits + "," + (lineHits / (float) relatedLines) + "," +
-                            relatedBranches + "," + branchHits + "," + (branchHits / (float) relatedBranches);
+                    List<Branch> branches = ClassAnalyzer.getCoverableBranches(ct.className);
+                    for (Branch b : branches) {
+                        if (b.getFalseHits() > 0 && b.getTrueHits() > 0) {
+                            branchHits++;
+                        }
+                    }
+                }
+                info += "," + relatedLines + "," + lineHits + "," + (lineHits / (float) relatedLines) + "," +
+                        relatedBranches + "," + branchHits + "," + (branchHits / (float) relatedBranches);
             } else {
                 info += ",0,0,0,0,0,0";
             }
+
+            if (Properties.SWITCH_TIME <= 1){
+                info += "," + 0;
+            } else {
+                info += "," + BezierHelper.BEZIER_NUMBER;
+            }
+
+            info += Properties.SWITCH_TIME;
+
             FileHandler.appendToFile(csv, info + "\n");
 
             File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
             if (classes.getParentFile() != null) {
                 classes.getParentFile().mkdirs();
             }
-            if (!classes.exists()){
+            if (!classes.exists()) {
                 classes.createNewFile();
             }
 
@@ -768,7 +551,7 @@ public class App implements ThrowableListener {
 
     public void tick() {
         long time = System.currentTimeMillis();
-        timeBetweenSwitch = 1000 / Properties.SWITCH_RATE;
+        timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
         if (time - lastSwitchTime > timeBetweenSwitch) {
             sc.tick();

@@ -1,6 +1,5 @@
 package com.sheffield.leapmotion;
 
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;

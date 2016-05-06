@@ -1,8 +1,8 @@
-package com.sheffield.leapmotion.sampler.output;
+package com.sheffield.instrumenter.output;
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.states.ScreenGrabber;
+import com.sheffield.leapmotion.Properties;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

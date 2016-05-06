@@ -1,11 +1,10 @@
-package com.sheffield.leapmotion.sampler.output;
+package com.sheffield.instrumenter.output;
 
 import com.leapmotion.leap.*;
-import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.FileHandler;
+import com.sheffield.instrumenter.SamplerApp;
+import com.sheffield.instrumenter.Serializer;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.sampler.FileHandler;
-import com.sheffield.leapmotion.sampler.SamplerApp;
-import com.sheffield.leapmotion.sampler.Serializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +81,6 @@ public class FrameDeconstructor {
     }
 
     public void outputRawFrameData(Frame frame) {
-        if (Properties.SEQUENCE) {
             String dir = "/sequences";
             try {
                 boolean start = false;
@@ -106,7 +104,6 @@ public class FrameDeconstructor {
                 e.printStackTrace();
             }
 
-        }
     }
 
     public void outputSequence() throws IOException {

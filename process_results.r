@@ -26,11 +26,11 @@ load_data <- function(filename){
   })
   
   dataset['person'] = apply(dataset, 1, FUN=function(x){
-    if (x['gesture_file'] == 'tom-polydrop/'){
+    if (x['gesture_file'] == 'tom-gorogoa/'){
       val <- 'P1'
-    } else if (x['gesture_file'] == 'dave-polydrop/'){
+    } else if (x['gesture_file'] == 'ab-gorogoa/'){
       val <- 'P2'
-    } else if (x['gesture_file'] == 'polydrop/'){
+    } else if (x['gesture_file'] == 'gorogoa/'){
       val <- 'Both'
     } else {
       val <- 'Random'
@@ -107,7 +107,7 @@ bplot <- function(data, name, title){
   #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
   mi <- round(min(data$line_coverage)-0.02, digits=2)
   ma <- round(max(data$line_coverage)+0.02, digits=2)
-  pirateplot(formula=line_coverage~person + fs, 
+  pirateplot(formula=line_coverage~person + bezier_points, 
              data=data, 
              xlab = 'Training Pool', ylab='Line Coverage', main=title,
              line.fun=median, pal='southpark', ylim=c(mi, ma))

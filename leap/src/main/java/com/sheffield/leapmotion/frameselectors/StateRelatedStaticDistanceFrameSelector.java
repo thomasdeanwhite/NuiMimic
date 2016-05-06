@@ -1,17 +1,16 @@
 package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;
-import com.sheffield.instrumenter.Properties;
+import com.leapmotion.leap.GestureList;import com.sheffield.instrumenter.output.DctStateComparator;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.analyzer.ProbabilityTracker;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
-import com.sheffield.leapmotion.sampler.output.DctStateComparator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,6 +33,8 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
     private HashMap<String, GestureHandler> gestureHandlers;
 
+    private boolean changeGestures = false;
+
     private long lastPositionChange = 0;
     private final int POSITION_LOCATE_TIME = 500;
     private final int POSITION_CHANGE_TIME = 4000;
@@ -51,6 +52,13 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
+
+        if (gestures.length > 1){
+            changeGestures = true;
+            currentGesture = gestures[r.nextInt(gestures.length)];
+        } else {
+            currentGesture = gestures[0];
+        }
 
         HashMap<String, Integer[]> stateCache = new HashMap<String, Integer[]>();
 		for (String s : gestures){
@@ -156,13 +164,12 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 e.printStackTrace(App.out);
             }
 		}
-		currentGesture = gestures[r.nextInt(gestures.length)];
 	}
 
 	@Override
 	public Frame newFrame() {
         long time = System.currentTimeMillis();
-        if (time - lastGestureChange > GESTURE_CHANGE_TIME){
+        if (changeGestures && time - lastGestureChange > GESTURE_CHANGE_TIME){
             String[] gestures = Properties.GESTURE_FILES;
             currentGesture = gestures[r.nextInt(gestures.length)];
             lastGestureChange = System.currentTimeMillis();
