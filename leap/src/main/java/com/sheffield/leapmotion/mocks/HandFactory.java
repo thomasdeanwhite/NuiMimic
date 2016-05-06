@@ -113,11 +113,10 @@ public class HandFactory {
 		hand.uniqueId = id;
 
 		for (int i = 0; i < thumbBoneTypes.length; i++) {
-			int index = offset;
 			SeededBone b = new SeededBone();
 			b.type = thumbBoneTypes[i];
-			b.prevJoint = randomVector(100, 0);
-			b.nextJoint = randomVector(100, 0);
+			b.prevJoint = randomVector(200, -100);
+			b.nextJoint = randomVector(200, -100);
 			thumb.bones.put(b.type, b);
 			if (i == 0){
 				SeededBone b2 = new SeededBone();
@@ -137,11 +136,10 @@ public class HandFactory {
 		for (int j = 0; j < fingerTypes.length; j++) {
 			SeededFinger finger = new SeededFinger();
 			for (int i = 0; i < fingerBoneTypes.length; i++) {
-				int index = offset;
 				SeededBone b = new SeededBone();
 				b.type = fingerBoneTypes[i];
-				b.prevJoint = randomVector(100, 0);
-				b.nextJoint = randomVector(100, 0);
+				b.prevJoint = randomVector(200, -100);
+				b.nextJoint = randomVector(200, -100);
 				finger.bones.put(b.type, b);
 				offset += 2;
 			}

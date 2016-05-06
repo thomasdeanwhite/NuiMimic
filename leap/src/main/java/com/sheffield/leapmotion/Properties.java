@@ -6,10 +6,7 @@ import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import org.apache.commons.cli.BasicParser;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,8 +75,11 @@ public class Properties extends InstrumentationProperties {
         RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDANT, SINGLE_MODEL
     }
 
-    @Parameter(key = "frameSelectionStrategy", description = "Leave the Leap Motion API original", hasArgs = false, category = "Leap Motion Instrumentation")
+    @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
     public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDANT;
+
+    @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Leap Motion Testing")
+    public static int BEZIER_POINTS = 2;
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {
         for (String s : annotationMap.keySet()) {
@@ -107,7 +107,24 @@ public class Properties extends InstrumentationProperties {
             }
 
             CommandLineParser parser = new BasicParser();
-            CommandLine cmd = parser.parse(options, args);
+            CommandLine cmd = null;
+            try {
+                cmd = parser.parse(options, args);
+            } catch (UnrecognizedOptionException e) {
+                for (String s : categoryMap.keySet()) {
+                    App.out.println(s);
+                    for (String opt : categoryMap.get(s)) {
+                        Parameter p = annotationMap.get(opt);
+                        String opts = "";
+                        if (p.hasArgs()) {
+                            opts = "[arg] ";
+                        }
+                        App.out.println("\t- " + p.key() + ": " + opts + "(" + p.description() + ").");
+                    }
+                }
+                App.out.println(e.getLocalizedMessage());
+                System.exit(-1);
+            }
 
             setOptions(cmd);
 
@@ -122,12 +139,12 @@ public class Properties extends InstrumentationProperties {
                 Gson g = new Gson();
                 File branches = new File("branches.csv");
                 if (branches.getAbsoluteFile().exists()) {
-                        String branchesString = FileHandler.readFile(branches);
-                        Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
-                        }.getType();
-                        ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
+                    String branchesString = FileHandler.readFile(branches);
+                    Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
+                    }.getType();
+                    ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
 
-                        App.out.println("- Found branches file at: " + branches.getAbsolutePath());
+                    App.out.println("- Found branches file at: " + branches.getAbsolutePath());
                 }
 
                 File linesFile = new File("lines.csv");
@@ -147,26 +164,30 @@ public class Properties extends InstrumentationProperties {
 
                 File relatedFile = new File("related_classes.csv");
                 if (relatedFile.getAbsoluteFile().exists()) {
-                        String[] classes = FileHandler.readFile(relatedFile).split("\n");
-                        ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length - 1);
-                        for (int i = 1; i < classes.length; i++) {
-                            if (classes[i].length() > 0) {
-                                String[] clInfo = classes[i].split(",");
-                                int lines = Integer.parseInt(clInfo[1]);
-                                App.relatedLines += lines;
-                                int brans = Integer.parseInt(clInfo[2]);
-                                App.relatedBranches += brans;
-                                clas.add(new ClassTracker(clInfo[0], lines, brans));
-                            }
+                    String[] classes = FileHandler.readFile(relatedFile).split("\n");
+                    ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length - 1);
+                    for (int i = 1; i < classes.length; i++) {
+                        if (classes[i].length() > 0) {
+                            String[] clInfo = classes[i].split(",");
+                            int lines = Integer.parseInt(clInfo[1]);
+                            App.relatedLines += lines;
+                            int brans = Integer.parseInt(clInfo[2]);
+                            App.relatedBranches += brans;
+                            clas.add(new ClassTracker(clInfo[0], lines, brans));
                         }
-                        App.relatedClasses = clas;
+                    }
+                    App.relatedClasses = clas;
 
-                        App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
-                        App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
+                    App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
+                    App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
                 }
             }
             if (Properties.GESTURE_FILES_STRING != null) {
                 Properties.GESTURE_FILES = Properties.GESTURE_FILES_STRING.split(";");
+            }
+            if (BEZIER_POINTS <= 1) {
+                SWITCH_TIME = 1;
+                BEZIER_POINTS = 2;
             }
 
         } catch (Exception e1) {
@@ -180,9 +201,6 @@ public class Properties extends InstrumentationProperties {
     public static Properties instance() {
         if (instance == null) {
             instance = new Properties();
-            for (String s : instance.getParameterNames()) {
-                App.out.println(s);
-            }
         }
         return instance;
     }

@@ -3,10 +3,10 @@ package com.sheffield.leapmotion.frameselectors;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
@@ -130,7 +130,7 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 			lastLabel = randomHand();
 			lastHand = hands.get(lastLabel);
 		}
-		while (seededHands.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededHands.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (!seededHands.contains(lastHand)){
 				seededHands.clear();
 				seededHands.add(0, lastHand);
@@ -200,7 +200,7 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 		}
 
 
-		while (seededPositions.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (seededPositions.contains(lastPosition)){
 				Vector position = null;
 				String pLabel = null;
@@ -221,7 +221,7 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 			}
 		}
 
-		while (seededRotations.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (seededRotations.contains(lastRotation)){
 				Vector[] rotation = null;
 				String rLabel = null;

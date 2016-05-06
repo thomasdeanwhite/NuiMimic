@@ -4,17 +4,12 @@ import com.leapmotion.leap.Vector;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by thoma on 27/04/2016.
  */
 public class BezierHelper {
-
-    public static int BEZIER_NUMBER = 4;
 
     public static Vector bezier(ArrayList<Vector> vectors, float modifier){
         ArrayList<Vector> points = new ArrayList<Vector>(vectors);

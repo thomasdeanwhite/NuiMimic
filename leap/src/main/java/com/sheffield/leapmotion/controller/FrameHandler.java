@@ -57,6 +57,7 @@ public class FrameHandler {
                 case STATE_DEPENDANT:
                     frameSelector = new StateRelatedStaticDistanceFrameSelector();
                 default:
+                    frameSelector = new RandomFrameSelector();
                     break;
             }
         } catch (Exception e){

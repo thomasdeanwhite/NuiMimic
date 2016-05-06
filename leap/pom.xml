@@ -24,11 +24,7 @@
 			<artifactId>leapmotion.sdk</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<dependency>
-			<groupId>com.sheffield</groupId>
-			<artifactId>common</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+
 		<dependency>
 			<groupId>com.sheffield</groupId>
 			<artifactId>instrumentation</artifactId>

@@ -122,7 +122,7 @@ public class NGramFrameModifier implements FrameModifier {
         }
 
 
-        while (seededPositions.size() < BezierHelper.BEZIER_NUMBER){
+        while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
             if (seededPositions.contains(lastPosition)){
                 Vector position = null;
                 String pLabel = null;
@@ -143,7 +143,7 @@ public class NGramFrameModifier implements FrameModifier {
             }
         }
 
-        while (seededRotations.size() < BezierHelper.BEZIER_NUMBER){
+        while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
             if (seededRotations.contains(lastRotation)){
                 Vector[] rotation = null;
                 String rLabel = null;

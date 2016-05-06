@@ -1,7 +1,6 @@
 package com.sheffield.instrumenter.output;
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
-import com.sheffield.instrumenter.states.ScreenGrabber;
 import com.sheffield.leapmotion.Properties;
 
 import javax.imageio.ImageIO;
@@ -61,8 +60,13 @@ public class DctStateComparator {
     }
 
     public static String captureState(){
-        BufferedImage original = ScreenGrabber.captureRobot();
-
+        BufferedImage original = null;
+        try {
+            Robot robot = new Robot();
+            original = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
         final int COMPRESSION = 4;
 
         BufferedImage bi = new BufferedImage(original.getWidth() / COMPRESSION, original.getHeight() / COMPRESSION, original.getType());

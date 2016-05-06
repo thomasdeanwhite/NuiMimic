@@ -14,7 +14,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	private static boolean initializing = false;
 
 	public static SeededController getSeededController() {
-		App.out.println("Entered Seeded Controller");
 		while (initializing){
 			try {
 				Thread.sleep(200);
@@ -24,11 +23,10 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		}
 		if (CONTROLLER == null) {
 			initializing = true;
-			CONTROLLER = new SeededController();
 			App.startTesting();
+			CONTROLLER = new SeededController();
 			CONTROLLER.setup();
 			initializing = false;
-			//CONTROLLER.setGestureHandler(new NGramGestureHandler(Properties.GESTURE_FILES[0]));
 		}
 		return CONTROLLER;
 	}
@@ -60,7 +58,6 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	}
 
 	private void setup(){
-		App.out.println("- Controller Initialized.");
 		listeners = new ArrayList<Listener>();
 		frameHandler = new FrameHandler();
 		frameHandler.init();
@@ -70,8 +67,8 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		if (App.getApp() == null){
 			App.startTesting();
 		}
+		App.out.println("\r- Controller Initialized.");
 		// addListener(com.sheffield.leapmotion_sampler.App.getApp());
-		CONTROLLER = this;
 	}
 
 	@Override

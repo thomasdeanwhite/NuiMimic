@@ -1,6 +1,5 @@
 package com.sheffield.leapmotion;
 
-import com.sheffield.instrumenter.Display;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
@@ -10,12 +9,12 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.output.DctStateComparator;
-import com.sheffield.instrumenter.states.ScreenGrabber;
-import com.sheffield.instrumenter.states.StateTracker;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import sun.java2d.StateTracker;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -66,13 +65,13 @@ public class App implements ThrowableListener {
                 println(strs[i]);
             }
 
-            Display.getDisplay().addCommand(strs[0]);
+            //Display.getDisplay().addCommand(strs[0]);
             originalOut.println(strs[0]);
         }
 
         @Override
         public void print(String s) {
-            Display.getDisplay().addCommand(s);
+            //Display.getDisplay().addCommand(s);
             originalOut.print(s);
         }
     };
@@ -434,7 +433,14 @@ public class App implements ThrowableListener {
             if (Properties.VISUALISE_DATA)
                 App.DISPLAY_WINDOW.setVisible(false);
 
-            BufferedImage bi = ScreenGrabber.captureRobot();
+            BufferedImage bi = null;
+
+            try {
+                Robot robot = new Robot();
+                bi = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+            } catch (AWTException e) {
+                e.printStackTrace();
+            }
 
             File outFldr = new File("testing_output/result_states");
             outFldr.mkdirs();
@@ -524,7 +530,7 @@ public class App implements ThrowableListener {
             if (Properties.SWITCH_TIME <= 1){
                 info += "," + 0;
             } else {
-                info += "," + BezierHelper.BEZIER_NUMBER;
+                info += "," + com.sheffield.leapmotion.Properties.BEZIER_POINTS;
             }
 
             info += Properties.SWITCH_TIME;
@@ -596,9 +602,5 @@ public class App implements ThrowableListener {
 
     public void close() {
         status = AppStatus.CLOSING;
-    }
-
-    public StateTracker getStateTracker() {
-        return stateTracker;
     }
 }

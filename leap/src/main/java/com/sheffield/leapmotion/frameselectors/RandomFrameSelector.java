@@ -3,8 +3,8 @@ package com.sheffield.leapmotion.frameselectors;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.BezierHelper;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
@@ -32,9 +32,7 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 
 	public RandomFrameSelector() {
 		lastSwitchTime = System.currentTimeMillis();
-		currentAnimationTime = Properties.SWITCH_TIME;
-		String clusterFile = Properties.DIRECTORY + "/processed/centers100";
-
+		currentAnimationTime = 0;
 	}
 
 	@Override
@@ -44,7 +42,7 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 		while (lastHand == null){
 			lastHand = HandFactory.createRandomHand(f, "hand" + handId++);
 		}
-		while (seededHands.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededHands.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (!seededHands.contains(lastHand)){
 				seededHands.clear();
 				seededHands.add(0, lastHand);
@@ -100,7 +98,7 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 		}
 
 
-		while (seededPositions.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (seededPositions.contains(lastPosition)){
 				seededPositions.add(randomVector(400, -200));
 			} else {
@@ -108,7 +106,7 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 			}
 		}
 
-		while (seededRotations.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (seededRotations.contains(lastRotation)){
 				Vector[] newRotation = new Vector[3];
 				newRotation[0] = randomVector(6.28f, -3.14f);

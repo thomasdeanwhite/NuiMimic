@@ -4,7 +4,6 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
@@ -88,7 +87,7 @@ public class NGramFrameSelector extends FrameSelector {
 			lastLabel = analyzer.getDataAnalyzer().next();
 			lastHand = hands.get(lastLabel);
 		}
-		while (seededHands.size() < BezierHelper.BEZIER_NUMBER){
+		while (seededHands.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (!seededHands.contains(lastHand)){
 				seededHands.clear();
 				seededHands.add(0, lastHand);
