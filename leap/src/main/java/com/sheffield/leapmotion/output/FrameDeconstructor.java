@@ -1,9 +1,9 @@
-package com.sheffield.instrumenter.output;
+package com.sheffield.leapmotion.output;
 
 import com.leapmotion.leap.*;
 import com.sheffield.instrumenter.FileHandler;
-import com.sheffield.instrumenter.SamplerApp;
-import com.sheffield.instrumenter.Serializer;
+import com.sheffield.sampler.SamplerApp;
+import com.sheffield.sampler.Serializer;
 import com.sheffield.leapmotion.App;
 
 import java.io.File;

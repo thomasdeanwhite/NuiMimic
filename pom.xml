@@ -88,5 +88,6 @@
 
 	<modules>
 		<module>leap</module>
+		<module>leapmotion-sampler</module>
 	</modules>
 </project>

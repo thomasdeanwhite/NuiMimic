@@ -1,4 +1,4 @@
-package com.sheffield.instrumenter.output;
+package com.sheffield.leapmotion.output;
 
 import com.sheffield.imageprocessing.DiscreteCosineTransformer;
 import com.sheffield.leapmotion.Properties;

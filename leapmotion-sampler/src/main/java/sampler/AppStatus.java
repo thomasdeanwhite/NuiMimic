@@ -1,4 +1,4 @@
-package com.sheffield.instrumenter;
+package sampler;
 
 public enum AppStatus {
 	DISCONNECTED, CONNECTING, CONNECTED, FINISHED

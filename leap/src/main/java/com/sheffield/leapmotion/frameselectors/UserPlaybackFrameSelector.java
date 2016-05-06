@@ -1,9 +1,9 @@
 package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.Serializer;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
+import com.sheffield.sampler.Serializer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -24,8 +24,8 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 	private LineIterator lineIterator;
 	
 	public UserPlaybackFrameSelector(FrameSelector frameSelector) {
-		lastSwitchRate = Properties.SWITCH_RATE;
-		Properties.SWITCH_RATE = 30;
+		lastSwitchRate = Properties.FRAMES_PER_SECOND;
+		Properties.FRAMES_PER_SECOND = 30;
 		backupFrameSelector = frameSelector;
 		try {
 			lineIterator = FileUtils.lineIterator(new File(Properties.PLAYBACK_FILE));
@@ -60,7 +60,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 		if (frameStack.size() <= 0 || !lineIterator.hasNext()) {
 			seeded = true;
-			Properties.SWITCH_RATE = lastSwitchRate;
+			Properties.FRAMES_PER_SECOND = lastSwitchRate;
 			App.out.println("- Finished seeding after " + (System.currentTimeMillis()-startSeedingTime) + "ms.");
 			return backupFrameSelector.newFrame();
 		}

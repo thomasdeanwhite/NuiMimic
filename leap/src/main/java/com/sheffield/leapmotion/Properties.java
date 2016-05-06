@@ -51,7 +51,7 @@ public class Properties extends InstrumentationProperties {
     public static String GESTURE_FILES_STRING = null;
     public static String[] GESTURE_FILES = {"invalid"}; //derived from GESTURE_FILE_STRING
 
-    @Parameter(key = "visualise_data", description = "Displays the currently seeded data in a separate window.", hasArgs = false, category = "Leap Motion Testing")
+    @Parameter(key = "visualiseData", description = "Displays the currently seeded data in a separate window.", hasArgs = false, category = "Leap Motion Testing")
     public static boolean VISUALISE_DATA = false;
 
 

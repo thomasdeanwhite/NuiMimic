@@ -8,10 +8,9 @@ import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.instrumenter.output.DctStateComparator;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import sun.java2d.StateTracker;
+import com.sheffield.sampler.output.DctStateComparator;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -80,7 +79,6 @@ public class App implements ThrowableListener {
     private long startTime;
     private long lastSwitchTime;
     private long timeBetweenSwitch;
-    private StateTracker stateTracker;
 
     @Override
     public void throwableThrown(Throwable t) {

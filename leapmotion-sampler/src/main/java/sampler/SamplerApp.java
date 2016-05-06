@@ -1,10 +1,10 @@
-package com.sheffield.instrumenter;
+package sampler;
 
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.mocks.HandFactory;
-import com.sheffield.instrumenter.output.FrameDeconstructor;
+import com.sheffield.leapmotion.output.FrameDeconstructor;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -53,7 +53,7 @@ public class SamplerApp extends Listener {
         status = AppStatus.DISCONNECTED;
         startTime = System.currentTimeMillis();
 
-        if (REQUEST_NAME){
+        if (REQUEST_NAME) {
             filenameStart = JOptionPane.showInputDialog(null, "Please enter your identifier", "Leap Motion Sampler", JOptionPane.INFORMATION_MESSAGE);
         }
 
@@ -129,11 +129,11 @@ public class SamplerApp extends Listener {
     private boolean framesProcessing = false;
 
     public synchronized void frame(Frame f) {
-        if (framesProcessing){
+        if (framesProcessing) {
             return;
         }
 
-        if (!frames.contains(f)){
+        if (!frames.contains(f)) {
             frames.add(f);
         }
 
@@ -188,11 +188,7 @@ public class SamplerApp extends Listener {
                     } catch (IOException e) {
                         e.printStackTrace(App.out);
                     }
-
-                    if (Properties.SEQUENCE) {
-                        frameDeconstructor.outputRawFrameData(frame);
-                        writeFramesInSequence(frame);
-                    }
+                    frameDeconstructor.outputRawFrameData(frame);
 
                     for (Hand h : frame.hands()) {
                         //write hands out to file
@@ -270,13 +266,7 @@ public class SamplerApp extends Listener {
     }
 
 
-
     private int breakIndex = 0;
-
-    public void writeFramesInSequence(Frame frame) {
-
-
-    }
 
     public void finishedWritingSequence() {
 //        if (sequenceFile != null) {
