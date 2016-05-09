@@ -10,7 +10,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.sampler.output.DctStateComparator;
+import com.sheffield.leapmotion.output.DctStateComparator;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -499,7 +499,7 @@ public class App implements ThrowableListener {
                     "related_branches_total,related_branches_covered,relate_branch_coverage,bezier_points,switch_time");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = DctStateComparator.statesVisited.size();
-            info += Properties.FRAME_SELECTION_STRATEGY + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
+            info += "," + Properties.FRAME_SELECTION_STRATEGY + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
 
 
             int lineHits = 0;
@@ -531,7 +531,7 @@ public class App implements ThrowableListener {
                 info += "," + com.sheffield.leapmotion.Properties.BEZIER_POINTS;
             }
 
-            info += Properties.SWITCH_TIME;
+            info += "," + Properties.SWITCH_TIME;
 
             FileHandler.appendToFile(csv, info + "\n");
 

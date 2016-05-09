@@ -2,10 +2,10 @@ package com.sheffield.leapmotion.framemodifier;
 
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.frameselectors.NGramLog;

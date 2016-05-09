@@ -1,15 +1,25 @@
 package com.sheffield.leapmotion.frameselectors;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Serializer;
 import com.sheffield.leapmotion.controller.SeededController;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
 
 public class EuclideanFrameSelector extends FrameSelector {
 	private HashMap<Long, Frame> frames;
@@ -41,7 +51,7 @@ public class EuclideanFrameSelector extends FrameSelector {
 		frames = new HashMap<Long, Frame>();
 
 		similarities = new HashMap<Long, List<FrameSimilarity>>();
-		while (frames.size() < Properties.BACKGROUND_FRAMES) {
+		while (frames.size() < Properties.MAX_LOADED_FRAMES) {
 			loadNextFile();
 		}
 
@@ -74,7 +84,7 @@ public class EuclideanFrameSelector extends FrameSelector {
 	}
 
 	public void loadNextFile() {
-		if (frames.size() < Properties.BACKGROUND_FRAMES || frames.size() != 0) {
+		if (frames.size() < Properties.MAX_LOADED_FRAMES || frames.size() != 0) {
 			File file = files[random.nextInt(files.length)];
 			if (file.isDirectory()) {
 				loadNextFile();
@@ -157,7 +167,7 @@ public class EuclideanFrameSelector extends FrameSelector {
 			}
 
 		}
-		while (frames.size() < Properties.BACKGROUND_FRAMES) {
+		while (frames.size() < Properties.MAX_LOADED_FRAMES) {
 			loadNextFile();
 		}
 	}

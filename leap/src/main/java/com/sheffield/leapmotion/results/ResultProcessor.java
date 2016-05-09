@@ -125,16 +125,20 @@ public class ResultProcessor {
             Collections.sort(classes);
 
             String input = "<html><head><style>" +
-                    "div { margin: 3px; padding: 3px; } " +
-                    "body { font-family:" +
+                    "div { margin: 0px 3px; padding: 0px 3px; font-size:10px; } " +
+                    "body { font-family: Arial; }" +
                     "</style></head><body>" +
                     "<div style='width: 80%; margin-left: auto;" +
                     "margin-right: auto;'>";
 
             for (String c : classes) {
+                String cName = c;
+                if (cName.length() > 30){
+                    cName = cName.substring(c.length()-30, c.length());
+                }
                 input += "<div style='width:100%;float:left'>" +
                         "<div style='width:30%;text-align:right;float:left;'>" +
-                        c + "</div><div style='width:68%;text-align:left;float:right;'>";
+                        cName + "</div><div style='width:67%;text-align:left;float:right;'>";
                 ArrayList<Integer> l = lines.get(c);
                 float percent = 0;
                 for (Integer i : l) {

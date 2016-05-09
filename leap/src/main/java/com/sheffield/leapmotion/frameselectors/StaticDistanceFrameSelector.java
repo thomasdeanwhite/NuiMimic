@@ -2,8 +2,8 @@ package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;

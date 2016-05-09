@@ -1,7 +1,22 @@
 package com.sheffield.leapmotion.mocks;
 
-import com.leapmotion.leap.*;
-import com.sheffield.instrumenter.Properties;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.FingerList;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.GestureList;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.HandList;
+import com.leapmotion.leap.ImageList;
+import com.leapmotion.leap.InteractionBox;
+import com.leapmotion.leap.Matrix;
+import com.leapmotion.leap.Pointable;
+import com.leapmotion.leap.PointableList;
+import com.leapmotion.leap.Tool;
+import com.leapmotion.leap.ToolList;
+import com.leapmotion.leap.TrackedQuad;
+import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.Properties;
 
 public class SeededFrame extends Frame {
 
@@ -104,7 +119,7 @@ public class SeededFrame extends Frame {
 
 	@Override
 	public float currentFramesPerSecond() {
-		return Properties.SAMPLE_RATE;
+		return Properties.FRAMES_PER_SECOND;
 	}
 
 	@Override
