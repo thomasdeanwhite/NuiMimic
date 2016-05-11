@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.mocks;
 
+import com.google.gson.Gson;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.FingerList;
 import com.leapmotion.leap.Frame;
@@ -18,7 +19,9 @@ import com.leapmotion.leap.TrackedQuad;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Properties;
 
-public class SeededFrame extends Frame {
+import java.io.Serializable;
+
+public class SeededFrame extends Frame implements Serializable {
 
 	protected Frame frame;
 	protected GestureList gestureList;
@@ -29,6 +32,8 @@ public class SeededFrame extends Frame {
 	protected long id;
 	// TODO: SeededInteractionBox
 	protected InteractionBox interactionBox = InteractionBox.invalid();
+
+	public static Gson gson = new Gson();
 
 	public SeededFrame(Frame frame) {
 		if (frame instanceof SeededFrame) {
@@ -93,6 +98,11 @@ public class SeededFrame extends Frame {
 	public boolean isGestureSet() {
 		return gestureSet;
 	}
+
+	public String toJson(){
+		return gson.toJson(this);
+	}
+
 
 	@Override
 	public Gesture gesture(int arg0) {

@@ -2,10 +2,12 @@ package com.sheffield.leapmotion.mocks;
 
 import com.leapmotion.leap.*;
 
+import java.io.Serializable;
+
 /**
  * Created by thomas on 05/01/2016.
  */
-public class SeededCircleGesture extends CircleGesture {
+public class SeededCircleGesture extends CircleGesture implements Serializable {
 
     private Vector center;
     private Vector normal;

@@ -4,7 +4,9 @@ import com.leapmotion.leap.Bone;
 import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Vector;
 
-public class SeededBone extends Bone {
+import java.io.Serializable;
+
+public class SeededBone extends Bone implements Serializable {
 
 	protected Matrix basis;
 	protected Vector center;

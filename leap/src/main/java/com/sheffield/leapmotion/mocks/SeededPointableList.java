@@ -5,10 +5,11 @@ import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.PointableList;
 import com.leapmotion.leap.ToolList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SeededPointableList extends PointableList {
+public class SeededPointableList extends PointableList implements Serializable {
 
 	protected ArrayList<Pointable> pointables;
 

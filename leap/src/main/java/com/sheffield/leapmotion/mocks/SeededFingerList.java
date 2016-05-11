@@ -4,10 +4,11 @@ import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Finger.Type;
 import com.leapmotion.leap.FingerList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SeededFingerList extends FingerList {
+public class SeededFingerList extends FingerList implements Serializable {
 
 	protected ArrayList<Finger> fingers;
 

@@ -2,9 +2,10 @@ package com.sheffield.leapmotion.mocks;
 
 import com.leapmotion.leap.*;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
-public class SeededFinger extends Finger {
+public class SeededFinger extends Finger implements Serializable {
 
 	public static final int MAX_Z_POSITION = 400;
 

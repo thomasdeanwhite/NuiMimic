@@ -3,7 +3,9 @@ package com.sheffield.leapmotion.mocks;
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Listener;
 
-public class SeededListener extends Listener {
+import java.io.Serializable;
+
+public class SeededListener extends Listener implements Serializable {
 
 	public static SeededListener listener;
 

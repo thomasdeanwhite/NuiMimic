@@ -2,10 +2,12 @@ package com.sheffield.leapmotion.mocks;
 
 import com.leapmotion.leap.*;
 
+import java.io.Serializable;
+
 /**
  * Created by thomas on 28/01/2016.
  */
-public class SeededSwipeGesture extends SwipeGesture {
+public class SeededSwipeGesture extends SwipeGesture implements Serializable {
 
     private Gesture gesture;
     private Vector startPosition, position, direction;
