@@ -148,7 +148,7 @@ public class FrameHandler {
             }
             SeededFrame sf = (SeededFrame) frame;
 
-            App.out.println(sf.toJson());
+            //App.out.println(sf.toJson());
             GestureList gl = null;
             if (gestureHandler != null) {
                 gl = gestureHandler.handleFrame(frame);

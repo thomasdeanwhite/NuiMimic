@@ -1,10 +1,9 @@
 package com.sheffield.leapmotion.output;
 
 import com.leapmotion.leap.*;
-import com.sheffield.instrumenter.FileHandler;
-import com.sheffield.sampler.SamplerApp;
-import com.sheffield.sampler.Serializer;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Serializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +18,8 @@ public class FrameDeconstructor {
     private String currentGesture = "";
     private String filenameStart = "";
     private String addition = "";
+
+    public static long[] BREAK_TIMES = new long[]{};
 
     private boolean calculatingScreenshot = false;
 
@@ -86,7 +87,7 @@ public class FrameDeconstructor {
                 boolean start = false;
 
                 if (sequenceFile == null) {
-                    String addition = "-" + SamplerApp.BREAK_TIMES[breakIndex];
+                    String addition = "-" + BREAK_TIMES[breakIndex];
                     sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.raw_frame_data");
                     sequenceFile.getParentFile().mkdirs();
                     sequenceFile.createNewFile();
@@ -100,7 +101,6 @@ public class FrameDeconstructor {
                 FileHandler.appendToFile(sequenceFile, content);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
-                SamplerApp.out.println("Writing failed!");
                 e.printStackTrace();
             }
 

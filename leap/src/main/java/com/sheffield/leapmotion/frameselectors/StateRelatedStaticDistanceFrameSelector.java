@@ -1,7 +1,7 @@
 package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;import com.sheffield.sampler.output.DctStateComparator;
+import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
@@ -11,6 +11,7 @@ import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
+import com.sheffield.leapmotion.output.DctStateComparator;
 
 import java.io.File;
 import java.util.ArrayList;

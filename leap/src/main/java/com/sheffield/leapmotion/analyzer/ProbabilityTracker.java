@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.analyzer;
 
-import com.sheffield.sampler.output.DctStateComparator;
+
+import com.sheffield.leapmotion.output.DctStateComparator;
 
 import java.util.HashMap;
 import java.util.List;
