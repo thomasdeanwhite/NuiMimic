@@ -56,6 +56,10 @@ public class FrameHandler {
                     break;
                 case STATE_DEPENDANT:
                     frameSelector = new StateRelatedStaticDistanceFrameSelector();
+                    break;
+                case TRAINING_REPRODUCTION:
+                    frameSelector = new TrainingDataPlaybackFrameSelector(Properties.GESTURE_FILES[0]);
+                    break;
                 default:
                     frameSelector = new RandomFrameSelector();
                     break;
