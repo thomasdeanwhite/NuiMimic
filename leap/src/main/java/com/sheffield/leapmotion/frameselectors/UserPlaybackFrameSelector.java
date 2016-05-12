@@ -22,6 +22,9 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 	private boolean seeded = false;
 
 	private LineIterator lineIterator;
+
+	private long seededTime = 0;
+	private long firstFrameTimeStamp = 0;
 	
 	public UserPlaybackFrameSelector(FrameSelector frameSelector) {
 		lastSwitchRate = Properties.FRAMES_PER_SECOND;
@@ -50,22 +53,41 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 			return backupFrameSelector.newFrame();
 		}
 		if (startSeedingTime == 0){
-//			try {
-//				Thread.sleep(10000);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
 			startSeedingTime = System.currentTimeMillis();
 		}
+
+		seededTime = System.currentTimeMillis();
 
 		if (frameStack.size() <= 0 || !lineIterator.hasNext()) {
 			seeded = true;
 			Properties.FRAMES_PER_SECOND = lastSwitchRate;
-			App.out.println("- Finished seeding after " + (System.currentTimeMillis()-startSeedingTime) + "ms.");
+			App.out.println("- Finished seeding after " + (-startSeedingTime) + "ms.");
 			return backupFrameSelector.newFrame();
 		}
 
-		frameStack.add(Serializer.sequenceFromJson(lineIterator.nextLine()));
+		Frame f = Serializer.sequenceFromJson(lineIterator.nextLine());
+
+		if (firstFrameTimeStamp == 0) {
+			firstFrameTimeStamp = f.timestamp();
+		}
+
+		long seededTimePassed = f.timestamp() - firstFrameTimeStamp;
+
+		long currentTimePassed = seededTime - startSeedingTime;
+
+		while (currentTimePassed > seededTimePassed){
+			f = Serializer.sequenceFromJson(lineIterator.nextLine());
+
+			if (firstFrameTimeStamp == 0) {
+				firstFrameTimeStamp = f.timestamp();
+			}
+
+			seededTimePassed = f.timestamp() - firstFrameTimeStamp;
+
+			currentTimePassed = seededTime - startSeedingTime;
+		}
+
+		frameStack.add(f);
 		
 		return frameStack.remove(0);
 	}

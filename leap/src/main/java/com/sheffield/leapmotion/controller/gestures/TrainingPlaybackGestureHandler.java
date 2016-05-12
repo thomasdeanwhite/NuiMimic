@@ -97,7 +97,6 @@ public class TrainingPlaybackGestureHandler extends NGramGestureHandler {
 		int counter = gestureTypes.size();
 		for (Gesture.Type gt : gestureTypes) {
 			if (!gt.equals(Gesture.Type.TYPE_INVALID)) {
-				App.out.println(gt);
 				gl.addGesture(setupGesture(gt, frame, gestureId - (--counter)));
 			}
 		}

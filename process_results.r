@@ -107,7 +107,7 @@ bplot <- function(data, name, title){
   #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
   mi <- round(min(data$related_line_coverage)-0.01, digits=3)
   ma <- round(max(data$related_line_coverage)+0.01, digits=3)
-  pirateplot(formula=related_line_coverage~bezier_points + fs, 
+  pirateplot(formula=related_line_coverage~fs, 
              data=data, 
              xlab = 'Training Pool', ylab='Line Coverage', main=title,
              line.fun=median, pal='southpark', ylim=c(mi, ma))

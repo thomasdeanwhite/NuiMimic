@@ -85,7 +85,7 @@ public class AllResultProcessor {
 
             HashMap<String, HashMap<String, HashMap<Integer, Integer>>> methodLinesCovered = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
 
-            String[] methodsUsed = {"RANDOM_POOL", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDANT"};
+            String[] methodsUsed = {"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDANT", "UNKNOWN"};
 
             ArrayList<String> seenMethods = new ArrayList<String>();
 
@@ -95,6 +95,9 @@ public class AllResultProcessor {
             HashMap<String, String> shortenedClasses = new HashMap<String, String>();
 
             HashMap<String, Integer> methodQuantity = new HashMap<String, Integer>();
+
+            HashMap<String, Float> methodAverageCoverage = new HashMap<String, Float>();
+
 
             for (String file : dir.list()) {
 
@@ -106,6 +109,19 @@ public class AllResultProcessor {
 
                 String resultsString = FileHandler.readFile(results);
 
+                String[] resultsLines = resultsString.split("\n");
+
+                String[] header = resultsString.split(",");
+
+                int relatedLineIndex = 0;
+
+                for (int i = 0; i < header.length; i++){
+                    if (header[i].toLowerCase().contains("related_line_coverage")){
+                        relatedLineIndex = i;
+                        break;
+                    }
+                }
+
                 String method = "";
 
                 for (String s : methodsUsed) {
@@ -116,7 +132,22 @@ public class AllResultProcessor {
                 }
 
                 if (method.length() == 0) {
-                    method = "Unknown";
+                    method = "UNKNOWN";
+                }
+
+                for (int i = resultsLines.length-1; i > 0; i--){
+                    if (resultsLines[i].trim().length() == 0){
+                        continue;
+                    } else {
+                        String[] currentRow = resultsLines[i].split(",");
+                        float coverage = Float.parseFloat(currentRow[relatedLineIndex]);
+                        if (!methodAverageCoverage.containsKey(method)){
+                            methodAverageCoverage.put(method, coverage);
+                        } else {
+                            methodAverageCoverage.put(method, methodAverageCoverage.get(method) + coverage);
+                        }
+                        break;
+                    }
                 }
 
                 if (!methodQuantity.containsKey(method)){
@@ -240,19 +271,35 @@ public class AllResultProcessor {
             input += "<div style='width:100%;float:left; border-bottom: 1px solid #000000;'>" +
                     "<div style='width:30%;text-align:right;float:left;padding:5px; font-weight: bold;'>Class Name</div><div style='width:67%;text-align:left;float:right;'>";
 
-            int headerWidth = 100 / seenMethods.size();
+            int headerWidth = 95;
             int counter = 0;
+
+            float avg = 0f;
+
+            for (String s : seenMethods){
+                float quant = (float)methodQuantity.get(s);
+                float coverage = methodAverageCoverage.get(s);
+                methodAverageCoverage.put(s, coverage/quant);
+            }
+
+            for (Float f : methodAverageCoverage.values()) {
+                avg += f;
+            }
+
+            float mult = 1f / avg;
+
+
             for (String m : seenMethods) {
-                input += "<span style='float:left; width:calc(" + headerWidth + "% - 10px); font-weight: bold; color:#ffffff; background-color: " + colors[counter++ % colors.length] + "; overflow:hidden;padding:5px;'>" +
-                        m + "</span>";
+                input += "<span style='float:left; width:calc(" + Math.round(headerWidth*methodAverageCoverage.get(m)*mult) + "% - 10px); font-weight: bold; color:#ffffff; background-color: " + colors[counter++ % colors.length] + "; overflow:hidden;padding:5px;'>" +
+                        m + " (" + (Math.round(methodAverageCoverage.get(m)*1000f)/10f) + "%)</span>";
             }
 
             input += "</div></div>";
 
             String outDir = System.currentTimeMillis() + "";
-
             for (String s : classCoverage.keySet()) {
                 String className = shortenedClasses.get(s);
+                System.out.print("\rProcessing " + className);
                 File classIn = new File(args[2] + "/results/classes/" + className + ".java");
                 File classout = new File(args[2] + "/results/" + outDir + "/" + className + ".html");
 
