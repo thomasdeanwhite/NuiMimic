@@ -5,9 +5,9 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.TrainingPlaybackGestureHandler;
@@ -108,17 +108,23 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
             rotations = new HashMap<String, Vector[]>();
             for (String line : lines) {
                 String[] vect = line.split(",");
-                Vector[] vs = new Vector[3];
+                float[][] vs = new float[3][3];
+                Vector[] vects = new Vector[3];
                 for (int i = 0; i < 3; i++) {
-                    Vector v = new Vector();
                     int index = (i*3)+1;
-                    v.setX(Float.parseFloat(vect[index]));
-                    v.setY(Float.parseFloat(vect[index+1]));
-                    v.setZ(Float.parseFloat(vect[index+2]));
-                    vs[i] = v;
+                    vs[0][i] = Float.parseFloat(vect[index]);
+                    vs[1][i] = Float.parseFloat(vect[index+1]);
+                    vs[2][i] = Float.parseFloat(vect[index+2]);
                 }
 
-                rotations.put(vect[0], vs);
+                for (int i = 0; i < vs.length; i++){
+                    Vector v = new Vector(vs[0][i],
+                            vs[1][i],
+                            vs[2][i]);
+                    vects[i] = v;
+                }
+
+                rotations.put(vect[0], vects);
 
             }
 
@@ -145,30 +151,20 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
             Vector[] lastRotation = rotations.get(currentRotation);
 
-            Vector[] rotationVectors = new Vector[lastRotation.length];
-
-            ArrayList<Vector[]> seededRotations = new ArrayList<Vector[]>();
-            seededRotations.add(rotations.get(currentRotation));
-            seededRotations.add(rotations.get(rotationLabelStack.get(0)));
-
             float modifier = currentAnimationTime / (float)Properties.SWITCH_TIME;
 
-            for (int i = 0; i < lastRotation.length; i++){
-                ArrayList<Vector> vs = new ArrayList<Vector>();
-                for (Vector[] vects : seededRotations){
-                    vs.add(vects[i]);
-                }
-                rotationVectors[i] = BezierHelper.bezier(vs, modifier);
-            }
+            Vector[] rotationVectors = QuaternionHelper.fadeMatrices(rotations.get(currentRotation), rotations.get(rotationLabelStack.get(0)), modifier);
+
 
             sh.setBasis(rotationVectors[0], rotationVectors[1],
                     rotationVectors[2]);
-
-            ArrayList<Vector> seededPositions = new ArrayList<Vector>();
-            seededPositions.add(vectors.get(currentPosition));
-            seededPositions.add(vectors.get(positionLabelStack.get(0)));
-
-            sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
+//
+//            ArrayList<Vector> seededPositions = new ArrayList<Vector>();
+//
+//            seededPositions.add(vectors.get(currentPosition));
+//            seededPositions.add(vectors.get(positionLabelStack.get(0)));
+//
+//            sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
         }
     }
 

@@ -226,17 +226,12 @@ public class NGramFrameModifier implements FrameModifier {
             float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
             SeededHand sh = (SeededHand) h;
 
-            Vector[] rotationVectors = new Vector[lastRotation.length];
-            for (int i = 0; i < lastRotation.length; i++){
-                ArrayList<Vector> vs = new ArrayList<Vector>();
-                for (Vector[] vects : seededRotations){
-                    vs.add(vects[i]);
-                }
-                rotationVectors[i] = BezierHelper.bezier(vs, modifier);
-            }
+            Vector[] rotationVectors = lastRotation;//QuaternionHelper.fadeMatrices(seededRotations, modifier);
 
-            sh.setBasis(rotationVectors[0], rotationVectors[1],
-                    rotationVectors[2]);
+            sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
+
+            //QuaternionHelper.Quaternion q = QuaternionHelper.toQuaternion(rotationVectors);
+            //sh.setRotation(new Vector(q.x, q.y, q.z), q.w);
             sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
         }
         currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
