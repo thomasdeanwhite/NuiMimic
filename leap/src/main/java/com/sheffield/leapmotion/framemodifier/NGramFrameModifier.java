@@ -6,6 +6,8 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.frameselectors.NGramLog;
@@ -22,16 +24,16 @@ public class NGramFrameModifier implements FrameModifier {
     protected AnalyzerApp positionAnalyzer;
     protected AnalyzerApp rotationAnalyzer;
     private HashMap<String, Vector> vectors;
-    private HashMap<String, Vector[]> rotations;
+    private HashMap<String, Quaternion> rotations;
 
     private Vector lastPosition;
     private String lastPositionLabel;
     private ArrayList<Vector> seededPositions = new ArrayList<Vector>();
     private ArrayList<String> positionLabels = new ArrayList<String>();
 
-    private Vector[] lastRotation;
+    private Quaternion lastRotation;
     private String lastRotationLabel;
-    private ArrayList<Vector[]> seededRotations = new ArrayList<Vector[]>();
+    private ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
     private ArrayList<String> rotationLabels = new ArrayList<String>();
 
     private int currentAnimationTime = 0;
@@ -79,20 +81,17 @@ public class NGramFrameModifier implements FrameModifier {
             String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
             contents = FileHandler.readFile(new File(rotationFile));
             lines = contents.split("\n");
-            rotations = new HashMap<String, Vector[]>();
+            rotations = new HashMap<String, Quaternion>();
             for (String line : lines) {
                 String[] vect = line.split(",");
-                Vector[] vs = new Vector[3];
-                for (int i = 0; i < 3; i++) {
-                    Vector v = new Vector();
-                    int index = (i*3)+1;
-                    v.setX(Float.parseFloat(vect[index]));
-                    v.setY(Float.parseFloat(vect[index+1]));
-                    v.setZ(Float.parseFloat(vect[index+2]));
-                    vs[i] = v;
-                }
+                Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
+                        Float.parseFloat(vect[2]),
+                        Float.parseFloat(vect[3]),
+                        Float.parseFloat(vect[4])).normalise();
 
-                rotations.put(vect[0], vs);
+                rotations.put(vect[0], q);
+
+                //App.out.println(vect[0] + ": " + q);
 
             }
 
@@ -145,7 +144,7 @@ public class NGramFrameModifier implements FrameModifier {
 
         while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
             if (seededRotations.contains(lastRotation)){
-                Vector[] rotation = null;
+                Quaternion rotation = null;
                 String rLabel = null;
                 while (rotation == null){
                     rLabel = rotationAnalyzer.getDataAnalyzer().next();
@@ -158,6 +157,8 @@ public class NGramFrameModifier implements FrameModifier {
                         }
                     }
                 }
+                App.out.println("\n" + lastRotationLabel + ": " + lastRotation);
+
             } else {
                 seededRotations.add(0, lastRotation);
                 rotationLabels.add(0, lastRotationLabel);
@@ -226,12 +227,13 @@ public class NGramFrameModifier implements FrameModifier {
             float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
             SeededHand sh = (SeededHand) h;
 
-            Vector[] rotationVectors = lastRotation;//QuaternionHelper.fadeMatrices(seededRotations, modifier);
+            Vector[] rotationVectors = QuaternionHelper.fadeQuaternions(seededRotations, modifier).toMatrix();
 
-            sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
+            //sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
 
-            //QuaternionHelper.Quaternion q = QuaternionHelper.toQuaternion(rotationVectors);
+            //Quaternion q = QuaternionHelper.toQuaternion(rotationVectors);
             //sh.setRotation(new Vector(q.x, q.y, q.z), q.w);
+            sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
             sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
         }
         currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);

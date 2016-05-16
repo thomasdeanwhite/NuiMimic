@@ -35,6 +35,24 @@ public class DisplayWindow extends JFrame {
 			// paintComponent(getGraphics());
 		}
 
+		public void drawBasis (Graphics2D g, Hand h, Vector offset){
+			Matrix basis = h.basis();
+
+			Vector v = h.palmPosition().plus(offset);
+
+			final float LINE_SCALE = 50f;
+
+			g.setColor(Color.BLUE);
+
+			//App.out.println(basis.getXBasis());
+
+			g.drawLine((int)v.getX(), (int)v.getY(), (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE)), (int)((v.getY() + basis.getXBasis().getY()*LINE_SCALE)));
+
+			g.setColor(Color.GREEN);
+
+			g.drawLine((int)v.getX(), (int)v.getZ(), (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE)), (int)((v.getZ() + basis.getXBasis().getZ()*LINE_SCALE)));
+		}
+
 		@Override
 		public void paintComponent(Graphics g) {
 
@@ -54,6 +72,9 @@ public class DisplayWindow extends JFrame {
 				for (Hand h : currentFrame.hands()) {
 					// String data = HandFactory.handToString(h);
 					// h = HandFactory.createHand(data, currentFrame);
+
+					drawBasis(g2d, h, new Vector( getWidth() / 4 ,  getHeight() / 4 , 0f));
+
 					if (!h.isValid()) {
 						continue;
 					}

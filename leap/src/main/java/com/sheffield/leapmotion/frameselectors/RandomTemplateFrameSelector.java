@@ -7,6 +7,8 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
@@ -33,16 +35,16 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 	private Random random = new Random();
 
 	private HashMap<String, Vector> vectors;
-	private HashMap<String, Vector[]> rotations;
+	private HashMap<String, Quaternion> rotations;
 
 	private Vector lastPosition;
 	private String lastPositionLabel;
 	private ArrayList<Vector> seededPositions = new ArrayList<Vector>();
 	private ArrayList<String> positionLabels = new ArrayList<String>();
 
-	private Vector[] lastRotation;
+	private Quaternion lastRotation;
 	private String lastRotationLabel;
-	private ArrayList<Vector[]> seededRotations = new ArrayList<Vector[]>();
+	private ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
 	private ArrayList<String> rotationLabels = new ArrayList<String>();
 
 
@@ -90,20 +92,17 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 			String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
 			contents = FileHandler.readFile(new File(rotationFile));
 			lines = contents.split("\n");
-			rotations = new HashMap<String, Vector[]>();
+			rotations = new HashMap<String, Quaternion>();
 			for (String line : lines) {
 				String[] vect = line.split(",");
-				Vector[] vs = new Vector[3];
-				for (int i = 0; i < 3; i++) {
-					Vector v = new Vector();
-					int index = (i*3)+1;
-					v.setX(Float.parseFloat(vect[index]));
-					v.setY(Float.parseFloat(vect[index+1]));
-					v.setZ(Float.parseFloat(vect[index+2]));
-					vs[i] = v;
-				}
+				Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
+						Float.parseFloat(vect[2]),
+						Float.parseFloat(vect[3]),
+						Float.parseFloat(vect[4])).normalise();
 
-				rotations.put(vect[0], vs);
+				rotations.put(vect[0], q);
+
+				//App.out.println(vect[0] + ": " + q);
 
 			}
 		} catch (IOException e) {
@@ -223,7 +222,7 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (seededRotations.contains(lastRotation)){
-				Vector[] rotation = null;
+				Quaternion rotation = null;
 				String rLabel = null;
 				while (rotation == null){
 					rLabel = randomRotation();
@@ -250,14 +249,9 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
 			SeededHand sh = (SeededHand) h;
 
-			Vector[] rotationVectors = new Vector[lastRotation.length];
-			for (int i = 0; i < lastRotation.length; i++){
-				ArrayList<Vector> vs = new ArrayList<Vector>();
-				for (Vector[] vects : seededRotations){
-					vs.add(vects[i]);
-				}
-				rotationVectors[i] = BezierHelper.bezier(vs, modifier);
-			}
+			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
+
+			Vector[] rotationVectors = q.toMatrix();
 
 			sh.setBasis(rotationVectors[0], rotationVectors[1],
 					rotationVectors[2]);

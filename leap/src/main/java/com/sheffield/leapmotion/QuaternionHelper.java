@@ -2,56 +2,14 @@ package com.sheffield.leapmotion;
 
 import com.leapmotion.leap.Vector;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 
 /**
  * Created by thomas on 13/05/2016.
  */
 public class QuaternionHelper {
-
-    public static class Quaternion {
-        public float w, x, y, z;
-
-        public Quaternion (float w, float x, float y, float z){
-            this.w = w;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
-
-        public Quaternion inverse () {
-            return new Quaternion(w, -x, -y, -z);
-        }
-
-        public float innerProduct (Quaternion q){
-            return x*q.x + y*q.y + z*q.z + w*q.w;
-        }
-
-        public Vector[] toMatrix(){
-            float[][] fs = new float[3][3];
-
-            fs[0][0] = 1 - 2*y*y - 2*z*z;
-            fs[1][1] = 1 - 2*x*x - 2*z*z;
-            fs[2][2] = 1 - 2*x*x - 2*y*y;
-
-            fs[0][1] = 2*x*y + 2*z*w;
-            fs[0][2] = 2*x*z - 2*y*w;
-            fs[1][2] = 2*y*z + 2*x*w;
-
-            fs[1][0] = 2*x*y - 2*z*w;
-            fs[2][0] = 2*x*z + 2*y*w;
-            fs[2][1] = 2*y*z - 2*x*w;
-
-            Vector[] vs = new Vector[fs.length];
-
-            for (int i = 0; i < fs.length; i++){
-                vs[i] = new Vector(fs[i][0], fs[i][1], fs[i][2]);
-            }
-            return vs;
-        }
-
-
-    }
 
     public static Vector[] fadeMatrices(Vector[] v1, Vector[] v2, float modifier){
         try {
@@ -93,9 +51,68 @@ public class QuaternionHelper {
             return vectors.get(0);
         }
     }
+//
+//    public static Quaternion fadeQuaternions(ArrayList<Quaternion> quaternions, float modifier) {
+//        try {
+//            quaternions = new ArrayList<Quaternion>(quaternions);
+//            while (quaternions.size() > 1) {
+//                for (int i = 0; i < quaternions.size() - 1; i++) {
+//                    Quaternion q1 = quaternions.get(i).normalise();
+//                    Quaternion q2 = quaternions.get(i + 1).normalise();
+//
+//                    Quaternion qr = fadeQuaternions(q1, q2, modifier);
+//
+//                    quaternions.remove(i);
+//                    quaternions.add(i, qr);
+//                }
+//                quaternions.remove(quaternions.size() - 1);
+//            }
+//
+//            return quaternions.get(0).normalise();
+//
+//        } catch (IllegalArgumentException e) {
+//            App.out.println(e.getLocalizedMessage());
+//            return quaternions.get(0);
+//        }
+//    }
+
+    public static Quaternion fadeQuaternions(ArrayList<Quaternion> quaternions, float modifier) {
+        if (quaternions.size() == 2){
+            return fadeQuaternions(quaternions.get(0), quaternions.get(1), modifier);
+        }
+        try {
+            quaternions = new ArrayList<Quaternion>(quaternions);
+            modifier = Math.min(0.999999f, modifier);
+
+            int i = (int) (modifier * (quaternions.size()-1));
+
+            float size = quaternions.size()-1;
+
+            modifier = modifier - (i * (1f/size));
+
+            modifier *= size;
+
+            Quaternion q1 = quaternions.get(i).normalise();
+            Quaternion q2 = quaternions.get(i + 1).normalise();
+
+            Quaternion qr = fadeQuaternions(q1, q2, modifier);
+
+            return qr;
+
+        } catch (IllegalArgumentException e) {
+            App.out.println(e.getLocalizedMessage());
+            return quaternions.get(0);
+        }
+    }
 
     public static float angleBetween(Quaternion q1, Quaternion q2){
-        return q1.innerProduct(q2);
+        float angle = q1.innerProduct(q2.inverse());
+
+        if (angle > Math.PI){
+            angle = (float) (2*Math.PI - angle);
+        }
+
+        return angle;
     }
 
     public static Quaternion fadeQuaternions(Quaternion q1, Quaternion q2, float modifier){
@@ -126,7 +143,7 @@ public class QuaternionHelper {
         return new Quaternion(q1.w * ra + q2.w * rb,
                 q1.x * ra + q2.x * rb,
                 q1.y * ra + q2.y * rb,
-                q1.z * ra + q2.z * rb);
+                q1.z * ra + q2.z * rb).normalise();
 
 
 
@@ -156,7 +173,71 @@ public class QuaternionHelper {
         y = (m[0][2] - m[2][0]) / w4;
         z = (m[1][0] - m[0][1]) / w4;
 
-        return new Quaternion(w,x,y,z);
+        return new Quaternion(w,x,y,z).normalise();
+    }
+
+    public static void main(String[] args){
+        JFrame frame = new JFrame("Quaternion Plotter"){
+
+            @Override
+            public void paintComponents(Graphics g) {
+                if (g == null){
+                    g = getGraphics();
+                }
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.clearRect(0, 0, getWidth(), getHeight());
+
+                g2d.setColor(Color.BLUE);
+                g2d.setBackground(Color.WHITE);
+                g2d.setStroke(new BasicStroke(10));
+
+                ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
+
+                qs.add(new Quaternion(1,0,0,0));
+                qs.add(new Quaternion(0.7071f,0,0,0.7071f));
+                qs.add(new Quaternion(0,0,0,1));
+                qs.add(new Quaternion(0.7071f,0,0,-0.7071f));
+                qs.add(new Quaternion(1,0,0,0));
+
+                g2d.setPaint(Color.DARK_GRAY);
+
+                final int SPOT = 30;
+                final int SCALE = 300;
+
+                int counter = 0;
+
+                Vector offset = new Vector(getWidth()/2, getHeight()/2, 0f);
+                Vector draw = new Vector(0f, -SCALE, 0f);
+
+                for (Quaternion q : qs){
+                    g2d.drawString((counter++) + "", offset.getX() + SCALE * q.x + ((3*SPOT)/4), offset.getY() + SCALE * q.y);
+                    g2d.fillRect((int) (offset.getX() + (SCALE * q.x)-(SPOT/2)), (int) (offset.getY() + (SCALE * q.y)-(SPOT/2)), SPOT, SPOT);
+                }
+
+                g2d.setColor(Color.RED);
+
+                for (int i = 0; i < 500; i++){
+                    float m1 = i / (float) 500;
+                    float m2 = (i+1) / (float) 500;
+                    Quaternion q1 = fadeQuaternions(qs, m1);
+                    Quaternion q2 = fadeQuaternions(qs, m2);
+
+                    Vector v1 = q1.rotateVector(draw);
+                    Vector v2 = q2.rotateVector(draw);
+
+                    g2d.drawLine((int) (offset.getX() + v1.getX()),
+                            (int) (offset.getY() + v1.getY()),
+                            (int) (offset.getX() + v2.getX()),
+                            (int) (offset.getY() + v2.getY()));
+                }
+
+            }
+        };
+
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(1000, 1000);
+        frame.paintComponents(null);
     }
 
 }
