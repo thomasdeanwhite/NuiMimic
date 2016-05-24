@@ -23,7 +23,7 @@ public class Properties extends InstrumentationProperties {
             Properties for Leap Motion Testing
      */
     @Parameter(key = "dataPoolDirectory", description = "Directory containing data pool", hasArgs = true, category = "Leap Motion Testing")
-    public static String DIRECTORY = "C:/data/leap-motion/processed";
+    public static String DIRECTORY = "C:/data/leap-motion";
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
     public static String PLAYBACK_FILE = null;

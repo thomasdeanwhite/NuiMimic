@@ -348,6 +348,8 @@ public class App implements ThrowableListener {
             return;
         }
 
+        Properties.DIRECTORY += "/processed";
+
         if (args != null && args.length > 0) {
             Properties.instance().setOptions(args);
             App.out.println("Options setup");

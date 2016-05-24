@@ -154,18 +154,19 @@ public class FrameHandler {
 
             //App.out.println(sf.toJson());
             GestureList gl = null;
-            if (gestureHandler != null) {
-                gl = gestureHandler.handleFrame(frame);
+            for (FrameModifier fm : frameModifiers) {
+                fm.modifyFrame(sf);
             }
+            if (gestureHandler == null) {
+                gestureHandler = new RandomGestureHandler();
+            }
+            gl = gestureHandler.handleFrame(frame);
             if (gl == null) {
                 gl = frame.gestures();
             }
 
 
             sf.setGestures(gl);
-            for (FrameModifier fm : frameModifiers) {
-                fm.modifyFrame(sf);
-            }
         }
         frames.add(0, frame);
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {

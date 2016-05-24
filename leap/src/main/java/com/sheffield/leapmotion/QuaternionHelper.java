@@ -77,6 +77,9 @@ public class QuaternionHelper {
 //    }
 
     public static Quaternion fadeQuaternions(ArrayList<Quaternion> quaternions, float modifier) {
+        if (quaternions.size() == 1){
+            return quaternions.get(0);
+        }
         if (quaternions.size() == 2){
             return fadeQuaternions(quaternions.get(0), quaternions.get(1), modifier);
         }
@@ -108,8 +111,12 @@ public class QuaternionHelper {
     public static float angleBetween(Quaternion q1, Quaternion q2){
         float angle = q1.innerProduct(q2.inverse());
 
-        if (angle > Math.PI){
-            angle = (float) (2*Math.PI - angle);
+//        if (angle > Math.PI){
+//            angle = (float) (Math.PI - angle);
+//        }
+
+        if (angle < 0){
+            angle = -angle;
         }
 
         return angle;
@@ -154,26 +161,25 @@ public class QuaternionHelper {
         float[][] m = new float[3][3];
 
         for (int i = 0; i < vs.length; i++){
-            m[0][i] = vs[i].getX();
-            m[1][i] = vs[i].getY();
-            m[2][i] = vs[i].getZ();
+            m[i][0] = vs[i].getX();
+            m[i][1] = vs[i].getY();
+            m[i][2] = vs[i].getZ();
         }
 
         if (vs.length != 3){
             throw new IllegalArgumentException("Vector[] should be of length 3");
         }
 
-        float w=0, x=0, y=0, z=0;
+        float w = 0, x = 0, y = 0, z = 0;
 
-        w = (float) (Math.sqrt(1f + m[0][0] + m[1][1] + m[2][2]) / 2f);
+            w = (float) (Math.sqrt(1f + m[0][0] + m[1][1] + m[2][2]) / 2f);
 
-        float w4 = 4 * w;
+            float w4 = 4 * w;
 
-        x = (m[2][1] - m[1][2]) / w4;
-        y = (m[0][2] - m[2][0]) / w4;
-        z = (m[1][0] - m[0][1]) / w4;
-
-        return new Quaternion(w,x,y,z).normalise();
+            x = (m[2][1] - m[1][2]) / w4;
+            y = (m[0][2] - m[2][0]) / w4;
+            z = (m[1][0] - m[0][1]) / w4;
+        return new Quaternion(w, -x, y, z).normalise();
     }
 
     public static void main(String[] args){
@@ -181,55 +187,79 @@ public class QuaternionHelper {
 
             @Override
             public void paintComponents(Graphics g) {
+
+
+
                 if (g == null){
                     g = getGraphics();
                 }
                 Graphics2D g2d = (Graphics2D) g;
+
+                g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+
                 g2d.clearRect(0, 0, getWidth(), getHeight());
 
                 g2d.setColor(Color.BLUE);
                 g2d.setBackground(Color.WHITE);
-                g2d.setStroke(new BasicStroke(10));
+                g2d.setStroke(new BasicStroke(3));
 
                 ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
 
                 qs.add(new Quaternion(1,0,0,0));
-                qs.add(new Quaternion(0.7071f,0,0,0.7071f));
                 qs.add(new Quaternion(0,0,0,1));
-                qs.add(new Quaternion(0.7071f,0,0,-0.7071f));
-                qs.add(new Quaternion(1,0,0,0));
+                qs.add(new Quaternion(0,1,0,0));
 
-                g2d.setPaint(Color.DARK_GRAY);
 
-                final int SPOT = 30;
+                final int SPOT = 10;
                 final int SCALE = 300;
 
                 int counter = 0;
 
                 Vector offset = new Vector(getWidth()/2, getHeight()/2, 0f);
-                Vector draw = new Vector(0f, -SCALE, 0f);
+                Vector[] drawables = new Vector[]{
+                        new Vector(0f, -SCALE, 0f),
+                        new Vector(0f, SCALE, 0f),
+                        new Vector(SCALE/2, SCALE, 0f),
+                        new Vector(SCALE, SCALE, SCALE),
 
-                for (Quaternion q : qs){
-                    g2d.drawString((counter++) + "", offset.getX() + SCALE * q.x + ((3*SPOT)/4), offset.getY() + SCALE * q.y);
-                    g2d.fillRect((int) (offset.getX() + (SCALE * q.x)-(SPOT/2)), (int) (offset.getY() + (SCALE * q.y)-(SPOT/2)), SPOT, SPOT);
-                }
+                };
 
                 g2d.setColor(Color.RED);
 
                 for (int i = 0; i < 500; i++){
-                    float m1 = i / (float) 500;
-                    float m2 = (i+1) / (float) 500;
-                    Quaternion q1 = fadeQuaternions(qs, m1);
-                    Quaternion q2 = fadeQuaternions(qs, m2);
+                    for (Vector draw : drawables) {
+                        float m1 = i / (float) 500;
+                        float m2 = (i + 1) / (float) 500;
+                        Quaternion q1 = fadeQuaternions(qs, m1);
+                        Quaternion q2 = fadeQuaternions(qs, m2);
 
-                    Vector v1 = q1.rotateVector(draw);
-                    Vector v2 = q2.rotateVector(draw);
+                        Vector v1 = q1.rotateVector(draw);
+                        Vector v2 = q2.rotateVector(draw);
 
-                    g2d.drawLine((int) (offset.getX() + v1.getX()),
-                            (int) (offset.getY() + v1.getY()),
-                            (int) (offset.getX() + v2.getX()),
-                            (int) (offset.getY() + v2.getY()));
+                        g2d.drawLine((int) (offset.getX() + v1.getX()),
+                                (int) (offset.getY() + v1.getY()),
+                                (int) (offset.getX() + v2.getX()),
+                                (int) (offset.getY() + v2.getY()));
+                    }
                 }
+
+
+                g2d.setPaint(Color.BLACK);
+                g2d.fillRect((int) (offset.getX() -(SPOT/2)), (int) (offset.getY() -(SPOT/2)), SPOT, SPOT);
+                g2d.drawString("O[0, 0]", offset.getX() + ((3*SPOT)/4), offset.getY());
+
+                for (Vector draw : drawables) {
+                    g2d.setPaint(Color.GRAY);
+                    g2d.drawLine((int)offset.getX(), (int)offset.getY(), (int)(offset.getX() + draw.getX()), (int)(offset.getY() + draw.getY()));
+
+                    g2d.setPaint(Color.BLACK);
+                    g2d.drawString((counter++) + "", offset.getX() + draw.getX() + ((3*SPOT)/4), offset.getY() + draw.getY());
+
+                    g2d.setPaint(Color.DARK_GRAY);
+                    g2d.fillRect((int) (offset.getX() + draw.getX()-(SPOT/2)), (int) (offset.getY() + draw.getY()-(SPOT/2)), SPOT, SPOT);
+                }
+
+                g2d.dispose();
 
             }
         };

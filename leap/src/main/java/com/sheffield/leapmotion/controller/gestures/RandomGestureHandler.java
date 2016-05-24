@@ -1,6 +1,10 @@
 package com.sheffield.leapmotion.controller.gestures;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.GestureList;
+import com.leapmotion.leap.Pointable;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.mocks.SeededGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
@@ -24,8 +28,6 @@ public class RandomGestureHandler extends NoneGestureHandler {
 			return gl;
 
 		gestureCount++;
-
-
 		
 		gl.addGesture(setupGesture(gestureType, frame, gestureId));
 		return gl;
@@ -84,9 +86,14 @@ public class RandomGestureHandler extends NoneGestureHandler {
 			gestureStart = System.currentTimeMillis()-gestureDuration;
 			gestureCount = 0;
 		} else {
-			if (gestureState == Gesture.State.STATE_UPDATE) {
-				long chance = random.nextInt(gestureDuration);
+			long chance = random.nextInt(gestureDuration);
 
+			if (gestureType == Gesture.Type.TYPE_INVALID){
+				if (chance > GESTURE_TIME_LIMIT) {
+					gestureState = Gesture.State.STATE_STOP;
+				}
+			}
+			if (gestureState == Gesture.State.STATE_UPDATE) {
 
 				if (chance > GESTURE_TIME_LIMIT) {
 					gestureState = Gesture.State.STATE_STOP;

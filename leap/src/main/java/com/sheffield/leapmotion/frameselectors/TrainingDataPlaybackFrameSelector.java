@@ -5,8 +5,10 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
 import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
@@ -32,7 +34,7 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
     private HashMap<String, SeededHand> hands;
     private HashMap<String, Vector> vectors;
-    private HashMap<String, Vector[]> rotations;
+    private HashMap<String, Quaternion> rotations;
 
     private ArrayList<String> handLabelStack;
     private ArrayList<String> positionLabelStack;
@@ -105,26 +107,15 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
             String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
             contents = FileHandler.readFile(new File(rotationFile));
             lines = contents.split("\n");
-            rotations = new HashMap<String, Vector[]>();
+            rotations = new HashMap<String, Quaternion>();
             for (String line : lines) {
                 String[] vect = line.split(",");
-                float[][] vs = new float[3][3];
-                Vector[] vects = new Vector[3];
-                for (int i = 0; i < 3; i++) {
-                    int index = (i*3)+1;
-                    vs[0][i] = Float.parseFloat(vect[index]);
-                    vs[1][i] = Float.parseFloat(vect[index+1]);
-                    vs[2][i] = Float.parseFloat(vect[index+2]);
-                }
+                Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
+                        Float.parseFloat(vect[2]),
+                        Float.parseFloat(vect[3]),
+                        Float.parseFloat(vect[4])).normalise();
 
-                for (int i = 0; i < vs.length; i++){
-                    Vector v = new Vector(vs[0][i],
-                            vs[1][i],
-                            vs[2][i]);
-                    vects[i] = v;
-                }
-
-                rotations.put(vect[0], vects);
+                rotations.put(vect[0], q);
 
             }
 
@@ -140,6 +131,7 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
             e.printStackTrace(App.out);
         }
     }
+
     @Override
     public void modifyFrame(SeededFrame frame) {
         Hand h = Hand.invalid();
@@ -149,22 +141,31 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
         if (h instanceof SeededHand) {
             SeededHand sh = (SeededHand) h;
 
-            Vector[] lastRotation = rotations.get(currentRotation);
+            Quaternion lastRotation = rotations.get(currentRotation);
 
             float modifier = currentAnimationTime / (float)Properties.SWITCH_TIME;
 
-            Vector[] rotationVectors = QuaternionHelper.fadeMatrices(rotations.get(currentRotation), rotations.get(rotationLabelStack.get(0)), modifier);
+            Quaternion q = QuaternionHelper.fadeQuaternions(lastRotation, rotations.get(rotationLabelStack.get(0)), modifier);
+
+            //Vector[] rotationVectors = q.toMatrix();
 
 
-            sh.setBasis(rotationVectors[0], rotationVectors[1],
-                    rotationVectors[2]);
+
+
+            //sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
+//            sh.setRotation(q);
+
+            Vector axis = q.getAxis();
+            float angle = q.getAngle();
+
+            sh.setRotation(axis, angle);
 //
-//            ArrayList<Vector> seededPositions = new ArrayList<Vector>();
-//
-//            seededPositions.add(vectors.get(currentPosition));
-//            seededPositions.add(vectors.get(positionLabelStack.get(0)));
-//
-//            sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
+            ArrayList<Vector> seededPositions = new ArrayList<Vector>();
+
+            seededPositions.add(vectors.get(currentPosition));
+            seededPositions.add(vectors.get(positionLabelStack.get(0)));
+
+            sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
         }
     }
 

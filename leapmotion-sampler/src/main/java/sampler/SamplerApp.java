@@ -20,7 +20,7 @@ public class SamplerApp extends Listener {
 
     private static SamplerApp APP;
 
-    public static final long[] BREAK_TIMES = new long[]{1200000};
+    public static final long[] BREAK_TIMES = FrameDeconstructor.BREAK_TIMES;
 
     public static boolean USE_CONTROLLER = true;
     public static PrintStream out = System.out;

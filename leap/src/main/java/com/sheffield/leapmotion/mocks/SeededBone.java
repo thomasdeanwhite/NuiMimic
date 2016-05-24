@@ -3,12 +3,14 @@ package com.sheffield.leapmotion.mocks;
 import com.leapmotion.leap.Bone;
 import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.Quaternion;
 
 import java.io.Serializable;
 
 public class SeededBone extends Bone implements Serializable {
 
 	protected Matrix basis;
+	protected Vector offset = Vector.zero();
 	protected Vector center;
 	protected Vector direction;
 	protected float length;
@@ -16,6 +18,7 @@ public class SeededBone extends Bone implements Serializable {
 	protected Vector prevJoint;
 	protected Bone.Type type;
 	protected float width;
+	protected Quaternion rotation;
 
 	public SeededBone() {
 		basis = Matrix.identity();
@@ -25,19 +28,13 @@ public class SeededBone extends Bone implements Serializable {
 		nextJoint = Vector.zero();
 		prevJoint = Vector.zero();
 		type = Bone.Type.TYPE_PROXIMAL;
-		width = 0;
+		width = 1;
 	}
 
 	@Override
 	public Matrix basis() {
 		// TODO Auto-generated method stub
 		return basis;
-	}
-
-	@Override
-	public Vector center() {
-		// TODO Auto-generated method stub
-		return basis.transformPoint(center);
 	}
 
 	@Override
@@ -66,7 +63,11 @@ public class SeededBone extends Bone implements Serializable {
 	}
 
 	public void normalize() {
+		basis = basis.times(Matrix.identity());
+		//basis.setOrigin(offset);
 		direction = prevJoint().minus(nextJoint()).normalized();
+
+		center = prevJoint().plus(nextJoint()).divide(2f);
 	}
 
 	@Override
@@ -81,22 +82,37 @@ public class SeededBone extends Bone implements Serializable {
 		return length;
 	}
 
+	protected Vector translatePoint (Vector v){
+		//basis.setOrigin(offset.minus(new Vector(0f, 0f, 50f)));
+		return offset.plus(rotatePoint(v));
+	}
+
+	protected Vector rotatePoint(Vector v){
+		return basis.transformPoint(v);
+	}
+
 	@Override
 	public Vector nextJoint() {
 		// TODO Auto-generated method stub
-		return basis.transformPoint(nextJoint);
+		return translatePoint(nextJoint);
 	}
 
 	@Override
 	public Vector prevJoint() {
 		// TODO Auto-generated method stub
-		return basis.transformPoint(prevJoint);
+		return translatePoint(prevJoint);
+	}
+
+	@Override
+	public Vector center() {
+		// TODO Auto-generated method stub
+		return center;
 	}
 
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
-		return "Seeded Bone " + type + " with joints " + prevJoint.toString() + " " + nextJoint.toString() + ".";
+		return "Seeded Bone " + type + " with joints " + prevJoint().toString() + " " + nextJoint().toString() + ".";
 	}
 
 	@Override

@@ -25,6 +25,8 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 	private long seededTime = 0;
 	private long firstFrameTimeStamp = 0;
+
+	private long seededTimePassed = 0;
 	
 	public UserPlaybackFrameSelector(FrameSelector frameSelector) {
 		lastSwitchRate = Properties.FRAMES_PER_SECOND;
@@ -52,44 +54,51 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 		if (seeded) {
 			return backupFrameSelector.newFrame();
 		}
-		if (startSeedingTime == 0){
-			startSeedingTime = System.currentTimeMillis();
-		}
-
-		seededTime = System.currentTimeMillis();
 
 		if (frameStack.size() <= 0 || !lineIterator.hasNext()) {
 			seeded = true;
 			Properties.FRAMES_PER_SECOND = lastSwitchRate;
-			App.out.println("- Finished seeding after " + (-startSeedingTime) + "ms.");
+			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms.");
 			return backupFrameSelector.newFrame();
 		}
 
-		Frame f = Serializer.sequenceFromJson(lineIterator.nextLine());
+		Frame f = null;
 
-		if (firstFrameTimeStamp == 0) {
-			firstFrameTimeStamp = f.timestamp();
+
+		long time = System.currentTimeMillis();
+
+		if (startSeedingTime == 0){
+			startSeedingTime = time;
 		}
 
-		long seededTimePassed = f.timestamp() - firstFrameTimeStamp;
+		seededTime = time;
 
 		long currentTimePassed = seededTime - startSeedingTime;
 
 		while (currentTimePassed > seededTimePassed){
 			f = Serializer.sequenceFromJson(lineIterator.nextLine());
 
+			frameStack.add(f);
+
+			frameStack.remove(0);
+
 			if (firstFrameTimeStamp == 0) {
-				firstFrameTimeStamp = f.timestamp();
+				firstFrameTimeStamp = f.timestamp()/1000;
 			}
 
-			seededTimePassed = f.timestamp() - firstFrameTimeStamp;
+			seededTimePassed = (f.timestamp()/1000) - firstFrameTimeStamp;
+		}
+		
+		f =  frameStack.get(0);
 
-			currentTimePassed = seededTime - startSeedingTime;
+		//seededTimePassed = f.timestamp() - firstFrameTimeStamp;
+
+		if (firstFrameTimeStamp == 0) {
+			firstFrameTimeStamp = f.timestamp()/1000;
 		}
 
-		frameStack.add(f);
-		
-		return frameStack.remove(0);
+
+		return f;
 	}
 
 	public FrameSelector getBackupFrameSelector (){

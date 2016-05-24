@@ -35,10 +35,10 @@ public class DisplayWindow extends JFrame {
 			// paintComponent(getGraphics());
 		}
 
-		public void drawBasis (Graphics2D g, Hand h, Vector offset){
+		public void drawXYBasis(Graphics2D g, Hand h, Vector offset){
 			Matrix basis = h.basis();
 
-			Vector v = h.palmPosition().plus(offset);
+			Vector v = offset;
 
 			final float LINE_SCALE = 50f;
 
@@ -46,11 +46,105 @@ public class DisplayWindow extends JFrame {
 
 			//App.out.println(basis.getXBasis());
 
-			g.drawLine((int)v.getX(), (int)v.getY(), (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE)), (int)((v.getY() + basis.getXBasis().getY()*LINE_SCALE)));
+			int height = getHeight();
+
+			int x = (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE));
+			int y = height - (int)((v.getY() + basis.getXBasis().getY()*LINE_SCALE));
+
+			g.drawLine(x, y, (int)v.getX(), height - (int)v.getY());
+			g.drawString("x", x, y);
 
 			g.setColor(Color.GREEN);
 
-			g.drawLine((int)v.getX(), (int)v.getZ(), (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE)), (int)((v.getZ() + basis.getXBasis().getZ()*LINE_SCALE)));
+			x = (int)(v.getX() + (basis.getZBasis().getX()*LINE_SCALE));
+			y = height - (int)((v.getY() + basis.getZBasis().getY()*LINE_SCALE));
+
+			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
+
+			g.drawString("z", x, y);
+
+			g.setColor(Color.RED);
+
+			x = (int)(v.getX() + (basis.getYBasis().getX()*LINE_SCALE));
+			y = height - (int)((v.getY() + basis.getYBasis().getY()*LINE_SCALE));
+
+			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
+			g.drawString("y", x, y);
+		}
+
+		public void drawXZBasis(Graphics2D g, Hand h, Vector offset){
+			Matrix basis = h.basis();
+
+			Vector v = offset;//.plus(new Vector(h.palmNormal().getX(), h.palmPosition().getZ(), 0f));
+
+
+			final float LINE_SCALE = 50f;
+
+			g.setColor(Color.BLUE);
+
+			//App.out.println(basis.getXBasis());
+
+			int height = getHeight();
+
+			int x = (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE));
+			int y = height - (int)((v.getY() - basis.getXBasis().getZ()*LINE_SCALE));
+
+			g.drawLine(x, y, (int)v.getX(), height - (int)v.getY());
+			g.drawString("x", x, y);
+
+			g.setColor(Color.GREEN);
+
+			x = (int)(v.getX() + (basis.getZBasis().getX()*LINE_SCALE));
+			y = height - (int)((v.getY() - basis.getZBasis().getZ()*LINE_SCALE));
+
+			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
+
+			g.drawString("z", x, y);
+
+			g.setColor(Color.RED);
+
+			x = (int)(v.getX() + (basis.getYBasis().getX()*LINE_SCALE));
+			y = height - (int)((v.getY() - basis.getYBasis().getZ()*LINE_SCALE));
+
+			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
+			g.drawString("y", x, y);
+		}
+
+		public void drawYZBasis(Graphics2D g, Hand h, Vector offset){
+			Matrix basis = h.basis();
+
+			Vector v = offset;//.plus(new Vector(h.palmNormal().getZ(), h.palmPosition().getY(), 0f));
+
+			final float LINE_SCALE = 50f;
+
+			g.setColor(Color.BLUE);
+
+			//App.out.println(basis.getXBasis());
+
+			int height = getHeight();
+
+			int x = (int)(v.getX() + (-basis.getXBasis().getZ()*LINE_SCALE));
+			int y = height - (int)((v.getY() + basis.getXBasis().getY()*LINE_SCALE));
+
+			g.drawLine(x, y, (int)v.getX(), height - (int)v.getY());
+			g.drawString("x", x, y);
+
+			g.setColor(Color.GREEN);
+
+			x = (int)(v.getX() + (-basis.getZBasis().getZ()*LINE_SCALE));
+			y = height - (int)((v.getY() + basis.getZBasis().getY()*LINE_SCALE));
+
+			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
+
+			g.drawString("z", x, y);
+
+			g.setColor(Color.RED);
+
+			x = (int)(v.getX() + (-basis.getYBasis().getZ()*LINE_SCALE));
+			y = height - (int)((v.getY() + basis.getYBasis().getY()*LINE_SCALE));
+
+			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
+			g.drawString("y", x, y);
 		}
 
 		@Override
@@ -67,13 +161,18 @@ public class DisplayWindow extends JFrame {
 			final float RADIUS = 4;
 			final float SCALE = 2;
             //App.out.println("- Frame Received!");
+			Vector offset = new Vector(100f, 0f, 0f);
 			if (currentFrame != null && currentFrame.isValid()) {
 
 				for (Hand h : currentFrame.hands()) {
 					// String data = HandFactory.handToString(h);
 					// h = HandFactory.createHand(data, currentFrame);
 
-					drawBasis(g2d, h, new Vector( getWidth() / 4 ,  getHeight() / 4 , 0f));
+					drawXYBasis(g2d, h, new Vector( getWidth() / 4 , 3 * getHeight() / 4 , 0f).plus(offset));
+
+					drawXZBasis(g2d, h, new Vector( 3 * getWidth() / 4 , 3 * getHeight() / 4 , 0f).plus(offset));
+
+					drawYZBasis(g2d, h, new Vector( getWidth() / 4 ,  getHeight() / 4 , 0f).plus(offset));
 
 					if (!h.isValid()) {
 						continue;
@@ -86,11 +185,11 @@ public class DisplayWindow extends JFrame {
 							continue;
 						}
 
-                        if (f == frontMost){
+                        if (f.equals(frontMost)){
                             g2d.setColor(Color.ORANGE);
-                        } else if (f == leftMost) {
+                        } else if (f.equals(leftMost)) {
                             g2d.setColor(Color.BLUE);
-                        } else if (f == rightMost){
+                        } else if (f.equals(rightMost)){
                             g2d.setColor(Color.RED);
                         } else if (f.isExtended()) {
 							g2d.setColor(Color.BLACK);
@@ -152,6 +251,12 @@ public class DisplayWindow extends JFrame {
 					float scaleWindowX = (getWidth()/2) / 400f;
 					float scaleWindowY = (getHeight()/2) / 400f;
 					g2d.fillOval((3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)), getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)), scale, scale);
+					g2d.drawString("(" + (Math.round(10*h.palmPosition().getX())/10f) + ", " + (Math.round(10*h.palmPosition().getY())/10f) + ")",
+							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + scale);
+
+					g2d.drawString(h.fingers().frontmost().tipPosition().toString(),
+							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (2 * scale));
+
 				}
 			}
 

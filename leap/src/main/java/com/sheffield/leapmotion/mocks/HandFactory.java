@@ -1,6 +1,13 @@
 package com.sheffield.leapmotion.mocks;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.FingerList;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Matrix;
+import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.QuaternionHelper;
 
 import java.util.Random;
 
@@ -63,6 +70,7 @@ public class HandFactory {
 		thumb.frame = frame;
 		thumb.type = Finger.Type.TYPE_THUMB;
 		thumb.hand = hand;
+		thumb.rotation = hand.rotation;
 		thumb.normalize();
 		fingers[0] = thumb;
 
@@ -80,6 +88,7 @@ public class HandFactory {
 			finger.frame = frame;
 			finger.hand = hand;
 			finger.type = fingerTypes[j];
+			finger.rotation = hand.rotation;
 			fingers[j + 1] = finger;
 			finger.normalize();
 		}
@@ -112,6 +121,12 @@ public class HandFactory {
 		SeededFinger thumb = new SeededFinger();
 		hand.uniqueId = id;
 
+		hand.basis = Matrix.identity();
+		hand.basis.setRotation(new Vector((float)Math.random(), (float)Math.random(), (float)Math.random()), (float)(Math.random() * Math.PI * 2f));
+		hand.rotation = QuaternionHelper.toQuaternion(new Vector[]{
+				hand.basis.getXBasis(), hand.basis.getYBasis(), hand.basis.getZBasis()
+		});
+
 		for (int i = 0; i < thumbBoneTypes.length; i++) {
 			SeededBone b = new SeededBone();
 			b.type = thumbBoneTypes[i];
@@ -130,6 +145,8 @@ public class HandFactory {
 		thumb.frame = frame;
 		thumb.type = Finger.Type.TYPE_THUMB;
 		thumb.hand = hand;
+		thumb.basis = hand.basis;
+		thumb.rotation = hand.rotation;
 		thumb.normalize();
 		fingers[0] = thumb;
 
@@ -146,6 +163,8 @@ public class HandFactory {
 			finger.frame = frame;
 			finger.hand = hand;
 			finger.type = fingerTypes[j];
+			finger.basis = hand.basis;
+			finger.rotation = hand.rotation;
 			fingers[j + 1] = finger;
 			finger.normalize();
 		}

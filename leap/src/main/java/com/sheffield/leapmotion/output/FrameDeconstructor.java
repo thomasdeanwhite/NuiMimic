@@ -1,8 +1,16 @@
 package com.sheffield.leapmotion.output;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.CircleGesture;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.KeyTapGesture;
+import com.leapmotion.leap.ScreenTapGesture;
+import com.leapmotion.leap.SwipeGesture;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.Serializer;
 
 import java.io.File;
@@ -19,7 +27,7 @@ public class FrameDeconstructor {
     private String filenameStart = "";
     private String addition = "";
 
-    public static long[] BREAK_TIMES = new long[]{};
+    public static long[] BREAK_TIMES = new long[]{600000};
 
     private boolean calculatingScreenshot = false;
 
@@ -145,9 +153,24 @@ public class FrameDeconstructor {
 
         String rotation = uniqueId + ",";
         Vector[] vectors = new Vector[3];
+
+        //h.basis().r
+
         vectors[0] = h.basis().getXBasis();
         vectors[1] = h.basis().getYBasis();
         vectors[2] = h.basis().getZBasis();
+
+        Vector normal = h.palmNormal();
+
+        Vector[] rotMatrix = new Vector[3];
+
+        rotMatrix[1] = normal;
+        rotMatrix[2] = h.direction();
+
+        rotMatrix[0] = h.basis().getXBasis();
+
+        rotation += QuaternionHelper.toQuaternion(rotMatrix).toString() + ",";
+
         for (Vector v : vectors) {
             rotation += v.getX() + "," + v.getY() + "," + v.getZ() + ",";
         }

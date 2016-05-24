@@ -10,9 +10,29 @@ load_data <- function(filename){
     dataset <- rbind(dataset, t)
   }
   
+  replicate <- dataset[dataset$switch_time == 1,]
+  
+  types <- (unique(dataset$switch_time[dataset$switch_time != 1]))
+  
+  for (t in types){
+    r <- replicate
+    r$switch_time <- t
+    dataset <- rbind(r, dataset)
+  }
+  
+  dataset <- dataset[!dataset$switch_time == 1,]
+  
   dataset['runtime_mins'] = round(dataset['runtime'] / 60000);
   
-  dataset['fs'] = dataset['frame_selector']
+  dataset['fs'] = apply(dataset, 1, FUN=function(x){
+    if (x['frame_selector'] == 'RANDOM'){
+      val <- 'RNG'
+    } else {
+      val <- x['frame_selector']
+    }
+  })
+  
+  dataset['bp'] = dataset['bezier_points']
   
   dataset['states'] = dataset['states_found'] + dataset['states_discovered'];
   
@@ -102,14 +122,19 @@ line_plot <- function(data, name){
 
 
 bplot <- function(data, name, title){
-  pdf(paste(name, ".pdf", sep=''))
+  pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
   par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=0.5)
   #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
-  mi <- round(min(data$related_line_coverage)-0.01, digits=3)
-  ma <- round(max(data$related_line_coverage)+0.01, digits=3)
-  pirateplot(formula=related_line_coverage~fs, 
+  mi <- round(min(data$states_found)-1, digits=3)
+  ma <- round(max(data$states_found)+1, digits=3)
+  
+  data$v = paste(data$fs, data$switch_time, sep="")
+  
+  data <- data[order(data$v, data$bp),]
+  
+  pirateplot(formula=states_found~bp + v, 
              data=data, 
-             xlab = 'Training Pool', ylab='Line Coverage', main=title,
-             line.fun=median, pal='southpark', ylim=c(mi, ma))
+             xlab = 'Training Pool', ylab='Related Line Coverage', main=title,
+             line.fun=median, ylim=c(mi, ma))
   dev.off()
 }

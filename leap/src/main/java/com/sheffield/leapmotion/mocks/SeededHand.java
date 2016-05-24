@@ -3,6 +3,8 @@ package com.sheffield.leapmotion.mocks;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.QuaternionHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,11 +25,24 @@ public class SeededHand extends Hand implements Serializable {
     protected float pinchStrength;
     protected float grabStrength;
 
+    protected Quaternion rotation;
+
     protected PointableList pointables;
     protected ToolList tools;
 
     protected int id;
     protected String uniqueId;
+
+    public void setRotation(Quaternion q){
+        rotation = q;
+        for (Finger f : fingerList) {
+            if (f instanceof SeededFinger) {
+                SeededFinger sf = (SeededFinger) f;
+                sf.rotation = rotation;
+                sf.normalize();
+            }
+        }
+    }
 
     public Hand fadeHand(SeededHand hand, float modifier) {
         SeededHand h = new SeededHand();
@@ -131,6 +146,13 @@ public class SeededHand extends Hand implements Serializable {
         h.isLeft = isLeft;
         h.id = id;
         h.uniqueId = uniqueId;
+        ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
+
+        for (SeededHand hs : hands){
+            qs.add(hs.rotation);
+        }
+
+        h.rotation = QuaternionHelper.fadeQuaternions(qs, modifier);
         SeededFingerList sfl = new SeededFingerList();
         for (Finger f : fingerList) {
             SeededFinger sf = new SeededFinger();
@@ -164,6 +186,7 @@ public class SeededHand extends Hand implements Serializable {
                 sb.width = b.width();
                 sf.bones.put(bt, sb);
             }
+            sf.rotation = h.rotation;
             sf.normalize();
             sf.tipPosition = BezierHelper.bezier(createTipPositionVector(fingers), modifier);
             final float lastTipNumber = 0.01f;
@@ -186,6 +209,7 @@ public class SeededHand extends Hand implements Serializable {
         palmVelocity = Vector.zero();
         pointables = new PointableList();
         tools = new ToolList();
+        rotation = new Quaternion(-1, 0, 0, 0);
     }
 
     public SeededHand(FingerList fl) {
@@ -206,16 +230,39 @@ public class SeededHand extends Hand implements Serializable {
 
     public void setBasis(Vector x, Vector y, Vector z) {
         basis.setXBasis(x);
+        y = y.opposite();
         basis.setYBasis(y);
+        setPalmNormal(y);
         basis.setZBasis(z);
+        setDirection(z);
+
+//        basis.setYBasis(z);
+//        setPalmNormal(z);
+//
+//        y = new Vector(y.getX(), y.getY()*-1, y.getZ());
+//
+//        basis.setZBasis(y.opposite());
+//        setDirection(y.opposite());
     }
 
     public void setOrigin(Vector origin) {
-        basis.setOrigin(origin);
+        //basis.setOrigin(origin);
+        basis.setOrigin(Vector.zero());
+        palmPosition = origin;
+
+        for (Finger f : fingers()){
+            if (f instanceof SeededFinger){
+                SeededFinger sf = (SeededFinger) f;
+                sf.offset = palmPosition;
+                sf.normalize();
+            }
+        }
     }
 
     public void setRotation(Vector axis, float rotation) {
-        basis.setRotation(axis, rotation);
+        //basis = Matrix.identity();
+        basis.setRotation(new Vector(axis.getX(), axis.getY(), axis.getZ()).normalized(), rotation);
+        //basis.setRotation(Vector.xAxis(), 1.46f);
     }
 
     public String getUniqueId() {
@@ -253,7 +300,12 @@ public class SeededHand extends Hand implements Serializable {
     @Override
     public Vector direction() {
         // TODO Auto-generated method stub
-        return basis.transformDirection(direction);
+        return direction;
+        //return basis.transformDirection(direction);
+    }
+
+    public void setDirection(Vector d){
+        direction = d;
     }
 
     @Override
@@ -321,13 +373,17 @@ public class SeededHand extends Hand implements Serializable {
     @Override
     public Vector palmNormal() {
         // TODO Auto-generated method stub
-        return basis.transformDirection(palmNormal);
+        return palmNormal;
+    }
+
+    public void setPalmNormal(Vector p){
+        palmNormal = p;
     }
 
     @Override
     public Vector palmPosition() {
         // TODO Auto-generated method stub
-        return basis.transformPoint(palmPosition);
+        return palmPosition;
     }
 
     @Override

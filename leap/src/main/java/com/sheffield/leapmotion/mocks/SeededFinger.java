@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.mocks;
 
 import com.leapmotion.leap.*;
+import com.sheffield.leapmotion.Quaternion;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ public class SeededFinger extends Finger implements Serializable {
 	protected Zone touchZone;
 	protected float width;
 	protected Matrix basis;
+	protected Vector offset = Vector.zero();
+	protected Quaternion rotation;
 
 	private static final float EXTENDED_THRESHOLD = 0.8f;
 
@@ -33,6 +36,7 @@ public class SeededFinger extends Finger implements Serializable {
 		jointPositions = new HashMap<Joint, Vector>();
 		basis = Matrix.identity();
 		extended = true;
+		direction = bone(Bone.Type.TYPE_DISTAL).prevJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).normalized();
 		touchDistance = tipPosition().getZ() / 400;
 		width = 50f;
 		tipPosition = Vector.forward();
@@ -72,24 +76,46 @@ public class SeededFinger extends Finger implements Serializable {
 
 	public void normalize() {
 
-		for (Bone.Type bt : Bone.Type.values()) {
+		Bone.Type[] bts = new Bone.Type[]{
+				Bone.Type.TYPE_METACARPAL,
+				Bone.Type.TYPE_PROXIMAL,
+				Bone.Type.TYPE_INTERMEDIATE,
+				Bone.Type.TYPE_DISTAL
+		};
+
+		Vector prevJoint = ((SeededBone)bone(bts[0])).prevJoint;
+
+
+		//basis = basis.times(Matrix.identity());
+		//basis.setOrigin(prevJoint);
+
+		//prevJoint = rotation.rotateVector(prevJoint);
+
+		for (Bone.Type bt : bts) {
 			Bone b = bone(bt);
 			if (b instanceof SeededBone) {
-				((SeededBone) b).normalize();
+				SeededBone sb = (SeededBone) b;
+				sb.offset = offset;
+				sb.rotation = rotation;
+				//sb.prevJoint = prevJoint;
+				sb.normalize();
+				//prevJoint = rotation.rotateVector(sb.nextJoint.minus(prevJoint)).plus(prevJoint);
 			}
 		}
+
+		direction = bone(Bone.Type.TYPE_PROXIMAL).prevJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).normalized();
+
 		float dot = bone(Bone.Type.TYPE_PROXIMAL).direction().dot(bone(Bone.Type.TYPE_DISTAL).direction());
-		float threshold = EXTENDED_THRESHOLD;
 		if (dot > EXTENDED_THRESHOLD) {
 			extended = true;
 		} else {
 			extended = false;
 		}
+
 		tipPosition = tipPosition();
-		touchDistance = tipPosition().getZ() / 200;
+		touchDistance = tipPosition().getZ() / 30f;
 		length = bone(Bone.Type.TYPE_DISTAL).nextJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).magnitude();
-		touchZone = touchDistance > 0 ? Zone.ZONE_TOUCHING
-				: touchDistance > 50 / MAX_Z_POSITION ? Zone.ZONE_HOVERING : Zone.ZONE_NONE;
+		touchZone = touchDistance <= 0 ? Zone.ZONE_TOUCHING : touchDistance > 1f? Zone.ZONE_NONE : Zone.ZONE_HOVERING;
 	}
 
 	@Override
@@ -121,7 +147,7 @@ public class SeededFinger extends Finger implements Serializable {
 	@Override
 	public boolean equals(Pointable arg0) {
 		// TODO Auto-generated method stub
-		return false;
+		return arg0 == this && hand.equals(arg0.hand());
 	}
 
 	@Override
@@ -188,7 +214,7 @@ public class SeededFinger extends Finger implements Serializable {
 	@Override
 	public Vector tipPosition() {
 		// TODO Auto-generated method stub
-		return bone(Bone.Type.TYPE_DISTAL).nextJoint();
+		return bone(Bone.Type.TYPE_DISTAL).nextJoint().plus(direction.normalized().times(2));
 	}
 
 	@Override

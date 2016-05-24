@@ -5,6 +5,8 @@ import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
@@ -126,17 +128,15 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
 			SeededHand sh = (SeededHand) h;
 
-			Vector[] rotationVectors = new Vector[lastRotation.length];
-			for (int i = 0; i < lastRotation.length; i++){
-				ArrayList<Vector> vs = new ArrayList<Vector>();
-				for (Vector[] vects : seededRotations){
-					vs.add(vects[i]);
-				}
-				rotationVectors[i] = BezierHelper.bezier(vs, modifier);
+			ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
+
+			for (Vector[] vs : seededRotations){
+				qs.add(QuaternionHelper.toQuaternion(vs));
 			}
 
-			sh.setBasis(rotationVectors[0], rotationVectors[1],
-					rotationVectors[2]);
+			Quaternion q = QuaternionHelper.fadeQuaternions(qs, modifier);
+
+			sh.setRotation(q.getAxis(), q.getAngle());
 			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
 		}
 	}

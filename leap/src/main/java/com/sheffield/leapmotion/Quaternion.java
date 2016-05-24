@@ -8,11 +8,41 @@ import com.leapmotion.leap.Vector;
 public class Quaternion {
     public float w, x, y, z;
 
+    private float angle = 0;
+    private Vector axis;
+
     public Quaternion(float w, float x, float y, float z) {
         this.w = w;
         this.x = x;
         this.y = y;
         this.z = z;
+
+        if (w > 1){
+            normalise();
+        }
+
+        float s = (float) Math.sqrt(1- w * w);
+
+        if (Math.abs(s) > 0.0001){
+            s = 1f / s;
+            x /= s;
+            y /= s;
+            z /= s;
+        } else {
+            s = 1f / s;
+        }
+
+
+        angle = (float)Math.PI/2f + 2f * (float)Math.acos(w);
+        axis = new Vector(x*s, y*s, z*s);
+    }
+
+    public float getAngle(){
+        return angle;
+    }
+
+    public Vector getAxis(){
+        return axis;
     }
 
     public Quaternion inverse() {
@@ -30,41 +60,56 @@ public class Quaternion {
                 (w * v.getZ()) + (y * v.getY()) + (z * v.getX()));
     }
 
-    public Vector[] toMatrix() {
+    public Vector[] toMatrix(boolean rightHanded) {
         float[][] fs = new float[3][3];
 
-        fs[0][0] = 1 - 2 * y * y - 2 * z * z;
-        fs[1][1] = 1 - 2 * x * x - 2 * z * z;
-        fs[2][2] = 1 - 2 * x * x - 2 * y * y;
+        if (rightHanded) {
 
-        fs[0][1] = 2 * x * y + 2 * z * w;
-        fs[0][2] = 2 * x * z - 2 * y * w;
-        fs[1][2] = 2 * y * z + 2 * x * w;
+            fs[0][0] = 1 - 2 * y * y - 2 * z * z;
+            fs[1][1] = 1 - 2 * x * x - 2 * z * z;
+            fs[2][2] = 1 - 2 * x * x - 2 * y * y;
 
-        fs[1][0] = 2 * x * y - 2 * z * w;
-        fs[2][0] = 2 * x * z + 2 * y * w;
-        fs[2][1] = 2 * y * z - 2 * x * w;
+            fs[0][1] = 2 * x * y + 2 * z * w;
+            fs[0][2] = 2 * x * z - 2 * y * w;
+            fs[1][2] = 2 * y * z + 2 * x * w;
+
+            fs[1][0] = 2 * x * y - 2 * z * w;
+            fs[2][0] = 2 * x * z + 2 * y * w;
+            fs[2][1] = 2 * y * z - 2 * x * w;
+        } else {
+            fs[0][0] = 1 - 2 * y * y - 2 * z * z;
+            fs[1][1] = 1 - 2 * x * x - 2 * z * z;
+            fs[2][2] = 1 - 2 * x * x - 2 * y * y;
+
+            fs[0][1] = 2 * x * y - 2 * z * w;
+            fs[0][2] = 2 * x * z + 2 * y * w;
+            fs[1][2] = 2 * y * z - 2 * x * w;
+
+            fs[1][0] = 2 * x * y + 2 * z * w;
+            fs[2][0] = 2 * x * z - 2 * y * w;
+            fs[2][1] = 2 * y * z + 2 * x * w;
+        }
 
         Vector[] vs = new Vector[fs.length];
 
         for (int i = 0; i < fs.length; i++) {
-            //checks for -0
-//            if (Float.floatToIntBits(fs[i][0]) == 0x80000000){
-//                fs[i][0] = 0;
-//            }
-//            if (Float.floatToIntBits(fs[i][1]) == 0x80000000){
-//                fs[i][1] = 0;
-//            }
-//            if (Float.floatToIntBits(fs[i][2]) == 0x80000000){
-//                fs[i][2] = 0;
-//            }
             vs[i] = new Vector(fs[i][0], fs[i][1], fs[i][2]);
         }
         return vs;
     }
 
+
+    /**
+     * Deprecated. Please use toMatrix(boolean rightHanded)
+     * @return Quaternion as a right handed basis vector
+     */
+    @Deprecated
+    public Vector[] toMatrix() {
+        return toMatrix(true);
+    }
+
     public String toString() {
-        return w + "," + x + "," + y + "," + z;
+        return w + " + " + x + "i + " + y + "j + " + z + "k";
     }
 
     public float squareMagnitude (){
