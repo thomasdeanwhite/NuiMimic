@@ -27,7 +27,7 @@ public class FrameDeconstructor {
     private String filenameStart = "";
     private String addition = "";
 
-    public static long[] BREAK_TIMES = new long[]{600000};
+    public static long[] BREAK_TIMES = new long[]{60000};
 
     private boolean calculatingScreenshot = false;
 
@@ -162,14 +162,14 @@ public class FrameDeconstructor {
 
         Vector normal = h.palmNormal();
 
-        Vector[] rotMatrix = new Vector[3];
+//        Vector[] rotMatrix = new Vector[3];
+//
+//        rotMatrix[1] = normal;
+//        rotMatrix[2] = h.direction();
+//
+//        rotMatrix[0] = h.basis().getXBasis();
 
-        rotMatrix[1] = normal;
-        rotMatrix[2] = h.direction();
-
-        rotMatrix[0] = h.basis().getXBasis();
-
-        rotation += QuaternionHelper.toQuaternion(rotMatrix).toString() + ",";
+        rotation += QuaternionHelper.toQuaternion(vectors).toCsv() + ",";
 
         for (Vector v : vectors) {
             rotation += v.getX() + "," + v.getY() + "," + v.getZ() + ",";

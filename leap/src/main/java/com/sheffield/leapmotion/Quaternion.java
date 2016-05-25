@@ -1,15 +1,21 @@
 package com.sheffield.leapmotion;
 
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.mocks.SeededHand;
 
 /**
  * Created by thomas on 16/05/2016.
  */
 public class Quaternion {
+
+    public static final Quaternion FLIP_IN_Y = new Quaternion(0, 0, -1f, 0);
+    public static final Quaternion FLIP_IN_X = new Quaternion(0.7071f, 0.7071f, 0f, 0);
+    public static final Quaternion FULL_FLIP_IN_X = new Quaternion(0, -1f, 0f, 0);
+    public static final Quaternion FLIP_IN_Z = new Quaternion(0f, 0f, 0f, 1f);
+
     public float w, x, y, z;
 
-    private float angle = 0;
-    private Vector axis;
+    private Quaternion inverse;
 
     public Quaternion(float w, float x, float y, float z) {
         this.w = w;
@@ -17,47 +23,55 @@ public class Quaternion {
         this.y = y;
         this.z = z;
 
-        if (w > 1){
-            normalise();
-        }
-
-        float s = (float) Math.sqrt(1- w * w);
-
-        if (Math.abs(s) > 0.0001){
-            s = 1f / s;
-            x /= s;
-            y /= s;
-            z /= s;
-        } else {
-            s = 1f / s;
-        }
-
-
-        angle = (float)Math.PI/2f + 2f * (float)Math.acos(w);
-        axis = new Vector(x*s, y*s, z*s);
+        inverse = new Quaternion(w, -x, -y, -z, this);
     }
 
-    public float getAngle(){
-        return angle;
-    }
+    private Quaternion(float w, float x, float y, float z, Quaternion inverse) {
+        this.w = w;
+        this.x = x;
+        this.y = y;
+        this.z = z;
 
-    public Vector getAxis(){
-        return axis;
+        this.inverse = inverse;
     }
 
     public Quaternion inverse() {
-        return new Quaternion(w, -x, -y, -z);
+        return inverse;
     }
 
     public float innerProduct(Quaternion q) {
         return x * q.x + y * q.y + z * q.z + w * q.w;
     }
 
+    public void setBasis(SeededHand h){
+        Vector[] vs = toMatrix(false);
+        //h.setBasis(rotateVector(vs[0]), vs[1], vs[2]);
+        h.setBasis(rotateVector(Vector.xAxis()), rotateVector(Vector.yAxis()), rotateVector(Vector.zAxis()));
+
+    }
+
     public Vector rotateVector(Vector v){
         //float a = (float) Math.sin(angle/2);
-        return new Vector((w * v.getX()) + (y * v.getZ()) + (z * v.getY()),
-                (w * v.getY()) + (x * v.getZ()) + (z * v.getX()),
-                (w * v.getZ()) + (y * v.getY()) + (z * v.getX()));
+//        return new Vector((w * v.getX()) + (y * v.getZ()) + (z * v.getY()),
+//                (w * v.getY()) + (x * v.getZ()) + (z * v.getX()),
+//                (w * v.getZ()) + (y * v.getY()) + (z * v.getX()));
+
+        Quaternion q = new Quaternion(0f, v.getX(), v.getY(), v.getZ());
+        q = multiply(q).multiply(inverse);
+        return new Vector(q.x, q.y, q.z);
+    }
+
+    public Quaternion multiply(Quaternion q){
+//        Vector v = new Vector(x, y, z);
+//        Vector v2 = new Vector(q.x, q.y, q.z);
+//        Vector o = v2.times(w).plus(v.times(q.w).plus(v.cross(v2)));
+//        return new Quaternion(w*q.w - v.dot(v2), o.getX(), o.getY(), o.getZ());
+
+        return new Quaternion(
+                w * q.w - x * q.x - y * q.y - z * q.z,
+                x * q.w + w * q.x - z * q.y + y * q.z,
+                y * q.w + z * q.x + w * q.y - x * q.z,
+                z * q.w - y * q.x + x * q.y + w * q.z);
     }
 
     public Vector[] toMatrix(boolean rightHanded) {
@@ -112,22 +126,42 @@ public class Quaternion {
         return w + " + " + x + "i + " + y + "j + " + z + "k";
     }
 
+    public String toCsv(){
+        return w+","+x+","+y+","+z;
+    }
+
     public float squareMagnitude (){
         return w*w+x*x+y*y+z*z;
     }
 
     public Quaternion scale(float f){
-        return new Quaternion(w * f, x * f, y * f, z * f);
+        w *= f;
+        x *= f;
+        y *= f;
+        z *= f;
+        return this;
     }
 
     public Quaternion normalise(){
-        float sqMag = squareMagnitude();
+        Quaternion q = new Quaternion(w, x, y, z);
+        float sqMag = q.squareMagnitude();
         if (Math.abs(1.0 - sqMag) < 2.107342e-08) {
             float scale = 2.0f / (1.0f + sqMag);
 
-            return scale(scale);
+            return q.scale(scale);
         } else {
-            return scale((float) (1f / Math.sqrt(sqMag)));
+            return q.scale((float) (1f / Math.sqrt(sqMag)));
+        }
+    }
+
+    private static Quaternion normalise(Quaternion q){
+        float sqMag = q.squareMagnitude();
+        if (Math.abs(1.0 - sqMag) < 2.107342e-08) {
+            float scale = 2.0f / (1.0f + sqMag);
+
+            return q.scale(scale);
+        } else {
+            return q.scale((float) (1f / Math.sqrt(sqMag)));
         }
     }
 

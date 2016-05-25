@@ -53,7 +53,8 @@ public class TrainingPlaybackGestureHandler extends NGramGestureHandler {
 	public void advanceGestures(){
 		if (gestureState == null || gestureTypes.size() == 0 || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
-			//currentGesture = analyzer.getDataAnalyzer().next();
+
+			currentGesture = gestureLabels.remove(0);
 
 			gestureTypes.clear();
 			cumalitiveGesturePositions = Vector.zero();

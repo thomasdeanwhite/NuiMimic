@@ -1,7 +1,12 @@
 package com.sheffield.leapmotion.display;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Matrix;
+import com.leapmotion.leap.Pointable;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 
 import javax.swing.*;
@@ -87,7 +92,7 @@ public class DisplayWindow extends JFrame {
 			int height = getHeight();
 
 			int x = (int)(v.getX() + (basis.getXBasis().getX()*LINE_SCALE));
-			int y = height - (int)((v.getY() - basis.getXBasis().getZ()*LINE_SCALE));
+			int y = height - (int)((v.getY() + basis.getXBasis().getZ()*LINE_SCALE));
 
 			g.drawLine(x, y, (int)v.getX(), height - (int)v.getY());
 			g.drawString("x", x, y);
@@ -95,7 +100,7 @@ public class DisplayWindow extends JFrame {
 			g.setColor(Color.GREEN);
 
 			x = (int)(v.getX() + (basis.getZBasis().getX()*LINE_SCALE));
-			y = height - (int)((v.getY() - basis.getZBasis().getZ()*LINE_SCALE));
+			y = height - (int)((v.getY() + basis.getZBasis().getZ()*LINE_SCALE));
 
 			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
 
@@ -104,7 +109,7 @@ public class DisplayWindow extends JFrame {
 			g.setColor(Color.RED);
 
 			x = (int)(v.getX() + (basis.getYBasis().getX()*LINE_SCALE));
-			y = height - (int)((v.getY() - basis.getYBasis().getZ()*LINE_SCALE));
+			y = height - (int)((v.getY() + basis.getYBasis().getZ()*LINE_SCALE));
 
 			g.drawLine((int)v.getX(), height - (int)v.getY(), x, y);
 			g.drawString("y", x, y);
@@ -173,6 +178,24 @@ public class DisplayWindow extends JFrame {
 					drawXZBasis(g2d, h, new Vector( 3 * getWidth() / 4 , 3 * getHeight() / 4 , 0f).plus(offset));
 
 					drawYZBasis(g2d, h, new Vector( getWidth() / 4 ,  getHeight() / 4 , 0f).plus(offset));
+
+//					if (h instanceof SeededHand){
+//						SeededHand sh = (SeededHand) h;
+//
+//						Quaternion q = QuaternionHelper.toQuaternion(new Vector[]{
+//								sh.basis().getXBasis(), sh.basis().getYBasis(), sh.basis().getZBasis()
+//						});
+//
+//						Vector[] vs = q.toMatrix(true);
+//
+//						sh.setBasis(vs[0], vs[1], vs[2]);
+//
+//						drawXYBasis(g2d, h, new Vector( getWidth() / 4 , 3 * getHeight() / 4 , 0f).plus(offset));
+//
+//						drawXZBasis(g2d, h, new Vector( 3 * getWidth() / 4 , 3 * getHeight() / 4 , 0f).plus(offset));
+//
+//						drawYZBasis(g2d, h, new Vector( getWidth() / 4 ,  getHeight() / 4 , 0f).plus(offset));
+//					}
 
 					if (!h.isValid()) {
 						continue;

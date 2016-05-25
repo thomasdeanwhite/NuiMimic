@@ -230,11 +230,10 @@ public class SeededHand extends Hand implements Serializable {
 
     public void setBasis(Vector x, Vector y, Vector z) {
         basis.setXBasis(x);
-        y = y.opposite();
         basis.setYBasis(y);
-        setPalmNormal(y);
+        setPalmNormal(y.opposite());
         basis.setZBasis(z);
-        setDirection(z);
+        setDirection(z.opposite());
 
 //        basis.setYBasis(z);
 //        setPalmNormal(z);

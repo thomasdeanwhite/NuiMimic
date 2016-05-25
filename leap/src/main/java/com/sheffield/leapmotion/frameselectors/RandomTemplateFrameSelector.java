@@ -251,10 +251,10 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
 
-			Vector axis = q.getAxis();
-			float angle = q.getAngle();
-
-			sh.setRotation(axis, angle);
+//			Vector axis = q.getAxis();
+//			float angle = q.getAngle();
+//
+//			sh.setRotation(axis, angle);
 			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
 		}
 		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);

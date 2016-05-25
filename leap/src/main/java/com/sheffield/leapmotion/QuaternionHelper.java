@@ -4,6 +4,7 @@ import com.leapmotion.leap.Vector;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
@@ -179,95 +180,179 @@ public class QuaternionHelper {
             x = (m[2][1] - m[1][2]) / w4;
             y = (m[0][2] - m[2][0]) / w4;
             z = (m[1][0] - m[0][1]) / w4;
-        return new Quaternion(w, -x, y, z).normalise();
+        return new Quaternion(w, x, y, z).normalise();
     }
 
     public static void main(String[] args){
+
+        final ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
+
+        qs.add(new Quaternion(1,0,0,0));
+        qs.add(new Quaternion(0,0,0,1));
+        qs.add(new Quaternion(0,0,1,0));
+        qs.add(new Quaternion(0,1,0,0));
+        qs.add(new Quaternion(0.7071f,0,0.7071f,0));
+
+
+        final int SPOT = 10;
+        final int SCALE = 300;
+
+        Quaternion q1 = qs.get(0);
+
+        for (int i = 1; i < qs.size(); i++){
+            q1 = q1.multiply(qs.get(i));
+        }
+
+        final Quaternion q = q1;
+
+
         JFrame frame = new JFrame("Quaternion Plotter"){
+
+            private int o = 0;
+
+            private static final int MAX_O = 500;
 
             @Override
             public void paintComponents(Graphics g) {
+                jp.setDoubleBuffered(true);
+//                jp.revalidate();
+//                jp.repaint();
+                jp.paintComponents(null);
+            }
 
+            @Override
+            public void setSize(int width, int height) {
+                super.setSize(width, height);
+                jp.setSize(width, height);
+            }
 
+            private JPanel jp = new JPanel(){
 
-                if (g == null){
-                    g = getGraphics();
-                }
-                Graphics2D g2d = (Graphics2D) g;
+                private BufferedImage bi;
 
-                g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
-
-                g2d.clearRect(0, 0, getWidth(), getHeight());
-
-                g2d.setColor(Color.BLUE);
-                g2d.setBackground(Color.WHITE);
-                g2d.setStroke(new BasicStroke(3));
-
-                ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
-
-                qs.add(new Quaternion(1,0,0,0));
-                qs.add(new Quaternion(0,0,0,1));
-                qs.add(new Quaternion(0,1,0,0));
-
-
-                final int SPOT = 10;
-                final int SCALE = 300;
-
-                int counter = 0;
-
-                Vector offset = new Vector(getWidth()/2, getHeight()/2, 0f);
-                Vector[] drawables = new Vector[]{
-                        new Vector(0f, -SCALE, 0f),
-                        new Vector(0f, SCALE, 0f),
-                        new Vector(SCALE/2, SCALE, 0f),
-                        new Vector(SCALE, SCALE, SCALE),
-
-                };
-
-                g2d.setColor(Color.RED);
-
-                for (int i = 0; i < 500; i++){
-                    for (Vector draw : drawables) {
-                        float m1 = i / (float) 500;
-                        float m2 = (i + 1) / (float) 500;
-                        Quaternion q1 = fadeQuaternions(qs, m1);
-                        Quaternion q2 = fadeQuaternions(qs, m2);
-
-                        Vector v1 = q1.rotateVector(draw);
-                        Vector v2 = q2.rotateVector(draw);
-
-                        g2d.drawLine((int) (offset.getX() + v1.getX()),
-                                (int) (offset.getY() + v1.getY()),
-                                (int) (offset.getX() + v2.getX()),
-                                (int) (offset.getY() + v2.getY()));
+                @Override
+                public void paintComponents(Graphics g) {
+                    if (g == null){
+                        g = getContentPane().getGraphics();
                     }
-                }
+
+                    //super.paintComponents(g);
+
+                    Graphics2D g2d = (Graphics2D) g;
+
+                    if (bi != null) {
+                        g2d.drawImage(bi, 0, 0, Color.BLACK, null);
+                    }
+
+                    bi = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 
 
-                g2d.setPaint(Color.BLACK);
-                g2d.fillRect((int) (offset.getX() -(SPOT/2)), (int) (offset.getY() -(SPOT/2)), SPOT, SPOT);
-                g2d.drawString("O[0, 0]", offset.getX() + ((3*SPOT)/4), offset.getY());
+                    g2d = bi.createGraphics();
 
-                for (Vector draw : drawables) {
-                    g2d.setPaint(Color.GRAY);
-                    g2d.drawLine((int)offset.getX(), (int)offset.getY(), (int)(offset.getX() + draw.getX()), (int)(offset.getY() + draw.getY()));
+
+                    g2d.setRenderingHints(new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON));
+
+                    g2d.clearRect(0, 0, getWidth(), getHeight());
+
+                    g2d.setColor(Color.BLUE);
+                    g2d.setBackground(Color.WHITE);
+                    g2d.setStroke(new BasicStroke(3));
+
+                    int counter = 0;
+
+                    final int MAX = 100;
+
+                    Vector offset = new Vector(getWidth()/2, getHeight()/2, 0f);
+                    Vector[] drawables = new Vector[]{
+                            //new Vector(0f, -SCALE, 0f),
+                            new Vector(0f, SCALE, 0f),
+                            new Vector(SCALE, 0f, 0f),
+                            new Vector(0f, 0f, SCALE),
+                            //new Vector(SCALE, SCALE, 0f),
+
+                    };
+
+                    for (int i = o; i < o + MAX; i++){
+                        for (Vector draw : drawables) {
+                            float m1 = i / (float) (MAX_O - o);
+                            float m2 = (i + 1) / (float) (MAX_O - o);
+                            Quaternion q1 = fadeQuaternions(qs, m1);
+                            Quaternion q2 = fadeQuaternions(qs, m2);
+
+                            Vector v1 = q1.rotateVector(draw);
+                            Vector v2 = q2.rotateVector(draw);
+
+                            g2d.setColor(Color.RED);
+
+                            g2d.setStroke(new BasicStroke((float) (30f * Math.pow((v1.getZ() + SCALE) / (SCALE * 2), 2))));
+
+                            g2d.drawLine((int) (offset.getX() + v1.getX()),
+                                    (int) (offset.getY() + v1.getY()),
+                                    (int) (offset.getX() + v2.getX()),
+                                    (int) (offset.getY() + v2.getY()));
+
+                            g2d.setColor(Color.GREEN);
+
+
+                            Quaternion qs1 = fadeQuaternions(new Quaternion(1f, 0f, 0f, 0f), q, m1);
+                            Quaternion qs2 = fadeQuaternions(new Quaternion(1f, 0f, 0f, 0f), q, m2);
+                            v1 = qs1.rotateVector(draw);
+                            v2 = qs2.rotateVector(draw);
+
+                            g2d.setStroke(new BasicStroke((float) (30f * Math.pow((v1.getZ() + SCALE) / (SCALE * 2), 2))));
+
+                            g2d.drawLine((int) (offset.getX() + v1.getX()),
+                                    (int) (offset.getY() + v1.getY()),
+                                    (int) (offset.getX() + v2.getX()),
+                                    (int) (offset.getY() + v2.getY()));
+                        }
+                    }
+
 
                     g2d.setPaint(Color.BLACK);
-                    g2d.drawString((counter++) + "", offset.getX() + draw.getX() + ((3*SPOT)/4), offset.getY() + draw.getY());
+                    g2d.fillRect((int) (offset.getX() -(SPOT/2)), (int) (offset.getY() -(SPOT/2)), SPOT, SPOT);
+                    g2d.drawString("O[0, 0]", offset.getX() + ((3*SPOT)/4), offset.getY());
 
-                    g2d.setPaint(Color.DARK_GRAY);
-                    g2d.fillRect((int) (offset.getX() + draw.getX()-(SPOT/2)), (int) (offset.getY() + draw.getY()-(SPOT/2)), SPOT, SPOT);
+                    g2d.setStroke(new BasicStroke(10f));
+
+                    for (Vector draw : drawables) {
+                        g2d.setPaint(Color.GRAY);
+                        g2d.drawLine((int)offset.getX(), (int)offset.getY(), (int)(offset.getX() + draw.getX()), (int)(offset.getY() + draw.getY()));
+
+                        g2d.setPaint(Color.BLACK);
+                        g2d.drawString((counter++) + "", offset.getX() + draw.getX() + ((3*SPOT)/4), offset.getY() + draw.getY());
+
+                        g2d.setPaint(Color.DARK_GRAY);
+                        g2d.fillRect((int) (offset.getX() + draw.getX()-(SPOT/2)), (int) (offset.getY() + draw.getY()-(SPOT/2)), SPOT, SPOT);
+                    }
+
+                    g2d.dispose();
+
+                    o++;
+
+                    if (o >= MAX + MAX_O){
+                        o = 0;
+                    }
+
                 }
+            };
 
-                g2d.dispose();
 
-            }
         };
 
         frame.setVisible(true);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1000, 1000);
-        frame.paintComponents(null);
+
+
+        while(true){
+            frame.paintComponents(null);
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

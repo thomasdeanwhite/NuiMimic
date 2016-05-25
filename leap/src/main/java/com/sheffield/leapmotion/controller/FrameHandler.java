@@ -138,14 +138,14 @@ public class FrameHandler {
                 }).start();
             }
             return;
-        }
-        if (frameSelector instanceof UserPlaybackFrameSelector) {
-            UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
-            if (upfs.finished()){
-                frameSelector = upfs.getBackupFrameSelector();
-                loadNewFrame();
-                return;
-            }
+//        }
+//        if (frameSelector instanceof UserPlaybackFrameSelector) {
+//            UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
+//            if (upfs.finished()){
+//                frameSelector = upfs.getBackupFrameSelector();
+//                loadNewFrame();
+//                return;
+//            }
         } else {
             if (!(frame instanceof  SeededFrame)) {
                 frame = new SeededFrame(frame);

@@ -58,4 +58,29 @@ public class QuaternionHelperTest {
         assertEquals(0.896348, v[2].getZ(), 0.00001);
     }
 
+    @Test
+    public void testMultiplication (){
+        Quaternion q = new Quaternion(1, 0, 1, 0);
+        Quaternion q2 = new Quaternion(1, 0.5f, 0.5f, 0.75f);
+
+        Quaternion r = q.multiply(q2);
+
+        assertEquals(0.5, r.w, 0.0001);
+        assertEquals(1.25, r.x, 0.0001);
+        assertEquals(1.5, r.y, 0.0001);
+        assertEquals(0.25, r.z, 0.0001);
+    }
+
+    @Test
+    public void testMultiplication2 (){
+        Quaternion q = new Quaternion(1, 0, 1, 0);
+
+        Quaternion r = q.multiply(q);
+
+        assertEquals(0, r.w, 0.0001);
+        assertEquals(0, r.x, 0.0001);
+        assertEquals(2, r.y, 0.0001);
+        assertEquals(0, r.z, 0.0001);
+    }
+
 }

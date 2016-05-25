@@ -43,6 +43,9 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
     private String currentHand;
     private String currentPosition;
     private String currentRotation;
+    private ArrayList<Long> timings;
+
+    private long startTime = 0;
 
     private TrainingPlaybackGestureHandler tpgh;
 
@@ -75,10 +78,32 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
             String sequenceFile = Properties.DIRECTORY + "/" + filename + ".raw_sequence.joint_position_data";
             String sequenceInfo = FileHandler.readFile(new File(sequenceFile));
-            String[] seqData = sequenceInfo.split(",");
+            String[] seqData = sequenceInfo.split("\n")[0].split(",");
+
+            timings = new ArrayList<Long>();
+
+            String[] tim = sequenceInfo.split("\n")[1].split(",");
+
+            for (String s : tim){
+                if (s.length() > 0)
+                    timings.add(Long.parseLong(s.split("@")[0]));
+            }
+
+            for (int i = timings.size()-1; i > 0; i--){
+                long l = timings.remove(i);
+                if (l > timings.get(i-1)) {
+                    timings.add(i, l - timings.get(i - 1));
+                } else {
+                    throw new IllegalArgumentException("Timings must increase chronologically");
+                }
+            }
+
+            timings.remove(0);
+            timings.add(0, 0L);
 
             for (String s : seqData){
-                handLabelStack.add(s);
+                if (s.length() > 0)
+                    handLabelStack.add(s);
             }
 
             String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
@@ -98,10 +123,11 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
             sequenceFile = Properties.DIRECTORY + "/" + filename + ".raw_sequence.hand_position_data";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
-            seqData = sequenceInfo.split(",");
+            seqData = sequenceInfo.split("\n")[0].split(",");
 
             for (String s : seqData){
-                positionLabelStack.add(s);
+                if (s.length() > 0)
+                    positionLabelStack.add(s);
             }
 
             String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
@@ -115,16 +141,17 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
                         Float.parseFloat(vect[3]),
                         Float.parseFloat(vect[4])).normalise();
 
-                rotations.put(vect[0], q);
+                rotations.put(vect[0], q.inverse());
 
             }
 
             sequenceFile = Properties.DIRECTORY + "/" + filename + ".raw_sequence.hand_rotation_data";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
-            seqData = sequenceInfo.split(",");
+            seqData = sequenceInfo.split("\n")[0].split(",");
 
             for (String s : seqData){
-                rotationLabelStack.add(s);
+                if (s.length() > 0)
+                    rotationLabelStack.add(s);
             }
 
         } catch (IOException e){
@@ -143,22 +170,15 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
             Quaternion lastRotation = rotations.get(currentRotation);
 
-            float modifier = currentAnimationTime / (float)Properties.SWITCH_TIME;
+            float modifier = Math.max(1f, currentAnimationTime / (float)timings.get(0));
 
-            Quaternion q = QuaternionHelper.fadeQuaternions(lastRotation, rotations.get(rotationLabelStack.get(0)), modifier);
+            Quaternion q = QuaternionHelper.fadeQuaternions(lastRotation, rotations.get(rotationLabelStack.get(0)), modifier).normalise();
 
-            //Vector[] rotationVectors = q.toMatrix();
+            //sh.setRotation(axis, angle);
 
+            q.setBasis(sh);
 
-
-
-            //sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
-//            sh.setRotation(q);
-
-            Vector axis = q.getAxis();
-            float angle = q.getAngle();
-
-            sh.setRotation(axis, angle);
+            //Quaternion.FLIP_IN_Y.setBasis(sh);
 //
             ArrayList<Vector> seededPositions = new ArrayList<Vector>();
 
@@ -171,24 +191,26 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
     @Override
     public Frame newFrame() {
+        if (handLabelStack.size() == 0){
+            App.out.println("Finished seeding hands. " + SeededController.getSeededController().now());
+        }
         long time = System.currentTimeMillis();
-        if (currentHand == null || currentPosition == null || currentRotation == null||  currentAnimationTime > Properties.SWITCH_TIME){
-
+        while (currentHand == null || currentPosition == null || currentRotation == null || currentAnimationTime > timings.get(0)){
             currentHand = handLabelStack.remove(0);
             currentPosition = positionLabelStack.remove(0);
             currentRotation = rotationLabelStack.remove(0);
             tpgh.changeGesture();
 
-            currentAnimationTime = 0;
+            currentAnimationTime -= timings.get(0);
+            timings.remove(0);
             lastSwitchTime = time;
-        } else {
-            currentAnimationTime = (int) (time - lastSwitchTime);
         }
+        currentAnimationTime = (int) (time - lastSwitchTime);
         Frame f = SeededController.newFrame();
         ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
-        hs.add((SeededHand)  hands.get(handLabelStack.get(0)));
+        hs.add(hands.get(handLabelStack.get(0)));
         Hand hand = hands.get(currentHand);
-        float modifier = currentAnimationTime / (float)Properties.SWITCH_TIME;
+        float modifier = Math.max(1f, currentAnimationTime / (float)timings.get(0));
         f = HandFactory.injectHandIntoFrame(f, ((SeededHand)hand).fadeHand(hs, modifier));
         return f;
     }
