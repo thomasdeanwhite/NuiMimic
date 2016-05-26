@@ -8,13 +8,12 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class TrainingPlaybackGestureHandler extends NGramGestureHandler {
+public class TrainingPlaybackGestureHandler extends RandomGestureHandler {
 
 	private AnalyzerApp analyzer;
 	private ArrayList<Gesture.Type> gestureTypes;
@@ -24,12 +23,8 @@ public class TrainingPlaybackGestureHandler extends NGramGestureHandler {
 
 	private boolean changed = true;
 
-	public void addProbabilityListener(ProbabilityListener pbl){
-		analyzer.addProbabilityListener(pbl);
-	}
-
 	public TrainingPlaybackGestureHandler(String filename) {
-		super(filename);
+		//super(filename);
 		try {
 			gestureTypes = new ArrayList<Gesture.Type>();
 			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".raw_sequence.gesture_type_data";
@@ -51,10 +46,11 @@ public class TrainingPlaybackGestureHandler extends NGramGestureHandler {
 	}
 
 	public void advanceGestures(){
+		if (currentGesture == null || currentGesture == "TYPE_INVALID"){
+			return;
+		}
 		if (gestureState == null || gestureTypes.size() == 0 || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
-
-			currentGesture = gestureLabels.remove(0);
 
 			gestureTypes.clear();
 			cumalitiveGesturePositions = Vector.zero();

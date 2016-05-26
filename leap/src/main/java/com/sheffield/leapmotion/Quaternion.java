@@ -44,9 +44,17 @@ public class Quaternion {
     }
 
     public void setBasis(SeededHand h){
-        Vector[] vs = toMatrix(false);
+        //normalise(this);
+        //Vector[] vs = toMatrix(false);
         //h.setBasis(rotateVector(vs[0]), vs[1], vs[2]);
-        h.setBasis(rotateVector(Vector.xAxis()), rotateVector(Vector.yAxis()), rotateVector(Vector.zAxis()));
+        Vector[] vs = toMatrix(true);
+        h.setBasis(vs[0], vs[1], vs[2]);
+//        Vector[] vs = new Vector[]{rotateVector(Vector.xAxis()), rotateVector(Vector.yAxis()), rotateVector(Vector.zAxis())};
+//        h.setBasis(new Vector(vs[0].getX(), vs[1].getX(), vs[2].getX()),
+//                new Vector(vs[0].getY(), vs[1].getY(), vs[2].getY()),
+//                new Vector(vs[0].getZ(), vs[1].getZ(), vs[2].getZ()));
+
+        h.setRotation(this);
 
     }
 

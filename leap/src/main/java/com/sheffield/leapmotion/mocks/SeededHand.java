@@ -1,10 +1,20 @@
 package com.sheffield.leapmotion.mocks;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Arm;
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.FingerList;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Matrix;
+import com.leapmotion.leap.Pointable;
+import com.leapmotion.leap.PointableList;
+import com.leapmotion.leap.Tool;
+import com.leapmotion.leap.ToolList;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Quaternion;
-import com.sheffield.leapmotion.QuaternionHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -134,6 +144,11 @@ public class SeededHand extends Hand implements Serializable {
     }
 
     public Hand fadeHand(ArrayList<SeededHand> hands, float modifier) {
+
+        if (hands.size() == 0){
+            return this;
+        }
+
         SeededHand h = new SeededHand();
         h.basis = basis;
         h.direction = direction;
@@ -146,13 +161,13 @@ public class SeededHand extends Hand implements Serializable {
         h.isLeft = isLeft;
         h.id = id;
         h.uniqueId = uniqueId;
-        ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
+//        ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
+//
+//        for (SeededHand hs : hands){
+//            qs.add(hs.rotation);
+//        }
 
-        for (SeededHand hs : hands){
-            qs.add(hs.rotation);
-        }
-
-        h.rotation = QuaternionHelper.fadeQuaternions(qs, modifier);
+//        h.rotation = QuaternionHelper.fadeQuaternions(qs, modifier);
         SeededFingerList sfl = new SeededFingerList();
         for (Finger f : fingerList) {
             SeededFinger sf = new SeededFinger();
@@ -234,6 +249,14 @@ public class SeededHand extends Hand implements Serializable {
         setPalmNormal(y.opposite());
         basis.setZBasis(z);
         setDirection(z.opposite());
+
+        for (Finger f : fingers()){
+            if (f instanceof SeededFinger){
+                SeededFinger sf = (SeededFinger) f;
+                sf.basis = basis;
+                sf.normalize();
+            }
+        }
 
 //        basis.setYBasis(z);
 //        setPalmNormal(z);

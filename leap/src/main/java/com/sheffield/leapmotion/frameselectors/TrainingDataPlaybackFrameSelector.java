@@ -49,12 +49,17 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
     private TrainingPlaybackGestureHandler tpgh;
 
+    private long startSeededTime = 0;
+    private long seededTime = 0;
+
+    private int animationTime = 0;
+
 
     public TrainingDataPlaybackFrameSelector (String filename){
         try {
             tpgh = new TrainingPlaybackGestureHandler(filename);
             App.out.println("* Setting up NGram Frame Selection");
-            lastSwitchTime = System.currentTimeMillis();
+            lastSwitchTime = 0;
             currentAnimationTime = 0;
             handLabelStack = new ArrayList<String>();
             positionLabelStack = new ArrayList<String>();
@@ -80,6 +85,11 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
             String sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             String[] seqData = sequenceInfo.split("\n")[0].split(",");
 
+            for (String s : seqData){
+                if (s.length() > 0)
+                    handLabelStack.add(s);
+            }
+
             timings = new ArrayList<Long>();
 
             String[] tim = sequenceInfo.split("\n")[1].split(",");
@@ -92,19 +102,16 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
             for (int i = timings.size()-1; i > 0; i--){
                 long l = timings.remove(i);
                 if (l > timings.get(i-1)) {
-                    timings.add(i, l - timings.get(i - 1));
+                    long time = l - timings.get(0);
+                    timings.add(i, time);
                 } else {
                     throw new IllegalArgumentException("Timings must increase chronologically");
                 }
             }
 
+
             timings.remove(0);
             timings.add(0, 0L);
-
-            for (String s : seqData){
-                if (s.length() > 0)
-                    handLabelStack.add(s);
-            }
 
             String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
             contents = FileHandler.readFile(new File(positionFile));
@@ -170,7 +177,7 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
             Quaternion lastRotation = rotations.get(currentRotation);
 
-            float modifier = Math.max(1f, currentAnimationTime / (float)timings.get(0));
+            float modifier = Math.max(1f, currentAnimationTime / animationTime);
 
             Quaternion q = QuaternionHelper.fadeQuaternions(lastRotation, rotations.get(rotationLabelStack.get(0)), modifier).normalise();
 
@@ -192,31 +199,51 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
     @Override
     public Frame newFrame() {
         if (handLabelStack.size() == 0){
-            App.out.println("Finished seeding hands. " + SeededController.getSeededController().now());
+//          App.out.println("Finished seeding hands after " + (System.currentTimeMillis() - startSeededTime) + "secs "  + SeededController.getSeededController().now());
+            return Frame.invalid();
         }
         long time = System.currentTimeMillis();
-        while (currentHand == null || currentPosition == null || currentRotation == null || currentAnimationTime > timings.get(0)){
-            currentHand = handLabelStack.remove(0);
-            currentPosition = positionLabelStack.remove(0);
-            currentRotation = rotationLabelStack.remove(0);
-            tpgh.changeGesture();
-
-            currentAnimationTime -= timings.get(0);
-            timings.remove(0);
+        if (lastSwitchTime == 0){
             lastSwitchTime = time;
         }
+
+        if (startSeededTime == 0){
+            startSeededTime = time;
+        }
+
+        seededTime = time - startSeededTime;
+        while (currentHand == null || currentPosition == null || currentRotation == null || seededTime > timings.get(0)){
+            if (handLabelStack.size() > 0) {
+                currentHand = handLabelStack.remove(0);
+                currentPosition = positionLabelStack.remove(0);
+                currentRotation = rotationLabelStack.remove(0);
+                tpgh.changeGesture();
+                if (timings.size() > 1) {
+                    animationTime = (int) (timings.get(1) - timings.remove(0));
+                } else {
+                    animationTime = 30;
+                }
+                lastSwitchTime = time;
+            }
+        }
+
         currentAnimationTime = (int) (time - lastSwitchTime);
         Frame f = SeededController.newFrame();
         ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
         hs.add(hands.get(handLabelStack.get(0)));
         Hand hand = hands.get(currentHand);
-        float modifier = Math.max(1f, currentAnimationTime / (float)timings.get(0));
-        f = HandFactory.injectHandIntoFrame(f, ((SeededHand)hand).fadeHand(hs, modifier));
+        float modifier = Math.max(1f, currentAnimationTime / animationTime);
+      f = HandFactory.injectHandIntoFrame(f, ((SeededHand)hand).fadeHand(hs, modifier));
+
         return f;
     }
 
     @Override
     public GestureList handleFrame(Frame frame) {
         return tpgh.handleFrame(frame);
+    }
+
+    public int size(){
+        return handLabelStack.size();
     }
 }

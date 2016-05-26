@@ -63,7 +63,7 @@ public class SeededBone extends Bone implements Serializable {
 	}
 
 	public void normalize() {
-		basis = basis.times(Matrix.identity());
+		//basis = basis.times(Matrix.identity());
 		//basis.setOrigin(offset);
 		direction = prevJoint().minus(nextJoint()).normalized();
 
@@ -88,7 +88,7 @@ public class SeededBone extends Bone implements Serializable {
 	}
 
 	protected Vector rotatePoint(Vector v){
-		return basis.transformPoint(v);
+		return rotation.rotateVector(v);
 	}
 
 	@Override

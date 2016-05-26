@@ -13,6 +13,8 @@ import org.apache.commons.io.LineIterator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class UserPlaybackFrameSelector extends FrameSelector {
@@ -33,6 +35,8 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 	private long seededTimePassed = 0;
 	private FrameHandler fh = null;
 
+	private long maxFrames = 0;
+
 	private DisplayWindow dw;
 	
 	public UserPlaybackFrameSelector(FrameSelector frameSelector) {
@@ -41,9 +45,10 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 		backupFrameSelector = frameSelector;
 		String playback = Properties.PLAYBACK_FILE;
 		try {
+			maxFrames = Files.lines(Paths.get(playback)).count();
 			lineIterator = FileUtils.lineIterator(new File(playback));
 			frameStack = new ArrayList<Frame>();
-			int counter = 10;
+			int counter = Properties.MAX_LOADED_FRAMES;
 			while (counter > 0 && lineIterator.hasNext()){
 				frameStack.add(Serializer.sequenceFromJson(lineIterator.nextLine()));
 				counter--;
@@ -62,6 +67,15 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 				});
 				dw.setLocation(dw.getWidth(), 0);
 				Properties.PLAYBACK_FILE = playback;
+
+
+				TrainingDataPlaybackFrameSelector tdps = (TrainingDataPlaybackFrameSelector)frameSelector;
+
+				if (tdps.size() != maxFrames){
+					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
+				}
+
+
 			}
 
 		} catch (IOException e) {
@@ -74,9 +88,6 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 	@Override
 	public Frame newFrame() {
-		if (fh != null){
-			fh.loadNewFrame();
-		}
 
 		if (seeded) {
 			return backupFrameSelector.newFrame();
@@ -96,6 +107,10 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 		if (startSeedingTime == 0){
 			startSeedingTime = time;
+		}
+
+		if (fh != null){
+			fh.loadNewFrame();
 		}
 
 		seededTime = time;

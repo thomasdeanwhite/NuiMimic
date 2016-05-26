@@ -38,7 +38,7 @@ public class Properties extends InstrumentationProperties {
     public static long DELAY_TIME = 2000;
 
     @Parameter(key = "maxLoadedFrames", description = "Frames to retain for com.leap.leapmotion.Frame.frame(int [0->maxLoadedFrames]) method", hasArgs = true, category = "Leap Motion Testing")
-    public static int MAX_LOADED_FRAMES = 10;
+    public static int MAX_LOADED_FRAMES = 50;
 
     @Parameter(key = "runtime", description = "Time to testing application before exiting", hasArgs = true, category = "Leap Motion Testing")
     public static long RUNTIME = 600000;

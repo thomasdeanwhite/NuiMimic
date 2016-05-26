@@ -97,6 +97,7 @@ public class SeededFinger extends Finger implements Serializable {
 				SeededBone sb = (SeededBone) b;
 				sb.offset = offset;
 				sb.rotation = rotation;
+				sb.basis = basis;
 				//sb.prevJoint = prevJoint;
 				sb.normalize();
 				//prevJoint = rotation.rotateVector(sb.nextJoint.minus(prevJoint)).plus(prevJoint);
