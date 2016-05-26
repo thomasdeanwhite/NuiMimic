@@ -54,7 +54,8 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 
         double r = Math.random();
         // Apply additive smoothing: if r < n then select another random candidate
-        float maxProbability = 1.0f - (ngramCandidates.size() / ((float) totals.get(key) + ngramCandidates.size()));
+        float maxProbability = 1.0f - (totals.get(key) / (float)
+                (totals.get(key) + ngramCandidates.size()));
         if (r < maxProbability) {
             r = Math.random();
             for (ProbabilityListener pbl : probabilityListeners) {

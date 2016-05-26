@@ -134,9 +134,9 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 				qs.add(QuaternionHelper.toQuaternion(vs));
 			}
 
-//			Quaternion q = QuaternionHelper.fadeQuaternions(qs, modifier);
+			Quaternion q = QuaternionHelper.fadeQuaternions(qs, modifier);
 //
-//			sh.setRotation(q.getAxis(), q.getAngle());
+			q.setBasis(sh);
 			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
 		}
 	}

@@ -72,7 +72,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum FrameSelectionStrategy {
-        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDANT, SINGLE_MODEL, TRAINING_REPRODUCTION
+        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDANT, SINGLE_MODEL, REPRODUCTION
     }
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")

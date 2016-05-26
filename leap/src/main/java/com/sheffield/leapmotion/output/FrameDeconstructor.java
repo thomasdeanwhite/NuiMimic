@@ -27,7 +27,7 @@ public class FrameDeconstructor {
     private String filenameStart = "";
     private String addition = "";
 
-    public static long[] BREAK_TIMES = new long[]{60000};
+    public static long[] BREAK_TIMES = new long[]{600000};
 
     private boolean calculatingScreenshot = false;
 

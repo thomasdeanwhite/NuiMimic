@@ -501,7 +501,15 @@ public class App implements ThrowableListener {
                     "related_branches_total,related_branches_covered,relate_branch_coverage,bezier_points,switch_time");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = DctStateComparator.statesVisited.size();
-            info += "," + Properties.FRAME_SELECTION_STRATEGY + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
+
+            String fss = Properties.FRAME_SELECTION_STRATEGY.toString();
+
+            if (Properties.PLAYBACK_FILE != null){
+                fss = "USER_PLAYBACK";
+            }
+
+
+            info += "," + fss + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
 
 
             int lineHits = 0;

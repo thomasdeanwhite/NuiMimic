@@ -185,8 +185,7 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
             q.setBasis(sh);
 
-            //Quaternion.FLIP_IN_Y.setBasis(sh);
-//
+            //Quaternion.FLIP_IN_Y.setBasis(sh);//
             ArrayList<Vector> seededPositions = new ArrayList<Vector>();
 
             seededPositions.add(vectors.get(currentPosition));

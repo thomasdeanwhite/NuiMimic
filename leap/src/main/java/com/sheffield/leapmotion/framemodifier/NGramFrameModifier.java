@@ -89,7 +89,7 @@ public class NGramFrameModifier implements FrameModifier {
                         Float.parseFloat(vect[3]),
                         Float.parseFloat(vect[4])).normalise();
 
-                rotations.put(vect[0], q);
+                rotations.put(vect[0], q.inverse());
 
                 //App.out.println(vect[0] + ": " + q);
 
@@ -106,6 +106,7 @@ public class NGramFrameModifier implements FrameModifier {
 
     @Override
     public void modifyFrame(SeededFrame frame) {
+
         while (lastPosition == null){
             lastPositionLabel = positionAnalyzer.getDataAnalyzer().next();
             if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
@@ -157,8 +158,6 @@ public class NGramFrameModifier implements FrameModifier {
                         }
                     }
                 }
-                App.out.println("\n" + lastRotationLabel + ": " + lastRotation);
-
             } else {
                 seededRotations.add(0, lastRotation);
                 rotationLabels.add(0, lastRotationLabel);
@@ -227,13 +226,14 @@ public class NGramFrameModifier implements FrameModifier {
             float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
             SeededHand sh = (SeededHand) h;
 
-            Vector[] rotationVectors = QuaternionHelper.fadeQuaternions(seededRotations, modifier).toMatrix();
+            Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
 
             //sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
 
             //Quaternion q = QuaternionHelper.toQuaternion(rotationVectors);
             //sh.setRotation(new Vector(q.x, q.y, q.z), q.w);
-            sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
+            //sh.setBasis(rotationVectors[0], rotationVectors[1], rotationVectors[2]);
+            q.setBasis(sh);
             sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
         }
         currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);

@@ -42,10 +42,6 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 				d3[0] = d3[0].trim();
 
-				if (AnalyzerApp.REMOVE_REPEATED && d3[0].equals(last)) {
-					continue;
-				}
-
 				d3[1] = d3[1].trim();
 
 				d3[1] = d3[1].replaceAll("\\{", "");
@@ -87,7 +83,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 				// " " + ss.probability);
 			}
 			map.put(d[0], seqs);
-			totals.put(d[0], (int)total);
+			totals.put(d[0], 4*(int)total);
 		}
 
 	}

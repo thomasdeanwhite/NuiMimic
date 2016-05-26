@@ -8,11 +8,6 @@ import com.sheffield.leapmotion.mocks.SeededHand;
  */
 public class Quaternion {
 
-    public static final Quaternion FLIP_IN_Y = new Quaternion(0, 0, -1f, 0);
-    public static final Quaternion FLIP_IN_X = new Quaternion(0.7071f, 0.7071f, 0f, 0);
-    public static final Quaternion FULL_FLIP_IN_X = new Quaternion(0, -1f, 0f, 0);
-    public static final Quaternion FLIP_IN_Z = new Quaternion(0f, 0f, 0f, 1f);
-
     public float w, x, y, z;
 
     private Quaternion inverse;
@@ -131,7 +126,7 @@ public class Quaternion {
     }
 
     public String toString() {
-        return w + " + " + x + "i + " + y + "j + " + z + "k";
+        return w + (x > 0 ? " + " : " - ") + Math.abs(x) + "i " + (y > 0 ? "+ " : "- ") + Math.abs(y) + "j " + (z > 0 ? "+ " : "- ") + Math.abs(z) + "k";
     }
 
     public String toCsv(){

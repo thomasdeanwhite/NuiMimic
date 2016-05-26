@@ -100,7 +100,7 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 						Float.parseFloat(vect[3]),
 						Float.parseFloat(vect[4])).normalise();
 
-				rotations.put(vect[0], q);
+				rotations.put(vect[0], q.inverse());
 
 				//App.out.println(vect[0] + ": " + q);
 
@@ -251,10 +251,8 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
 
-//			Vector axis = q.getAxis();
-//			float angle = q.getAngle();
-//
-//			sh.setRotation(axis, angle);
+			q.setBasis(sh);
+
 			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
 		}
 		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);

@@ -57,7 +57,7 @@ public class FrameHandler {
                 case STATE_DEPENDANT:
                     frameSelector = new StateRelatedStaticDistanceFrameSelector();
                     break;
-                case TRAINING_REPRODUCTION:
+                case REPRODUCTION:
                     frameSelector = new TrainingDataPlaybackFrameSelector(Properties.GESTURE_FILES[0]);
                     break;
                 default:
@@ -73,11 +73,11 @@ public class FrameHandler {
             addFrameModifier((FrameModifier) frameSelector);
         }
 
-        if (frameSelector instanceof GestureHandler){
-            setGestureHandler((GestureHandler) frameSelector);
-        } else {
+        //if (frameSelector instanceof GestureHandler){
+        //    setGestureHandler((GestureHandler) frameSelector);
+        //} else {
             setGestureHandler(new RandomGestureHandler());
-        }
+        //}
 
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();
 
