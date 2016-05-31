@@ -121,20 +121,51 @@ line_plot <- function(data, name){
 }
 
 
-bplot <- function(data, name, title){
+pplot <- function(data, name, title){
   pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
   par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=0.5)
   #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
-  mi <- round(min(data$states_found)-1, digits=3)
-  ma <- round(max(data$states_found)+1, digits=3)
+  mi <- round(min(data$related_line_coverage)-0.001, digits=3)
+  ma <- round(max(data$related_line_coverage)+0.001, digits=3)
   
-  data$v = paste(data$fs, data$switch_time, sep="")
+  data$v = data$fs#paste(data$fs, data$switch_time, sep="")
   
   data <- data[order(data$v, data$bp),]
   
-  pirateplot(formula=states_found~bp + v, 
+  pirateplot(formula=related_line_coverage~v, 
              data=data, 
              xlab = 'Training Pool', ylab='Related Line Coverage', main=title,
              line.fun=median, ylim=c(mi, ma))
   dev.off()
+}
+
+pplot_filter <- function(data, name, title, filter){
+  
+  data <- data[data$frame_selector %in% filter,]
+  
+  pplot(data, name, title)
+}
+
+bplot <- function(data, name, title){
+  pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
+  par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=1)
+  #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
+  mi <- round(min(data$related_line_coverage)-0.001, digits=3)
+  ma <- round(max(data$related_line_coverage)+0.001, digits=3)
+  
+  data$v = data$fs#paste(data$fs, data$switch_time, sep="")
+  
+  data <- data[order(data$v, data$bp),]
+  
+  boxplot(formula=related_line_coverage~v, 
+             data=data, 
+             xlab = 'Training Pool', ylab='Related Line Coverage', main=title, ylim=c(mi, ma))
+  dev.off()
+}
+
+bplot_filter <- function(data, name, title, filter){
+  
+  data <- data[data$frame_selector %in% filter,]
+  
+  bplot(data, name, title)
 }
