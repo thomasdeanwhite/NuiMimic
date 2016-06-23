@@ -73,11 +73,11 @@ public class FrameHandler {
             addFrameModifier((FrameModifier) frameSelector);
         }
 
-        //if (frameSelector instanceof GestureHandler){
-        //    setGestureHandler((GestureHandler) frameSelector);
-        //} else {
+        if (frameSelector instanceof TrainingDataPlaybackFrameSelector){
+            setGestureHandler((GestureHandler) frameSelector);
+        } else {
             setGestureHandler(new RandomGestureHandler());
-        //}
+        }
 
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();
 

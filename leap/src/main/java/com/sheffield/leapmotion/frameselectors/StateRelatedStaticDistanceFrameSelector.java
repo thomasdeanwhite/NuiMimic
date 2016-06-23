@@ -90,8 +90,12 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                             }
                             stateCache.put(stateInfo[0], state);
                         }
-
-                        String[] handData = stateInfo[1].split(",");
+                        String[] handData = null;
+                        try {
+                            handData = stateInfo[1].split(",");
+                        } catch (ArrayIndexOutOfBoundsException e){
+                            continue;
+                        }
 
 
                         HashMap<String, Float> stateProbabilities = new HashMap<String, Float>();

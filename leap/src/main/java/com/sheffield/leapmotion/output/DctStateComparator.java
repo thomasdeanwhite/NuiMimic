@@ -33,9 +33,11 @@ public class DctStateComparator {
 
     public static HashMap<Integer, Integer> statesVisited = new HashMap<Integer, Integer>();
 
-    private static float threshold = 0.1f;
+    private static float threshold = 0.02f;
 
     private static ArrayList<Integer> statesActuallyVisited = new ArrayList<Integer>();
+
+    private static final int HISTOGRAM_BINS = 100;
 
     static {
         states = new ArrayList<Integer[]>();
@@ -101,8 +103,6 @@ public class DctStateComparator {
 
         ArrayList<Point> changes = new ArrayList<Point>();
 
-        int blocks = width / DiscreteCosineTransformer.BLOCKS;
-
         //Change contrast by this amount (0 to disable)
         final int contrastIterations = 0;
 
@@ -116,74 +116,45 @@ public class DctStateComparator {
             }
 
             dImage[i] = blackAndWhite;
-            if (lastImage != null) {
-                int y = i / width;
-                int x = i - (y * width);
-                int block = (y / DiscreteCosineTransformer.BLOCKS * blocks) + (x / DiscreteCosineTransformer.BLOCKS);
-                if (!xBlocks.contains(block)) {
-                    int li = (int) lastImage[i];
-                    int di = blackAndWhite;
-                    if (li != di) {
-                        if (!xBlocks.contains(block)) {
-                            xBlocks.add(block);
-                        }
-                    }
-                }
-            }
+//            if (lastImage != null) {
+//                int y = i / width;
+//                int x = i - (y * width);
+//                int block = (y / DiscreteCosineTransformer.BLOCKS * blocks) + (x / DiscreteCosineTransformer.BLOCKS);
+//                if (!xBlocks.contains(block)) {
+//                    int li = (int) lastImage[i];
+//                    int di = blackAndWhite;
+//                    if (li != di) {
+//                        if (!xBlocks.contains(block)) {
+//                            xBlocks.add(block);
+//                        }
+//                    }
+//                }
+//            }
 
         }
 
-        for (int i : xBlocks) {
-            int y = i / blocks;
-            int x = i - (y * blocks);
-            changes.add(new Point(x, y));
+
+        Integer[] bins = new Integer[HISTOGRAM_BINS];
+        for (int i = 0; i < bins.length; i++){
+            bins[i] = 0;
         }
 
-
-        if (lastImage == null) {
-
-
-            dct = new DiscreteCosineTransformer(dImage, width, height);
-
-            dct.calculateDct();
-
-
-        } else {
-
-            dct.updateImage(dImage);
-
-            dct.calculateDctFromChanges(changes);
+        float mod = ((float)(HISTOGRAM_BINS-1) / 255f);
+        for (int i = 0; i < dImage.length; i++){
+            bins[(int)(dImage[i] * mod)]++;
         }
-
-        lastImage = dImage;
-
-
-        double[] transform = dct.inverse(1);
-
-        double[] resultData = dct.getInterleavedData();
-
-        StringBuilder sb = new StringBuilder();
-        Integer[] thisState = new Integer[resultData.length];
-
-        long differences = 0;
-
-        long maxDifference = resultData.length * 2048;
-
-        for (int i = 0; i < resultData.length; i++) {
-            thisState[i] = (int) resultData[i];
-            sb.append("," + thisState[i]);
-        }
-
 
         int closestState = -1;
 
+        int maxDifference = Integer.MAX_VALUE;
+
         for (int i = 0; i < states.size(); i++) {
             Integer[] ss = states.get(i);
-            differences = 0;
-            int limit = Math.min(resultData.length, ss.length);
+            int differences = 0;
+            int limit = Math.min(bins.length, ss.length);
             for (int j = 0; j < limit; j++) {
                 int result = ss[j];
-                int state = thisState[j];
+                int state = bins[j];
                 differences += Math.abs(result - state);
             }
 
@@ -201,13 +172,16 @@ public class DctStateComparator {
         int stateNumber = states.size();
 
         //10% screen difference
-        double difference = maxDifference / (double) (255 * thisState.length);
+        double difference = maxDifference / (double) (dImage.length);
+
+        //App.out.println(difference);
 
         if ((difference > threshold || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
+            //App.out.println("New state found! (" + stateNumber + ") [difference: " + difference + " with state " + closestState + "] ");
             BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             for (int i = 0; i < width; i++) {
                 for (int j = 0; j < height; j++) {
-                    int value = (int) (transform[(j * width) + i]);
+                    int value = (int) (data[(j * width) + i]);
 
                     value = 0xFF000000 | ((value & 0x0ff) << 16) | ((value & 0x0ff) << 8) | (value & 0x0ff);
                     compressed.setRGB(i, j, value);
@@ -229,11 +203,16 @@ public class DctStateComparator {
 
             compressed = null;
             currentState = states.size();
-            addState(thisState);
+            addState(bins);
             statesVisited.put(currentState, 1);
             statesActuallyVisited.add(currentState);
             statesFound++;
-            return sb.toString().substring(1);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bins.length; i++){
+                sb.append(bins[i] + ",");
+            }
+            String output = sb.toString();
+            return output.substring(0, output.length()-1);
         } else if (difference <= threshold) {
             if (currentState != closestState) {
                 currentState = closestState;

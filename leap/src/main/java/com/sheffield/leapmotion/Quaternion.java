@@ -60,7 +60,8 @@ public class Quaternion {
 //                (w * v.getZ()) + (y * v.getY()) + (z * v.getX()));
 
         Quaternion q = new Quaternion(0f, v.getX(), v.getY(), v.getZ());
-        q = multiply(q).multiply(inverse);
+        Quaternion q1 = normalise();
+        q = q1.multiply(q).multiply(q1.inverse());
         return new Vector(q.x, q.y, q.z);
     }
 
@@ -147,25 +148,32 @@ public class Quaternion {
 
     public Quaternion normalise(){
         Quaternion q = new Quaternion(w, x, y, z);
-        float sqMag = q.squareMagnitude();
-        if (Math.abs(1.0 - sqMag) < 2.107342e-08) {
-            float scale = 2.0f / (1.0f + sqMag);
-
-            return q.scale(scale);
-        } else {
-            return q.scale((float) (1f / Math.sqrt(sqMag)));
-        }
+        Quaternion.normalise(q);
+        return q;
     }
 
     private static Quaternion normalise(Quaternion q){
+
+
         float sqMag = q.squareMagnitude();
         if (Math.abs(1.0 - sqMag) < 2.107342e-08) {
             float scale = 2.0f / (1.0f + sqMag);
 
-            return q.scale(scale);
+            q = q.scale(scale);
         } else {
-            return q.scale((float) (1f / Math.sqrt(sqMag)));
+            q = q.scale((float) (1f / Math.sqrt(sqMag)));
         }
+
+        return q;
+    }
+
+    @Override
+    public boolean equals(Object o){
+        if (o instanceof Quaternion){
+            Quaternion q = (Quaternion) o;
+            return w == q.w && x == q.x && y == q.y && z == q.z;
+        }
+        return false;
     }
 
 }

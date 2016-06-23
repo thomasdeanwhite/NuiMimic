@@ -47,9 +47,25 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 	private ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
 	private ArrayList<String> rotationLabels = new ArrayList<String>();
 
+	File pFile, rFile, jFile;
+
+	public File generateFile(String filename){
+		return FileHandler.generateTestingOutputFile(filename);
+	}
 
 	public RandomTemplateFrameSelector(String filename) {
 		try {
+			int testIndex = Properties.CURRENT_RUN;
+
+			pFile = generateFile("hand_positions-" + testIndex);
+			pFile.createNewFile();
+
+			rFile = generateFile("hand_rotations-" + testIndex);
+			rFile.createNewFile();
+
+			jFile = generateFile("joint_positions-" + testIndex);
+			jFile.createNewFile();
+
 			seededHands = new ArrayList<SeededHand>();
 			seededLabels = new ArrayList<String>();
 			//SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
@@ -149,6 +165,43 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 
 		if (currentAnimationTime >= Properties.SWITCH_TIME) {
 			// load next frame
+
+			try {
+				NGramLog posLog = new NGramLog();
+				posLog.element = "";
+				currentAnimationTime = 0;
+
+				for (String s : positionLabels){
+					posLog.element += s + ",";
+				}
+
+				posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+
+				NGramLog rotLog = new NGramLog();
+				rotLog.element = "";
+
+				for (String s : rotationLabels){
+					rotLog.element += s + ",";
+				}
+
+				rotLog.timeSeeded = posLog.timeSeeded;
+
+				String handValue = "";
+
+				for (int i = 0; i < seededLabels.size(); i++){
+					handValue += seededLabels.get(i) + ",";
+				}
+
+				NGramLog ngLog = new NGramLog();
+				ngLog.element = handValue;
+				ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+				FileHandler.appendToFile(pFile, posLog.toString());
+				FileHandler.appendToFile(rFile, rotLog.toString());
+				FileHandler.appendToFile(jFile, ngLog.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
 			lastHand = seededHands.get(seededHands.size() - 1);
 			lastLabel = seededLabels.get(seededLabels.size() - 1);
 			seededHands.clear();

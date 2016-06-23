@@ -85,7 +85,7 @@ public class AllResultProcessor {
 
             HashMap<String, HashMap<String, HashMap<Integer, Integer>>> methodLinesCovered = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
 
-            String[] methodsUsed = {"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDANT", "UNKNOWN"};
+            String[] methodsUsed = {"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDANT", "REPRODUCTION", "EMPTY", "USER_PLAYBACK", "UNKNOWN"};
 
             ArrayList<String> seenMethods = new ArrayList<String>();
 
@@ -191,7 +191,8 @@ public class AllResultProcessor {
                         lineInfo = l[l.length - trim];
                         trim++;
                         if (trim > l.length) {
-                            throw new Exception(linesCovered + " is in an invalid format (maybe empty).");
+                            new Exception(linesCovered + " is in an invalid format (maybe empty).").printStackTrace();
+                            continue;
                         }
                     }
 

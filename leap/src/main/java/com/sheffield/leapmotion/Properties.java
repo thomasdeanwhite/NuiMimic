@@ -35,7 +35,7 @@ public class Properties extends InstrumentationProperties {
     public static int SWITCH_TIME = 500;
 
     @Parameter(key = "startDelayTime", description = "Delay Time before frames are seeded", hasArgs = true, category = "Leap Motion Testing")
-    public static long DELAY_TIME = 2000;
+    public static long DELAY_TIME = 100;
 
     @Parameter(key = "maxLoadedFrames", description = "Frames to retain for com.leap.leapmotion.Frame.frame(int [0->maxLoadedFrames]) method", hasArgs = true, category = "Leap Motion Testing")
     public static int MAX_LOADED_FRAMES = 50;
@@ -80,6 +80,12 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Leap Motion Testing")
     public static int BEZIER_POINTS = 2;
+
+    @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
+    public static float LERP_RATE = 0.5f;
+
+    @Parameter(key = "laplace", description = "Use Laplace smoothing on N-Gram", hasArgs = false, category = "Statistical Modelling")
+    public static boolean LAPLACE_SMOOTHING = false;
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {
         for (String s : annotationMap.keySet()) {

@@ -65,7 +65,14 @@ public class AnalyzerApp {
 	}
 
 	public void analyze() {
-		dataAnalyzer.analyze(probabilities, logBase);
+		try {
+			App.out.println("- Processing Sequence");
+			dataAnalyzer.analyze(probabilities, logBase);
+			App.out.println("\r- Sequence processed!");
+
+		} catch (Exception e){
+			e.printStackTrace(App.out);
+		}
 	}
 
 	public void output() {

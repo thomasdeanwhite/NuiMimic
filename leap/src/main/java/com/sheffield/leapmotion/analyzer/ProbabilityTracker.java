@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.analyzer;
 
 import com.sheffield.leapmotion.output.DctStateComparator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class ProbabilityTracker implements ProbabilityListener {
     protected HashMap<Integer, HashMap<String, Float>> states;
     protected HashMap<Integer, Integer> totals;
     protected HashMap<String, Float> currentProbabilities;
+    protected static float UNSEEN_OBJECT_PROBABILITY = 0.05f;
 
     public ProbabilityTracker(HashMap<Integer, HashMap<String, Float>> states,
                               HashMap<Integer, Integer> totals){
@@ -42,6 +44,8 @@ public class ProbabilityTracker implements ProbabilityListener {
             total += prob;
         }
 
+        maxProbability -= UNSEEN_OBJECT_PROBABILITY;
+
 
         float scalar = maxProbability / total;
 
@@ -51,7 +55,7 @@ public class ProbabilityTracker implements ProbabilityListener {
     }
 
     @Override
-    public float changeProbability(SequenceSimilarity output) {
+    public float changeProbability(SequenceSimilarity output, ArrayList<SequenceSimilarity> totals) {
         if (output == null){
             return 0;
         }
@@ -62,6 +66,6 @@ public class ProbabilityTracker implements ProbabilityListener {
         if (currentProbabilities.containsKey(output.sequence)) {
             return output.probability * currentProbabilities.get(output.sequence);
         }
-        return 0f;
+        return UNSEEN_OBJECT_PROBABILITY * (totals.size() - currentProbabilities.size()) / totals.size();
     }
 }

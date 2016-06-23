@@ -7,6 +7,7 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 
     private Random random = new Random();
     private ArrayList<String> sequence;
+    private static final float SMOOTHING_RATE = 0.05f;
 
     public ProbabilityDataAnalyzer() {
         super();
@@ -53,25 +54,28 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
         SequenceSimilarity newValue = null;
 
         double r = Math.random();
-        // Apply additive smoothing: if r < n then select another random candidate
-        float maxProbability = 1.0f - (totals.get(key) / (float)
-                (totals.get(key) + ngramCandidates.size()));
-        if (r < maxProbability) {
-            r = Math.random();
+        for (ProbabilityListener pbl : probabilityListeners) {
+            pbl.probabilityListLoaded(seqs, 1f);
+        }
+
+        assert(seqs.size() == ngramCandidates.size());
+
+        for (SequenceSimilarity ss : seqs) {
+
+
+            float probability = (float) ss.probability;
+
             for (ProbabilityListener pbl : probabilityListeners) {
-                pbl.probabilityListLoaded(seqs, maxProbability);
+                probability = pbl.changeProbability(ss, seqs);
             }
-            for (SequenceSimilarity s : seqs) {
-                float probability = s.probability;
-                for (ProbabilityListener pbl : probabilityListeners) {
-                    probability = pbl.changeProbability(s);
-                }
-                if (r < probability) {
-                    newValue = s;
-                    break;
-                }
-                r -= s.probability;
+            if (r < probability) {
+                newValue = ss;
+                break;
             }
+            r -= ss.probability;
+
+
+
         }
 
         // if newValue == null, either no sequence exists (sparse) or additive smoothing in action

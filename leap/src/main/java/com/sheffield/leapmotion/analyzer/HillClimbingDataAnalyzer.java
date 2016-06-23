@@ -1,5 +1,7 @@
 package com.sheffield.leapmotion.analyzer;
 
+import com.sheffield.leapmotion.Properties;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -10,6 +12,10 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	//hashmap of cumulated frequences of candidates for key <String>
 	protected HashMap<String, Integer> totals;
 	protected ArrayList<String> ngramCandidates;
+	protected HashMap<Integer, ArrayList<String>> iof;
+
+    //Rate for linear interpolation. A low value skews towards lower orders.
+
 
 	protected ArrayList<ProbabilityListener> probabilityListeners;
 
@@ -20,10 +26,68 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 		totals = new HashMap<String, Integer>();
 		ngramCandidates = new ArrayList<String>();
 		probabilityListeners = new ArrayList<ProbabilityListener>();
+		iof = new HashMap<Integer, ArrayList<String>>();
+	}
+
+	public float lerpProbability(SequenceSimilarity s, SequenceSimilarity s2, float f){
+		if (s.parent.equals(" ") || s.smoothed){
+			return s.probability;
+		}
+		String newSeq = "";
+
+		float probability = 0;
+
+		if (s != null){
+			probability = s.probability;
+		}
+		probability = (1f - f) * lerpProbability(s2, s2.parentSeq, f) + (f * probability);
+
+		s.smoothed = true;
+		s.probability = probability;
+
+		return probability;
+	}
+
+	public void setupParents(SequenceSimilarity ss){
+		if (ss.parentSeq != null){
+			return;
+		}
+		String[] parents = ss.parent.split(" ");
+		String newSeq = "";
+		for (int i = 1; i < parents.length; i++){
+			newSeq += parents[i] + " ";
+		}
+		newSeq = newSeq.trim();
+		if (newSeq.length() == 0){
+			newSeq = " ";
+		}
+		SequenceSimilarity newS = null;
+
+		for (SequenceSimilarity ns : map.get(newSeq)){
+			if (ns.sequence.equals(ss.sequence)){
+				newS = ns;
+				break;
+			}
+		}
+
+		if (newS == null){
+			int index = ss.parent.indexOf(" ");
+			String parent = " ";
+			if (index >= 0){
+				parent = ss.parent.substring(index);
+			}
+			newS = new SequenceSimilarity(ss.sequence, 0, parent);
+		}
+
+		assert(ss.sequence == newS.sequence);
+
+		ss.parentSeq = newS;
 	}
 
 
 	public void analyze(ArrayList<String> ps, boolean logBase) {
+
+		HashMap<String, Integer> occurances = new HashMap<String, Integer>();
 
 		for (String s : ps) {
 			String[] d = s.split(":");
@@ -63,7 +127,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 				}
 
 				if (!exists) {
-					seqs.add(new SequenceSimilarity(seq, freq));
+					seqs.add(new SequenceSimilarity(seq, freq, d[0]));
 					if (!ngramCandidates.contains(seq) && !seq.equals("NULL")){
 						ngramCandidates.add(seq);
 					}
@@ -74,18 +138,209 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 					total += freq;
 				}
 			}
+
+            String[] par = d[0].split(" ");
+
+            String parent = "";
+
+            for (int i = 1; i < par.length; i++){
+                parent += par[i] + " ";
+            }
+
+            //parent = parent.trim();
+
 			for (SequenceSimilarity ss : seqs) {
+                String label = parent + ss.sequence;
+
+                String[] m = label.split(" ");
+
+                for (int i = 0; i < m.length; i++) {
+                    String minimisation = "";
+
+                    for (int j = i; j < m.length; j++){
+                        minimisation += m[j] + " ";
+                    }
+                    minimisation = minimisation.trim();
+                    if (!occurances.containsKey(minimisation)) {
+                        occurances.put(minimisation, 0);
+                    }
+                    occurances.put(minimisation, occurances.get(minimisation) + ss.freq);
+
+                }
+
+
 				if (logBase) {
 					ss.freq = (int)log(ss.freq);
 				}
 				ss.probability = ss.freq / total;
+
 				// System.out.println(d[0] + ":" + ss.sequence + " " + ss.freq +
 				// " " + ss.probability);
 			}
 			map.put(d[0], seqs);
-			totals.put(d[0], 4*(int)total);
+			totals.put(d[0], (int)total);
 		}
 
+        map.put(" ", new ArrayList<SequenceSimilarity>());
+        totals.put(" ", 0);
+
+        int wordCount = 0;
+
+        for (String s : occurances.keySet()){
+            int freq = occurances.get(s);
+
+            String[] sub = s.split(" ");
+            String value = sub[sub.length-1];
+
+            for (int i = 0; i < sub.length-1; i++){
+                String v = "";
+                for (int j = i; j < sub.length-1; j++){
+                    v = sub[j] + " ";
+                }
+				v = v.trim();
+                if (!map.containsKey(v)){
+                    map.put(v, new ArrayList<SequenceSimilarity>());
+                }
+                boolean found = false;
+                for (SequenceSimilarity ss : map.get(v)){
+                    if (ss.sequence.equals(value)){
+                        found = true;
+                        ss.freq += freq;
+                    }
+                }
+
+                if (!found) {
+					if (Properties.LAPLACE_SMOOTHING) {
+						freq = 1;
+					}
+					map.get(v).add(new SequenceSimilarity(value, freq, v));
+                }
+
+                if (!totals.containsKey(v)){
+                    totals.put(v, 0);
+                }
+
+                totals.put(v, totals.get(v) + freq);
+            }
+
+            boolean found = false;
+            for (SequenceSimilarity ss : map.get(" ")){
+                if (ss.sequence.equals(value)){
+                    found = true;
+                    ss.freq += freq;
+                }
+            }
+
+            if (!found) {
+                map.get(" ").add(new SequenceSimilarity(value, freq, " "));
+            }
+
+            totals.put(" ", totals.get(" ") + freq);
+
+            wordCount += freq;
+
+            if (!iof.containsKey(freq)){
+                iof.put(freq, new ArrayList<String>());
+            }
+
+            iof.get(freq).add(s);
+        }
+
+        for (String s : map.keySet()){
+            for (SequenceSimilarity ss : map.get(s)){
+                ss.probability = ss.freq / (float)totals.get(ss.parent);
+
+				setupParents(ss);
+            }
+        }
+
+
+			for (String upLevel : map.keySet()){
+
+				ArrayList<SequenceSimilarity> seqs = map.get(upLevel);
+
+				for (String sName : ngramCandidates) {
+					SequenceSimilarity s = null;
+					for (SequenceSimilarity ss : seqs) {
+						if (ss.sequence.equals(sName)) {
+							s = ss;
+							break;
+						}
+					}
+
+					SequenceSimilarity parent = null;
+
+					String ul = upLevel;
+
+					int missed = 0;
+
+					if (map.containsKey(ul)) {
+						SequenceSimilarity s1 = null;
+						for (SequenceSimilarity ss : map.get(ul)) {
+							if (ss.sequence.equals(sName)) {
+								s = ss;
+								break;
+							}
+						}
+						parent = s;
+					}
+
+
+					while (parent == null && ul.length() > 0) {
+						missed++;
+						int newIndex = ul.indexOf(" ");
+						String newLevel = " ";
+
+						if (newIndex != -1) {
+							newLevel = ul.substring(newIndex).trim();
+						}
+						if (map.containsKey(newLevel)) {
+							for (SequenceSimilarity ss : map.get(newLevel)) {
+								if (ss.sequence.equals(sName)) {
+									s = ss;
+									break;
+								}
+							}
+							parent = s;
+						}
+						ul = newLevel;
+					}
+
+					if (parent != null) {
+						if (Properties.LAPLACE_SMOOTHING){
+							s.probability = s.freq / totals.get(s);
+						} else {
+							float probability = (float) (Math.pow(1f - Properties.LERP_RATE, missed) * lerpProbability(s, parent, Properties.LERP_RATE));
+							if (s.parent.equals(upLevel)) {
+								s.probability = probability;
+							} else {
+								s = new SequenceSimilarity(sName, 0, upLevel);
+								s.probability = probability;
+								s.smoothed = true;
+								setupParents(s);
+								map.get(upLevel).add(s);
+							}
+						}
+					}
+				}
+
+
+		}
+
+		for (String upLevel : map.keySet()){
+			ArrayList<SequenceSimilarity> seqs = map.get(upLevel);
+			float maxProb = 0f;
+			for (SequenceSimilarity ss : seqs){
+				maxProb += ss.probability;
+			}
+
+			maxProb = 1f / maxProb;
+
+			for (SequenceSimilarity ss : seqs){
+				ss.probability *= maxProb;
+			}
+		}
+        //System.exit(1);
 	}
 
 	public void output(String directory) {

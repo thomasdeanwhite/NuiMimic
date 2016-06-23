@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.frameselectors;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
@@ -10,6 +11,7 @@ import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -33,6 +35,10 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
     private final int POSITION_LOCATE_TIME = 500;
     private final int POSITION_CHANGE_TIME = 4000;
 
+    public File generateFile(String filename){
+        return FileHandler.generateTestingOutputFile(filename);
+    }
+
 	public StaticDistanceFrameSelector() {
 		String[] gestures = Properties.GESTURE_FILES;
 
@@ -45,12 +51,29 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
+
+        int testIndex = Properties.CURRENT_RUN;
+
 		for (String s : gestures){
             try {
                 App.out.println(s);
-                frameModifiers.put(s, new NGramFrameModifier(s));
-                frameSelectors.put(s, new NGramFrameSelector(s));
-                gestureHandlers.put(s, new NGramGestureHandler(s));
+                File pFile = generateFile("hand_positions-" + testIndex);
+                pFile.createNewFile();
+                File rFile = generateFile("hand_rotations-" + testIndex);
+                rFile.createNewFile();
+                NGramFrameModifier ngfm = new NGramFrameModifier(s);
+                ngfm.setOutputFiles(pFile, rFile);
+                frameModifiers.put(s, ngfm);
+                NGramFrameSelector ngfs = new NGramFrameSelector(s);
+                File jFile = generateFile("joint_positions-" + testIndex);
+                jFile.createNewFile();
+                ngfs.setOutputFile(jFile);
+                frameSelectors.put(s, ngfs);
+                File gFile = generateFile("gestures-" + testIndex);
+                gFile.createNewFile();
+                NGramGestureHandler nggh = new NGramGestureHandler(s);
+                nggh.setOutputFile(gFile);
+                gestureHandlers.put(s, nggh);
             } catch (Exception e){
                 e.printStackTrace(App.out);
             }

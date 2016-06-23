@@ -498,7 +498,7 @@ public class App implements ThrowableListener {
 
             String info = ClassAnalyzer.toCsv(newFile, runtime, "frame_selector,gesture_files,starting_states,states_found,states_discovered," +
                     "final_sate,related_lines_total,related_lines_covered,related_line_coverage," +
-                    "related_branches_total,related_branches_covered,relate_branch_coverage,bezier_points,switch_time");
+                    "related_branches_total,related_branches_covered,relate_branch_coverage,bezier_points,switch_time,ngramSmoothing");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = DctStateComparator.statesVisited.size();
 
@@ -510,7 +510,6 @@ public class App implements ThrowableListener {
 
 
             info += "," + fss + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
-
 
             int lineHits = 0;
             int branchHits = 0;
@@ -542,6 +541,8 @@ public class App implements ThrowableListener {
             }
 
             info += "," + Properties.SWITCH_TIME;
+
+            info += "," + Properties.LERP_RATE;
 
             FileHandler.appendToFile(csv, info + "\n");
 
@@ -585,7 +586,7 @@ public class App implements ThrowableListener {
 
         String progress = "[";
 
-        final int bars = 30;
+        final int bars = 20;
         float percent = runtime / (float) Properties.RUNTIME;
         int b1 = (int) (percent * bars);
         for (int i = 0; i < b1; i++) {

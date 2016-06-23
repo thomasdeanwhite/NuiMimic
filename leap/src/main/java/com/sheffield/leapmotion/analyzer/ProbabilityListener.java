@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.analyzer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -7,5 +8,5 @@ import java.util.List;
  */
 public interface ProbabilityListener {
     void probabilityListLoaded(List<SequenceSimilarity> seqs, float maxProbability);
-    float changeProbability(SequenceSimilarity output);
+    float changeProbability(SequenceSimilarity output, ArrayList<SequenceSimilarity> totals);
 }

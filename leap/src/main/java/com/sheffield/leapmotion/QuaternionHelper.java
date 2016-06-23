@@ -78,6 +78,7 @@ public class QuaternionHelper {
 //    }
 
     public static Quaternion fadeQuaternions(ArrayList<Quaternion> quaternions, float modifier) {
+        //modifier = Math.min(0.999999f, modifier);
         if (quaternions.size() == 1){
             return quaternions.get(0);
         }
@@ -86,7 +87,6 @@ public class QuaternionHelper {
         }
         try {
             quaternions = new ArrayList<Quaternion>(quaternions);
-            modifier = Math.min(0.999999f, modifier);
 
             int i = (int) (modifier * (quaternions.size()-1));
 
@@ -99,7 +99,11 @@ public class QuaternionHelper {
             Quaternion q1 = quaternions.get(i).normalise();
             Quaternion q2 = quaternions.get(i + 1).normalise();
 
-            Quaternion qr = fadeQuaternions(q1, q2, modifier);
+            Quaternion qr = q1;
+
+            if (!q1.equals(q2)){
+                qr = fadeQuaternions(q1, q2, modifier).normalise();
+            }
 
             return qr;
 
@@ -120,38 +124,54 @@ public class QuaternionHelper {
             angle = -angle;
         }
 
+        if (angle > Math.PI){
+            angle = (float)(2d*Math.PI - angle);
+        }
+
         return angle;
     }
 
     public static Quaternion fadeQuaternions(Quaternion q1, Quaternion q2, float modifier){
+
+//        if (q1.equals(q2)){
+//            return q1;
+//        }
+
+        q1 = q1.normalise();
+        q2 = q2.normalise();
+
+
         float cosAngle = angleBetween(q1, q2);
 
         // are they facing same direction?
-        if (Math.abs(cosAngle) >= 1){
+        if (Math.abs(Math.cos(cosAngle)) >= 0.99999){
             return q1;
         }
 
-        float angle = (float) Math.acos(cosAngle);
-
-        float sinHalfAngle = (float) Math.sqrt(1f - cosAngle*cosAngle);
+        float angle = 2f * (float) Math.acos(cosAngle);
 
         // is q2 the rPi flip or q1? (same direction)
-        if (Math.abs(sinHalfAngle) <= 0.001){
+        float sinTheta = (float) Math.sin(angle);
+
+        if (Math.abs(sinTheta) <= 0.00001){
             Quaternion q = new Quaternion((q1.w + q2.w) * 0.5f,
                     (q1.x + q2.x) * 0.5f,
                     (q1.y + q2.y) * 0.5f,
                     (q1.z + q2.z) * 0.5f);
 
-            return q;
+            return q.normalise();
         }
 
-        float ra = (float) (Math.sin((1f-modifier) * angle) / sinHalfAngle);
-        float rb = (float) (Math.sin(modifier * angle) / sinHalfAngle);
 
-        return new Quaternion(q1.w * ra + q2.w * rb,
-                q1.x * ra + q2.x * rb,
-                q1.y * ra + q2.y * rb,
-                q1.z * ra + q2.z * rb).normalise();
+        float ra = (float) (Math.sin((1f-modifier) * angle) / sinTheta);
+        float rb = (float) (Math.sin(modifier * angle) / sinTheta);
+
+        float w = q1.w * ra + q2.w * rb;
+        float x = q1.x * ra + q2.x * rb;
+        float y = q1.y * ra + q2.y * rb;
+        float z = q1.z * ra + q2.z * rb;
+
+        return new Quaternion(w, x, y, z).normalise();
 
 
 
