@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.analyzer;
 
 
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.output.DctStateComparator;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ public class ProbabilityTracker implements ProbabilityListener {
     protected HashMap<Integer, HashMap<String, Float>> states;
     protected HashMap<Integer, Integer> totals;
     protected HashMap<String, Float> currentProbabilities;
-    protected static float UNSEEN_OBJECT_PROBABILITY = 0.05f;
+    protected static float UNSEEN_OBJECT_PROBABILITY = 0.001f;
 
     public ProbabilityTracker(HashMap<Integer, HashMap<String, Float>> states,
                               HashMap<Integer, Integer> totals){
@@ -39,8 +40,9 @@ public class ProbabilityTracker implements ProbabilityListener {
             if (currentState.containsKey(s.sequence)){
                 stateProbability = currentState.get(s.sequence);
             }
-            float prob = s.probability * stateProbability;
-            currentProbabilities.put(s.sequence, stateProbability);
+            float prob = (float)Math.pow(stateProbability, Properties.STATE_WEIGHT);
+            prob *= s.probability;
+            currentProbabilities.put(s.sequence, prob);
             total += prob;
         }
 
@@ -49,9 +51,15 @@ public class ProbabilityTracker implements ProbabilityListener {
 
         float scalar = maxProbability / total;
 
+        float maxProb = 0f;
+
         for (String s : currentProbabilities.keySet()){
-            currentProbabilities.put(s, currentProbabilities.get(s) * scalar);
+            float p = currentProbabilities.get(s) * scalar;
+            currentProbabilities.put(s, p);
+            maxProb += p;
         }
+
+        assert maxProb <= 1f;
     }
 
     @Override

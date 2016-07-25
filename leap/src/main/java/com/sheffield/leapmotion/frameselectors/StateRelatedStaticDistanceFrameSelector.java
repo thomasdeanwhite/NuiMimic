@@ -119,14 +119,21 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                             }
                         }
 
-                        totals.put(stateNumber, total);
+                        if (!totals.containsKey(stateNumber)){
+                            totals.put(stateNumber, 0);
+                        }
+                        totals.put(stateNumber, totals.get(stateNumber) + total);
+
 
                         for (String st : stateProbabilities.keySet()) {
                             float freq = stateProbabilities.get(st);
                             stateProbabilities.put(st, freq / total);
                         }
 
-                        states.put(stateNumber, stateProbabilities);
+                        if (!states.containsKey(stateNumber)){
+                            states.put(stateNumber, new HashMap<String, Float>());
+                        }
+                        states.get(stateNumber).putAll(stateProbabilities);
 
                     }
                     stateModels.add(f, states);
@@ -137,6 +144,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 }
             }
             try {
+                App.out.println("- Registered " + stateModels.get(0).size() + " states.");
                 ProbabilityTracker positionPbt = new ProbabilityTracker(stateModels.get(0), totalModels.get(0));
                 ProbabilityTracker rotationPbt = new ProbabilityTracker(stateModels.get(1), totalModels.get(1));
                 NGramFrameModifier ngfm = new NGramFrameModifier(s);

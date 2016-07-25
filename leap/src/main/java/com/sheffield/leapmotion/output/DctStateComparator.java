@@ -33,11 +33,9 @@ public class DctStateComparator {
 
     public static HashMap<Integer, Integer> statesVisited = new HashMap<Integer, Integer>();
 
-    private static float threshold = 0.02f;
+
 
     private static ArrayList<Integer> statesActuallyVisited = new ArrayList<Integer>();
-
-    private static final int HISTOGRAM_BINS = 100;
 
     static {
         states = new ArrayList<Integer[]>();
@@ -47,18 +45,69 @@ public class DctStateComparator {
         return currentState;
     }
 
-    public void setThreshold(float th){
-        threshold = th;
-    }
-
     public static int addState(Integer[] state){
-        if (states.contains(state)){
-            return -1;
+        if(Properties.HISTOGRAM_BINS < state.length){
+            Integer[] newState = new Integer[Properties.HISTOGRAM_BINS];
+
+            for (int i = 0; i < newState.length; i++){
+                newState[i] = 0;
+            }
+
+            float mod = (float)(Properties.HISTOGRAM_BINS) / (float)state.length;
+
+            for (int i = 0; i < state.length; i++){
+                int index = (int)(i * mod);
+                newState[index] += state[i];
+            }
+
+            state = newState;
         }
-        states.add(state);
-        int index = states.lastIndexOf(state);
-        statesVisited.put(index, 0);
-        return index;
+        int closestState = -1;
+
+        int maxDifference = Integer.MAX_VALUE;
+
+        int totalValues = 0;
+
+        for (int i = 0; i < state.length; i++){
+            totalValues += state[i];
+        }
+
+        for (int i = 0; i < states.size(); i++) {
+            Integer[] ss = states.get(i);
+            int differences = 0;
+            int limit = Math.min(state.length, ss.length);
+            for (int j = 0; j < limit; j++) {
+                int result = ss[j];
+                int s = state[j];
+                differences += Math.abs(result - s);
+                totalValues += ss[j];
+            }
+
+            ///App.out.println(i + ":" + ((float)differences/(float)resultData.length));
+
+            if (differences < maxDifference) {
+                maxDifference = differences;
+                closestState = i;
+            }
+
+        }
+
+//
+
+        int stateNumber = states.size();
+
+        //10% screen difference
+        double difference = maxDifference / (double) (totalValues / (states.size()+1));
+
+        //App.out.println(difference);
+
+        if ((difference > Properties.HISTOGRAM_THRESHOLD || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
+            statesVisited.put(stateNumber, 0);
+            states.add(state);
+        } else {
+            stateNumber = closestState;
+        }
+        return stateNumber;
     }
 
     public static String captureState(){
@@ -134,12 +183,12 @@ public class DctStateComparator {
         }
 
 
-        Integer[] bins = new Integer[HISTOGRAM_BINS];
+        Integer[] bins = new Integer[Properties.HISTOGRAM_BINS];
         for (int i = 0; i < bins.length; i++){
             bins[i] = 0;
         }
 
-        float mod = ((float)(HISTOGRAM_BINS-1) / 255f);
+        float mod = ((float)(Properties.HISTOGRAM_BINS-1) / 255f);
         for (int i = 0; i < dImage.length; i++){
             bins[(int)(dImage[i] * mod)]++;
         }
@@ -147,6 +196,13 @@ public class DctStateComparator {
         int closestState = -1;
 
         int maxDifference = Integer.MAX_VALUE;
+
+        int totalValues = 0;
+
+
+        for (int i = 0; i < bins.length; i++){
+            totalValues += bins[i];
+        }
 
         for (int i = 0; i < states.size(); i++) {
             Integer[] ss = states.get(i);
@@ -156,6 +212,7 @@ public class DctStateComparator {
                 int result = ss[j];
                 int state = bins[j];
                 differences += Math.abs(result - state);
+                totalValues += ss[j];
             }
 
             ///App.out.println(i + ":" + ((float)differences/(float)resultData.length));
@@ -166,17 +223,15 @@ public class DctStateComparator {
             }
 
         }
-
-//
+        //
 
         int stateNumber = states.size();
 
-        //10% screen difference
-        double difference = maxDifference / (double) (dImage.length);
+        double difference = maxDifference / (double) (totalValues / (states.size()+1));
 
         //App.out.println(difference);
 
-        if ((difference > threshold || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
+        if ((difference > Properties.HISTOGRAM_THRESHOLD || states.size() == 0) || ONLY_WRITE_SCREENSHOT) {
             //App.out.println("New state found! (" + stateNumber + ") [difference: " + difference + " with state " + closestState + "] ");
             BufferedImage compressed = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             for (int i = 0; i < width; i++) {
@@ -213,7 +268,7 @@ public class DctStateComparator {
             }
             String output = sb.toString();
             return output.substring(0, output.length()-1);
-        } else if (difference <= threshold) {
+        } else if (difference <= Properties.HISTOGRAM_THRESHOLD) {
             if (currentState != closestState) {
                 currentState = closestState;
             }

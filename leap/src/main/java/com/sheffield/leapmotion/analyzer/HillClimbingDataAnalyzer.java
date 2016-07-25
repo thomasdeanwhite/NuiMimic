@@ -63,10 +63,12 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 		}
 		SequenceSimilarity newS = null;
 
-		for (SequenceSimilarity ns : map.get(newSeq)){
-			if (ns.sequence.equals(ss.sequence)){
-				newS = ns;
-				break;
+		if (map.containsKey(newSeq)) {
+			for (SequenceSimilarity ns : map.get(newSeq)) {
+				if (ns.sequence.equals(ss.sequence)) {
+					newS = ns;
+					break;
+				}
 			}
 		}
 
@@ -306,11 +308,32 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 						ul = newLevel;
 					}
 
+					SequenceSimilarity p = parent;
+
+					while (p != null && ul.length() > 0) {
+						int newIndex = ul.indexOf(" ");
+						String newLevel = " ";
+
+						if (newIndex != -1) {
+							newLevel = ul.substring(newIndex).trim();
+						}
+						if (map.containsKey(newLevel)) {
+							for (SequenceSimilarity ss : map.get(newLevel)) {
+								if (ss.sequence.equals(sName)) {
+									s = ss;
+									break;
+								}
+							}
+							p = s;
+						}
+						ul = newLevel;
+					}
 					if (parent != null) {
 						if (Properties.LAPLACE_SMOOTHING){
 							s.probability = s.freq / totals.get(s);
 						} else {
-							float probability = (float) (Math.pow(1f - Properties.LERP_RATE, missed) * lerpProbability(s, parent, Properties.LERP_RATE));
+							float probability = (float) (Math.pow(1f - Properties.LERP_RATE, missed) *
+									lerpProbability(s, parent, Properties.LERP_RATE));
 							if (s.parent.equals(upLevel)) {
 								s.probability = probability;
 							} else {
@@ -340,7 +363,6 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 				ss.probability *= maxProb;
 			}
 		}
-        //System.exit(1);
 	}
 
 	public void output(String directory) {

@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.controller;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.AppStatus;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 
@@ -12,6 +13,20 @@ public class SeededController extends Controller implements FrameSwitchListener 
 
 	public static SeededController CONTROLLER;
 	private static boolean initializing = false;
+
+	private Listener leapmotionListener = new Listener(){
+		@Override
+		public void onConnect(Controller controller) {
+
+		}
+
+		@Override
+		public void onFrame(Controller controller) {
+			for (int i = 0; i < listeners.size(); i++) {
+				listeners.get(i).onFrame(CONTROLLER);
+			}
+		}
+	};
 
 	public static SeededController getSeededController() {
 		while (initializing){
@@ -63,6 +78,22 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		frameHandler.init();
 		frameHandler.addFrameSwitchListener(this);
 		CONTROLLER = this;
+
+		if (Properties.LEAVE_LEAPMOTION_ALONE){
+			super.addListener(leapmotionListener);
+			// Policy hack so app always receives data
+			com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(this), this, 1);
+			com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(this), this, 1 << 15);
+
+			//enable gestures for gesture model to work
+			enableGesture(Gesture.Type.TYPE_SWIPE);
+			enableGesture(Gesture.Type.TYPE_CIRCLE);
+			enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
+			enableGesture(Gesture.Type.TYPE_KEY_TAP);
+
+			App.out.println("- Only recording testing information!");
+		}
+
 		setPolicyFlags(Controller.PolicyFlag.POLICY_BACKGROUND_FRAMES);
 		if (App.getApp() == null){
 			App.startTesting();
@@ -124,6 +155,11 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	@Override
 	public Frame frame(int arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
+
+		if (Properties.LEAVE_LEAPMOTION_ALONE){
+			return super.frame();
+		}
+
 		frameRequested = true;
 
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {

@@ -6,7 +6,11 @@ import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.UnrecognizedOptionException;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,18 +33,18 @@ public class Properties extends InstrumentationProperties {
     public static String PLAYBACK_FILE = null;
 
     @Parameter(key = "framesPerSecond", description = "Number of frames to seed per second", hasArgs = true, category = "Leap Motion Testing")
-    public static long FRAMES_PER_SECOND = 60;
+    public static long FRAMES_PER_SECOND = 90;
 
     @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Leap Motion Testing")
-    public static int SWITCH_TIME = 500;
+    public static int SWITCH_TIME = 33;//400;
 
     @Parameter(key = "startDelayTime", description = "Delay Time before frames are seeded", hasArgs = true, category = "Leap Motion Testing")
-    public static long DELAY_TIME = 100;
+    public static long DELAY_TIME = 1;
 
     @Parameter(key = "maxLoadedFrames", description = "Frames to retain for com.leap.leapmotion.Frame.frame(int [0->maxLoadedFrames]) method", hasArgs = true, category = "Leap Motion Testing")
     public static int MAX_LOADED_FRAMES = 50;
 
-    @Parameter(key = "runtime", description = "Time to testing application before exiting", hasArgs = true, category = "Leap Motion Testing")
+    @Parameter(key = "runtime", description = "Time for testing application before exiting", hasArgs = true, category = "Leap Motion Testing")
     public static long RUNTIME = 600000;
 
     @Parameter(key = "currentRun", description = "Can be used for experiments to output the current run", hasArgs = true, category = "Leap Motion Testing")
@@ -72,20 +76,46 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum FrameSelectionStrategy {
-        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDANT, SINGLE_MODEL, REPRODUCTION
+        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE
     }
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
-    public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDANT;
+    public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
 
     @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Leap Motion Testing")
     public static int BEZIER_POINTS = 2;
 
     @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
-    public static float LERP_RATE = 0.5f;
+    public static float LERP_RATE = 1f;//0.8f;
 
     @Parameter(key = "laplace", description = "Use Laplace smoothing on N-Gram", hasArgs = false, category = "Statistical Modelling")
     public static boolean LAPLACE_SMOOTHING = false;
+
+    @Parameter(key = "state_weight", description = "Increase to make state probabilities weigh more", hasArgs = true, category = "Leap Motion Testing")
+    public static float STATE_WEIGHT = 0.5f;
+
+    @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
+    public static int HISTOGRAM_BINS = 80;
+
+    @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
+    public static float HISTOGRAM_THRESHOLD = 0.08f;
+
+    /*
+     * Properties for tuning parameters
+     */
+    @Parameter(key = "Tmin", description = "Min value to tune (inclusive)", hasArgs = true, category = "Parameter Tuning")
+    public static float MIN_TUNING_VALUE = 0f;
+
+    @Parameter(key = "Tmax", description = "Max value to tune (exclusive)", hasArgs = true, category = "Parameter Tuning")
+    public static float MAX_TUNING_VALUE = 1f;
+
+    @Parameter(key = "Tparameter", description = "Parameter to tune", hasArgs = true, category = "Parameter Tuning")
+    public static String TUNING_PARAMETER = null;
+
+    @Parameter(key = "Tcluster", description = "Cluster to use (/5)", hasArgs = true, category = "Parameter Tuning")
+    public static int CLUSTER_IDENTIFIER = -1;
+
+
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {
         for (String s : annotationMap.keySet()) {
@@ -194,6 +224,20 @@ public class Properties extends InstrumentationProperties {
             if (BEZIER_POINTS <= 1) {
                 SWITCH_TIME = 1;
                 BEZIER_POINTS = 2;
+            }
+
+            if (TUNING_PARAMETER != null){
+                Parameter p = annotationMap.get(TUNING_PARAMETER);
+                String value = "" + (MIN_TUNING_VALUE + (Math.random() * (MAX_TUNING_VALUE - MIN_TUNING_VALUE)));
+                App.out.println("- Tuning: " + p.key() + "=" + value);
+                setParameter(p.key(), value);
+            }
+
+            if (CLUSTER_IDENTIFIER >= 0){
+                CLUSTER_IDENTIFIER = CLUSTER_IDENTIFIER * 5;
+                for (int i = 0; i < GESTURE_FILES.length; i++){
+                    GESTURE_FILES[i] = GESTURE_FILES[i] + "-" + CLUSTER_IDENTIFIER;
+                }
             }
 
         } catch (Exception e1) {

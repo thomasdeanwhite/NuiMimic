@@ -498,7 +498,8 @@ public class App implements ThrowableListener {
 
             String info = ClassAnalyzer.toCsv(newFile, runtime, "frame_selector,gesture_files,starting_states,states_found,states_discovered," +
                     "final_sate,related_lines_total,related_lines_covered,related_line_coverage," +
-                    "related_branches_total,related_branches_covered,relate_branch_coverage,bezier_points,switch_time,ngramSmoothing");
+                    "related_branches_total,related_branches_covered,related_branch_coverage,bezier_points,switch_time,ngram_smoothing,state_weight," +
+                    "histogramBins,histogramThreshold,fps,cluster_identifier");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = DctStateComparator.statesVisited.size();
 
@@ -506,6 +507,10 @@ public class App implements ThrowableListener {
 
             if (Properties.PLAYBACK_FILE != null){
                 fss = "USER_PLAYBACK";
+            }
+
+            if (Properties.LEAVE_LEAPMOTION_ALONE){
+                fss = "MANUAL_TESTING";
             }
 
 
@@ -543,6 +548,14 @@ public class App implements ThrowableListener {
             info += "," + Properties.SWITCH_TIME;
 
             info += "," + Properties.LERP_RATE;
+
+            info += "," + Properties.STATE_WEIGHT;
+
+            info += "," + Properties.HISTOGRAM_BINS;
+
+            info += "," + Properties.HISTOGRAM_THRESHOLD;
+            info += "," + Properties.FRAMES_PER_SECOND;
+            info += "," + Properties.CLUSTER_IDENTIFIER;
 
             FileHandler.appendToFile(csv, info + "\n");
 
