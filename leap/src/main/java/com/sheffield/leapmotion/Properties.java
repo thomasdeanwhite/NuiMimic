@@ -115,6 +115,13 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "Tcluster", description = "Cluster to use (/5)", hasArgs = true, category = "Parameter Tuning")
     public static int CLUSTER_IDENTIFIER = -1;
 
+    public enum RunType {
+        INSTRUMENT, VISUALISE
+    }
+
+    @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
+    public static RunType RUN_TYPE = RunType.INSTRUMENT;
+
 
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {

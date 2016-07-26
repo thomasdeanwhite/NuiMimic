@@ -210,12 +210,10 @@ var_plot <- function(data, name){
 
   pd <- position_dodge(0.5)
   
-  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("cluster_identifier", "fs" ))
+  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("switch_time", "fs" ))
   
-  ggplot(dataS, aes(x=cluster_identifier, y=line_coverage, colour=fs))+
+  ggplot(dataS, aes(x=switch_time, y=line_coverage, colour=fs))+
     geom_point() +
-    geom_errorbar(aes(ymin=line_coverage-ci, ymax=line_coverage+ci), width=.1, position=pd) +
-    geom_line() +
     geom_smooth(method = "lm", se= FALSE)
   
   ggsave(name, device="pdf")

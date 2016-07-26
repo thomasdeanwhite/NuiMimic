@@ -11,6 +11,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.output.DctStateComparator;
+import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -243,6 +244,29 @@ public class App implements ThrowableListener {
     }
 
     public static void main(String[] args) {
+        for (String s : args) {
+            App.out.print(s + " ");
+        }
+        App.out.println(".");
+        Properties.instance().setOptions(args);
+       switch (Properties.RUN_TYPE){
+           case INSTRUMENT:
+               instrument();
+               break;
+           case VISUALISE:
+               visualise();
+               break;
+           default:
+               App.out.println("Unimplemented RUNTIME");
+               break;
+       }
+    }
+
+    public static void visualise(){
+        TrainingDataVisualiser tdv = new TrainingDataVisualiser(Properties.GESTURE_FILES[0]);
+    }
+
+    public static void instrument (){
         App.out.print("- Instrumenting JAR with options: ");
         String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
                 "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
@@ -255,11 +279,7 @@ public class App implements ThrowableListener {
         IS_INSTRUMENTING = true;
         Properties.LOG = false;
         ClassAnalyzer.setOut(App.out);
-        for (String s : args) {
-            App.out.print(s + " ");
-        }
-        App.out.println(".");
-        Properties.instance().setOptions(args);
+
 
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         try {
