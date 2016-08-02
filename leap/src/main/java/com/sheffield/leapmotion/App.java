@@ -619,7 +619,7 @@ public class App implements ThrowableListener {
 
         String progress = "[";
 
-        final int bars = 20;
+        final int bars = 10;
         float percent = runtime / (float) Properties.RUNTIME;
         int b1 = (int) (percent * bars);
         for (int i = 0; i < b1; i++) {
@@ -631,7 +631,7 @@ public class App implements ThrowableListener {
             progress += " ";
         }
         progress += "] " + ((int) (percent * 1000)) / 10f + "%";
-        out.print("\rExecuting: " + progress + ". Coverage: " + LAST_LINE_COVERAGE);
+        out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
         if (runtime > Properties.RUNTIME) {
             status = AppStatus.FINISHED;

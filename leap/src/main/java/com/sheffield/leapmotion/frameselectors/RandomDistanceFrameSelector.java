@@ -78,7 +78,12 @@ public class RandomDistanceFrameSelector extends FrameSelector implements FrameM
 
 	}
 
-	public void modifyFrame(SeededFrame frame) {
+    @Override
+    public String status() {
+        return null;
+    }
+
+    public void modifyFrame(SeededFrame frame) {
 		frameModifiers.get(currentGesture).modifyFrame(frame);
         long time = System.currentTimeMillis();
         float modifier = Math.min(1, (time - lastPositionChange) / (float)POSITION_LOCATE_TIME);

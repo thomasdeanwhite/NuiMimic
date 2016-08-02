@@ -94,7 +94,12 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
 
 	}
 
-	public void modifyFrame(SeededFrame frame) {
+    @Override
+    public String status() {
+        return null;
+    }
+
+    public void modifyFrame(SeededFrame frame) {
 		frameModifiers.get(currentGesture).modifyFrame(frame);
 	}
 

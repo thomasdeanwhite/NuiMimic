@@ -21,6 +21,7 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -41,7 +42,7 @@ public class TrainingDataVisualiser extends JFrame {
     private ArrayList<String> rotationLabelStack;
     private ArrayList<Long> timings;
 
-    private PlotType pt = PlotType.POSITION;
+    private PlotType pt = PlotType.JOINTS;
 
     public enum PlotType {
         JOINTS, POSITION, ROTATION
@@ -194,8 +195,37 @@ public class TrainingDataVisualiser extends JFrame {
 
         switch (pt){
             case JOINTS:
-                for (String s : hands.keySet()){
-                    paintHand(g2d, hands.get(s), new Vector(HAND_WIDTH * (1 + (counter% MAX_TILES)), HAND_WIDTH + (HAND_WIDTH * (counter / MAX_TILES)), 0));
+                ArrayList<Hand> hs = new ArrayList<Hand>();
+
+                for (Hand h : hands.values()){
+                    hs.add(h);
+                }
+
+                hs.sort(new Comparator<Hand>() {
+                    @Override
+                    public int compare(Hand o1, Hand o2) {
+                        int h1 = 0;
+
+                        int h2 = 0;
+
+                        for (Finger f : o1.fingers()){
+                            h1 += f.bone(Bone.Type.TYPE_DISTAL).center().getZ();
+                        }
+
+                        for (Finger f : o2.fingers()){
+                            h2 += f.bone(Bone.Type.TYPE_DISTAL).center().getZ();
+                        }
+
+                        if (h1 == h2){
+                            return 0;
+                        }
+
+                        return h1 > h2 ? 1 : -1;
+                    }
+                });
+
+                for (Hand s : hs){
+                    paintHand(g2d, s, new Vector(HAND_WIDTH * (1 + (counter% MAX_TILES)), HAND_WIDTH + (HAND_WIDTH * (counter / MAX_TILES)), 0));
                     counter++;
                 }
                 break;

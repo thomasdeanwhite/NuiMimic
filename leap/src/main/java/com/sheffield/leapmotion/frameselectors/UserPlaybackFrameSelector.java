@@ -143,6 +143,11 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 		return f;
 	}
 
+	@Override
+	public String status() {
+		return null;
+	}
+
 	public FrameSelector getBackupFrameSelector (){
 		return backupFrameSelector;
 	}

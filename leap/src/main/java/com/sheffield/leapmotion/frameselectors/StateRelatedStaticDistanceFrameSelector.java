@@ -192,7 +192,12 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
 	}
 
-	public void modifyFrame(SeededFrame frame) {
+    @Override
+    public String status() {
+        return null;
+    }
+
+    public void modifyFrame(SeededFrame frame) {
 		frameModifiers.get(currentGesture).modifyFrame(frame);
 	}
 

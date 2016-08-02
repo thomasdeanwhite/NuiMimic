@@ -1,6 +1,7 @@
 library(devtools)
 #install_github("ndphillips/yarrr")
 library("yarrr")
+library("reshape2")
 library("ggplot2")
 
 load_positions <- function(filename, file_pattern, numbers){
@@ -172,9 +173,9 @@ line_plot <- function(data, name){
   #plot(data$runtime_mins, data$related_line_coverage, type='l', main='Lines', col='white', xlab='Runtime (minutes)', ylab='Lines Covered')
   pd <- position_dodge(0.5)
   
-  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("fs", "person_method", "runtime_mins" ))
+  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("fs", "gesture_files", "runtime_mins" ))
   
-  ggplot(dataS, aes(x=runtime_mins, y=line_coverage, colour=fs))+
+  ggplot(dataS, aes(x=runtime_mins, y=line_coverage, colour=gesture_files))+
     geom_errorbar(aes(ymin=line_coverage-ci, ymax=line_coverage+ci), width=.1, position=pd) +
     geom_line() +
     geom_point()
@@ -210,9 +211,9 @@ var_plot <- function(data, name){
 
   pd <- position_dodge(0.5)
   
-  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("switch_time", "fs" ))
+  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("runtime", "gesture_files" ))
   
-  ggplot(dataS, aes(x=switch_time, y=line_coverage, colour=fs))+
+  ggplot(dataS, aes(x=runtime, y=line_coverage, colour=gesture_files))+
     geom_point() +
     geom_smooth(method = "lm", se= FALSE)
   
@@ -279,22 +280,34 @@ bplot_filter <- function(data, name, title, filter){
   bplot(data, name, title)
 }
 
-pplot <- function(data, name, title){
-  pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
+vplot <- function(data, name, title){
+
   #par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=0.5)
   #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
   mi <- round(min(data$line_coverage)-0.001, digits=3)
   ma <- round(max(data$line_coverage)+0.001, digits=3)
   
-  data$v = data$fs#paste(data$fs, data$switch_time, sep="")
+  data$variable <- paste(data$gesture_files, data$fs, sep="-")
+  data$value <- data$line_coverage
   
-  data <- data[order(data$v, data$bp),]
+  data <- data[order(data$variable),]
+  data$A <- seq(1, length(data[, 'variable']))
   
-  pirateplot(formula=line_coverage~fs,
-             data=data, 
-             xlab = 'Frame Selector', ylab='Line Coverage', main=title,
-             line.fun=median, ylim=c(mi, ma))
-  dev.off()
+  #pirateplot(formula=line_coverage~v,
+  #           data=data, 
+  #           xlab = 'Frame Selector', ylab='Line Coverage', main=title,
+  #           line.fun=median, ylim=c(mi, ma))
+  
+  p <- ggplot(dat = data, aes(x=A, y=value, group=variable)) +
+    stat_boxplot(geom ='errorbar') +
+    geom_boxplot(aes(fill=variable)) +
+    #geom_violin(aes(fill=variable), alpha=1/3) +
+    guides(fill = guide_legend(reverse=TRUE)) +
+    coord_flip() +
+    theme(axis.text.y=element_blank(), axis.title.y = element_blank()) +
+    labs(y = "Line Coverage")
+  
+  ggsave(paste(name, '.pdf', sep=''), device="pdf")
 }
 
 pplot_filter <- function(data, name, title, filter){

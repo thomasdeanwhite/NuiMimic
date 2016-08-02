@@ -238,6 +238,11 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
     }
 
     @Override
+    public String status() {
+        return null;
+    }
+
+    @Override
     public GestureList handleFrame(Frame frame) {
         return tpgh.handleFrame(frame);
     }

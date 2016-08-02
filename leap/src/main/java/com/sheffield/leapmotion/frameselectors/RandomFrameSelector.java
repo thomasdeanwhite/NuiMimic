@@ -78,6 +78,11 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 		return f;
 	}
 
+	@Override
+	public String status() {
+		return null;
+	}
+
 	private Vector randomVector(float scale, float transpose){
 		return new Vector(transpose + (random.nextFloat()*scale),
 				transpose + (random.nextFloat()*scale),

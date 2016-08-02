@@ -236,6 +236,11 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 	}
 
 	@Override
+	public String status() {
+		return null;
+	}
+
+	@Override
 	public void modifyFrame(SeededFrame frame) {
 		while (lastPosition == null){
 			lastPositionLabel =  randomPosition();

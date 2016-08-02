@@ -69,11 +69,6 @@ public class InstantiationVisitor extends MethodVisitor {
 
     @Override
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
-        if (DEBUG_MODE){
-            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
-            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
-        }
         boolean shouldCall = true;
         if (!Properties.LEAVE_LEAPMOTION_ALONE) {
             if (owner.equals(CONTROLLER_CLASS)) {
@@ -120,6 +115,12 @@ public class InstantiationVisitor extends MethodVisitor {
 
         if (shouldCall) {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
+        }
+
+        if (DEBUG_MODE){
+            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
         }
     }
 

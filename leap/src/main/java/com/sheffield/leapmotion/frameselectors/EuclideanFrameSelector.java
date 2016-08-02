@@ -216,4 +216,9 @@ public class EuclideanFrameSelector extends FrameSelector {
 		}
 
 	}
+
+	@Override
+	public String status() {
+		return null;
+	}
 }

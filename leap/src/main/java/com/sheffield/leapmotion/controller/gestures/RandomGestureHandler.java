@@ -5,15 +5,30 @@ import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.mocks.SeededGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 import com.sheffield.leapmotion.mocks.SeededSwipeGesture;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
 public class RandomGestureHandler extends NoneGestureHandler {
 
 	private SeededCircleGesture scg;
 	private SeededSwipeGesture ssg;
+
+
+	private File outputFile;
+	private ArrayList<NGramLog> logs = new ArrayList<NGramLog>();
+
+	public void setOutputFile(File o){
+		outputFile = o;
+	}
 
 
 	@Override
@@ -92,18 +107,34 @@ public class RandomGestureHandler extends NoneGestureHandler {
 				if (chance > GESTURE_TIME_LIMIT) {
 					gestureState = Gesture.State.STATE_STOP;
 				}
-			}
-			if (gestureState == Gesture.State.STATE_UPDATE) {
-
-				if (chance > GESTURE_TIME_LIMIT) {
-					gestureState = Gesture.State.STATE_STOP;
-				}
-
 			} else {
-				gestureState = Gesture.State.STATE_UPDATE;
+				if (gestureState == Gesture.State.STATE_UPDATE) {
+
+					if (chance > GESTURE_TIME_LIMIT) {
+						gestureState = Gesture.State.STATE_STOP;
+					}
+
+				} else {
+					gestureState = Gesture.State.STATE_UPDATE;
+				}
 			}
 			//update times
 			gestureDuration = (int) (System.currentTimeMillis() - gestureStart);
+
+			if (gestureState == Gesture.State.STATE_STOP){
+				NGramLog ngLog = new NGramLog();
+				ngLog.element = gestureType.toString() + ",";
+				ngLog.timeSeeded = (int) (gestureDuration);
+				logs.add(ngLog);
+				if (outputFile != null){
+					try {
+						FileHandler.appendToFile(outputFile, ngLog.toString());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace(App.out);
+					}
+				}
+			}
 		}
 	}
 

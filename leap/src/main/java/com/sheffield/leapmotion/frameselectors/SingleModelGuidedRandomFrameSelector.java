@@ -117,7 +117,12 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
 
 	}
 
-	public void modifyFrame(SeededFrame frame) {
+    @Override
+    public String status() {
+        return null;
+    }
+
+    public void modifyFrame(SeededFrame frame) {
         if (useModel) {
             frameModifiers.get(currentGesture).modifyFrame(frame);
         } else {

@@ -27,6 +27,7 @@ import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -36,6 +37,10 @@ public class FrameHandler {
     private ArrayList<Frame> frames;
     private GestureHandler gestureHandler;
     private ArrayList<FrameModifier> frameModifiers;
+
+    public String status(){
+        return frameSelector.status();
+    }
 
     public FrameHandler() {
 
@@ -78,8 +83,8 @@ public class FrameHandler {
                     frameSelector = new TrainingDataPlaybackFrameSelector(Properties.GESTURE_FILES[0]);
                     break;
                 case REGRESSION:
-                    ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 3);
-                    String[] files = {Properties.GESTURE_FILES[1], Properties.GESTURE_FILES[2], Properties.GESTURE_FILES[3]};
+                    ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
+                    String[] files = {Properties.GESTURE_FILES[1], Properties.GESTURE_FILES[2], Properties.GESTURE_FILES[3], Properties.GESTURE_FILES[4]};
                     for (int i = 0; i < files.length; i++){
                         logs[i] = new ArrayList<NGramLog>();
                         String[] data = FileHandler.readFile(new File(files[i])).split("\n");
@@ -115,7 +120,16 @@ public class FrameHandler {
         if (frameSelector instanceof TrainingDataPlaybackFrameSelector || frameSelector instanceof ClusterPlaybackFrameSelector){
             setGestureHandler((GestureHandler) frameSelector);
         } else {
-            setGestureHandler(new RandomGestureHandler());
+            RandomGestureHandler rgh = new RandomGestureHandler();
+            File f = FileHandler.generateTestingOutputFile("gestures-" + Properties.CURRENT_RUN);
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            rgh.setOutputFile(f);
+
+            setGestureHandler(rgh);
         }
 
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();

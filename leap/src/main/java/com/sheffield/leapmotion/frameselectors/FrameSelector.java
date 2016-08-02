@@ -4,4 +4,6 @@ import com.leapmotion.leap.Frame;
 
 public abstract class FrameSelector {
 	public abstract Frame newFrame();
+
+	public abstract String status();
 }

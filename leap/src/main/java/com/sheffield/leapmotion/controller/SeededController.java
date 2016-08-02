@@ -14,6 +14,10 @@ public class SeededController extends Controller implements FrameSwitchListener 
 	public static SeededController CONTROLLER;
 	private static boolean initializing = false;
 
+	public String status(){
+		return frameHandler.status();
+	}
+
 	private Listener leapmotionListener = new Listener(){
 		@Override
 		public void onConnect(Controller controller) {

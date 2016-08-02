@@ -163,6 +163,10 @@ public class LeapMotionApplicationHandler {
 			for (JarEntry je : entries){
 
 				String className = je.getName().substring(0, je.getName().length() - ".class".length());
+
+				if (!(className.startsWith("com/zf") || className.startsWith("com/jme3"))){
+					continue;
+				}
 				classes.add(className);
 				App.out.print("\t Found " + className);
 				try {

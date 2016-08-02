@@ -144,4 +144,9 @@ public class NGramFrameSelector extends FrameSelector {
 
 		return f;
 	}
+
+	@Override
+	public String status() {
+		return null;
+	}
 }
