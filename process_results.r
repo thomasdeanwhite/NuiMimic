@@ -211,9 +211,9 @@ var_plot <- function(data, name){
 
   pd <- position_dodge(0.5)
   
-  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("runtime", "gesture_files" ))
+  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("ngram_smoothing", "gesture_files" ))
   
-  ggplot(dataS, aes(x=runtime, y=line_coverage, colour=gesture_files))+
+  ggplot(dataS, aes(x=ngram_smoothing, y=line_coverage, colour=gesture_files))+
     geom_point() +
     geom_smooth(method = "lm", se= FALSE)
   

@@ -87,4 +87,9 @@ public class PlaybackFrameSelector extends FrameSelector {
 		f = HandFactory.injectHandIntoFrame(f, newHand);
 		return f;
 	}
+
+	@Override
+	public String status() {
+		return null;
+	}
 }

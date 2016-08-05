@@ -194,7 +194,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
     @Override
     public String status() {
-        return null;
+        return "State: " + DctStateComparator.getCurrentState();
     }
 
     public void modifyFrame(SeededFrame frame) {

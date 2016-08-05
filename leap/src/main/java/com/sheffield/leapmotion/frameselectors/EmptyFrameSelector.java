@@ -15,6 +15,11 @@ public class EmptyFrameSelector extends FrameSelector implements FrameModifier {
 
 	}
 
+	@Override
+	public String status() {
+		return null;
+	}
+
 	public void modifyFrame(SeededFrame frame) {
 
 	}

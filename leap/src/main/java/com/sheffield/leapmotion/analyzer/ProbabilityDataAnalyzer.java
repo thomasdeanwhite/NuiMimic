@@ -1,13 +1,13 @@
 package com.sheffield.leapmotion.analyzer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 
     private Random random = new Random();
     private ArrayList<String> sequence;
-    private static final float SMOOTHING_RATE = 0.05f;
 
     public ProbabilityDataAnalyzer() {
         super();
@@ -46,9 +46,56 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
         ArrayList<SequenceSimilarity> seqs = map.get(key);
 
         if (seqs == null) {
-            String newHand = getBackupSequence();
-            sequence.add(newHand);
-            return newHand;
+            String newHand = null;
+            HashMap<String, ArrayList<SequenceSimilarity>> buffer = new HashMap<String, ArrayList<SequenceSimilarity>>();
+
+            for (String s : map.keySet()){
+                if (s.trim().endsWith(sequence.get(sequence.size()-1))){
+                    buffer.put(s, map.get(s));
+                }
+            }
+
+            int sequenceNumber = sequence.size();
+
+            while (sequenceNumber >= 0 && buffer.size() > 0){
+                sequenceNumber--;
+                String[] buffersKeys = new String[buffer.keySet().size()];
+
+                buffer.keySet().toArray(buffersKeys);
+
+                newHand = buffersKeys[random.nextInt(buffersKeys.length)];
+
+                String smoothingKey = "";
+
+                for (int i = sequenceNumber; i < sequence.size(); i++){
+                    smoothingKey += smoothingKey + " ";
+                }
+
+                smoothingKey = smoothingKey.trim();
+
+                boolean found = false;
+                for (String s : buffer.keySet()){
+                    if (!s.trim().endsWith(smoothingKey)){
+                        buffer.remove(s);
+                    }
+                }
+
+                if (buffer.size() > 0){
+                    buffersKeys = new String[buffer.keySet().size()];
+
+                    buffer.keySet().toArray(buffersKeys);
+
+                    newHand = buffersKeys[random.nextInt(buffersKeys.length)];
+                }
+            }
+
+            seqs = map.get(newHand);
+
+            if (seqs == null) {
+                newHand = getBackupSequence();
+                sequence.add(newHand);
+                return newHand;
+            }
         }
 
         SequenceSimilarity newValue = null;

@@ -14,8 +14,6 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	protected ArrayList<String> ngramCandidates;
 	protected HashMap<Integer, ArrayList<String>> iof;
 
-    //Rate for linear interpolation. A low value skews towards lower orders.
-
 
 	protected ArrayList<ProbabilityListener> probabilityListeners;
 

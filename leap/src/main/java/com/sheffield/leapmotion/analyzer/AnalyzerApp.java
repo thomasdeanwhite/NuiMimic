@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class AnalyzerApp {
 
-	public static final int PROGRESS_BARS = 60;
+	public static final int PROGRESS_BARS = 20;
 	public static final int SEQUENCE_LENGTH = 1000;
 
 	private boolean logBase = false;
