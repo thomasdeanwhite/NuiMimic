@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion;
 
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
@@ -31,6 +32,8 @@ public class LeapMotionApplicationHandler {
 	private static final InstrumentingClassLoader INSTRUMENTING_CLASS_LOADER = InstrumentingClassLoader.getInstance();
 
 	static {
+		nonDependancies = new ArrayList<String>();
+
 		INSTRUMENTING_CLASS_LOADER.getClassReplacementTransformer().addShouldInstrumentChecker(new ClassReplacementTransformer.ShouldInstrumentChecker() {
 			@Override
 			public boolean shouldInstrument(String className) {
@@ -50,8 +53,6 @@ public class LeapMotionApplicationHandler {
 
 
 		INSTRUMENTING_CLASS_LOADER.setShouldInstrument(true);
-		
-		nonDependancies = new ArrayList<String>();
 	}
 
 	// private static VirtualMachine virtualMachine;
@@ -150,6 +151,8 @@ public class LeapMotionApplicationHandler {
 
 			ArrayList<String> classes = new ArrayList<String>();
 
+			ClassAnalyzer.setOut(App.out);
+
 			Properties.WRITE_CLASS = true;
 			int index = jar.lastIndexOf("/");
 			if (index == -1){
@@ -164,9 +167,9 @@ public class LeapMotionApplicationHandler {
 
 				String className = je.getName().substring(0, je.getName().length() - ".class".length());
 
-				if (!(className.startsWith("com/zf") || className.startsWith("com/jme3"))){
-					continue;
-				}
+//				if (!(className.startsWith("com/zf") || className.startsWith("com/jme3"))){
+//					continue;
+//				}
 				classes.add(className);
 				App.out.print("\t Found " + className);
 				try {

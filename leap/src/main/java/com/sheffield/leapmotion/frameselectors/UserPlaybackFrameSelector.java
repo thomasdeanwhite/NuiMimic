@@ -51,7 +51,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 			int counter = Properties.MAX_LOADED_FRAMES;
 			while (counter > 0 && lineIterator.hasNext()){
 				frameStack.add(Serializer.sequenceFromJson(lineIterator.nextLine()));
-				counter--;
+				//counter--;
 			}
 
 			if (frameSelector instanceof TrainingDataPlaybackFrameSelector){
@@ -87,13 +87,13 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 	}
 
 	@Override
-	public Frame newFrame() {
+	public synchronized Frame newFrame() {
 
 		if (seeded) {
 			return backupFrameSelector.newFrame();
 		}
 
-		if (frameStack.size() <= 0 || !lineIterator.hasNext()) {
+		if (frameStack.size() <= 0){// || !lineIterator.hasNext()) {
 			seeded = true;
 			Properties.FRAMES_PER_SECOND = lastSwitchRate;
 			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
@@ -117,18 +117,20 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 		long currentTimePassed = seededTime - startSeedingTime;
 
-		while (currentTimePassed > seededTimePassed && lineIterator.hasNext()){
-			f = Serializer.sequenceFromJson(lineIterator.nextLine());
+		while (currentTimePassed > seededTimePassed){// && lineIterator.hasNext()){
+//			f = Serializer.sequenceFromJson(lineIterator.nextLine());
+//
+//			frameStack.add(f);
 
-			frameStack.add(f);
-
-			frameStack.remove(0);
+			f = frameStack.get(1);
 
 			if (firstFrameTimeStamp == 0) {
 				firstFrameTimeStamp = f.timestamp()/1000;
+			} else {
+				frameStack.remove(0);
 			}
 
-			seededTimePassed = (f.timestamp()/1000) - firstFrameTimeStamp;
+			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
 		}
 		
 		f =  frameStack.get(0);

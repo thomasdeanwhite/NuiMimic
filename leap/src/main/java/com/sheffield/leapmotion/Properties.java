@@ -100,6 +100,9 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
     public static float HISTOGRAM_THRESHOLD = 0.08f;
 
+    @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
+    public static int NGRAM_SKIP = 0;
+
     /*
      * Properties for tuning parameters
      */
@@ -114,6 +117,8 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "Tcluster", description = "Cluster to use (/5)", hasArgs = true, category = "Parameter Tuning")
     public static int CLUSTER_IDENTIFIER = -1;
+
+
 
     public enum RunType {
         INSTRUMENT, VISUALISE
@@ -138,6 +143,10 @@ public class Properties extends InstrumentationProperties {
                 }
             }
         }
+    }
+
+    public static String toCsv(){
+        return "";
     }
 
     public void setOptions(String[] args) {
@@ -175,7 +184,7 @@ public class Properties extends InstrumentationProperties {
                 File playback = new File("playback.sequence");
                 if (playback.exists()) {
                     Properties.PLAYBACK_FILE = playback.getAbsolutePath();
-                    App.out.println("- Found sequence file at: " + Properties.PLAYBACK_FILE);
+                    //App.out.println("- Found sequence file at: " + Properties.PLAYBACK_FILE);
                 }
             }
             if (!App.IS_INSTRUMENTING) {
@@ -187,7 +196,7 @@ public class Properties extends InstrumentationProperties {
                     }.getType();
                     ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
 
-                    App.out.println("- Found branches file at: " + branches.getAbsolutePath());
+                   // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
                 }
 
                 File linesFile = new File("lines.csv");
@@ -199,7 +208,7 @@ public class Properties extends InstrumentationProperties {
                         }.getType();
                         ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
 
-                        App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
+                        //App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -221,8 +230,8 @@ public class Properties extends InstrumentationProperties {
                     }
                     App.relatedClasses = clas;
 
-                    App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
-                    App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
+                    //App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
+                    //App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
                 }
             }
             if (Properties.GESTURE_FILES_STRING != null) {

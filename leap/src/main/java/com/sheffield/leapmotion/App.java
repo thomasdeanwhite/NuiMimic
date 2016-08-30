@@ -267,11 +267,11 @@ public class App implements ThrowableListener {
     }
 
     public static void instrument (){
-        App.out.print("- Instrumenting JAR with options: ");
-        String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion", "com/google/gson",
-                "com/leapmotion", "javax/", "org/json", "org/apache/commons/cli",
-                "org/junit", "Launcher", "com/google", "org/apache", "net", "com/garg", "net/sourceforge",
-                "org", "java", "com/steady", "com/thought"};
+        App.out.println("- Instrumenting JAR");
+        String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion/", "com/google/",
+                "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
+                "org/junit/", /*"Launcher",*/ "org/apache", "com/garg", "net/sourceforge",
+                "com/steady", "com/thought"};
         for (String s : defaultHiddenPackages) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
@@ -283,8 +283,13 @@ public class App implements ThrowableListener {
 
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         try {
-            LeapMotionApplicationHandler.instrumentJar(Properties.JAR_UNDER_TEST);
             String dir = Properties.JAR_UNDER_TEST.substring(0, Properties.JAR_UNDER_TEST.lastIndexOf("/") + 1);
+
+            Properties.WRITE_CLASS = true;
+            Properties.BYTECODE_DIR = dir + "classes";
+
+            LeapMotionApplicationHandler.instrumentJar(Properties.JAR_UNDER_TEST);
+
             String output = dir + "branches.csv";
             String output2 = dir + "lines.csv";
             App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");

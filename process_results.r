@@ -65,10 +65,10 @@ load_data <- function(filename){
   for (i in 2:length(files)){
     t <- read.table(files[i], header=TRUE, sep=",")
     common_cols <- intersect(colnames(dataset), colnames(t))
-    #dataset <- rbind(
-    #  subset(dataset, select=common_cols),
-    #  subset(t, select=common_cols)
-    #)
+    dataset <- rbind(
+      subset(dataset, select=common_cols),
+      subset(t, select=common_cols)
+    )
     dataset <- rbind(dataset, t)
   }
   
@@ -95,6 +95,8 @@ load_data <- function(filename){
       val <- x['frame_selector']
     }
   })
+  
+  dataset['fs-gf'] = paste(dataset$fs, dataset$gestureFiles)
 
   
   dataset['bp'] = dataset['bezier_points']

@@ -94,6 +94,10 @@ public class NGramFrameSelector extends FrameSelector {
 				seededLabels.clear();
 				seededLabels.add(lastLabel);
 			} else {
+				//skip ahead in N-Gram
+				for (int i = 0; i < Properties.NGRAM_SKIP; i++){
+					analyzer.getDataAnalyzer().next();
+				}
 				String label = analyzer.getDataAnalyzer().next();
 				Hand h = hands.get(label);
 				if (h != null && h instanceof SeededHand) {

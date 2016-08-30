@@ -1,12 +1,18 @@
 package com.sheffield.leapmotion.instrumentation.modifiers;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.CircleGesture;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.FingerList;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.HandList;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
 import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
+import com.sheffield.leapmotion.instrumentation.MockRandom;
 import com.sheffield.leapmotion.mocks.SeededGesture;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -15,6 +21,7 @@ import org.objectweb.asm.Type;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.Random;
 
 public class InstantiationVisitor extends MethodVisitor {
 
@@ -30,6 +37,9 @@ public class InstantiationVisitor extends MethodVisitor {
     private static final String HAND_CLASS = Type.getInternalName(Hand.class);
     private static final String JOPTIONS_CLASS = Type.getInternalName(JOptionPane.class);
     private static final String MOCK_JOPTIONS_CLASS = Type.getInternalName(MockJOptionPane.class);
+
+    private static final String RANDOM_CLASS = Type.getInternalName(Random.class);
+    private static final String MOCK_RANDOM_CLASS = Type.getInternalName(MockRandom.class);
 
     private static final String GD_CLASS = Type.getInternalName(GraphicsDevice.class);
     private static final String GE_CLASS = Type.getInternalName(GraphicsEnvironment.class);
@@ -111,6 +121,10 @@ public class InstantiationVisitor extends MethodVisitor {
         } else if (owner.equalsIgnoreCase(GD_CLASS)){
             //shouldCall = false;
             //super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);
+        } else if (owner.equalsIgnoreCase(RANDOM_CLASS)){
+            shouldCall = false;
+            App.out.println(className + " is calling Random!");
+            super.visitMethodInsn(opcode, MOCK_RANDOM_CLASS, name, desc, itf);
         }
 
         if (shouldCall) {
