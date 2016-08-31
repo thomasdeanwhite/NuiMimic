@@ -147,18 +147,17 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
                 App.out.println("- Registered " + stateModels.get(0).size() + " states.");
                 ProbabilityTracker positionPbt = new ProbabilityTracker(stateModels.get(0), totalModels.get(0));
                 ProbabilityTracker rotationPbt = new ProbabilityTracker(stateModels.get(1), totalModels.get(1));
-                NGramFrameModifier ngfm = new NGramFrameModifier(s);
+                NGramFrameSelector ngfs = new NGramFrameSelector(s);
                 int testIndex = Properties.CURRENT_RUN;
                 File pFile = generateFile("hand_positions-" + testIndex);
                 pFile.createNewFile();
                 File rFile = generateFile("hand_rotations-" + testIndex);
                 rFile.createNewFile();
-                ngfm.setOutputFiles(pFile, rFile);
-                ngfm.addPositionProbabilityListener(positionPbt);
-                ngfm.addRotationProbabilityListener(rotationPbt);
-                frameModifiers.put(s, ngfm);
+                ngfs.setOutputFiles(pFile, rFile);
+                ngfs.addPositionProbabilityListener(positionPbt);
+                ngfs.addRotationProbabilityListener(rotationPbt);
+                frameModifiers.put(s, ngfs);
 
-                NGramFrameSelector ngfs = new NGramFrameSelector(s);
                 ngfs.addProbabilityListener(new ProbabilityTracker(stateModels.get(2), totalModels.get(2)));
                 File jFile = generateFile("joint_positions-" + testIndex);
                 jFile.createNewFile();

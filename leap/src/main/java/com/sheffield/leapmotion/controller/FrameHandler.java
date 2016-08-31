@@ -68,8 +68,8 @@ public class FrameHandler {
                     frameSelector = new StaticDistanceFrameSelector();
                     break;
                 case N_GRAM:
-                    frameSelector = new NGramFrameSelector("");
-                    break;
+                    //frameSelector = new NGramFrameSelector("");
+                    throw new UnsupportedOperationException("NGram is deprecated. Please use SINGLE_MODEL or STATE_DEPENDENT");
                 case EMPTY:
                     frameSelector = new EmptyFrameSelector();
                     break;

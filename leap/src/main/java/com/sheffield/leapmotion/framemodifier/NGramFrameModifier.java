@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class NGramFrameModifier implements FrameModifier {
-    private HashMap<String, SeededHand> hands;
     protected AnalyzerApp positionAnalyzer;
     protected AnalyzerApp rotationAnalyzer;
     private HashMap<String, Vector> vectors;

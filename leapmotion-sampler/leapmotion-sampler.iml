@@ -9,6 +9,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.sheffield:instrumentation:0.0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.leapmotion:leapmotion.sdk:1.0" level="project" />
     <orderEntry type="module" module-name="leap" />
     <orderEntry type="module" module-name="instrumentation" />

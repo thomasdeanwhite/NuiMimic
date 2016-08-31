@@ -38,26 +38,15 @@ public class Quaternion {
         return x * q.x + y * q.y + z * q.z + w * q.w;
     }
 
-    public void setBasis(SeededHand h){
-        //normalise(this);
-        //Vector[] vs = toMatrix(false);
-        //h.setBasis(rotateVector(vs[0]), vs[1], vs[2]);
+    public void setBasis(SeededHand h) {
         Vector[] vs = toMatrix(true);
         h.setBasis(vs[0], vs[1], vs[2]);
-//        Vector[] vs = new Vector[]{rotateVector(Vector.xAxis()), rotateVector(Vector.yAxis()), rotateVector(Vector.zAxis())};
-//        h.setBasis(new Vector(vs[0].getX(), vs[1].getX(), vs[2].getX()),
-//                new Vector(vs[0].getY(), vs[1].getY(), vs[2].getY()),
-//                new Vector(vs[0].getZ(), vs[1].getZ(), vs[2].getZ()));
 
         h.setRotation(this);
 
     }
 
-    public Vector rotateVector(Vector v){
-        //float a = (float) Math.sin(angle/2);
-//        return new Vector((w * v.getX()) + (y * v.getZ()) + (z * v.getY()),
-//                (w * v.getY()) + (x * v.getZ()) + (z * v.getX()),
-//                (w * v.getZ()) + (y * v.getY()) + (z * v.getX()));
+    public Vector rotateVector(Vector v) {
 
         Quaternion q = new Quaternion(0f, v.getX(), v.getY(), v.getZ());
         Quaternion q1 = normalise();
@@ -65,11 +54,7 @@ public class Quaternion {
         return new Vector(q.x, q.y, q.z);
     }
 
-    public Quaternion multiply(Quaternion q){
-//        Vector v = new Vector(x, y, z);
-//        Vector v2 = new Vector(q.x, q.y, q.z);
-//        Vector o = v2.times(w).plus(v.times(q.w).plus(v.cross(v2)));
-//        return new Quaternion(w*q.w - v.dot(v2), o.getX(), o.getY(), o.getZ());
+    public Quaternion multiply(Quaternion q) {
 
         return new Quaternion(
                 w * q.w - x * q.x - y * q.y - z * q.z,
@@ -119,6 +104,7 @@ public class Quaternion {
 
     /**
      * Deprecated. Please use toMatrix(boolean rightHanded)
+     *
      * @return Quaternion as a right handed basis vector
      */
     @Deprecated
@@ -127,18 +113,21 @@ public class Quaternion {
     }
 
     public String toString() {
-        return w + (x > 0 ? " + " : " - ") + Math.abs(x) + "i " + (y > 0 ? "+ " : "- ") + Math.abs(y) + "j " + (z > 0 ? "+ " : "- ") + Math.abs(z) + "k";
+        return w
+                + (x > 0 ? " + " : " - ") + Math.abs(x) + "i "
+                + (y > 0 ? "+ " : "- ") + Math.abs(y) + "j "
+                + (z > 0 ? "+ " : "- ") + Math.abs(z) + "k";
     }
 
-    public String toCsv(){
-        return w+","+x+","+y+","+z;
+    public String toCsv() {
+        return w + "," + x + "," + y + "," + z;
     }
 
-    public float squareMagnitude (){
-        return w*w+x*x+y*y+z*z;
+    public float squareMagnitude() {
+        return w * w + x * x + y * y + z * z;
     }
 
-    public Quaternion scale(float f){
+    public Quaternion scale(float f) {
         w *= f;
         x *= f;
         y *= f;
@@ -146,13 +135,13 @@ public class Quaternion {
         return this;
     }
 
-    public Quaternion normalise(){
+    public Quaternion normalise() {
         Quaternion q = new Quaternion(w, x, y, z);
         Quaternion.normalise(q);
         return q;
     }
 
-    private static Quaternion normalise(Quaternion q){
+    private static Quaternion normalise(Quaternion q) {
 
 
         float sqMag = q.squareMagnitude();
@@ -168,8 +157,8 @@ public class Quaternion {
     }
 
     @Override
-    public boolean equals(Object o){
-        if (o instanceof Quaternion){
+    public boolean equals(Object o) {
+        if (o instanceof Quaternion) {
             Quaternion q = (Quaternion) o;
             return w == q.w && x == q.x && y == q.y && z == q.z;
         }

@@ -74,10 +74,9 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
                 pFile.createNewFile();
                 File rFile = generateFile("hand_rotations-" + testIndex);
                 rFile.createNewFile();
-                NGramFrameModifier ngfm = new NGramFrameModifier(s);
-                ngfm.setOutputFiles(pFile, rFile);
-                frameModifiers.put(s, ngfm);
                 NGramFrameSelector ngfs = new NGramFrameSelector(s);
+                ngfs.setOutputFiles(pFile, rFile);
+                frameModifiers.put(s, ngfs);
                 File jFile = generateFile("joint_positions-" + testIndex);
                 jFile.createNewFile();
                 ngfs.setOutputFile(jFile);

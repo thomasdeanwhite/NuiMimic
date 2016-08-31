@@ -47,8 +47,9 @@ public class RandomDistanceFrameSelector extends FrameSelector implements FrameM
         frameSelectors = new HashMap<String, FrameSelector>();
 		for (String s : gestures){
             try {
-                frameModifiers.put(s, new NGramFrameModifier(s));
-                frameSelectors.put(s, new NGramFrameSelector(s));
+                NGramFrameSelector ngfs = new NGramFrameSelector(s);
+                frameModifiers.put(s, ngfs);
+                frameSelectors.put(s, ngfs);
             } catch (Exception e){
                 e.printStackTrace(App.out);
             }
