@@ -6,7 +6,7 @@ import java.util.ArrayList;
 /**
  * Created by thomas on 02/03/2016.
  */
-public class DiscreteCosineTransformer {
+public class   DiscreteCosineTransformer {
 
     public static final int BLOCKS = 8;
 

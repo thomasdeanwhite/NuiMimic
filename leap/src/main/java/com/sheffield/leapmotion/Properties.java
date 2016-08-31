@@ -103,6 +103,8 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
 
+    @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
+    public static int SCREENSHOT_COMPRESSION = 4;
     /*
      * Properties for tuning parameters
      */
@@ -121,7 +123,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE
+        INSTRUMENT, VISUALISE, RECONSTRUCT
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")

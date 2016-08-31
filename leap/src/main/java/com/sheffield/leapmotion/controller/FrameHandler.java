@@ -13,7 +13,6 @@ import com.sheffield.leapmotion.frameselectors.ClusterPlaybackFrameSelector;
 import com.sheffield.leapmotion.frameselectors.EmptyFrameSelector;
 import com.sheffield.leapmotion.frameselectors.EuclideanFrameSelector;
 import com.sheffield.leapmotion.frameselectors.FrameSelector;
-import com.sheffield.leapmotion.frameselectors.NGramFrameSelector;
 import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.frameselectors.RandomDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.RandomFrameSelector;
@@ -21,7 +20,7 @@ import com.sheffield.leapmotion.frameselectors.RandomTemplateFrameSelector;
 import com.sheffield.leapmotion.frameselectors.SingleModelGuidedRandomFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StateRelatedStaticDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.TrainingDataPlaybackFrameSelector;
+import com.sheffield.leapmotion.frameselectors.ReconstructiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -80,7 +79,7 @@ public class FrameHandler {
                     frameSelector = new StateRelatedStaticDistanceFrameSelector();
                     break;
                 case REPRODUCTION:
-                    frameSelector = new TrainingDataPlaybackFrameSelector(Properties.GESTURE_FILES[0]);
+                    frameSelector = new ReconstructiveFrameSelector(Properties.GESTURE_FILES[0]);
                     break;
                 case REGRESSION:
                     ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
@@ -117,7 +116,7 @@ public class FrameHandler {
             addFrameModifier((FrameModifier) frameSelector);
         }
 
-        if (frameSelector instanceof TrainingDataPlaybackFrameSelector || frameSelector instanceof ClusterPlaybackFrameSelector){
+        if (frameSelector instanceof ReconstructiveFrameSelector || frameSelector instanceof ClusterPlaybackFrameSelector){
             setGestureHandler((GestureHandler) frameSelector);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();

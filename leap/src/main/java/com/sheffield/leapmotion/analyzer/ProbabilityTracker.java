@@ -2,7 +2,7 @@ package com.sheffield.leapmotion.analyzer;
 
 
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.output.DctStateComparator;
+import com.sheffield.leapmotion.output.StateComparator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class ProbabilityTracker implements ProbabilityListener {
     @Override
     public void probabilityListLoaded(List<SequenceSimilarity> sequences, float maxProbability) {
         currentProbabilities.clear();
-        int currState = DctStateComparator.getCurrentState();
+        int currState = StateComparator.getCurrentState();
 
         //if we are in an unseen state, we can't do anything
         if (!states.containsKey(currState)){

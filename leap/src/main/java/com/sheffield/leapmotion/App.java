@@ -10,8 +10,9 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.output.DctStateComparator;
+import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
+import com.sun.java.swing.plaf.windows.TMSchema;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -256,10 +257,31 @@ public class App implements ThrowableListener {
            case VISUALISE:
                visualise();
                break;
+           case RECONSTRUCT:
+                reconstruct();
+               break;
            default:
                App.out.println("Unimplemented RUNTIME");
                break;
        }
+    }
+
+    public static void reconstruct(){
+        SeededController sc = SeededController.getSeededController();
+
+        Properties.FRAME_SELECTION_STRATEGY = Properties
+                .FrameSelectionStrategy.REPRODUCTION;
+
+        long time = System.currentTimeMillis();
+        long endTime = time + Properties.RUNTIME;
+        while ((time = System.currentTimeMillis()) < endTime){
+            sc.tick();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void visualise(){
@@ -526,7 +548,7 @@ public class App implements ThrowableListener {
                     "related_branches_total,related_branches_covered,related_branch_coverage,bezier_points,switch_time,ngram_smoothing,state_weight," +
                     "histogramBins,histogramThreshold,fps,cluster_identifier");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
-            int states = DctStateComparator.statesVisited.size();
+            int states = StateComparator.statesVisited.size();
 
             String fss = Properties.FRAME_SELECTION_STRATEGY.toString();
 
@@ -539,7 +561,9 @@ public class App implements ThrowableListener {
             }
 
 
-            info += "," + fss + "," + gestureFiles + "," + (states - DctStateComparator.statesFound) + "," + DctStateComparator.statesFound + "," + DctStateComparator.getStatesVisited().size() + "," + DctStateComparator.getCurrentState();
+            info += "," + fss + "," + gestureFiles + "," + (states - StateComparator.statesFound) + "," + StateComparator.statesFound + "," + StateComparator
+
+                    .getStatesVisited().size() + "," + StateComparator.getCurrentState();
 
             int lineHits = 0;
             int branchHits = 0;
@@ -614,7 +638,7 @@ public class App implements ThrowableListener {
         if (time - lastStateCheck > STATE_CHECK_TIME) {
             lastStateCheck = time;
             try {
-                DctStateComparator.captureState();
+                StateComparator.captureState();
             } catch (Exception e) {
                 e.printStackTrace(App.out);
             }

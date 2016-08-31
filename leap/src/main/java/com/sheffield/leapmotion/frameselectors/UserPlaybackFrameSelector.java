@@ -54,7 +54,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 				//counter--;
 			}
 
-			if (frameSelector instanceof TrainingDataPlaybackFrameSelector){
+			if (frameSelector instanceof ReconstructiveFrameSelector){
 				Properties.PLAYBACK_FILE = null;
 				fh = new FrameHandler();
 				fh.init();
@@ -69,7 +69,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 				Properties.PLAYBACK_FILE = playback;
 
 
-				TrainingDataPlaybackFrameSelector tdps = (TrainingDataPlaybackFrameSelector)frameSelector;
+				ReconstructiveFrameSelector tdps = (ReconstructiveFrameSelector)frameSelector;
 
 				if (tdps.size() != maxFrames){
 					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);

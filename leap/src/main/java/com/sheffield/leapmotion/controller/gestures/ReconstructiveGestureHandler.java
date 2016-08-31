@@ -13,7 +13,7 @@ import com.sheffield.leapmotion.mocks.SeededGestureList;
 import java.io.File;
 import java.util.ArrayList;
 
-public class TrainingPlaybackGestureHandler extends RandomGestureHandler {
+public class ReconstructiveGestureHandler extends RandomGestureHandler {
 
 	private AnalyzerApp analyzer;
 	private ArrayList<Gesture.Type> gestureTypes;
@@ -23,7 +23,7 @@ public class TrainingPlaybackGestureHandler extends RandomGestureHandler {
 
 	private boolean changed = true;
 
-	public TrainingPlaybackGestureHandler(String filename) {
+	public ReconstructiveGestureHandler(String filename) {
 		//super(filename);
 		try {
 			gestureTypes = new ArrayList<Gesture.Type>();

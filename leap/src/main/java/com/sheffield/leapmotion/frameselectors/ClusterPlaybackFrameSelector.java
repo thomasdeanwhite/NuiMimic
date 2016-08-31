@@ -22,7 +22,7 @@ import com.sheffield.leapmotion.mocks.SeededGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 import com.sheffield.leapmotion.mocks.SeededHand;
 import com.sheffield.leapmotion.mocks.SeededSwipeGesture;
-import com.sheffield.leapmotion.output.DctStateComparator;
+import com.sheffield.leapmotion.output.StateComparator;
 
 import java.io.File;
 import java.io.IOException;
@@ -200,7 +200,7 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
                 rotationLabels.clear();
             }
 
-            int state = DctStateComparator.getCurrentState();
+            int state = StateComparator.getCurrentState();
             if (state != hand.state){
                 failures.add(hand);
             } else {

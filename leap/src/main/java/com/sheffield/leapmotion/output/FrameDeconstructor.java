@@ -203,7 +203,7 @@ public class FrameDeconstructor {
             lastStateCapture = System.currentTimeMillis();
 
             try {
-                String output = DctStateComparator.captureState();
+                String output = StateComparator.captureState();
 
                 if (output != null && output.length() > 0) {
                     FileHandler.appendToFile(currentDct, "\n" + output + ":");

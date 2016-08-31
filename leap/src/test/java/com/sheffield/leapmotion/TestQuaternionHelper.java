@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by thomas on 16/05/2016.
  */
-public class QuaternionHelperTest {
+public class TestQuaternionHelper {
 
     @Test
     public void testNormalisation (){

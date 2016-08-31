@@ -12,7 +12,7 @@ import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Quaternion;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.gestures.TrainingPlaybackGestureHandler;
+import com.sheffield.leapmotion.controller.gestures.ReconstructiveGestureHandler;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededHand;
 
@@ -52,7 +52,7 @@ public class TrainingDataVisualiser extends JFrame {
 
     private long startTime = 0;
 
-    private TrainingPlaybackGestureHandler tpgh;
+    private ReconstructiveGestureHandler tpgh;
 
     private long startSeededTime = 0;
     private long seededTime = 0;
@@ -72,7 +72,7 @@ public class TrainingDataVisualiser extends JFrame {
         filename = "processed/" + filename;
 
         try {
-            tpgh = new TrainingPlaybackGestureHandler(filename);
+            tpgh = new ReconstructiveGestureHandler(filename);
             App.out.println("* Analysing Clusters");
             lastSwitchTime = 0;
             currentAnimationTime = 0;

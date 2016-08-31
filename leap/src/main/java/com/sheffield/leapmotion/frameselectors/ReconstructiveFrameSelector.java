@@ -12,7 +12,7 @@ import com.sheffield.leapmotion.Quaternion;
 import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
-import com.sheffield.leapmotion.controller.gestures.TrainingPlaybackGestureHandler;
+import com.sheffield.leapmotion.controller.gestures.ReconstructiveGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 /**
  * Created by thoma on 11/05/2016.
  */
-public class TrainingDataPlaybackFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
+public class ReconstructiveFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
 
     long lastSwitchTime = 0;
     int currentAnimationTime = 0;
@@ -47,7 +47,7 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
 
     private long startTime = 0;
 
-    private TrainingPlaybackGestureHandler tpgh;
+    private ReconstructiveGestureHandler tpgh;
 
     private long startSeededTime = 0;
     private long seededTime = 0;
@@ -55,9 +55,9 @@ public class TrainingDataPlaybackFrameSelector extends FrameSelector implements 
     private int animationTime = 0;
 
 
-    public TrainingDataPlaybackFrameSelector (String filename){
+    public ReconstructiveFrameSelector(String filename){
         try {
-            tpgh = new TrainingPlaybackGestureHandler(filename);
+            tpgh = new ReconstructiveGestureHandler(filename);
             App.out.println("* Setting up NGram Frame Selection");
             lastSwitchTime = 0;
             currentAnimationTime = 0;

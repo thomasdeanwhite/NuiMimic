@@ -1,6 +1,6 @@
 package com.sheffield.leapmotion.frameselectors;
 
-import com.sheffield.leapmotion.output.DctStateComparator;
+import com.sheffield.leapmotion.output.StateComparator;
 
 public class NGramLog {
 	public String element;
@@ -11,6 +11,6 @@ public class NGramLog {
 	}
 
 	public String toString(){
-		return element + ":" + timeSeeded + ":" + DctStateComparator.getCurrentState() + "\n";
+		return element + ":" + timeSeeded + ":" + StateComparator.getCurrentState() + "\n";
 	}
 }

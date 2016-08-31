@@ -9,9 +9,8 @@ import com.sheffield.leapmotion.analyzer.ProbabilityTracker;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
-import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
-import com.sheffield.leapmotion.output.DctStateComparator;
+import com.sheffield.leapmotion.output.StateComparator;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -103,7 +102,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
                         int total = 0;
 
-                        int stateNumber = DctStateComparator.addState(state);
+                        int stateNumber = StateComparator.addState(state);
 
                         for (int i = 0; i < handData.length; i++) {
                             String handString = handData[i].trim();
@@ -193,7 +192,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 
     @Override
     public String status() {
-        return "State: " + DctStateComparator.getCurrentState();
+        return "State: " + StateComparator.getCurrentState();
     }
 
     public void modifyFrame(SeededFrame frame) {
