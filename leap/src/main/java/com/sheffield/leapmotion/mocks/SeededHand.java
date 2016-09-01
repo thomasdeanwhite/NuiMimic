@@ -208,6 +208,7 @@ public class SeededHand extends Hand implements Serializable {
             Vector lastTip = BezierHelper.bezier(createTipPositionVector(fingers), modifier-lastTipNumber);
             sf.tipVelocity = fadeVector(lastTip, sf.tipPosition(), 1f-lastTipNumber);
             sf.hand = h;
+            sf.type = f.type();
             sfl.addFinger(sf);
 
         }

@@ -13,6 +13,7 @@ import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
 import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
 import com.sheffield.leapmotion.instrumentation.MockRandom;
+import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
 import com.sheffield.leapmotion.mocks.SeededGesture;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -39,7 +40,11 @@ public class InstantiationVisitor extends MethodVisitor {
     private static final String MOCK_JOPTIONS_CLASS = Type.getInternalName(MockJOptionPane.class);
 
     private static final String RANDOM_CLASS = Type.getInternalName(Random.class);
+    private static final String MATH_CLASS = Type.getInternalName(Math.class);
     private static final String MOCK_RANDOM_CLASS = Type.getInternalName(MockRandom.class);
+
+    private static final String SYSTEM_CLASS = Type.getInternalName(System.class);
+    private static final String MOCK_SYSTEM_MILLIES = Type.getInternalName(MockSystemMillis.class);
 
     private static final String GD_CLASS = Type.getInternalName(GraphicsDevice.class);
     private static final String GE_CLASS = Type.getInternalName(GraphicsEnvironment.class);
@@ -48,6 +53,8 @@ public class InstantiationVisitor extends MethodVisitor {
     private static Method METHOD_TO_CALL;
     private static Method APP_METHOD_TO_CALL;
     private static Method CIRCLE_METHOD_TO_CALL;
+    private static Method RANDOM_METHOD_TO_CALL;
+    private static Method RANDOM_CONSTRUCTOR_METHOD_TO_CALL;
 
 
     private static Method JOPTIONS_METHOD_TO_CALL;
@@ -60,6 +67,8 @@ public class InstantiationVisitor extends MethodVisitor {
             METHOD_TO_CALL = SeededController.class.getMethod("getController", new Class[]{});
             APP_METHOD_TO_CALL = App.class.getMethod("setTesting", new Class[]{});
             CIRCLE_METHOD_TO_CALL = SeededGesture.class.getMethod("getCircleGesture", new Class[]{Gesture.class});
+            RANDOM_METHOD_TO_CALL = MockRandom.class.getMethod("random", new Class[]{String.class});
+            RANDOM_CONSTRUCTOR_METHOD_TO_CALL = MockRandom.class.getMethod("getRandom", new Class[]{String.class});
 
             //JOPTIONS_METHOD_TO_CALL = JOptionPane.class.getMethod("getRootFrame", new Class[]{});
             //FRAME_METHOD_TO_CALL = java.awt.Frame.class.getMethod("dispose", new Class[]{});
@@ -121,10 +130,22 @@ public class InstantiationVisitor extends MethodVisitor {
         } else if (owner.equalsIgnoreCase(GD_CLASS)){
             //shouldCall = false;
             //super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(RANDOM_CLASS)){
+        } else if (owner.equalsIgnoreCase(RANDOM_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")){
             shouldCall = false;
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
+            super.visitInsn(Opcodes.POP);
+            methodVisitor.visitLdcInsn(className);
             App.out.println(className + " is calling Random!");
-            super.visitMethodInsn(opcode, MOCK_RANDOM_CLASS, name, desc, itf);
+            super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_RANDOM_CLASS, name, Type.getMethodDescriptor(RANDOM_CONSTRUCTOR_METHOD_TO_CALL), itf);
+        } else if (owner.equalsIgnoreCase(MATH_CLASS) && name.equals("random")){
+            shouldCall = false;
+            methodVisitor.visitLdcInsn(className);
+            App.out.println(className + " is calling Random!");
+            super.visitMethodInsn(opcode, MOCK_RANDOM_CLASS, name, Type.getMethodDescriptor(RANDOM_METHOD_TO_CALL), itf);
+        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("currentTimeMillis")){
+            shouldCall = false;
+            App.out.println(className + " is calling currentTimeMillis!");
+            super.visitMethodInsn(opcode, MOCK_SYSTEM_MILLIES, name, desc, itf);
         }
 
         if (shouldCall) {

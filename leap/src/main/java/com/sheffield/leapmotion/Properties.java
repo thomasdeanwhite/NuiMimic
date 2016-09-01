@@ -6,6 +6,7 @@ import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.sheffield.output.Csv;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -14,8 +15,10 @@ import org.apache.commons.cli.UnrecognizedOptionException;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -53,7 +56,7 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "gestureFiles", description = "semicolon (;) separated list of gesture files to use for frame generation", hasArgs = true, category = "Leap Motion Testing")
     public static String GESTURE_FILES_STRING = null;
-    public static String[] GESTURE_FILES = {"invalid"}; //derived from GESTURE_FILE_STRING
+    public static String[] GESTURE_FILES = {}; //derived from GESTURE_FILE_STRING
 
     @Parameter(key = "visualiseData", description = "Displays the currently seeded data in a separate window.", hasArgs = false, category = "Leap Motion Testing")
     public static boolean VISUALISE_DATA = false;
@@ -95,7 +98,7 @@ public class Properties extends InstrumentationProperties {
     public static float STATE_WEIGHT = 0.5f;
 
     @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
-    public static int HISTOGRAM_BINS = 80;
+    public static int HISTOGRAM_BINS = 50;
 
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
     public static float HISTOGRAM_THRESHOLD = 0.08f;
@@ -105,6 +108,28 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
     public static int SCREENSHOT_COMPRESSION = 4;
+
+    /*
+     * Output formatting properties
+     */
+
+    @Parameter(key = "outputDir", description = "Directory for Output (default testing_output)", hasArgs = true, category = "Output")
+    public static String TESTING_OUTPUT = "testing_output/";
+
+    @Parameter(key = "outputNullValue", description = "Output Value of Null Values (\"NONE\" by default)", hasArgs = true, category = "Output")
+    public static String NULL_VALUE_OUTPUT = "NONE";
+
+    @Parameter(key = "outputExcludes", description = "Output options to exclude when logging", hasArgs = true, category = "Output")
+    public static String OUTPUT_EXCLUDES = "outputNullValue,outputExcludes,jar,cp,leave_leapmotion_alone,replace_fingers_method,Tmin,Tmax,Tparameter,Tcluster,outputDir";
+
+    public static ArrayList<String> OUTPUT_EXCLUDES_ARRAY;
+
+    @Parameter(key = "outputIncludes", description = "Output options to include when logging", hasArgs = true, category = "Output")
+    public static String OUTPUT_INCLUDES;
+
+    public static ArrayList<String> OUTPUT_INCLUDES_ARRAY;
+
+
     /*
      * Properties for tuning parameters
      */
@@ -121,7 +146,6 @@ public class Properties extends InstrumentationProperties {
     public static int CLUSTER_IDENTIFIER = -1;
 
 
-
     public enum RunType {
         INSTRUMENT, VISUALISE, RECONSTRUCT
     }
@@ -130,57 +154,21 @@ public class Properties extends InstrumentationProperties {
     public static RunType RUN_TYPE = RunType.INSTRUMENT;
 
 
-
     public void setOptions(CommandLine cmd) throws IllegalAccessException {
-        for (String s : annotationMap.keySet()) {
-            Parameter p = annotationMap.get(s);
-            if (p.hasArgs()) {
-                String value = cmd.getOptionValue(p.key());
-                if (value != null) {
-                    setParameter(p.key(), value);
-                }
-            } else {
-                if (cmd.hasOption(p.key())) {
-                    setParameter(p.key(), Boolean.toString(true));
-                }
-            }
-        }
-    }
-
-    public static String toCsv(){
-        return "";
-    }
-
-    public void setOptions(String[] args) {
         try {
-            Options options = new Options();
-
             for (String s : annotationMap.keySet()) {
                 Parameter p = annotationMap.get(s);
-                options.addOption(p.key(), p.hasArgs(), p.description());
-            }
-
-            CommandLineParser parser = new BasicParser();
-            CommandLine cmd = null;
-            try {
-                cmd = parser.parse(options, args);
-            } catch (UnrecognizedOptionException e) {
-                for (String s : categoryMap.keySet()) {
-                    App.out.println(s);
-                    for (String opt : categoryMap.get(s)) {
-                        Parameter p = annotationMap.get(opt);
-                        String opts = "";
-                        if (p.hasArgs()) {
-                            opts = "[arg] ";
-                        }
-                        App.out.println("\t- " + p.key() + ": " + opts + "(" + p.description() + ").");
+                if (p.hasArgs()) {
+                    String value = cmd.getOptionValue(p.key());
+                    if (value != null) {
+                        setParameter(p.key(), value);
+                    }
+                } else {
+                    if (cmd.hasOption(p.key())) {
+                        setParameter(p.key(), Boolean.toString(true));
                     }
                 }
-                App.out.println(e.getLocalizedMessage());
-                System.exit(-1);
             }
-
-            setOptions(cmd);
 
             if (Properties.PLAYBACK_FILE == null) {
                 File playback = new File("playback.sequence");
@@ -198,7 +186,7 @@ public class Properties extends InstrumentationProperties {
                     }.getType();
                     ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
 
-                   // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
+                    // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
                 }
 
                 File linesFile = new File("lines.csv");
@@ -244,19 +232,148 @@ public class Properties extends InstrumentationProperties {
                 BEZIER_POINTS = 2;
             }
 
-            if (TUNING_PARAMETER != null){
+            if (TUNING_PARAMETER != null) {
                 Parameter p = annotationMap.get(TUNING_PARAMETER);
                 String value = "" + (MIN_TUNING_VALUE + (Math.random() * (MAX_TUNING_VALUE - MIN_TUNING_VALUE)));
                 App.out.println("- Tuning: " + p.key() + "=" + value);
                 setParameter(p.key(), value);
             }
 
-            if (CLUSTER_IDENTIFIER >= 0){
+            if (CLUSTER_IDENTIFIER >= 0) {
                 CLUSTER_IDENTIFIER = CLUSTER_IDENTIFIER * 5;
-                for (int i = 0; i < GESTURE_FILES.length; i++){
+                for (int i = 0; i < GESTURE_FILES.length; i++) {
                     GESTURE_FILES[i] = GESTURE_FILES[i] + "-" + CLUSTER_IDENTIFIER;
                 }
             }
+
+            OUTPUT_EXCLUDES_ARRAY = new ArrayList<String>();
+            if (OUTPUT_EXCLUDES != null && OUTPUT_EXCLUDES.length() > 0){
+                OUTPUT_EXCLUDES_ARRAY.addAll(Arrays.asList(OUTPUT_EXCLUDES.split(",")));
+            }
+
+            OUTPUT_INCLUDES_ARRAY = new ArrayList<String>();
+            if (OUTPUT_INCLUDES != null && OUTPUT_INCLUDES.length() > 0){
+                OUTPUT_INCLUDES_ARRAY.addAll(Arrays.asList(OUTPUT_INCLUDES.split(",")));
+            }
+
+            if (!TESTING_OUTPUT.endsWith("/")){
+                TESTING_OUTPUT += "/";
+            }
+        } catch (Exception e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace(App.out);
+        }
+    }
+
+    public Csv toCsv() {
+        Csv csv = new Csv();
+        for (String s : annotationMap.keySet()) {
+            if (OUTPUT_EXCLUDES_ARRAY.size() > 0 &&
+                    OUTPUT_EXCLUDES_ARRAY.contains(s)) continue;
+
+            if (OUTPUT_INCLUDES_ARRAY.size() > 0 &&
+                    !OUTPUT_INCLUDES_ARRAY.contains(s)) continue;
+
+
+            Field f = parameterMap.get(s);
+            Class<?> cl = f.getType();
+
+            String value = "";
+            try {
+
+                if (cl.isAssignableFrom(Number.class) || cl.isPrimitive()) {
+                    if (cl.equals(Long.class) || cl.equals(long.class)) {
+                        value = "" + f.getLong(null);
+                    } else if (cl.equals(Double.class) || cl.equals(double.class)) {
+                        value = "" + f.getDouble(null);
+                    } else if (cl.equals(Float.class) || cl.equals(float.class)) {
+                        value = "" + f.getFloat(null);
+                    } else if (cl.equals(Integer.class) || cl.equals(int.class)) {
+                        value = "" + f.getInt(null);
+                    } else if (cl.equals(Boolean.class) || cl.equals(boolean.class)) {
+                        value = "" + f.getBoolean(null);
+                    }
+
+                } else if (cl.isAssignableFrom(String.class) || f.getType().isEnum()) {
+                    Object o = f.get(null);
+                    if (o != null) {
+                        value = o.toString();
+                    } else {
+                        value = NULL_VALUE_OUTPUT;
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            csv.add(s, value);
+        }
+
+
+        Field frameSelectionStrat = null;
+        Field bezPoint = null;
+        try {
+            frameSelectionStrat = getClass().getField("FRAME_SELECTION_STRATEGY");
+            bezPoint = getClass().getField("BEZIER_POINTS");
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+
+        if (frameSelectionStrat == null || bezPoint == null) {
+            throw new IllegalStateException("Cannot retrieve Frame Selection field.");
+        }
+
+        if (Properties.PLAYBACK_FILE != null) {
+            csv.add(((Parameter) frameSelectionStrat.getAnnotations()[0]).key(), "USER_PLAYBACK");
+        }
+
+        if (Properties.LEAVE_LEAPMOTION_ALONE) {
+            csv.add(((Parameter) frameSelectionStrat.getAnnotations()[0]).key(), "MANUAL_TESTING");
+        }
+
+
+        if (Properties.SWITCH_TIME <= 1) {
+            csv.add(((Parameter) bezPoint.getAnnotations()[0]).key(), "0");
+        }
+
+        csv.finalize();
+
+        return csv;
+    }
+
+    public void setOptions(String[] args) {
+        try {
+
+            Properties.DIRECTORY += "/processed";
+
+            Options options = new Options();
+
+            for (String s : annotationMap.keySet()) {
+                Parameter p = annotationMap.get(s);
+                options.addOption(p.key(), p.hasArgs(), p.description());
+            }
+
+            CommandLineParser parser = new BasicParser();
+            CommandLine cmd = null;
+            try {
+                cmd = parser.parse(options, args);
+            } catch (UnrecognizedOptionException e) {
+                for (String s : categoryMap.keySet()) {
+                    App.out.println(s);
+                    for (String opt : categoryMap.get(s)) {
+                        Parameter p = annotationMap.get(opt);
+                        String opts = "";
+                        if (p.hasArgs()) {
+                            opts = "[arg] ";
+                        }
+                        App.out.println("\t- " + p.key() + ": " + opts + "(" + p.description() + ").");
+                    }
+                }
+                App.out.println(e.getLocalizedMessage());
+                System.exit(-1);
+            }
+
+            setOptions(cmd);
+
 
         } catch (Exception e1) {
             // TODO Auto-generated catch block

@@ -1,6 +1,6 @@
 package com.sheffield.leapmotion.output;
 
-import static com.sheffield.leapmotion.Properties.*;
+import com.sheffield.leapmotion.Properties;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static com.sheffield.leapmotion.Properties.*;
 
 /**
  * Created by thomas on 15/03/2016.
@@ -26,7 +28,7 @@ public class StateComparator {
 
     private static int currentState = -1;
 
-    public static String SCREENSHOT_DIRECTORY = "testing_output/screenshots";
+    public static String SCREENSHOT_DIRECTORY = Properties.TESTING_OUTPUT + "screenshots";
 
     public static HashMap<Integer, Integer> statesVisited =
             new HashMap<Integer, Integer>();
@@ -236,7 +238,7 @@ public class StateComparator {
             bins[i] = 0;
         }
 
-        float mod = ((float) (HISTOGRAM_BINS - 1) / 51f);
+        float mod = ((float) (HISTOGRAM_BINS - 1) / 255f);
         for (int i = 0; i < dImage.length; i++) {
             bins[(int) (dImage[i] * mod)]++;
         }

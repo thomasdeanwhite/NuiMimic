@@ -221,4 +221,14 @@ public class EuclideanFrameSelector extends FrameSelector {
 	public String status() {
 		return null;
 	}
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
+	}
 }

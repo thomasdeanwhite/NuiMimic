@@ -3,7 +3,12 @@ package com.sheffield.leapmotion.frameselectors;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.*;
+import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.BezierHelper;
+import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.controller.SeededController;
@@ -157,6 +162,43 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 
 	@Override
 	public Frame newFrame() {
+		Frame f = SeededController.newFrame();
+		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
+		Hand newHand = lastHand.fadeHand(seededHands, modifier);
+		f = HandFactory.injectHandIntoFrame(f, newHand);
+
+		return f;
+	}
+
+	@Override
+	public String status() {
+		return null;
+	}
+
+	@Override
+	public void modifyFrame(SeededFrame frame) {
+		Hand h = Hand.invalid();
+		for (Hand hand : frame.hands()) {
+			h = hand;
+		}
+		if (h instanceof SeededHand) {
+			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
+			SeededHand sh = (SeededHand) h;
+
+			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
+
+			q.setBasis(sh);
+			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
+		}
+		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
+
+	}
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+
 		while (lastHand == null){
 			lastLabel = analyzer.getDataAnalyzer().next();
 			lastHand = hands.get(lastLabel);
@@ -259,25 +301,11 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 			seededRotations.clear();
 			positionLabels.clear();
 			rotationLabels.clear();
-			return newFrame();
+			tick(time);
 		} else {
 			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 		}
-		Frame f = SeededController.newFrame();
-		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
-		Hand newHand = lastHand.fadeHand(seededHands, modifier);
-		f = HandFactory.injectHandIntoFrame(f, newHand);
 
-		return f;
-	}
-
-	@Override
-	public String status() {
-		return null;
-	}
-
-	@Override
-	public void modifyFrame(SeededFrame frame) {
 		while (lastPosition == null){
 			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
 				positionAnalyzer.getDataAnalyzer().next();
@@ -339,21 +367,9 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 				rotationLabels.add(0, lastRotationLabel);
 			}
 		}
+	}
 
-		Hand h = Hand.invalid();
-		for (Hand hand : frame.hands()) {
-			h = hand;
-		}
-		if (h instanceof SeededHand) {
-			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
-			SeededHand sh = (SeededHand) h;
-
-			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
-
-			q.setBasis(sh);
-			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
-		}
-		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
-
+	public long lastTick(){
+		return lastUpdate;
 	}
 }

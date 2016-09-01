@@ -203,4 +203,14 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
     public GestureList handleFrame(Frame frame) {
         return gestureHandlers.get(currentGesture).handleFrame(frame);
     }
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+    }
+
+    public long lastTick(){
+        return lastUpdate;
+    }
 }

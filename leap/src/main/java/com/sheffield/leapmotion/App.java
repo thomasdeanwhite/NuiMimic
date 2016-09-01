@@ -10,9 +10,10 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
-import com.sun.java.swing.plaf.windows.TMSchema;
+import com.sheffield.output.Csv;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -28,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-public class App implements ThrowableListener {
+public class App implements ThrowableListener, Tickable {
     public static Random random = new Random();
     public static App APP;
     public static boolean CLOSING = false;
@@ -85,7 +86,7 @@ public class App implements ThrowableListener {
     @Override
     public void throwableThrown(Throwable t) {
         App.out.println("Throwable thrown! " + t.getLocalizedMessage());
-        File classes = new File("testing_output/errors/RUN" + Properties.CURRENT_RUN + "-error.log");
+        File classes = new File(Properties.TESTING_OUTPUT + "errors/RUN" + Properties.CURRENT_RUN + "-error.log");
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
         }
@@ -106,7 +107,7 @@ public class App implements ThrowableListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        output(true, timePassed);
+        //output(true);
     }
 
     public static class ExitException extends SecurityException {
@@ -159,7 +160,7 @@ public class App implements ThrowableListener {
                         e.printStackTrace();
                     }
                 }
-                App.getApp().output(true, timePassed);
+                //App.getApp().output(true);
                 super.checkExit(status);
             }
         }
@@ -258,7 +259,8 @@ public class App implements ThrowableListener {
                visualise();
                break;
            case RECONSTRUCT:
-                reconstruct();
+               App.getApp().setup();
+               reconstruct();
                break;
            default:
                App.out.println("Unimplemented RUNTIME");
@@ -272,16 +274,37 @@ public class App implements ThrowableListener {
         Properties.FRAME_SELECTION_STRATEGY = Properties
                 .FrameSelectionStrategy.REPRODUCTION;
 
-        long time = System.currentTimeMillis();
+        Properties.CURRENT_RUN = 0;
+
+        long startTime = System.currentTimeMillis();
+        long time = startTime;
         long endTime = time + Properties.RUNTIME;
         while ((time = System.currentTimeMillis()) < endTime){
-            sc.tick();
+            sc.tick(time);
+            sc.frame();
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
+        Csv csv = new Csv();
+
+        csv.add("rootMeanSquared", "" + sc.status().split("rms: ")[1]);
+
+        Properties.OUTPUT_INCLUDES_ARRAY.add("gestureFiles");
+
+        csv.merge(Properties.instance().toCsv());
+
+        MockSystemMillis.RUNTIME = (int)(time - startTime);
+
+        csv.add("runtime", "" + MockSystemMillis.RUNTIME);
+
+        csv.finalize();
+        App.getApp().output(csv);
+
+        System.exit(0);
     }
 
     public static void visualise(){
@@ -395,8 +418,6 @@ public class App implements ThrowableListener {
             return;
         }
 
-        Properties.DIRECTORY += "/processed";
-
         if (args != null && args.length > 0) {
             Properties.instance().setOptions(args);
             App.out.println("Options setup");
@@ -441,8 +462,9 @@ public class App implements ThrowableListener {
                 long startTime = lastTime;
                 long lastTimeRecorded = 0;
                 while (app.status() != AppStatus.FINISHED) {
-                    int timePassed = (int) (System.currentTimeMillis() - lastTime);
-                    app.tick();
+                    long time = System.currentTimeMillis();
+                    int timePassed = (int) (time - lastTime);
+                    app.tick(time);
                     try {
                         int d = delay - timePassed;
                         if (d >= 0) {
@@ -454,15 +476,15 @@ public class App implements ThrowableListener {
                     }
                     if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL) {
                         ClassAnalyzer.collectHitCounters(false);
-                        App.getApp().output(false, (int) (System.currentTimeMillis() - startTime));
+                        App.getApp().output(false);
                         lastTimeRecorded = lastTime;
                     }
                     lastTime += timePassed;
                 }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters(false);
-                timePassed = (int) (System.currentTimeMillis() - startTime);
-                App.getApp().output(true, timePassed);
+                MockSystemMillis.RUNTIME = (int) (System.currentTimeMillis() - startTime);
+                App.getApp().output(true);
                 System.exit(0);
 
             }
@@ -472,7 +494,7 @@ public class App implements ThrowableListener {
 
     }
 
-    public void output(boolean finished, int runtime) {
+    public void output(boolean finished) {
         if (finished) {
             App.out.println("- Finished testing: ");
             App.out.println("@ Coverage Report: ");
@@ -489,7 +511,7 @@ public class App implements ThrowableListener {
                 e.printStackTrace();
             }
 
-            File outFldr = new File("testing_output/result_states");
+            File outFldr = new File(Properties.TESTING_OUTPUT + "result_states");
             outFldr.mkdirs();
 
             File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
@@ -502,15 +524,7 @@ public class App implements ThrowableListener {
             if (Properties.VISUALISE_DATA)
                 App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
         }
-        File csv = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
-        if (csv.getParentFile() != null) {
-            csv.getParentFile().mkdirs();
-        }
         try {
-            boolean newFile = !csv.getAbsoluteFile().exists();
-            if (newFile) {
-                csv.createNewFile();
-            }
             ClassAnalyzer.setOut(App.out);
             StringBuilder linesHit = new StringBuilder();
             ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
@@ -519,7 +533,7 @@ public class App implements ThrowableListener {
                 if (classSeen.contains(className)) {
                     className = "" + classSeen.indexOf(className);
                 } else {
-                    File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                    File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
                     if (classes.getParentFile() != null) {
                         classes.getParentFile().mkdirs();
                     }
@@ -540,30 +554,24 @@ public class App implements ThrowableListener {
             }
 
             if (gestureFiles.length() > 0)
-                gestureFiles.substring(0, gestureFiles.length()-1);
+                gestureFiles.substring(0, gestureFiles.length() - 1);
 
-
-            String info = ClassAnalyzer.toCsv(newFile, runtime, "frame_selector,gesture_files,starting_states,states_found,states_discovered," +
-                    "final_sate,related_lines_total,related_lines_covered,related_line_coverage," +
-                    "related_branches_total,related_branches_covered,related_branch_coverage,bezier_points,switch_time,ngram_smoothing,state_weight," +
-                    "histogramBins,histogramThreshold,fps,cluster_identifier");
             LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
             int states = StateComparator.statesVisited.size();
 
-            String fss = Properties.FRAME_SELECTION_STRATEGY.toString();
 
-            if (Properties.PLAYBACK_FILE != null){
-                fss = "USER_PLAYBACK";
-            }
+            Csv testingValues = ClassAnalyzer.toCsv();
 
-            if (Properties.LEAVE_LEAPMOTION_ALONE){
-                fss = "MANUAL_TESTING";
-            }
+            Csv propertyValues = Properties.instance().toCsv();
+            Csv csv = new Csv();
 
+            csv.merge(testingValues);
+            csv.merge(propertyValues);
 
-            info += "," + fss + "," + gestureFiles + "," + (states - StateComparator.statesFound) + "," + StateComparator.statesFound + "," + StateComparator
-
-                    .getStatesVisited().size() + "," + StateComparator.getCurrentState();
+            csv.add("statesStarting", "" + (states - StateComparator.statesFound));
+            csv.add("statesFound", "" + StateComparator.statesFound);
+            csv.add("statesVisited", "" + StateComparator.getStatesVisited().size());
+            csv.add("currentState", "" + StateComparator.getCurrentState());
 
             int lineHits = 0;
             int branchHits = 0;
@@ -582,33 +590,21 @@ public class App implements ThrowableListener {
                         }
                     }
                 }
-                info += "," + relatedLines + "," + lineHits + "," + (lineHits / (float) relatedLines) + "," +
-                        relatedBranches + "," + branchHits + "," + (branchHits / (float) relatedBranches);
-            } else {
-                info += ",0,0,0,0,0,0";
             }
 
-            if (Properties.SWITCH_TIME <= 1){
-                info += "," + 0;
-            } else {
-                info += "," + com.sheffield.leapmotion.Properties.BEZIER_POINTS;
-            }
+            csv.add("relatedLinesTotal", "" + relatedLines);
+            csv.add("relatedLinesCovered", "" + lineHits);
+            csv.add("relatedLineCoverage", "" + (lineHits / (float) relatedLines));
 
-            info += "," + Properties.SWITCH_TIME;
+            csv.add("relatedBranchesTotal", "" + relatedBranches);
+            csv.add("relatedBranchesCovered", "" + branchHits);
+            csv.add("relatedBranchCoverage", "" + (branchHits / (float) relatedBranches));
+            csv.add("runtime", "" + MockSystemMillis.RUNTIME);
 
-            info += "," + Properties.LERP_RATE;
+            csv.finalize();
+            output(csv);
 
-            info += "," + Properties.STATE_WEIGHT;
-
-            info += "," + Properties.HISTOGRAM_BINS;
-
-            info += "," + Properties.HISTOGRAM_THRESHOLD;
-            info += "," + Properties.FRAMES_PER_SECOND;
-            info += "," + Properties.CLUSTER_IDENTIFIER;
-
-            FileHandler.appendToFile(csv, info + "\n");
-
-            File classes = new File("testing_output/logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
+            File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
             if (classes.getParentFile() != null) {
                 classes.getParentFile().mkdirs();
             }
@@ -618,6 +614,30 @@ public class App implements ThrowableListener {
 
             FileHandler.appendToFile(classes, linesHit.toString() + "\n");
         } catch (IOException e) {
+            e.printStackTrace(App.out);
+        }
+    }
+
+    public void output(Csv csv) {
+
+        File csvFile = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
+        if (csvFile.getParentFile() != null) {
+            csvFile.getParentFile().mkdirs();
+        }
+        try {
+            boolean newFile = !csvFile.getAbsoluteFile().exists();
+            String contents = "";
+
+            if (newFile) {
+                csvFile.createNewFile();
+                contents += csv.getHeaders() + "\n";
+            }
+
+            contents += csv.getValues() + "\n";
+
+            FileHandler.appendToFile(csvFile, contents);
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -626,13 +646,17 @@ public class App implements ThrowableListener {
         startTime = System.currentTimeMillis();
     }
 
-    public void tick() {
-        long time = System.currentTimeMillis();
+
+    private long lastUpdate = 0;
+
+    public void tick(long time) {
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
         if (time - lastSwitchTime > timeBetweenSwitch) {
-            sc.tick();
-            lastSwitchTime = time;
+            if (sc.lastTick() < time) {
+                sc.tick(time);
+                lastSwitchTime = time;
+            }
         }
 
         if (time - lastStateCheck > STATE_CHECK_TIME) {
@@ -644,12 +668,12 @@ public class App implements ThrowableListener {
             }
         }
 
-        long runtime = System.currentTimeMillis() - startTime;
+        MockSystemMillis.RUNTIME = System.currentTimeMillis() - startTime;
 
         String progress = "[";
 
         final int bars = 10;
-        float percent = runtime / (float) Properties.RUNTIME;
+        float percent = MockSystemMillis.RUNTIME / (float) Properties.RUNTIME;
         int b1 = (int) (percent * bars);
         for (int i = 0; i < b1; i++) {
             progress += "-";
@@ -662,9 +686,13 @@ public class App implements ThrowableListener {
         progress += "] " + ((int) (percent * 1000)) / 10f + "%";
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
-        if (runtime > Properties.RUNTIME) {
+        if (MockSystemMillis.RUNTIME > Properties.RUNTIME) {
             status = AppStatus.FINISHED;
         }
+    }
+
+    public long lastTick(){
+        return lastUpdate;
     }
 
     public void end() {

@@ -8,7 +8,6 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
-import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 
 import java.io.File;
@@ -82,13 +81,6 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
 
 	@Override
 	public Frame newFrame() {
-        long time = System.currentTimeMillis();
-        if (time - lastGestureChange > GESTURE_CHANGE_TIME){
-            String[] gestures = Properties.GESTURE_FILES;
-            currentGesture = gestures[r.nextInt(gestures.length)];
-            lastGestureChange = System.currentTimeMillis();
-        }
-
         return frameSelectors.get(currentGesture).newFrame();
 
 	}
@@ -105,5 +97,30 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
     @Override
     public GestureList handleFrame(Frame frame) {
         return gestureHandlers.get(currentGesture).handleFrame(frame);
+    }
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+
+        if (time - lastGestureChange > GESTURE_CHANGE_TIME){
+            String[] gestures = Properties.GESTURE_FILES;
+            currentGesture = gestures[r.nextInt(gestures.length)];
+            if (frameModifiers.get(currentGesture).lastTick() < time) {
+                frameModifiers.get(currentGesture).tick(time);
+            }
+            if (gestureHandlers.get(currentGesture).lastTick() < time){
+                gestureHandlers.get(currentGesture).tick(time);
+            }
+            if (frameSelectors.get(currentGesture).lastTick() < time){
+                frameSelectors.get(currentGesture).tick(time);
+            }
+            lastGestureChange = time;
+        }
+    }
+
+    public long lastTick(){
+        return lastUpdate;
     }
 }

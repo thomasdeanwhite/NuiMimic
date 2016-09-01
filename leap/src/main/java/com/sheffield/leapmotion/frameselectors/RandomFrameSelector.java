@@ -89,6 +89,16 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 				transpose + (random.nextFloat()*scale));
 	}
 
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
+	}
+
 	@Override
 	public void modifyFrame(SeededFrame frame) {
 

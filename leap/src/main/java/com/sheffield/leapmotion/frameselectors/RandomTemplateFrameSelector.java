@@ -319,4 +319,14 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 	public Vector fadeVector(Vector prev, Vector next, float modifier){
 		return prev.plus(next.minus(prev).times(modifier));
 	}
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
+	}
 }

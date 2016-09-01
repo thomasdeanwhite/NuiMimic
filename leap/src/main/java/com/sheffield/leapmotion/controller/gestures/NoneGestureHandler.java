@@ -28,7 +28,17 @@ public class NoneGestureHandler implements GestureHandler {
 	public GestureList handleFrame(Frame frame) {
 		return new GestureList();
 	}
-	
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
+	}
+
 	public Frame clearFrame(Frame frame){
 //		// TODO Auto-generated method stub
 //		GestureList gl = frame.gestures();

@@ -1,8 +1,8 @@
 package com.sheffield.leapmotion.framemodifier;
 
-import java.util.Random;
-
 import com.sheffield.leapmotion.mocks.SeededFrame;
+
+import java.util.Random;
 
 public class RandomFrameModifier implements FrameModifier {
 
@@ -32,6 +32,16 @@ public class RandomFrameModifier implements FrameModifier {
 		// hand.setRotation(Vector.zAxis(), zRotation);
 		// }
 		// }
+	}
+
+	long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
 	}
 
 }

@@ -37,8 +37,6 @@ public class RandomGestureHandler extends NoneGestureHandler {
 		
 		SeededGestureList gl = new SeededGestureList();
 
-		advanceGestures();
-
 		if (gestureType == Gesture.Type.TYPE_INVALID)
 			return gl;
 
@@ -136,6 +134,17 @@ public class RandomGestureHandler extends NoneGestureHandler {
 				}
 			}
 		}
+	}
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+		advanceGestures();
+	}
+
+	public long lastTick(){
+		return lastUpdate;
 	}
 
 

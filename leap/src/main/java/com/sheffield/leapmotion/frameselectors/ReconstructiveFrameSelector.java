@@ -58,7 +58,7 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
     public ReconstructiveFrameSelector(String filename){
         try {
             tpgh = new ReconstructiveGestureHandler(filename);
-            App.out.println("* Setting up NGram Frame Selection");
+            App.out.println("* Setting up Reconstruction");
             lastSwitchTime = 0;
             currentAnimationTime = 0;
             handLabelStack = new ArrayList<String>();
@@ -201,7 +201,35 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 //          App.out.println("Finished seeding hands after " + (System.currentTimeMillis() - startSeededTime) + "secs "  + SeededController.getSeededController().now());
             return Frame.invalid();
         }
-        long time = System.currentTimeMillis();
+        Frame f = SeededController.newFrame();
+        ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
+        hs.add(hands.get(handLabelStack.get(0)));
+        Hand hand = hands.get(currentHand);
+        float modifier = Math.max(1f, currentAnimationTime / animationTime);
+      f = HandFactory.injectHandIntoFrame(f, ((SeededHand)hand).fadeHand(hs, modifier));
+
+        return f;
+    }
+
+    @Override
+    public String status() {
+        return null;
+    }
+
+    @Override
+    public GestureList handleFrame(Frame frame) {
+        return tpgh.handleFrame(frame);
+    }
+
+    public int size(){
+        return handLabelStack.size();
+    }
+
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
         if (lastSwitchTime == 0){
             lastSwitchTime = time;
         }
@@ -227,27 +255,14 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         }
 
         currentAnimationTime = (int) (time - lastSwitchTime);
-        Frame f = SeededController.newFrame();
-        ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
-        hs.add(hands.get(handLabelStack.get(0)));
-        Hand hand = hands.get(currentHand);
-        float modifier = Math.max(1f, currentAnimationTime / animationTime);
-      f = HandFactory.injectHandIntoFrame(f, ((SeededHand)hand).fadeHand(hs, modifier));
+        if (animationTime <= 0){
+            animationTime = 1;
+        }
 
-        return f;
+        tpgh.tick(time);
     }
 
-    @Override
-    public String status() {
-        return null;
-    }
-
-    @Override
-    public GestureList handleFrame(Frame frame) {
-        return tpgh.handleFrame(frame);
-    }
-
-    public int size(){
-        return handLabelStack.size();
+    public long lastTick(){
+        return lastUpdate;
     }
 }

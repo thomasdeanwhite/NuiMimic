@@ -23,4 +23,14 @@ public class EmptyFrameSelector extends FrameSelector implements FrameModifier {
 	public void modifyFrame(SeededFrame frame) {
 
 	}
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
+	}
 }

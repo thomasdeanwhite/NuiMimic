@@ -238,4 +238,14 @@ public class NGramFrameModifier implements FrameModifier {
         currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 
     }
+
+    long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+    }
+
+    public long lastTick(){
+        return lastUpdate;
+    }
 }

@@ -6,7 +6,6 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
-import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
 
@@ -96,4 +95,14 @@ public class RandomDistanceFrameSelector extends FrameSelector implements FrameM
             sh.setOrigin(sh.basis().getOrigin().plus(lastPosition.plus(newPosition.minus(lastPosition).times(modifier))));
         }
 	}
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+    }
+
+    public long lastTick(){
+        return lastUpdate;
+    }
 }

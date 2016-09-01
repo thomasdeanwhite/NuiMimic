@@ -1,6 +1,10 @@
 package com.sheffield.leapmotion.frameselectors;
 
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Serializer;
@@ -16,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class UserPlaybackFrameSelector extends FrameSelector {
 
@@ -45,11 +50,12 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 		backupFrameSelector = frameSelector;
 		String playback = Properties.PLAYBACK_FILE;
 		try {
-			maxFrames = Files.lines(Paths.get(playback)).count();
+			maxFrames = Files.lines(Paths.get(playback)).count() - 1;
 			lineIterator = FileUtils.lineIterator(new File(playback));
 			frameStack = new ArrayList<Frame>();
-			int counter = Properties.MAX_LOADED_FRAMES;
-			while (counter > 0 && lineIterator.hasNext()){
+			//int counter = Properties.MAX_LOADED_FRAMES;
+
+			while (lineIterator.hasNext()){
 				frameStack.add(Serializer.sequenceFromJson(lineIterator.nextLine()));
 				//counter--;
 			}
@@ -84,38 +90,92 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 			seeded = true;
 		}
 
+		App.out.println("- Finished loading frames. Starting playback.");
+
 	}
 
+	private Frame fhFrame = null;
+
 	@Override
-	public synchronized Frame newFrame() {
+	public Frame newFrame() {
 
 		if (seeded) {
-			return backupFrameSelector.newFrame();
-		}
-
-		if (frameStack.size() <= 0){// || !lineIterator.hasNext()) {
-			seeded = true;
-			Properties.FRAMES_PER_SECOND = lastSwitchRate;
-			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
 			return backupFrameSelector.newFrame();
 		}
 
 		Frame f = null;
 
 
-		long time = System.currentTimeMillis();
+		if (fh != null){
+			fh.loadNewFrame();
+			fhFrame = fh.getFrame();
+		}
+
+
+		
+		f =  frameStack.get(0);
+
+
+		return f;
+	}
+
+	private HashMap<Finger.Type, HashMap<Bone.Type, Float>> totalDifferences;
+
+	@Override
+	public String status() {
+
+		float differences = 0;
+
+		int counter = 0;
+
+ 		if (totalDifferences != null){
+			for (Finger.Type ft : Finger.Type.values()){
+				for (Bone.Type bt : Bone.Type.values()){
+					if (totalDifferences.containsKey(ft) &&
+							totalDifferences.get(ft).containsKey(bt)){
+						float mean = totalDifferences.get(ft).get(bt) / handsSeen;
+						counter++;
+						differences += mean*mean;
+					}
+				}
+			}
+			return "rms: " + Math.sqrt(differences / counter);
+		} else {
+			return "";
+		}
+	}
+
+	public FrameSelector getBackupFrameSelector (){
+		return backupFrameSelector;
+	}
+
+	public boolean finished (){
+		return seeded;
+	}
+
+	private long handsSeen = 1;
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+
+		lastUpdate = time;
+
+		if (frameStack.size() <= 0){// || !lineIterator.hasNext()) {
+			seeded = true;
+			Properties.FRAMES_PER_SECOND = lastSwitchRate;
+			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
+		}
+
 
 		if (startSeedingTime == 0){
 			startSeedingTime = time;
 		}
 
-		if (fh != null){
-			fh.loadNewFrame();
-		}
-
 		seededTime = time;
 
 		long currentTimePassed = seededTime - startSeedingTime;
+
+		Frame f = frameStack.get(0);
 
 		while (currentTimePassed > seededTimePassed){// && lineIterator.hasNext()){
 //			f = Serializer.sequenceFromJson(lineIterator.nextLine());
@@ -132,30 +192,73 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
 		}
-		
-		f =  frameStack.get(0);
-
-		//seededTimePassed = f.timestamp() - firstFrameTimeStamp;
 
 		if (firstFrameTimeStamp == 0) {
 			firstFrameTimeStamp = f.timestamp()/1000;
+		} else {
+			handsSeen++;
+		}
+
+		if (fh != null){
+			fh.tick(time);
+			if (fhFrame != null && fhFrame.isValid()){
+				if (totalDifferences == null){
+					totalDifferences = new HashMap<Finger.Type, HashMap<Bone.Type, Float>>();
+					for (Finger.Type ft : Finger.Type.values()){
+
+						totalDifferences.put(ft, new HashMap<Bone.Type, Float>());
+						for (Bone.Type bt : Bone.Type.values()){
+							totalDifferences.get(ft).put(bt, 0f);
+						}
+
+					}
+
+				}
+				Hand fh = fhFrame.hands().iterator().next();
+				Hand h = frameStack.get(0).hands().iterator().next();
+
+				for (Finger rf : h.fingers()) {
+					Finger f1 = null;
+					for (Finger fhf : fh.fingers()){
+						if (fhf.type().equals(rf.type())){
+							f1 = fhf;
+							break;
+						}
+					}
+					if (rf == null || !rf.isValid() || f1 == null || !f1.isValid()) {
+						continue;
+					}
+
+					for (Bone.Type t : Bone.Type.values()) {
+						Bone b = rf.bone(t);
+						Bone b1 = f1.bone(t);
+						if (!b.isValid()) {
+							continue;
+						}
+						if (b.isValid()) {
+
+							Vector origin = h.palmPosition();
+
+
+							float difference = b1.center().minus(origin).minus(b.center().minus(origin)).magnitude();
+
+							totalDifferences.get(rf.type()).put(b.type(),
+									totalDifferences.get(rf.type()).get(b.type()) + difference);
+
+
+						}
+					}
+				}
+
+			}
 		}
 
 
-		return f;
+
 	}
 
-	@Override
-	public String status() {
-		return null;
-	}
-
-	public FrameSelector getBackupFrameSelector (){
-		return backupFrameSelector;
-	}
-
-	public boolean finished (){
-		return seeded;
+	public long lastTick(){
+		return lastUpdate;
 	}
 
 }

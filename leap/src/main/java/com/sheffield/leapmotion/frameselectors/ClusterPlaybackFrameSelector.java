@@ -229,6 +229,16 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
         return "[" + (Math.round(100f * (success.size() / (float)(success.size() + failures.size())))/100f) + " correctness]";
     }
 
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+    }
+
+    public long lastTick(){
+        return lastUpdate;
+    }
+
     private NGramLog lastPosN = null;
     private long lastPosSwitchTime = 0;
 

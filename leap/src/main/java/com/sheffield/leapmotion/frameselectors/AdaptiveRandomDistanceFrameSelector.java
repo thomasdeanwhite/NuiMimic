@@ -2,10 +2,10 @@ package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;import com.sheffield.leapmotion.App;
+import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
-import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
 
@@ -89,6 +89,17 @@ public class AdaptiveRandomDistanceFrameSelector extends FrameSelector implement
     @Override
     public String status() {
         return null;
+    }
+
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+    }
+
+    public long lastTick(){
+        return lastUpdate;
     }
 
     public void modifyFrame(SeededFrame frame) {

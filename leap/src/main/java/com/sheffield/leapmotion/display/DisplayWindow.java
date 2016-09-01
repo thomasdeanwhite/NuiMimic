@@ -1,13 +1,16 @@
 package com.sheffield.leapmotion.display;
 
 import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.CircleGesture;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.SeededController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -169,6 +172,9 @@ public class DisplayWindow extends JFrame {
 			Vector offset = new Vector(100f, 0f, 0f);
 			if (currentFrame != null && currentFrame.isValid()) {
 
+				g2d.setColor(Color.BLACK);
+				g2d.drawString("Status: " + SeededController.getSeededController().status(), 26, 26);
+
 				for (Hand h : currentFrame.hands()) {
 					// String data = HandFactory.handToString(h);
 					// h = HandFactory.createHand(data, currentFrame);
@@ -279,6 +285,29 @@ public class DisplayWindow extends JFrame {
 
 					g2d.drawString(h.fingers().frontmost().tipPosition().toString(),
 							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (2 * scale));
+
+
+					g2d.setColor(Color.GREEN);
+					int counter = 3;
+					for (Gesture gesture : currentFrame.gestures()){
+						g2d.drawString(gesture.type().toString(),
+								(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (counter * scale));
+						if (gesture.type().equals(Gesture.Type.TYPE_CIRCLE)){
+							CircleGesture cg = new CircleGesture(gesture);
+							int x = (3*(getWidth() / 4)) + ((int)((cg.center().getX()-cg.radius())*scaleWindowX)) + scale + 5;
+							int y = getHeight() - ((int)((cg.center().getY()-cg.radius())*scaleWindowY)) + (2 * scale);
+							int rad = (int)cg.radius();
+							int dia = 2 * rad;
+							g2d.drawLine(x - rad, y,
+									x + rad, y);
+
+							g2d.drawLine(x, y - rad,
+									x, y + rad);
+
+							g2d.drawOval(x - rad, y - rad,
+									dia, dia);
+						}
+					}
 
 				}
 			}

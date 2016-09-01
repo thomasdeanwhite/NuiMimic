@@ -45,10 +45,7 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
 
 	}
 
-	public void advanceGestures(){
-		if (currentGesture == null || currentGesture == "TYPE_INVALID"){
-			return;
-		}
+	public void advanceGestures(long time){
 		if (gestureState == null || gestureTypes.size() == 0 || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
 
@@ -58,7 +55,7 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
 			cumalitiveGesturePositions = Vector.zero();
 			String[] gestures = currentGesture.split("\\+");
 			gestureDuration = 3;
-			gestureStart = System.currentTimeMillis()-gestureDuration;
+			gestureStart = time-gestureDuration;
 			for (String s : gestures){
 				if (s != null && !s.equalsIgnoreCase("null")){
 					gestureTypes.add(Gesture.Type.valueOf(s));
@@ -87,7 +84,10 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
 		frame = clearFrame(frame);
 		SeededGestureList gl = new SeededGestureList();
 
-		advanceGestures();
+		if (currentGesture == null || currentGesture.equals("TYPE_INVALID")){
+			return gl;
+		}
+
 		gestureCount++;
 		if (gestureTypes.size() <= 0)
 			return gl;
@@ -106,6 +106,17 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
 			currentGesture = newGesture;
 			changed = true;
 		}
+	}
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+		advanceGestures(time);
+	}
+
+	public long lastTick(){
+		return lastUpdate;
 	}
 	
 }

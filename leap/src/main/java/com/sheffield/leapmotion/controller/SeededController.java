@@ -1,15 +1,25 @@
 package com.sheffield.leapmotion.controller;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.BugReport;
+import com.leapmotion.leap.Config;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.DeviceList;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.ImageList;
+import com.leapmotion.leap.Listener;
+import com.leapmotion.leap.ScreenList;
+import com.leapmotion.leap.TrackedQuad;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.AppStatus;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Tickable;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 
 import java.util.ArrayList;
 
-public class SeededController extends Controller implements FrameSwitchListener {
+public class SeededController extends Controller implements FrameSwitchListener, Tickable {
 
 	public static SeededController CONTROLLER;
 	private static boolean initializing = false;
@@ -42,7 +52,7 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		}
 		if (CONTROLLER == null) {
 			initializing = true;
-			App.startTesting();
+			//App.startTesting();
 			CONTROLLER = new SeededController();
 			CONTROLLER.setup();
 			initializing = false;
@@ -113,10 +123,14 @@ public class SeededController extends Controller implements FrameSwitchListener 
 		}
 	}
 
-	public void tick() {
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
 		if (frameHandler != null){
 			//if (frameRequested) {
 			try {
+				frameHandler.tick(time);
 				frameHandler.loadNewFrame();
 			} catch (Exception e){
 				e.printStackTrace(App.out);
@@ -124,6 +138,10 @@ public class SeededController extends Controller implements FrameSwitchListener 
 			//}
 		}
 		frameRequested = false;
+	}
+
+	public long lastTick(){
+		return lastUpdate;
 	}
 
 	@Override

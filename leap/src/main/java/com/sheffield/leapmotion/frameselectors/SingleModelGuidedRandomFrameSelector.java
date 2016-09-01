@@ -9,7 +9,6 @@ import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
-import com.sheffield.leapmotion.framemodifier.NGramFrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 
 import java.io.File;
@@ -136,5 +135,15 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
         } else {
             return randomGestureHandler.handleFrame(frame);
         }
+    }
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+    }
+
+    public long lastTick(){
+        return lastUpdate;
     }
 }

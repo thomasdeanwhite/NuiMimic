@@ -106,7 +106,6 @@ public class NGramGestureHandler extends RandomGestureHandler {
 		frame = clearFrame(frame);
 		SeededGestureList gl = new SeededGestureList();
 
-		advanceGestures();
 		gestureCount++;
 		if (gestureTypes.size() <= 0)
 			return gl;
@@ -116,5 +115,16 @@ public class NGramGestureHandler extends RandomGestureHandler {
 		}
 		return gl;
 	}
-	
+
+	private long lastUpdate = 0;
+	@Override
+	public void tick(long time) {
+		lastUpdate = time;
+		advanceGestures();
+	}
+
+	public long lastTick(){
+		return lastUpdate;
+	}
+
 }

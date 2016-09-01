@@ -5,6 +5,7 @@ import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Tickable;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
@@ -17,10 +18,10 @@ import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.frameselectors.RandomDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.RandomFrameSelector;
 import com.sheffield.leapmotion.frameselectors.RandomTemplateFrameSelector;
+import com.sheffield.leapmotion.frameselectors.ReconstructiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.SingleModelGuidedRandomFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StateRelatedStaticDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.ReconstructiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -30,7 +31,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-public class FrameHandler {
+public class FrameHandler implements Tickable {
     private FrameSelector frameSelector;
     private ArrayList<FrameSwitchListener> frameSwitchListeners;
     private ArrayList<Frame> frames;
@@ -173,7 +174,7 @@ public class FrameHandler {
         return frame;
     }
 
-    public void loadNewFrame() {
+    public synchronized void loadNewFrame() {
         Frame frame = frameSelector.newFrame();
         if (frameSelector instanceof EmptyFrameSelector){
             final Frame last = getFrame(1);
@@ -190,14 +191,16 @@ public class FrameHandler {
                 }).start();
             }
             return;
-//        }
-//        if (frameSelector instanceof UserPlaybackFrameSelector) {
-//            UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
-//            if (upfs.finished()){
-//                frameSelector = upfs.getBackupFrameSelector();
-//                loadNewFrame();
-//                return;
-//            }
+        } else if (frameSelector instanceof UserPlaybackFrameSelector) {
+            UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
+
+            //frame = upfs.newFrame();
+
+            if (upfs.finished()){
+                frameSelector = upfs.getBackupFrameSelector();
+                loadNewFrame();
+                return;
+            }
         } else {
             if (!(frame instanceof  SeededFrame)) {
                 frame = new SeededFrame(frame);
@@ -237,5 +240,24 @@ public class FrameHandler {
                 }
             }).start();
         }
+    }
+
+    private long lastUpdate = 0;
+    @Override
+    public void tick(long time) {
+        lastUpdate = time;
+        gestureHandler.tick(time);
+        if (frameSelector.lastTick() < time) {
+            frameSelector.tick(time);
+        }
+        for (FrameModifier fm : frameModifiers){
+            if (fm.lastTick() < time) {
+                fm.tick(time);
+            }
+        }
+    }
+
+    public long lastTick(){
+        return lastUpdate;
     }
 }
