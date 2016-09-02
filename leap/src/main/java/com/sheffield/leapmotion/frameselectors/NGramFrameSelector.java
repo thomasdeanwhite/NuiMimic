@@ -226,6 +226,69 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 //			nextHand = hands.get(analyzer.getDataAnalyzer().next());
 //		}
 
+		while (lastPosition == null){
+			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
+				positionAnalyzer.getDataAnalyzer().next();
+			}
+			lastPositionLabel = positionAnalyzer.getDataAnalyzer().next();
+			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
+				lastPosition = vectors.get(lastPositionLabel);
+			}
+		}
+
+		while (lastRotation== null){
+			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
+				rotationAnalyzer.getDataAnalyzer().next();			}
+			lastRotationLabel = rotationAnalyzer.getDataAnalyzer().next();
+			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
+				lastRotation = rotations.get(lastRotationLabel);
+			}
+		}
+
+
+		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
+			if (seededPositions.contains(lastPosition)){
+				Vector position = null;
+				String pLabel = null;
+				while (position == null){
+					pLabel = positionAnalyzer.getDataAnalyzer().next();
+
+					if (pLabel != null){
+						position = vectors.get(pLabel);
+						if (position != null) {
+							positionLabels.add(pLabel);
+							seededPositions.add(position);
+						}
+					}
+				}
+			} else {
+				seededPositions.add(0, lastPosition);
+				positionLabels.add(0, lastPositionLabel);
+			}
+		}
+
+		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
+			if (seededRotations.contains(lastRotation)){
+				Quaternion rotation = null;
+				String rLabel = null;
+				while (rotation == null){
+					rLabel = rotationAnalyzer.getDataAnalyzer().next();
+
+					if (rLabel != null){
+						rotation = rotations.get(rLabel);
+						if (rotation != null) {
+							rotationLabels.add(rLabel);
+							seededRotations.add(rotation);
+						}
+					}
+				}
+			} else {
+				seededRotations.add(0, lastRotation);
+				rotationLabels.add(0, lastRotationLabel);
+			}
+		}
+
+
 		if (currentAnimationTime >= Properties.SWITCH_TIME) {
 			// load next frame
 			currentAnimationTime = 0;
@@ -291,7 +354,6 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 
 			lastSwitchTime = System.currentTimeMillis();
 
-
 			lastPosition = seededPositions.get(seededPositions.size()-1);
 			lastPositionLabel = positionLabels.get(positionLabels.size()-1);
 			lastRotation = seededRotations.get(seededRotations.size()-1);
@@ -306,67 +368,6 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 		}
 
-		while (lastPosition == null){
-			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
-				positionAnalyzer.getDataAnalyzer().next();
-			}
-			lastPositionLabel = positionAnalyzer.getDataAnalyzer().next();
-			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
-				lastPosition = vectors.get(lastPositionLabel);
-			}
-		}
-
-		while (lastRotation== null){
-			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
-				rotationAnalyzer.getDataAnalyzer().next();			}
-			lastRotationLabel = rotationAnalyzer.getDataAnalyzer().next();
-			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
-				lastRotation = rotations.get(lastRotationLabel);
-			}
-		}
-
-
-		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-			if (seededPositions.contains(lastPosition)){
-				Vector position = null;
-				String pLabel = null;
-				while (position == null){
-					pLabel = positionAnalyzer.getDataAnalyzer().next();
-
-					if (pLabel != null){
-						position = vectors.get(pLabel);
-						if (position != null) {
-							positionLabels.add(pLabel);
-							seededPositions.add(position);
-						}
-					}
-				}
-			} else {
-				seededPositions.add(0, lastPosition);
-				positionLabels.add(0, lastPositionLabel);
-			}
-		}
-
-		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-			if (seededRotations.contains(lastRotation)){
-				Quaternion rotation = null;
-				String rLabel = null;
-				while (rotation == null){
-					rLabel = rotationAnalyzer.getDataAnalyzer().next();
-
-					if (rLabel != null){
-						rotation = rotations.get(rLabel);
-						if (rotation != null) {
-							rotationLabels.add(rLabel);
-							seededRotations.add(rotation);
-						}
-					}
-				}
-			} else {
-				seededRotations.add(0, lastRotation);
-				rotationLabels.add(0, lastRotationLabel);
-			}
-		}
 	}
 
 	public long lastTick(){

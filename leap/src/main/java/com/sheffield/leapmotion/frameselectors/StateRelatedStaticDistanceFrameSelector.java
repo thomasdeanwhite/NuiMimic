@@ -180,11 +180,6 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 	@Override
 	public Frame newFrame() {
         long time = System.currentTimeMillis();
-        if (changeGestures && time - lastGestureChange > GESTURE_CHANGE_TIME){
-            String[] gestures = Properties.INPUT;
-            currentGesture = gestures[r.nextInt(gestures.length)];
-            lastGestureChange = System.currentTimeMillis();
-        }
 
         return frameSelectors.get(currentGesture).newFrame();
 
@@ -208,6 +203,22 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
     @Override
     public void tick(long time) {
         lastUpdate = time;
+
+        if (time - lastGestureChange > GESTURE_CHANGE_TIME){
+            String[] gestures = Properties.INPUT;
+            currentGesture = gestures[r.nextInt(gestures.length)];
+            lastGestureChange = time;
+        }
+
+        if (frameModifiers.get(currentGesture).lastTick() < time) {
+            frameModifiers.get(currentGesture).tick(time);
+        }
+        if (gestureHandlers.get(currentGesture).lastTick() < time){
+            gestureHandlers.get(currentGesture).tick(time);
+        }
+        if (frameSelectors.get(currentGesture).lastTick() < time){
+            frameSelectors.get(currentGesture).tick(time);
+        }
     }
 
     public long lastTick(){

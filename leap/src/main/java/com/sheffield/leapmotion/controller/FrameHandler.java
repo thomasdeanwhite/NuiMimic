@@ -246,7 +246,9 @@ public class FrameHandler implements Tickable {
     @Override
     public void tick(long time) {
         lastUpdate = time;
-        gestureHandler.tick(time);
+        if (gestureHandler.lastTick() < time) {
+            gestureHandler.tick(time);
+        }
         if (frameSelector.lastTick() < time) {
             frameSelector.tick(time);
         }

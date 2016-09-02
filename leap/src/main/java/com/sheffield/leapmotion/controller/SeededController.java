@@ -47,6 +47,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public static SeededController getSeededController() {
+		return getSeededController(true);
+	}
+
+	public static SeededController getSeededController(boolean setupForTesting) {
 		while (initializing){
 			try {
 				Thread.sleep(200);
@@ -58,6 +62,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			initializing = true;
 			//App.startTesting();
 			CONTROLLER = new SeededController();
+			App.getApp().setup(setupForTesting);
 			CONTROLLER.setup();
 			initializing = false;
 		}

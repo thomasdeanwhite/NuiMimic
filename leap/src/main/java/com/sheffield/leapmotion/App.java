@@ -38,6 +38,8 @@ public class App implements ThrowableListener, Tickable {
     public static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
 
+    private boolean testing = false;
+
 
     public static float LAST_LINE_COVERAGE = 0f;
 
@@ -180,7 +182,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public static void setTesting() {
-        App.out.println("- Status changed to: Testing.");
+        App.out.println("- Status changed to: Testing.");;
         App.getApp().setStatus(AppStatus.TESTING);
         if (getApp() == null) {
             background(null);
@@ -193,7 +195,11 @@ public class App implements ThrowableListener, Tickable {
         background(null);
     }
 
-    public void setup() {
+    public void setup(boolean initialiseForTesting) {
+        testing = initialiseForTesting;
+        if (testing){
+            App.getApp().setTesting();
+        }
         if (Properties.VISUALISE_DATA) {
             DISPLAY_WINDOW = new DisplayWindow();
         }
@@ -215,7 +221,6 @@ public class App implements ThrowableListener, Tickable {
             }
         });
 
-        SeededController.getController();
         startTime = System.currentTimeMillis();
         lastSwitchTime = startTime;
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
@@ -236,6 +241,10 @@ public class App implements ThrowableListener, Tickable {
         }
         System.setSecurityManager(new NoExitSecurityManager());
         App.out.println("- Setup Complete");
+
+        if (testing){
+           startTesting();
+        }
     }
 
     public static App getApp() {
@@ -259,7 +268,7 @@ public class App implements ThrowableListener, Tickable {
                visualise();
                break;
            case RECONSTRUCT:
-               App.getApp().setup();
+               App.getApp().setup(false);
                reconstruct();
                break;
            case STATE_RECOGNITION:
@@ -336,7 +345,7 @@ public class App implements ThrowableListener, Tickable {
 
         while(Properties.INPUT.length > 0) {
 
-            SeededController sc = SeededController.getSeededController();
+            SeededController sc = SeededController.getSeededController(false);
 
             Properties.FRAME_SELECTION_STRATEGY = Properties
                     .FrameSelectionStrategy.REPRODUCTION;
@@ -535,7 +544,6 @@ public class App implements ThrowableListener, Tickable {
                 // TODO Auto-generated method stub
 
                 App app = App.getApp();
-                app.setup();
                 app.start();
                 App.out.println("- Starting Frame Seeding");
                 int delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
@@ -740,12 +748,12 @@ public class App implements ThrowableListener, Tickable {
     public void tick(long time) {
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
-        if (time - lastSwitchTime > timeBetweenSwitch) {
+        //if (time - lastSwitchTime > timeBetweenSwitch) {
             if (sc.lastTick() < time) {
                 sc.tick(time);
                 lastSwitchTime = time;
             }
-        }
+        //}
 
         if (time - lastStateCheck > STATE_CHECK_TIME) {
             lastStateCheck = time;
