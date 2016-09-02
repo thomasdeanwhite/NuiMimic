@@ -105,4 +105,9 @@ public class RandomDistanceFrameSelector extends FrameSelector implements FrameM
     public long lastTick(){
         return lastUpdate;
     }
+
+    @Override
+    public void cleanUp() {
+
+    }
 }

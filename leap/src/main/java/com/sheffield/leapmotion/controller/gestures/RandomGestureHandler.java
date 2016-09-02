@@ -7,6 +7,8 @@ import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.frameselectors.NGramLog;
 import com.sheffield.leapmotion.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.mocks.SeededGesture;
@@ -21,6 +23,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
 	private SeededCircleGesture scg;
 	private SeededSwipeGesture ssg;
+	protected Frame lastFrame;
 
 
 	private File outputFile;
@@ -33,6 +36,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
 	@Override
 	public GestureList handleFrame(Frame frame) {
+		lastFrame = frame;
 		frame = clearFrame(frame);
 		
 		SeededGestureList gl = new SeededGestureList();
@@ -51,15 +55,18 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
 		if (gestureType == Gesture.Type.TYPE_CIRCLE){
 			scg = new SeededCircleGesture(g);
+			if (cumalitiveGesturePositions.equals(Vector.zero())){
+				cumalitiveGesturePositions = lastFrame.pointables().frontmost().stabilizedTipPosition();
+			}
 			cumalitiveGesturePositions = cumalitiveGesturePositions.plus(g.pointables().frontmost().stabilizedTipPosition());
-			Vector center = cumalitiveGesturePositions.divide(gestureCount);
+			Vector center = cumalitiveGesturePositions.divide(gestureCount+1);
 
 			SeededCircleGesture scg = new SeededCircleGesture(g);
 
 			scg.setCenter(center);
 
 			Vector gradient = (center.minus(g.pointables().frontmost().stabilizedTipPosition()));
-			scg.setRadius(gradient.magnitude());
+			scg.setRadius(gradient.magnitude() + Properties.GESTURE_CIRCLE_RADIUS);
 			gradient = gradient.normalized();
 			scg.setNormal(new Vector(gradient.getY(), -gradient.getX(), gradient.getZ()));
 			scg.setProgress(gestureDuration / 1000f);
@@ -85,8 +92,9 @@ public class RandomGestureHandler extends NoneGestureHandler {
 		return g;
 	}
 
-	public void advanceGestures(){
-		super.advanceGestures();
+	@Override
+	public void advanceGestures(long time){
+		super.advanceGestures(time);
 		if (gestureState == null || gestureType == null || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
 			//currentGesture = analyzer.getDataAnalyzer().next();
@@ -94,10 +102,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
 			cumalitiveGesturePositions = Vector.zero();
 			gestureCount = 0;
-			cumalitiveGesturePositions = Vector.zero();
 			gestureDuration = 3;
 			gestureStart = System.currentTimeMillis()-gestureDuration;
-			gestureCount = 0;
 		} else {
 			long chance = random.nextInt(gestureDuration);
 
@@ -139,8 +145,11 @@ public class RandomGestureHandler extends NoneGestureHandler {
 	private long lastUpdate = 0;
 	@Override
 	public void tick(long time) {
+		if (lastFrame == null){
+			lastFrame = SeededController.newFrame();
+		}
 		lastUpdate = time;
-		advanceGestures();
+		advanceGestures(time);
 	}
 
 	public long lastTick(){

@@ -12,7 +12,8 @@ public class NoneGestureHandler implements GestureHandler {
 
 	private static final Type[] TYPES = new Type[]{Type.TYPE_CIRCLE, Type.TYPE_INVALID, Type.TYPE_KEY_TAP, Type.TYPE_SCREEN_TAP, Type.TYPE_SWIPE};
 	protected static final Random random = new Random();
-	
+
+
 	protected State gestureState;
 	protected Type gestureType;
 	protected long gestureStart;
@@ -55,7 +56,7 @@ public class NoneGestureHandler implements GestureHandler {
 		return TYPES[index];
 	}
 	
-	public void advanceGestures(){
+	public void advanceGestures(long time){
 		if (gestureState == null || gestureType == null || gestureState == State.STATE_STOP){
 			gestureState = State.STATE_START;
 			//TODO: Implement GestureSelector here!

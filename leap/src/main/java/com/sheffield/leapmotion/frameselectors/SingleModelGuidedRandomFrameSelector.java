@@ -146,4 +146,9 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
     public long lastTick(){
         return lastUpdate;
     }
+
+    @Override
+    public void cleanUp() {
+
+    }
 }

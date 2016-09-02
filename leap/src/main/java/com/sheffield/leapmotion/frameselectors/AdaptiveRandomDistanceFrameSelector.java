@@ -91,6 +91,11 @@ public class AdaptiveRandomDistanceFrameSelector extends FrameSelector implement
         return null;
     }
 
+    @Override
+    public void cleanUp() {
+
+    }
+
 
     private long lastUpdate = 0;
     @Override

@@ -442,4 +442,9 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
         }
         return g;
     }
+
+    @Override
+    public void cleanUp() {
+
+    }
 }

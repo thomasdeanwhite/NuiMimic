@@ -260,4 +260,8 @@ public class FrameHandler implements Tickable {
     public long lastTick(){
         return lastUpdate;
     }
+
+    public void cleanUp(){
+        frameSelector.cleanUp();
+    }
 }

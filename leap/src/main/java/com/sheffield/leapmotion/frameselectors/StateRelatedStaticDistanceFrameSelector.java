@@ -213,4 +213,9 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
     public long lastTick(){
         return lastUpdate;
     }
+
+    @Override
+    public void cleanUp() {
+
+    }
 }

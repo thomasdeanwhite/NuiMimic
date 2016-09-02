@@ -14,7 +14,6 @@ import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 import com.sheffield.output.Csv;
-import sun.nio.ch.IOUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -24,9 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -285,6 +281,11 @@ public class App implements ThrowableListener, Tickable {
 
             int counter = 1;
 
+            Properties.FRAME_SELECTION_STRATEGY = Properties
+                    .FRAME_SELECTION_STRATEGY.NONE;
+
+            Properties.CURRENT_RUN = 0;
+
             for (File f : dir.listFiles()) {
                 BufferedImage bi = ImageIO.read(f);
 
@@ -299,6 +300,29 @@ public class App implements ThrowableListener, Tickable {
 
                 csv.add("totalStates", "" + (StateComparator.statesVisited
                         .size()));
+
+                csv.finalize();
+
+                File csvFile = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
+                if (csvFile.getParentFile() != null) {
+                    csvFile.getParentFile().mkdirs();
+                }
+                try {
+                    boolean newFile = !csvFile.getAbsoluteFile().exists();
+                    String contents = "";
+
+                    if (newFile) {
+                        csvFile.createNewFile();
+                        contents += csv.getHeaders() + "\n";
+                    }
+
+                    contents += csv.getValues() + "\n";
+
+                    FileHandler.appendToFile(csvFile, contents);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 counter++;
             }
         } catch (IOException e) {
@@ -364,6 +388,7 @@ public class App implements ThrowableListener, Tickable {
                 break;
             }
 
+            SeededController.getSeededController().cleanUp();
             SeededController.resetSeededController();
         }
 

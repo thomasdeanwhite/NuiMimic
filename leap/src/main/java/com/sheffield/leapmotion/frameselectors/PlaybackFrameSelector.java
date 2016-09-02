@@ -102,4 +102,9 @@ public class PlaybackFrameSelector extends FrameSelector {
 	public long lastTick(){
 		return lastUpdate;
 	}
+
+	@Override
+	public void cleanUp() {
+
+	}
 }

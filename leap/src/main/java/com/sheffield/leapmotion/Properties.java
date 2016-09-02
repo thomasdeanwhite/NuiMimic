@@ -53,6 +53,9 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "currentRun", description = "Can be used for experiments to output the current run", hasArgs = true, category = "Leap Motion Testing")
     public static int CURRENT_RUN = 0;
 
+    @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Testing")
+    public static int GESTURE_CIRCLE_RADIUS = 5;
+
 
     @Parameter(key = "input", description = "semicolon (;) separated list of files for input", hasArgs = true, category = "Leap Motion Testing")
     public static String INPUT_STRING = null;
@@ -79,7 +82,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum FrameSelectionStrategy {
-        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE
+        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE, NONE
     }
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")

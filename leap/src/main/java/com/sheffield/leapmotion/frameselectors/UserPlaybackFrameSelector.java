@@ -64,22 +64,24 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 				Properties.PLAYBACK_FILE = null;
 				fh = new FrameHandler();
 				fh.init();
-				dw = new DisplayWindow();
-				fh.addFrameSwitchListener(new FrameSwitchListener() {
-					@Override
-					public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
-						dw.setFrame(nextFrame);
-					}
-				});
-				dw.setLocation(dw.getWidth(), 0);
+				if (Properties.VISUALISE_DATA) {
+					dw = new DisplayWindow();
+					fh.addFrameSwitchListener(new FrameSwitchListener() {
+						@Override
+						public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
+							dw.setFrame(nextFrame);
+						}
+					});
+					dw.setLocation(dw.getWidth(), 0);
+				}
 				Properties.PLAYBACK_FILE = playback;
 
 
 				ReconstructiveFrameSelector tdps = (ReconstructiveFrameSelector)frameSelector;
 
-				if (tdps.size() != maxFrames){
-					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
-				}
+//				if (tdps.size() != maxFrames){
+//					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
+//				}
 
 
 			}
@@ -259,6 +261,14 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 	public long lastTick(){
 		return lastUpdate;
+	}
+
+	@Override
+	public void cleanUp() {
+		if (dw != null){
+			dw.setVisible(false);
+			dw = null;
+		}
 	}
 
 }

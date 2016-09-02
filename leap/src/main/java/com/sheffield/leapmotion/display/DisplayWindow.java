@@ -11,6 +11,7 @@ import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.mocks.SeededGesture;
 
 import javax.swing.*;
 import java.awt.*;
@@ -292,8 +293,13 @@ public class DisplayWindow extends JFrame {
 					for (Gesture gesture : currentFrame.gestures()){
 						g2d.drawString(gesture.type().toString(),
 								(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (counter * scale));
+						counter++;
+
 						if (gesture.type().equals(Gesture.Type.TYPE_CIRCLE)){
-							CircleGesture cg = new CircleGesture(gesture);
+							CircleGesture cg = SeededGesture.getCircleGesture(gesture);
+
+							g2d.drawString(cg.center() + " r=" + cg.radius(),
+									(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (counter * scale));
 							int x = (3*(getWidth() / 4)) + ((int)((cg.center().getX()-cg.radius())*scaleWindowX)) + scale + 5;
 							int y = getHeight() - ((int)((cg.center().getY()-cg.radius())*scaleWindowY)) + (2 * scale);
 							int rad = (int)cg.radius();

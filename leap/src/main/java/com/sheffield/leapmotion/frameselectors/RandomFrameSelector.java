@@ -159,4 +159,9 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 	public Vector fadeVector(Vector prev, Vector next, float modifier){
 		return prev.plus(next.minus(prev).times(modifier));
 	}
+
+	@Override
+	public void cleanUp() {
+
+	}
 }

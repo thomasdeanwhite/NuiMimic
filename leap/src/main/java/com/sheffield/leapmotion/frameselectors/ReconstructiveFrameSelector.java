@@ -64,6 +64,11 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
             handLabelStack = new ArrayList<String>();
             positionLabelStack = new ArrayList<String>();
             rotationLabelStack = new ArrayList<String>();
+
+            handLabelStack.add(0, null);
+            positionLabelStack.add(0, null);
+            rotationLabelStack.add(0, null);
+
             String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
             hands = new HashMap<String, SeededHand>();
 
@@ -111,6 +116,7 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 
 
             timings.remove(0);
+            timings.add(0, 0L);
             timings.add(0, 0L);
 
             String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
@@ -228,7 +234,7 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 
     private long lastUpdate = 0;
     @Override
-    public void tick(long time) {
+    public synchronized void tick(long time) {
         lastUpdate = time;
         if (lastSwitchTime == 0){
             lastSwitchTime = time;
@@ -264,5 +270,10 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 
     public long lastTick(){
         return lastUpdate;
+    }
+
+    @Override
+    public void cleanUp() {
+
     }
 }

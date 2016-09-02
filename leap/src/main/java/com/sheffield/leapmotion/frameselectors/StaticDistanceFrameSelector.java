@@ -123,4 +123,9 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
     public long lastTick(){
         return lastUpdate;
     }
+
+    @Override
+    public void cleanUp() {
+
+    }
 }

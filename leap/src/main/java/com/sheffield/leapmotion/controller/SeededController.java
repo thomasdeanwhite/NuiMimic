@@ -341,4 +341,13 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	private void notSupported(){
 		throw new IllegalStateException("Feature not supported!");
 	}
+
+	public void cleanUp(){
+		frameHandler.cleanUp();
+
+//		if (App.DISPLAY_WINDOW != null){
+//			App.DISPLAY_WINDOW.setVisible(false);
+//			App.DISPLAY_WINDOW = null;
+//		}
+	}
 }

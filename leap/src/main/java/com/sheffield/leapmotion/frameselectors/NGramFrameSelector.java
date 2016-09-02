@@ -372,4 +372,9 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 	public long lastTick(){
 		return lastUpdate;
 	}
+
+	@Override
+	public void cleanUp() {
+
+	}
 }

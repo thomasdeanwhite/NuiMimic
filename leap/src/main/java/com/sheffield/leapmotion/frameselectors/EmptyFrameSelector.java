@@ -33,4 +33,9 @@ public class EmptyFrameSelector extends FrameSelector implements FrameModifier {
 	public long lastTick(){
 		return lastUpdate;
 	}
+
+	@Override
+	public void cleanUp() {
+
+	}
 }
