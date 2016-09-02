@@ -54,9 +54,9 @@ public class Properties extends InstrumentationProperties {
     public static int CURRENT_RUN = 0;
 
 
-    @Parameter(key = "gestureFiles", description = "semicolon (;) separated list of gesture files to use for frame generation", hasArgs = true, category = "Leap Motion Testing")
-    public static String GESTURE_FILES_STRING = null;
-    public static String[] GESTURE_FILES = {}; //derived from GESTURE_FILE_STRING
+    @Parameter(key = "input", description = "semicolon (;) separated list of files for input", hasArgs = true, category = "Leap Motion Testing")
+    public static String INPUT_STRING = null;
+    public static String[] INPUT = {}; //derived from GESTURE_FILE_STRING
 
     @Parameter(key = "visualiseData", description = "Displays the currently seeded data in a separate window.", hasArgs = false, category = "Leap Motion Testing")
     public static boolean VISUALISE_DATA = false;
@@ -147,7 +147,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE, RECONSTRUCT
+        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
@@ -224,8 +224,8 @@ public class Properties extends InstrumentationProperties {
                     //App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
                 }
             }
-            if (Properties.GESTURE_FILES_STRING != null) {
-                Properties.GESTURE_FILES = Properties.GESTURE_FILES_STRING.split(";");
+            if (Properties.INPUT_STRING != null) {
+                Properties.INPUT = Properties.INPUT_STRING.split(";");
             }
             if (BEZIER_POINTS <= 1) {
                 SWITCH_TIME = 1;
@@ -241,8 +241,8 @@ public class Properties extends InstrumentationProperties {
 
             if (CLUSTER_IDENTIFIER >= 0) {
                 CLUSTER_IDENTIFIER = CLUSTER_IDENTIFIER * 5;
-                for (int i = 0; i < GESTURE_FILES.length; i++) {
-                    GESTURE_FILES[i] = GESTURE_FILES[i] + "-" + CLUSTER_IDENTIFIER;
+                for (int i = 0; i < INPUT.length; i++) {
+                    INPUT[i] = INPUT[i] + "-" + CLUSTER_IDENTIFIER;
                 }
             }
 

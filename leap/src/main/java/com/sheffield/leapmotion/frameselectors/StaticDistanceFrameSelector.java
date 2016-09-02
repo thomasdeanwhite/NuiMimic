@@ -39,7 +39,7 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
     }
 
 	public StaticDistanceFrameSelector() {
-		String[] gestures = Properties.GESTURE_FILES;
+		String[] gestures = Properties.INPUT;
 
         if (gestures.length > 1){
             changeGestures = true;
@@ -105,7 +105,7 @@ public class StaticDistanceFrameSelector extends FrameSelector implements FrameM
         lastUpdate = time;
 
         if (time - lastGestureChange > GESTURE_CHANGE_TIME){
-            String[] gestures = Properties.GESTURE_FILES;
+            String[] gestures = Properties.INPUT;
             currentGesture = gestures[r.nextInt(gestures.length)];
             if (frameModifiers.get(currentGesture).lastTick() < time) {
                 frameModifiers.get(currentGesture).tick(time);

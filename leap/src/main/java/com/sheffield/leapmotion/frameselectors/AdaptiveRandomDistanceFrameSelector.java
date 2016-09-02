@@ -47,7 +47,7 @@ public class AdaptiveRandomDistanceFrameSelector extends FrameSelector implement
     private float nextZ = 0;
 
 	public AdaptiveRandomDistanceFrameSelector() {
-		String[] gestures = Properties.GESTURE_FILES;
+		String[] gestures = Properties.INPUT;
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
 
@@ -77,7 +77,7 @@ public class AdaptiveRandomDistanceFrameSelector extends FrameSelector implement
             lastPositionChange = time;
         }
         if (time - lastGestureChange > GESTURE_CHANGE_TIME){
-            String[] gestures = Properties.GESTURE_FILES;
+            String[] gestures = Properties.INPUT;
             currentGesture = gestures[r.nextInt(gestures.length)];
             lastGestureChange = System.currentTimeMillis();
         }

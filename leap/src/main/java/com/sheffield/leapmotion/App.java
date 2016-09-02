@@ -14,6 +14,7 @@ import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 import com.sheffield.output.Csv;
+import sun.nio.ch.IOUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -23,6 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -262,15 +266,51 @@ public class App implements ThrowableListener, Tickable {
                App.getApp().setup();
                reconstruct();
                break;
+           case STATE_RECOGNITION:
+               //INPUT should contain an array of histograms.
+               recogniseStates();
+               break;
            default:
                App.out.println("Unimplemented RUNTIME");
                break;
        }
     }
 
+    public static void recogniseStates(){
+        try {
+            //INPUT should be a directory contaning screenshots
+            String directory = Properties.INPUT[0];
+
+            File dir = new File(directory);
+
+            int counter = 1;
+
+            for (File f : dir.listFiles()) {
+                BufferedImage bi = ImageIO.read(f);
+
+                StateComparator.captureState(bi);
+
+                Csv csv = new Csv();
+
+                csv.add("imageId", "" + counter);
+
+                csv.add("stateAssignment", "" + StateComparator.getCurrentState
+                        ());
+
+                csv.add("totalStates", "" + (StateComparator.statesVisited
+                        .size()));
+                counter++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
     public static void reconstruct(){
 
-        while(Properties.GESTURE_FILES.length > 0) {
+        while(Properties.INPUT.length > 0) {
 
             SeededController sc = SeededController.getSeededController();
 
@@ -298,9 +338,12 @@ public class App implements ThrowableListener, Tickable {
 
             //Properties.OUTPUT_INCLUDES_ARRAY.add("gestureFiles");
 
-            csv.add("gestureFile", Properties.GESTURE_FILES[0]);
+            csv.add("input", Properties.INPUT[0]);
 
-            csv.merge(Properties.instance().toCsv());
+//            csv.merge(Properties.instance().toCsv());
+
+            csv.add("frameSelectionStrategy", Properties
+                    .FRAME_SELECTION_STRATEGY.toString());
 
             MockSystemMillis.RUNTIME = (int) (time - startTime);
 
@@ -309,13 +352,13 @@ public class App implements ThrowableListener, Tickable {
             csv.finalize();
             App.getApp().output(csv);
 
-            String[] gFiles = Properties.GESTURE_FILES;
+            String[] gFiles = Properties.INPUT;
 
             if (gFiles.length > 1){
-                Properties.GESTURE_FILES = new String[gFiles.length - 1];
+                Properties.INPUT = new String[gFiles.length - 1];
 
                 for (int i = 1; i < gFiles.length; i++){
-                    Properties.GESTURE_FILES[i-1] = gFiles[i];
+                    Properties.INPUT[i-1] = gFiles[i];
                 }
             } else {
                 break;
@@ -328,7 +371,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public static void visualise(){
-        TrainingDataVisualiser tdv = new TrainingDataVisualiser(Properties.GESTURE_FILES[0]);
+        TrainingDataVisualiser tdv = new TrainingDataVisualiser(Properties.INPUT[0]);
     }
 
     public static void instrument (){
@@ -534,7 +577,7 @@ public class App implements ThrowableListener, Tickable {
             File outFldr = new File(Properties.TESTING_OUTPUT + "result_states");
             outFldr.mkdirs();
 
-            File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.GESTURE_FILES[0] + "-" + Properties.RUNTIME + "ms.png");
+            File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
             try {
                 ImageIO.write(bi, "png", output);
             } catch (IOException e) {
@@ -569,7 +612,7 @@ public class App implements ThrowableListener, Tickable {
             }
 
             String gestureFiles = "";
-            for (String s : Properties.GESTURE_FILES) {
+            for (String s : Properties.INPUT) {
                 gestureFiles += s + ";";
             }
 
@@ -588,7 +631,7 @@ public class App implements ThrowableListener, Tickable {
             csv.merge(testingValues);
             csv.merge(propertyValues);
 
-            csv.add("statesStarting", "" + (states - StateComparator.statesFound));
+            csv.add("statesStarting", "" + (StateComparator.statesVisited.size() - StateComparator.statesFound));
             csv.add("statesFound", "" + StateComparator.statesFound);
             csv.add("statesVisited", "" + StateComparator.getStatesVisited().size());
             csv.add("currentState", "" + StateComparator.getCurrentState());

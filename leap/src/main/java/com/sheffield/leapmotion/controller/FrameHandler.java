@@ -74,17 +74,17 @@ public class FrameHandler implements Tickable {
                     frameSelector = new EmptyFrameSelector();
                     break;
                 case VQ:
-                    frameSelector = new RandomTemplateFrameSelector(Properties.GESTURE_FILES[0]);
+                    frameSelector = new RandomTemplateFrameSelector(Properties.INPUT[0]);
                     break;
                 case STATE_DEPENDENT:
                     frameSelector = new StateRelatedStaticDistanceFrameSelector();
                     break;
                 case REPRODUCTION:
-                    frameSelector = new ReconstructiveFrameSelector(Properties.GESTURE_FILES[0]);
+                    frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);
                     break;
                 case REGRESSION:
                     ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
-                    String[] files = {Properties.GESTURE_FILES[1], Properties.GESTURE_FILES[2], Properties.GESTURE_FILES[3], Properties.GESTURE_FILES[4]};
+                    String[] files = {Properties.INPUT[1], Properties.INPUT[2], Properties.INPUT[3], Properties.INPUT[4]};
                     for (int i = 0; i < files.length; i++){
                         logs[i] = new ArrayList<NGramLog>();
                         String[] data = FileHandler.readFile(new File(files[i])).split("\n");
@@ -99,7 +99,7 @@ public class FrameHandler implements Tickable {
 
                         }
                     }
-                    frameSelector = new ClusterPlaybackFrameSelector(Properties.GESTURE_FILES[0], logs);
+                    frameSelector = new ClusterPlaybackFrameSelector(Properties.INPUT[0], logs);
                     break;
                 case RANDOM_SINGLE_TOGGLE:
                     frameSelector = new SingleModelGuidedRandomFrameSelector();

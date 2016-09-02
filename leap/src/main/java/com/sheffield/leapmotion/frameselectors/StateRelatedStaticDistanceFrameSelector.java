@@ -48,7 +48,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
     }
 
 	public StateRelatedStaticDistanceFrameSelector() {
-		String[] gestures = Properties.GESTURE_FILES;
+		String[] gestures = Properties.INPUT;
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
@@ -181,7 +181,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
 	public Frame newFrame() {
         long time = System.currentTimeMillis();
         if (changeGestures && time - lastGestureChange > GESTURE_CHANGE_TIME){
-            String[] gestures = Properties.GESTURE_FILES;
+            String[] gestures = Properties.INPUT;
             currentGesture = gestures[r.nextInt(gestures.length)];
             lastGestureChange = System.currentTimeMillis();
         }

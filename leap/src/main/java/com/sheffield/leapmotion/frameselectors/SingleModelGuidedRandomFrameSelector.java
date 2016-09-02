@@ -47,7 +47,7 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
     }
 
 	public SingleModelGuidedRandomFrameSelector() {
-		String[] gestures = Properties.GESTURE_FILES;
+		String[] gestures = Properties.INPUT;
 
         randomFrameSelector = new RandomTemplateFrameSelector(gestures[0]);
         randomGestureHandler = new RandomGestureHandler();
@@ -97,7 +97,7 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
         if (useModel) {
             long time = System.currentTimeMillis();
             if (time - lastGestureChange > GESTURE_CHANGE_TIME) {
-                String[] gestures = Properties.GESTURE_FILES;
+                String[] gestures = Properties.INPUT;
                 currentGesture = gestures[r.nextInt(gestures.length)];
                 lastGestureChange = System.currentTimeMillis();
                 useModel = false;
