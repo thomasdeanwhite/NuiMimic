@@ -269,40 +269,60 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public static void reconstruct(){
-        SeededController sc = SeededController.getSeededController();
 
-        Properties.FRAME_SELECTION_STRATEGY = Properties
-                .FrameSelectionStrategy.REPRODUCTION;
+        while(Properties.GESTURE_FILES.length > 0) {
 
-        Properties.CURRENT_RUN = 0;
+            SeededController sc = SeededController.getSeededController();
 
-        long startTime = System.currentTimeMillis();
-        long time = startTime;
-        long endTime = time + Properties.RUNTIME;
-        while ((time = System.currentTimeMillis()) < endTime){
-            sc.tick(time);
-            sc.frame();
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            Properties.FRAME_SELECTION_STRATEGY = Properties
+                    .FrameSelectionStrategy.REPRODUCTION;
+
+            Properties.CURRENT_RUN = 0;
+
+            long startTime = System.currentTimeMillis();
+            long time = startTime;
+            long endTime = time + Properties.RUNTIME;
+            while ((time = System.currentTimeMillis()) < endTime) {
+                sc.tick(time);
+                sc.frame();
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+
+            Csv csv = new Csv();
+
+            csv.add("rootMeanSquared", "" + sc.status().split("rms: ")[1]);
+
+            //Properties.OUTPUT_INCLUDES_ARRAY.add("gestureFiles");
+
+            csv.add("gestureFile", Properties.GESTURE_FILES[0]);
+
+            csv.merge(Properties.instance().toCsv());
+
+            MockSystemMillis.RUNTIME = (int) (time - startTime);
+
+            csv.add("runtime", "" + MockSystemMillis.RUNTIME);
+
+            csv.finalize();
+            App.getApp().output(csv);
+
+            String[] gFiles = Properties.GESTURE_FILES;
+
+            if (gFiles.length > 1){
+                Properties.GESTURE_FILES = new String[gFiles.length - 1];
+
+                for (int i = 1; i < gFiles.length; i++){
+                    Properties.GESTURE_FILES[i-1] = gFiles[i];
+                }
+            } else {
+                break;
+            }
+
+            SeededController.resetSeededController();
         }
-
-        Csv csv = new Csv();
-
-        csv.add("rootMeanSquared", "" + sc.status().split("rms: ")[1]);
-
-        Properties.OUTPUT_INCLUDES_ARRAY.add("gestureFiles");
-
-        csv.merge(Properties.instance().toCsv());
-
-        MockSystemMillis.RUNTIME = (int)(time - startTime);
-
-        csv.add("runtime", "" + MockSystemMillis.RUNTIME);
-
-        csv.finalize();
-        App.getApp().output(csv);
 
         System.exit(0);
     }

@@ -42,6 +42,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		}
 	};
 
+	public static void resetSeededController(){
+		CONTROLLER = null;
+	}
+
 	public static SeededController getSeededController() {
 		while (initializing){
 			try {
