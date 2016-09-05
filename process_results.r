@@ -72,89 +72,41 @@ load_data <- function(filename){
     dataset <- rbind(dataset, t)
   }
   
-  replicate <- dataset[dataset$switch_time == 1,]
-  
-  types <- (unique(dataset$switch_time[dataset$switch_time != 1]))
-  
+  #replicate <- dataset[dataset$switch_time == 1,]
+  #
+  #types <- (unique(dataset$switch_time[dataset$switch_time != 1]))
+  #
   #for (t in types){
   #  r <- replicate
   #  r$switch_time <- t
   #  dataset <- rbind(r, dataset)
   #}
   
-  dataset <- dataset[!dataset$switch_time == 1,]
+  #dataset <- dataset[!dataset$switch_time == 1,]
   
   dataset['runtime_mins'] = round(dataset['runtime'] / 60000);
   
-  dataset['fs'] = apply(dataset, 1, FUN=function(x){
-    if (x['frame_selector'] == 'RANDOM'){
+  #View(dataset)
+  
+  dataset['fs'] <- apply(dataset, 1, FUN=function(x){
+    if (x['frameSelectionStrategy'] == 'RANDOM'){
       val <- 'RNG'
-    } else if (x['frame_selector'] == 'STATE_DEPENDANT'){
+    } else if (x['frameSelectionStrategy'] == 'STATE_DEPENDANT'){
       val <- 'STATE_DEPENDENT'
     } else {
-      val <- x['frame_selector']
+      val <- x['frameSelectionStrategy']
     }
   })
   
-  dataset['fs-gf'] = paste(dataset$fs, dataset$gestureFiles)
+  #dataset['fs-gf'] = paste(dataset$fs, dataset$gestureFiles)
 
   
-  dataset['bp'] = dataset['bezier_points']
+  #dataset['bp'] = dataset['bezierPoints']
   
-  dataset['states'] = dataset['states_found'] + dataset['states_discovered'];
+  #dataset['states'] = dataset['statesFound'] + dataset['statesVisited'];
   
-  dataset['fs_weight'] = apply(dataset, 1, FUN=function(x){
-    val <- paste(x['fs'], "-", x['state_irrelevance'], sep="")
-  })
   
-  dataset['person'] = apply(dataset, 1, FUN=function(x){
-    if (x['gesture_files'] == 'tom-gorogoa;'){
-      val <- 'P1'
-    } else if (x['gesture_files'] == 'walsh-gorogoa;'){
-      val <- 'P2'
-    } else if (x['gesture_files'] == 'white-walsh-gorogoa;'){
-      val <- 'Both'
-    } else {
-      val <- 'Random'
-    }
-  })
-  
-  dataset['person_method'] = apply(dataset, 1, FUN=function(x){
-    if (x['person'] == 'Random'){
-      val <- 'Random'
-    } else {
-      val <- paste(x['person'], '[', x['frame_selector'], ']', sep='')
-    }
-  })
-  
-  dataset['cluster_training_identifier'] = apply(dataset, 1, FUN=function(x){
-    if (x['frame_selector'] != 'EMPTY'){
-      val <- paste(x['last_file'], ' ', x['clusters'], 'x', x['ngram'], ' ', sep='')
-    } else {
-      return('Empty')
-      
-    }
-  })
-  
-  dataset <- dataset[complete.cases(dataset),]
-  
-  dataset['td_identifier'] = apply(dataset, 1, FUN=function(x){
-    if (x['frame_selector'] != 'EMPTY'){
-      val <- paste(x['last_file'], x['runtime_mins'], 'mins', ' ', sep='')
-    } else {
-      paste(x['last_file'], ' ', x['runtime_mins'], 'mins', sep='')
-      
-    }
-  });
-  
-  dataset['time_identifier'] = apply(dataset, 1, FUN=function(x){
-    if (x['frame_selector'] != 'EMPTY'){
-      return(x['last_file'])
-    } else {
-      return('Empty')
-      
-    }
-  });
+  #dataset <- dataset[complete.cases(dataset),]
   
   return(dataset)
 }
@@ -213,11 +165,11 @@ var_plot <- function(data, name){
 
   pd <- position_dodge(0.5)
   
-  dataS <- summarySE(data, measurevar="line_coverage", groupvars=c("ngram_smoothing", "gesture_files" ))
+  dataS <- summarySE(data, measurevar="statesVisited", groupvars=c("stateWeight", "fs" ))
   
-  ggplot(dataS, aes(x=ngram_smoothing, y=line_coverage, colour=gesture_files))+
+  ggplot(dataS, aes(x=stateWeight, y=statesVisited, color="fs"))+
     geom_point() +
-    geom_smooth(method = "lm", se= FALSE)
+    geom_line()
   
   ggsave(name, device="pdf")
 }

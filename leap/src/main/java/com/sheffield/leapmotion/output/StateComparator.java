@@ -45,7 +45,7 @@ public class StateComparator {
         return currentState;
     }
 
-    public Integer[] getState(int state) {
+    public static Integer[] getState(int state) {
         return states.get(state);
     }
 
@@ -147,7 +147,7 @@ public class StateComparator {
 
         int stateNumber = states.size();
 
-        if (isSameState(maxDifference, totalValues) || states.size() == 0) {
+        if (!isSameState(maxDifference, totalValues) || states.size() == 0) {
             statesVisited.put(stateNumber, 0);
             states.add(state);
         } else {
@@ -276,8 +276,11 @@ public class StateComparator {
 
         //App.out.println(difference);
 
-        if ((difference > HISTOGRAM_THRESHOLD || states.size() == 0) ||
-                ONLY_WRITE_SCREENSHOT) {
+        int totalStates = states.size();
+
+        currentState = addState(bins);
+
+        if (WRITE_SCREENSHOTS_TO_FILE) {
             BufferedImage compressed = new BufferedImage(width, height,
                     BufferedImage.TYPE_INT_RGB);
             for (int i = 0; i < width; i++) {
@@ -289,25 +292,25 @@ public class StateComparator {
                     compressed.setRGB(i, j, value);
                 }
             }
-
-            if (WRITE_SCREENSHOTS_TO_FILE) {
-                try {
-                    File f = new File(
-                            SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
-                                    "STATE" + stateNumber + ".png");
-                    if (f.getParentFile() != null)
-                        f.getParentFile().mkdirs();
-                    ImageIO.write(compressed, "png", f);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                File f = new File(
+                        SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
+                                "STATE" + stateNumber + "-" + statesVisited.get(currentState) + ".png");
+                if (f.getParentFile() != null)
+                    f.getParentFile().mkdirs();
+                ImageIO.write(compressed, "png", f);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
             compressed.flush();
 
             compressed = null;
-            currentState = states.size();
-            addState(bins);
+        }
+
+        //new state found?
+        if (currentState == totalStates) {
+
             statesVisited.put(currentState, 1);
             statesActuallyVisited.add(currentState);
             statesFound++;
@@ -317,10 +320,8 @@ public class StateComparator {
             }
             String output = sb.toString();
             return output.substring(0, output.length() - 1);
-        } else if (difference <= HISTOGRAM_THRESHOLD) {
-            if (currentState != closestState) {
-                currentState = closestState;
-            }
+        } else {
+            currentState = closestState;
             statesVisited
                     .put(currentState, statesVisited.get(currentState) + 1);
             if (!statesActuallyVisited.contains(currentState)) {
