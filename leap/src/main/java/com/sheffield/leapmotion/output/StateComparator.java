@@ -22,23 +22,19 @@ public class StateComparator {
 
     private static ArrayList<Integer[]> states;
 
-    private static final boolean ONLY_WRITE_SCREENSHOT = false;
-
     private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
 
-    private static int currentState = -1;
+    private static int currentState;
 
-    public static String SCREENSHOT_DIRECTORY = Properties.TESTING_OUTPUT + "screenshots";
+    public static String SCREENSHOT_DIRECTORY;
 
-    public static HashMap<Integer, Integer> statesVisited =
-            new HashMap<Integer, Integer>();
+    public static HashMap<Integer, Integer> statesVisited;
 
 
-    private static ArrayList<Integer> statesActuallyVisited =
-            new ArrayList<Integer>();
+    private static ArrayList<Integer> statesActuallyVisited;
 
     static {
-        states = new ArrayList<Integer[]>();
+        cleanUp();
     }
 
     public static int getCurrentState() {
@@ -47,6 +43,21 @@ public class StateComparator {
 
     public static Integer[] getState(int state) {
         return states.get(state);
+    }
+
+    public static ArrayList<Integer[]> getStates(){
+        return states;
+    }
+
+    public static void cleanUp(){
+        statesFound = 0;
+        states = new ArrayList<Integer[]>();
+        currentState = -1;
+        SCREENSHOT_DIRECTORY = Properties.TESTING_OUTPUT + "screenshots";
+        statesVisited =
+                new HashMap<Integer, Integer>();
+        statesActuallyVisited =
+                new ArrayList<Integer>();
     }
 
     /**

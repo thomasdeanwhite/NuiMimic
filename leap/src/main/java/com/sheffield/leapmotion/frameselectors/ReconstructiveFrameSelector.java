@@ -174,6 +174,9 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 
     @Override
     public void modifyFrame(SeededFrame frame) {
+        if (handLabelStack.size() == 0){
+            return;
+        }
         Hand h = Hand.invalid();
         for (Hand hand : frame.hands()) {
             h = hand;
@@ -238,6 +241,10 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         lastUpdate = time;
         if (lastSwitchTime == 0){
             lastSwitchTime = time;
+        }
+
+        if (handLabelStack.size() == 0){
+            return;
         }
 
         if (startSeededTime == 0){

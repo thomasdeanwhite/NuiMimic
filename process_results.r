@@ -72,25 +72,11 @@ load_data <- function(filename){
     dataset <- rbind(dataset, t)
   }
   
-  #replicate <- dataset[dataset$switch_time == 1,]
-  #
-  #types <- (unique(dataset$switch_time[dataset$switch_time != 1]))
-  #
-  #for (t in types){
-  #  r <- replicate
-  #  r$switch_time <- t
-  #  dataset <- rbind(r, dataset)
-  #}
-  
-  #dataset <- dataset[!dataset$switch_time == 1,]
-  
   dataset['runtime_mins'] = round(dataset['runtime'] / 60000);
-  
-  #View(dataset)
   
   dataset['fs'] <- apply(dataset, 1, FUN=function(x){
     if (x['frameSelectionStrategy'] == 'RANDOM'){
-      val <- 'RNG'
+      val <- 'RANDOM'
     } else if (x['frameSelectionStrategy'] == 'STATE_DEPENDANT'){
       val <- 'STATE_DEPENDENT'
     } else {
@@ -98,15 +84,7 @@ load_data <- function(filename){
     }
   })
   
-  #dataset['fs-gf'] = paste(dataset$fs, dataset$gestureFiles)
-
-  
-  #dataset['bp'] = dataset['bezierPoints']
-  
-  #dataset['states'] = dataset['statesFound'] + dataset['statesVisited'];
-  
-  
-  #dataset <- dataset[complete.cases(dataset),]
+  dataset[dataset$fs == 'REPRODUCTION' | dataset$fs == 'USER_PLAYBACK',]$runtime_mins <- dataset[dataset$fs == 'REPRODUCTION' | dataset$fs == 'USER_PLAYBACK',]$runtime_mins + 1
   
   return(dataset)
 }
@@ -165,11 +143,11 @@ var_plot <- function(data, name){
 
   pd <- position_dodge(0.5)
   
-  dataS <- summarySE(data, measurevar="statesVisited", groupvars=c("stateWeight", "fs" ))
+  dataS <- summarySE(data, measurevar="statesVisited", groupvars=c("lineCoverage" ))
   
-  ggplot(dataS, aes(x=stateWeight, y=statesVisited, color="fs"))+
+  ggplot(data, aes(x=statesVisited, y=lineCoverage))+
     geom_point() +
-    geom_line()
+    #geom_line()
   
   ggsave(name, device="pdf")
 }
@@ -211,27 +189,74 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
 }
 
 bplot <- function(data, name, title){
-  pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
-  par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=1)
+  #pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
+  #par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=1)
   #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
-  mi <- round(min(data$related_line_coverage)-0.001, digits=3)
-  ma <- round(max(data$related_line_coverage)+0.001, digits=3)
   
-  data$v = data$fs#paste(data$fs, data$switch_time, sep="")
+  data$v = data$fs
+  data$g = data$fs
+  data$y = data$branchCoverage
   
-  data <- data[order(data$v, data$bp),]
+  mi <- round(min(data$y)-0.001, digits=3)
+  ma <- round(max(data$y)+0.001, digits=3)
   
-  boxplot(formula=related_line_coverage~v, 
-          data=data, 
-          xlab = 'Training Pool', ylab='Related Line Coverage', main=title, ylim=c(mi, ma))
-  dev.off()
+  data <- data[order(data$v),]
+  
+  
+  pd <- position_dodge(0.5)
+  
+  ggplot(data, aes(x=v, y=y, colour=g))+
+    #geom_errorbar(aes(ymin=y-ci, ymax=y+ci), width=.1, position=pd) +
+    geom_boxplot() +
+    xlab("Frame Selection Strategy") +
+    ylab("Branch Coverage")
+  
+  name <- paste(name, ".pdf", sep="")
+  
+  ggsave(name, device="pdf")
+  
+  
+  #boxplot(formula=y~v, 
+  #        data=data, 
+  #        xlab = 'Generation Strategy', ylab='Line Coverage', main=title, ylim=c(mi, ma))
+  #dev.off()
+}
+
+bplot_states <- function(data, name, title){
+  #pdf(paste(name, ".pdf", sep=''), height=8.27, width=11.69)
+  #par(mar = c(10, 5, 5, 4) + 0.1, cex.axis=1)
+  #boxplot(related_line_coverage~person_method, data=data, main=title, ylab="Line Coverage", las=2, outline=FALSE)
+  
+  data$v = data$fs
+  data$g = data$fs
+  data$y = data$statesVisited
+  
+  mi <- round(min(data$y)-0.001, digits=3)
+  ma <- round(max(data$y)+0.001, digits=3)
+  
+  data <- data[order(data$v),]
+  
+  
+  pd <- position_dodge(0.5)
+  
+  ggplot(data, aes(x=v, y=y, colour=g))+
+    #geom_errorbar(aes(ymin=y-ci, ymax=y+ci), width=.1, position=pd) +
+    geom_boxplot() +
+    xlab("Frame Selection Strategy") +
+    ylab("States Seen")
+  
+  name <- paste(name, ".pdf", sep="")
+  
+  ggsave(name, device="pdf")
 }
 
 bplot_filter <- function(data, name, title, filter){
   
-  data <- data[data$frame_selector %in% filter,]
+  data <- data[data$fs %in% filter,]
   
-  bplot(data, name, title)
+  bplot(data, paste(name, "-coverage", sep=""), title)
+  
+  bplot_states(data, paste(name, "-states", sep=""), title)
 }
 
 vplot <- function(data, name, title){
@@ -261,12 +286,34 @@ vplot <- function(data, name, title){
     theme(axis.text.y=element_blank(), axis.title.y = element_blank()) +
     labs(y = "Line Coverage")
   
+  p
+  
   ggsave(paste(name, '.pdf', sep=''), device="pdf")
 }
 
-pplot_filter <- function(data, name, title, filter){
+make <- function(){
+  folders <- list.files(path="", pattern="*/", full.names=T, recursive=FALSE)
+  texTable <- "\\begin{figure}\n
+  \\begin{table}\n
+  \\begin{tabulerx}{0.4\textwidth}{l|rr|rr|rr|rr|rr}\n
+  Application & \\multicolumn{2}{c}{Playback} & \\multicolumn{2}{c}{Random} & \\multicolumn{2}{c}{VQ} & \\multicolumn{2}{c}{Single Model} & \\multicolumn{2}{c}{State Dependent} \\\n
+  \\hline\n"
   
-  data <- data[data$fs %in% filter,]
+  data10 <- load_data(folders[1])[FALSE,]
   
-  pplot(data, name, title)
+  for (i in 1:length(folders)){
+    folder <- folders[i]
+    data <- load_data(folder)
+    d10 <- data[data$runtime_mins == 10,]
+    
+    
+    
+    data10 <- rbind(d10)
+    #manual <- 
+  }
+  
+  bplot_filter(data10, 'rq1', 'Line Coverage for different Frame Selection Strategies', c('USER_PLAYBACK', 'REPRODUCTION', 'RANDOM', 'VQ'))
+  bplot_filter(data10, 'rq2', 'Line Coverage for different Frame Selection Strategies', c('SINGLE_MODEL', 'VQ'))
+  bplot_filter(data10, 'rq3', 'Line Coverage for different Frame Selection Strategies', c('SINGLE_MODEL', 'STATE_DEPENDENT'))
+  
 }
