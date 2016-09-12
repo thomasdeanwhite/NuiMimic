@@ -6,6 +6,7 @@ import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
+import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
@@ -181,18 +182,23 @@ public class App implements ThrowableListener, Tickable {
 
     }
 
+    private static boolean SETUP = false;
+
     public static void setTesting() {
-        App.out.println("- Status changed to: Testing.");;
-        App.getApp().setStatus(AppStatus.TESTING);
-        if (getApp() == null) {
+        if (!SETUP) {
+            SETUP = true;
+            App.out.println("- Status changed to: Testing.");
             background(null);
+            App.getApp().setStatus(AppStatus.TESTING);
+
+
         }
     }
 
     public static void startTesting() {
         App.out.println("- Testing Entry Point Triggered.");
-        App.getApp().setStatus(AppStatus.TESTING);
-        background(null);
+        App.getApp().setTesting();
+        //background(null);
     }
 
     public void setup(boolean initialiseForTesting) {
@@ -435,11 +441,16 @@ public class App implements ThrowableListener, Tickable {
             String output = dir + "branches.csv";
             String output2 = dir + "lines.csv";
             App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");
-            ClassAnalyzer.output(output, output2);
+            ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
 
 
-            ArrayList<ClassNode> nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
+            ArrayList<ClassNode> nodes;
+            if (Properties.SLICE_ROOT == null){
+                nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
+            } else {
+                nodes = DependencyTree.getDependencyTree().getDependencies(Properties.SLICE_ROOT);
+            }
             HashSet<String> lines = new HashSet<String>();
             ArrayList<String> relatedClasses = new ArrayList<String>();
             for (ClassNode cn : nodes) {
@@ -451,7 +462,7 @@ public class App implements ThrowableListener, Tickable {
 
                 for (String s : classes) {
                     if (s.length() > 0) {
-                        if (!s.contains("com.leapmotion.leap") && !relatedClasses.contains(s)) {
+                        if (!ClassReplacementTransformer.isForbiddenPackage(s) && !relatedClasses.contains(s)) {
                             relatedClasses.add(s);
                             App.out.println(s);
                         }
@@ -459,11 +470,11 @@ public class App implements ThrowableListener, Tickable {
                 }
             }
 
-            ArrayList<ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
-
-            for (ClassNode cn : options) {
-                App.out.println("OPTIONS: " + cn.toNomnoml());
-            }
+//            ArrayList<ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
+//
+//            for (ClassNode cn : options) {
+//                App.out.println("OPTIONS: " + cn.toNomnoml());
+//            }
 
 
             for (String s : lines) {
@@ -644,6 +655,13 @@ public class App implements ThrowableListener, Tickable {
                 linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
             }
 
+            StringBuilder branchesHit = new StringBuilder();
+            List<BranchHit> branchesCovered = ClassAnalyzer.getBranchesExecuted();
+            for (BranchHit lh : branchesCovered) {
+                String className = lh.getBranch().getClassName();
+                branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
+            }
+
             String gestureFiles = "";
             for (String s : Properties.INPUT) {
                 gestureFiles += s + ";";
@@ -709,6 +727,16 @@ public class App implements ThrowableListener, Tickable {
             }
 
             FileHandler.appendToFile(classes, linesHit.toString() + "\n");
+
+            File branches = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered.csv");
+            if (branches.getParentFile() != null) {
+                branches.getParentFile().mkdirs();
+            }
+            if (!branches.exists()) {
+                branches.createNewFile();
+            }
+
+            FileHandler.appendToFile(branches, branchesHit.toString() + "\n");
         } catch (IOException e) {
             e.printStackTrace(App.out);
         }

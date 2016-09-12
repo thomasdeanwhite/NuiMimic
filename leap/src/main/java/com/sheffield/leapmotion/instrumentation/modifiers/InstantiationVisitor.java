@@ -135,16 +135,13 @@ public class InstantiationVisitor extends MethodVisitor {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             super.visitInsn(Opcodes.POP);
             methodVisitor.visitLdcInsn(className);
-            App.out.println(className + " is calling Random!");
             super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_RANDOM_CLASS, name, Type.getMethodDescriptor(RANDOM_CONSTRUCTOR_METHOD_TO_CALL), itf);
         } else if (owner.equalsIgnoreCase(MATH_CLASS) && name.equals("random")){
             shouldCall = false;
             methodVisitor.visitLdcInsn(className);
-            App.out.println(className + " is calling Random!");
             super.visitMethodInsn(opcode, MOCK_RANDOM_CLASS, name, Type.getMethodDescriptor(RANDOM_METHOD_TO_CALL), itf);
         } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("currentTimeMillis")){
             shouldCall = false;
-            App.out.println(className + " is calling currentTimeMillis!");
             super.visitMethodInsn(opcode, MOCK_SYSTEM_MILLIES, name, desc, itf);
         }
 

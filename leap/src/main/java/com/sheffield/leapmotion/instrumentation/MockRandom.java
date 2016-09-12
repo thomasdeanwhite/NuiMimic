@@ -8,7 +8,7 @@ import java.util.Random;
 /**
  * Created by thomas on 30/08/2016.
  */
-public class MockRandom {
+public class MockRandom extends Random {
 
     private static HashMap<String, Random> randoms;
 

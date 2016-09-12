@@ -25,6 +25,9 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	private static boolean initializing = false;
 
 	public String status(){
+		if (frameHandler == null){
+			return "Manual Testing";
+		}
 		return frameHandler.status();
 	}
 
@@ -97,9 +100,6 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	private void setup(){
 		listeners = new ArrayList<Listener>();
-		frameHandler = new FrameHandler();
-		frameHandler.init();
-		frameHandler.addFrameSwitchListener(this);
 		CONTROLLER = this;
 
 		if (Properties.LEAVE_LEAPMOTION_ALONE){
@@ -115,13 +115,17 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			enableGesture(Gesture.Type.TYPE_KEY_TAP);
 
 			App.out.println("- Only recording testing information!");
+		} else {
+			frameHandler = new FrameHandler();
+			frameHandler.init();
+			frameHandler.addFrameSwitchListener(this);
 		}
 
 		setPolicyFlags(Controller.PolicyFlag.POLICY_BACKGROUND_FRAMES);
 		if (App.getApp() == null){
 			App.startTesting();
 		}
-		App.out.println("\r- Controller Initialized.");
+		//App.out.println("\r- Controller Initialized.");
 		// addListener(com.sheffield.leapmotion_sampler.App.getApp());
 	}
 

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by thomas on 19/04/2016.
@@ -115,8 +116,8 @@ public class AllResultProcessor {
 
                 int relatedLineIndex = 0;
 
-                for (int i = 0; i < header.length; i++){
-                    if (header[i].toLowerCase().contains("related_line_coverage")){
+                for (int i = 0; i < header.length; i++) {
+                    if (header[i].toLowerCase().contains("lineCoverage")) {
                         relatedLineIndex = i;
                         break;
                     }
@@ -135,13 +136,13 @@ public class AllResultProcessor {
                     method = "UNKNOWN";
                 }
 
-                for (int i = resultsLines.length-1; i > 0; i--){
-                    if (resultsLines[i].trim().length() == 0){
+                for (int i = resultsLines.length - 1; i > 0; i--) {
+                    if (resultsLines[i].trim().length() == 0) {
                         continue;
                     } else {
                         String[] currentRow = resultsLines[i].split(",");
                         float coverage = Float.parseFloat(currentRow[relatedLineIndex]);
-                        if (!methodAverageCoverage.containsKey(method)){
+                        if (!methodAverageCoverage.containsKey(method)) {
                             methodAverageCoverage.put(method, coverage);
                         } else {
                             methodAverageCoverage.put(method, methodAverageCoverage.get(method) + coverage);
@@ -150,7 +151,7 @@ public class AllResultProcessor {
                     }
                 }
 
-                if (!methodQuantity.containsKey(method)){
+                if (!methodQuantity.containsKey(method)) {
                     methodQuantity.put(method, 1);
                 } else {
                     methodQuantity.put(method, methodQuantity.get(method) + 1);
@@ -218,9 +219,9 @@ public class AllResultProcessor {
 
                 for (String c : classes) {
                     String cName = c;
-                    if (cName.length() > 50) {
-                        cName = cName.substring(c.length() - 50, c.length());
-                    }
+//                    if (cName.length() > 50) {
+//                        cName = cName.substring(c.length() - 50, c.length());
+//                    }
                     if (cName.startsWith("/")) {
                         cName = cName.substring(1);
                     }
@@ -277,10 +278,10 @@ public class AllResultProcessor {
 
             float avg = 0f;
 
-            for (String s : seenMethods){
-                float quant = (float)methodQuantity.get(s);
+            for (String s : seenMethods) {
+                float quant = (float) methodQuantity.get(s);
                 float coverage = methodAverageCoverage.get(s);
-                methodAverageCoverage.put(s, coverage/quant);
+                methodAverageCoverage.put(s, coverage / quant);
             }
 
             for (Float f : methodAverageCoverage.values()) {
@@ -291,204 +292,232 @@ public class AllResultProcessor {
 
 
             for (String m : seenMethods) {
-                input += "<span style='float:left; width:calc(" + Math.round(headerWidth*methodAverageCoverage.get(m)*mult) + "% - 10px); font-weight: bold; color:#ffffff; background-color: " + colors[counter++ % colors.length] + "; overflow:hidden;padding:5px;'>" +
-                        m + " (" + (Math.round(methodAverageCoverage.get(m)*1000f)/10f) + "%)</span>";
+                input += "<span style='float:left; width:calc(" + Math.round(headerWidth * methodAverageCoverage.get(m) * mult) + "% - 10px); font-weight: bold; color:#ffffff; background-color: " + colors[counter++ % colors.length] + "; overflow:hidden;padding:5px;'>" +
+                        m + " (" + (Math.round(methodAverageCoverage.get(m) * 1000f) / 10f) + "%)</span>";
             }
 
             input += "</div></div>";
 
             String outDir = System.currentTimeMillis() + "";
-            for (String s : classCoverage.keySet()) {
-                String className = shortenedClasses.get(s);
-                System.out.print("\rProcessing " + className);
-                File classIn = new File(args[2] + "/results/classes/" + className + ".java");
-                File classout = new File(args[2] + "/results/" + outDir + "/" + className + ".html");
+            Set<String> classCov = classCoverage.keySet();
 
-                int slashes = className.split("/").length;
+            HashMap<String, ArrayList<String>> packages = new HashMap<String, ArrayList<String>>();
 
-                String backLink = "index.html";
-
-                for (; slashes > 1; slashes--) {
-                    backLink = "../" + backLink;
+            for (String s : classCov) {
+                int lastSlash = s.lastIndexOf("/");
+                String pack = s.substring(0, lastSlash);
+                String classN = s.substring(lastSlash + 1);
+                if (!packages.containsKey(pack)) {
+                    packages.put(pack, new ArrayList<String>());
                 }
 
-                String classOut = "<html><head><style>" +
-                        "div { margin: 0px 3px; padding: 0px 3px; font-size:10px; } " +
-                        "body { font-family: Arial; }" +
-                        "</style></head><body>" +
-                        "<h1 style='width:100%; font-weight: bold; text-align: center;'>" + className + "</h3>" +
-                        "<a href='" + backLink + "'><h1 style='width:100%; font-weight: bold; text-align: center;'>&lt; Back</h3></a>" +
-                        "<div style='margin-left: auto; margin-right: auto; border: 1px solid #000; border-radius: 10px; padding: 30px;'>";
+                packages.get(pack).add(classN);
+            }
 
-                if (classIn.exists()) {
-                    //-4 for JD-GUI lines
-                    String classContent = FileHandler.readFile(classIn);
+            ArrayList<String> packs = new ArrayList<String>();
 
-                    String[] classLines = classContent.split("\n");
+            for (String pack : packages.keySet()) {
+                packs.add(pack);
+            }
 
-                    int startImports = 0;
+            Collections.sort(packs);
 
-                    int currentLine = 0;
-                    for (int i = 0; i < classLines.length - 4; i++) {
-                        String line = classLines[i];
+            for (String pack : packs){
+                input += "<div><h3>" + pack + "</h3></div>";
+                Collections.sort(packages.get(pack));
+                for (String cn : packages.get(pack)){
+                    String s = pack + "/" + cn;
+                        String className = shortenedClasses.get(s);
+                        System.out.print("\rProcessing " + className);
+                        File classIn = new File(args[2] + "/results/classes/" + className + ".java");
+                        File classout = new File(args[2] + "/results/" + outDir + "/" + className + ".html");
 
-                        line = line.replace("<", "&lt;").replace(">", "&gt;");
+                        int slashes = className.split("/").length;
 
-//                        String tempLine = "";
-//                        while (line.length() > 80){
-//                            tempLine += line.substring(0, 80) + "<br />";
-//                            line = line.substring(80, line.length());
-//                        }
-//                        line = tempLine;
+                        String backLink = "index.html";
 
-                        if (line.contains("import ") && startImports == 0) {
-                            startImports = i;
+                        for (; slashes > 1; slashes--) {
+                            backLink = "../" + backLink;
                         }
-                        if (line.contains("import ")) {
-                            continue;
-                        }
-                        if (startImports != 0) {
-                            classOut += "<div style='clear: both'>";
-                            String newline = "<div style='background-color: inherit; font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" +
-                                    startImports + "-" + (i - 1) + "</div><span style='margin-left: 5px'>&nbsp;</span>import *;";
-                            startImports = 0;
-                            classOut += newline;
-                            classOut += "</div>";
-                        }
-                        classOut += "<div style='clear: both'>";
 
+                        String classOut = "<html><head><style>" +
+                                "div { margin: 0px 3px; padding: 0px 3px; font-size:10px; } " +
+                                "body { font-family: Arial; }" +
+                                "</style></head><body>" +
+                                "<h1 style='width:100%; font-weight: bold; text-align: center;'>" + className + "</h3>" +
+                                "<a href='" + backLink + "'><h1 style='width:100%; font-weight: bold; text-align: center;'>&lt; Back</h3></a>" +
+                                "<div style='margin-left: auto; margin-right: auto; border: 1px solid #000; border-radius: 10px; padding: 30px;'>";
 
-                        boolean covered = true;
-                        if (line.trim().length() > 0) {
+                        if (classIn.exists()) {
+                            //-4 for JD-GUI lines
+                            String classContent = FileHandler.readFile(classIn);
 
-                            int lineIndex = line.indexOf("/*");
+                            String[] classLines = classContent.split("\n");
 
-                            int endIndex = line.indexOf("*/");
+                            int startImports = 0;
 
-                            if (lineIndex >= 0 && endIndex > 0) {
-                                String lineNumString = line.substring(lineIndex + 2, endIndex).trim();
-                                endIndex += 2;
-                                int whiteSpace = endIndex + 1;
-                                do {
-                                    if (whiteSpace >= line.length()) {
-                                        break;
-                                    }
-                                    whiteSpace++;
+                            int currentLine = 0;
+                            for (int i = 0; i < classLines.length - 4; i++) {
+                                String line = classLines[i];
+
+                                line = line.replace("<", "&lt;").replace(">", "&gt;");
+
+    //                        String tempLine = "";
+    //                        while (line.length() > 80){
+    //                            tempLine += line.substring(0, 80) + "<br />";
+    //                            line = line.substring(80, line.length());
+    //                        }
+    //                        line = tempLine;
+
+                                if (line.contains("import ") && startImports == 0) {
+                                    startImports = i;
                                 }
-                                while (line.substring(endIndex, whiteSpace).trim().length() == 0);
-
-                                if (whiteSpace >= line.length()) {
-                                    classOut += "</div>";
+                                if (line.contains("import ")) {
                                     continue;
                                 }
+                                if (startImports != 0) {
+                                    classOut += "<div style='clear: both'>";
+                                    String newline = "<div style='background-color: inherit; font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" +
+                                            startImports + "-" + (i - 1) + "</div><span style='margin-left: 5px'>&nbsp;</span>import *;";
+                                    startImports = 0;
+                                    classOut += newline;
+                                    classOut += "</div>";
+                                }
+                                classOut += "<div style='clear: both'>";
 
-                                line = line.substring(0, endIndex) + line.substring(endIndex, whiteSpace).replace(" ", "<span style='margin-left: 5px'>&nbsp;</span>") +
-                                        line.substring(whiteSpace, line.length());
-                                line = line.substring(0, endIndex) + line.substring(endIndex, whiteSpace).replace("\t", "<span style'margin-left: 10px'>&nbsp;</span>") +
-                                        line.substring(whiteSpace, line.length());
 
-                                line = line.replace("/*", "<div style='background-color: inherit; font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>").replace("*/", "</div>");
+                                boolean covered = true;
+                                if (line.trim().length() > 0) {
 
-                                if (lineNumString.length() > 0) {
-                                    int lineNumber = Integer.parseInt(lineNumString);
-                                    covered = false;
-                                    if (overallLinesCovered.containsKey(className) && overallLinesCovered.get(className).contains(lineNumber)) {
-                                        line = "<span style='background-color: #00FF00;'>" + line + "</span>";
-                                    } else {
-                                        line = "<span style='background-color: #FF0000;'>" + line + "</span>";
-                                    }
+                                    int lineIndex = line.indexOf("/*");
 
-                                    for (int m = 0; m < seenMethods.size(); m++) {
-                                        String method = seenMethods.get(m);
-                                        if (methodLinesCovered.get(method).containsKey(className) && methodLinesCovered.get(method).get(className).containsKey(lineNumber)) {
-                                            int timesCovered = methodLinesCovered.get(method).get(className).get(lineNumber);
-                                            float percentCovered = Math.round(1000*timesCovered / (float)methodQuantity.get(method))/10f;
-                                            line += "<span style='float: right; color: #ffffff; background-color: " + colors[m % colors.length] + ";'>" + method +
-                                                    " (" + percentCovered + "%)" + "</span>";
+                                    int endIndex = line.indexOf("*/");
+
+                                    if (lineIndex >= 0 && endIndex > 0) {
+                                        String lineNumString = line.substring(lineIndex + 2, endIndex).trim();
+                                        endIndex += 2;
+                                        int whiteSpace = endIndex + 1;
+                                        do {
+                                            if (whiteSpace >= line.length()) {
+                                                break;
+                                            }
+                                            whiteSpace++;
                                         }
+                                        while (line.substring(endIndex, whiteSpace).trim().length() == 0);
+
+                                        if (whiteSpace >= line.length()) {
+                                            classOut += "</div>";
+                                            continue;
+                                        }
+
+                                        line = line.substring(0, endIndex) + line.substring(endIndex, whiteSpace).replace(" ", "<span style='margin-left: 5px'>&nbsp;</span>") +
+                                                line.substring(whiteSpace, line.length());
+                                        line = line.substring(0, endIndex) + line.substring(endIndex, whiteSpace).replace("\t", "<span style'margin-left: 10px'>&nbsp;</span>") +
+                                                line.substring(whiteSpace, line.length());
+
+                                        line = line.replace("/*", "<div style='background-color: inherit; font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>").replace("*/", "</div>");
+
+                                        if (lineNumString.length() > 0) {
+                                            int lineNumber = Integer.parseInt(lineNumString);
+                                            covered = false;
+                                            if (overallLinesCovered.containsKey(className) && overallLinesCovered.get(className).contains(lineNumber)) {
+                                                line = "<span style='background-color: #00FF00;'>" + line + "</span>";
+                                            } else {
+                                                line = "<span style='background-color: #FF0000;'>" + line + "</span>";
+                                            }
+
+                                            for (int m = 0; m < seenMethods.size(); m++) {
+                                                String method = seenMethods.get(m);
+                                                if (methodLinesCovered.get(method).containsKey(className) && methodLinesCovered.get(method).get(className).containsKey(lineNumber)) {
+                                                    int timesCovered = methodLinesCovered.get(method).get(className).get(lineNumber);
+                                                    float percentCovered = Math.round(1000 * timesCovered / (float) methodQuantity.get(method)) / 10f;
+                                                    line += "<span style='float: right; color: #ffffff; background-color: " + colors[m % colors.length] + ";'>" + method +
+                                                            " (" + percentCovered + "%)" + "</span>";
+                                                }
+                                            }
+
+                                        } else {
+                                            line = "<div style='font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" + (i + 1) + "</div>" + line;
+                                        }
+                                    } else {
+                                        line = "<div style='font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" + (i + 1) + "</div>" + line;
                                     }
+
 
                                 } else {
                                     line = "<div style='font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" + (i + 1) + "</div>" + line;
                                 }
-                            } else {
-                                line = "<div style='font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" + (i + 1) + "</div>" + line;
+
+                                if (covered) {
+                                    line = "<span style='background-color: #FFFF00;'>" + line + "</span>";
+                                }
+
+                                currentLine++;
+                                classOut += line;
+                                classOut += "</div>";
+
                             }
-
-
                         } else {
-                            line = "<div style='font-align:center; width: 30px; text-align:right; border-right: 1px solid #000; float:left;'>" + (i + 1) + "</div>" + line;
+                            classOut += "Cannot find class file " + className;
+
                         }
 
-                        if (covered) {
-                            line = "<span style='background-color: #FFFF00;'>" + line + "</span>";
+                        classOut += "</div></body></html>";
+
+                        if (classout.getParentFile() != null && !classout.getParentFile().exists()) {
+                            classout.getParentFile().mkdirs();
                         }
 
-                        currentLine++;
-                        classOut += line;
-                        classOut += "</div>";
+                        if (!classout.exists()) {
+                            classout.createNewFile();
+                        }
 
+                        FileHandler.writeToFile(classout, classOut);
+
+                        input += "<div style='width:100%;float:left'>" +
+                                "<div style='width:30%;text-align:right;float:left; padding: 5px;'><a href='" + className + ".html'>" +
+                                cn + "</a></div><div style='width:67%;text-align:left;float:right;'>";
+
+                        ArrayList<Float> averages = new ArrayList<Float>();
+                        ArrayList<String> methods = new ArrayList<String>();
+
+                        for (String m : seenMethods) {
+                            if (classCoverage.get(s).containsKey(m)) {
+                                float average = 0;
+                                counter = 0;
+                                for (Float f : classCoverage.get(s).get(m)) {
+                                    average += f;
+                                    counter++;
+                                }
+                                if (counter == 0) {
+                                    counter = 1;
+                                }
+                                average /= counter;
+                                averages.add(average);
+                                methods.add(m);
+                            }
+                        }
+
+                        float total = 0;
+
+                        for (Float f : averages) {
+                            total += f;
+                        }
+
+                        float modifier = 1f / total;
+                        final float WIDTH = 95f;
+
+                        for (int i = 0; i < methods.size(); i++) {
+                            float average = averages.get(i);
+                            float percent = average * modifier;
+                            int width = Math.round(WIDTH * percent);
+                            input += "<span style='float:left; width:calc(" + width + "% - 10px); color:#ffffff; background-color: " + colors[i % colors.length] + "; overflow:hidden; padding: 5px;'>" +
+                                    (Math.round(average * 1000) / 10f) + "%</span>";
+                        }
+
+                        input += "</div></div>";
                     }
-                } else {
-                    classOut += "Cannot find class file " + className;
-
                 }
-
-                classOut += "</div></body></html>";
-
-                if (classout.getParentFile() != null && !classout.getParentFile().exists()) {
-                    classout.getParentFile().mkdirs();
-                }
-
-                if (!classout.exists()) {
-                    classout.createNewFile();
-                }
-
-                FileHandler.writeToFile(classout, classOut);
-
-                input += "<div style='width:100%;float:left'>" +
-                        "<div style='width:30%;text-align:right;float:left; padding: 5px;'><a href='" + className + ".html'>" +
-                        s + "</a></div><div style='width:67%;text-align:left;float:right;'>";
-
-                ArrayList<Float> averages = new ArrayList<Float>();
-                ArrayList<String> methods = new ArrayList<String>();
-
-                for (String m : seenMethods) {
-                    if (classCoverage.get(s).containsKey(m)) {
-                        float average = 0;
-                        counter = 0;
-                        for (Float f : classCoverage.get(s).get(m)) {
-                            average += f;
-                            counter++;
-                        }
-                        if (counter == 0) {
-                            counter = 1;
-                        }
-                        average /= counter;
-                        averages.add(average);
-                        methods.add(m);
-                    }
-                }
-
-                float total = 0;
-
-                for (Float f : averages) {
-                    total += f;
-                }
-
-                float modifier = 1f / total;
-                final float WIDTH = 95f;
-
-                for (int i = 0; i < methods.size(); i++) {
-                    float average = averages.get(i);
-                    float percent = average * modifier;
-                    int width = Math.round(WIDTH * percent);
-                    input += "<span style='float:left; width:calc(" + width + "% - 10px); color:#ffffff; background-color: " + colors[i % colors.length] + "; overflow:hidden; padding: 5px;'>" +
-                            (Math.round(average * 1000) / 10f) + "%</span>";
-                }
-
-                input += "</div></div>";
-            }
             input += "</div></body></html>";
 
             File output = new File(args[2] + "/results/" + outDir + "/index.html");

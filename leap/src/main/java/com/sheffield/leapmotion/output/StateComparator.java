@@ -325,12 +325,7 @@ public class StateComparator {
             statesVisited.put(currentState, 1);
             statesActuallyVisited.add(currentState);
             statesFound++;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < bins.length; i++) {
-                sb.append(bins[i] + ",");
-            }
-            String output = sb.toString();
-            return output.substring(0, output.length() - 1);
+
         } else {
             currentState = closestState;
             statesVisited
@@ -339,7 +334,14 @@ public class StateComparator {
                 statesActuallyVisited.add(currentState);
             }
         }
-        return null;
+
+        bins = states.get(currentState);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bins.length; i++) {
+            sb.append(bins[i] + ",");
+        }
+        String output = sb.toString();
+        return output.substring(0, output.length() - 1);
     }
 
     public static ArrayList<Integer> getStatesVisited() {

@@ -104,6 +104,9 @@ public class FrameHandler implements Tickable {
                 case RANDOM_SINGLE_TOGGLE:
                     frameSelector = new SingleModelGuidedRandomFrameSelector();
                     break;
+                case MANUAL:
+                    frameSelector = null;
+                    return;
                 default:
                     frameSelector = new RandomFrameSelector();
                     break;

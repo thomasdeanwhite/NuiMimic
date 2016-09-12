@@ -26,8 +26,9 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 
     @Override
     public String next() {
-        if (sequence.size() == 0) {
-            String start = (String) map.keySet().toArray()[0];
+        while (sequence.size() == 0) {
+            Object[] candidates = map.keySet().toArray();
+            String start = (String)candidates[random.nextInt(candidates.length)];
             String[] ss = start.split(" ");
             for (String s : ss) {
                 sequence.add(s);

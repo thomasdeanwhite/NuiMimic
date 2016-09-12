@@ -40,7 +40,7 @@ public class AnalyzerApp {
 	}
 
 	public AnalyzerApp(String file) {
-		App.out.println("* Loading Sequence Data from " + file);
+		//App.out.println("* Loading Sequence Data from " + file);
 		try {
 			contents = FileHandler.readFile(new File(file));
 
@@ -56,7 +56,7 @@ public class AnalyzerApp {
 				// System.out.print("\r" + conts);
 			}
 
-			App.out.println("\t*! Sequence Loading Done (" + file + ")");
+			//App.out.println("\t*! Sequence Loading Done (" + file + ")");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

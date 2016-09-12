@@ -128,7 +128,7 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 
 				if (!exists) {
 					seqs.add(new SequenceSimilarity(seq, freq, d[0]));
-					if (!ngramCandidates.contains(seq) && !seq.equals("NULL")){
+					if (!ngramCandidates.contains(seq) && !seq.equals("NULL") && seq.trim().length() > 0){
 						ngramCandidates.add(seq);
 					}
 				}

@@ -56,6 +56,11 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Testing")
     public static int GESTURE_CIRCLE_RADIUS = 5;
 
+    @Parameter(key = "untrackedPackages", description = "Packages to not be tracked when outputting lines and branches (comma separated)", hasArgs = true, category = "Instrumentation")
+    public static String UNTRACKED_PACKAGES = null;
+
+    @Parameter(key = "sliceRoot", description = "Root for static slice through system", hasArgs = true, category = "Instrumentation")
+    public static String SLICE_ROOT = null;
 
     @Parameter(key = "input", description = "semicolon (;) separated list of files for input", hasArgs = true, category = "Leap Motion Testing")
     public static String INPUT_STRING = null;
@@ -82,7 +87,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum FrameSelectionStrategy {
-        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE, NONE
+        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE, NONE, MANUAL
     }
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
@@ -104,7 +109,7 @@ public class Properties extends InstrumentationProperties {
     public static int HISTOGRAM_BINS = 50;
 
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
-    public static float HISTOGRAM_THRESHOLD = 0.01f;
+    public static float HISTOGRAM_THRESHOLD = 0.004f;
 
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
