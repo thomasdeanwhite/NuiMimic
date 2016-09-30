@@ -1,7 +1,12 @@
 package sampler;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Listener;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
@@ -129,6 +134,9 @@ public class SamplerApp extends Listener {
     private boolean framesProcessing = false;
 
     public synchronized void frame(Frame f) {
+
+        Properties.HISTOGRAM_THRESHOLD = 0;
+        Properties.HISTOGRAM_BINS = 256;
         if (framesProcessing) {
             return;
         }

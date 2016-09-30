@@ -179,7 +179,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 		Frame f = frameStack.get(0);
 
-		while (currentTimePassed > seededTimePassed){// && lineIterator.hasNext()){
+		if (currentTimePassed > seededTimePassed){// && lineIterator.hasNext()){
 //			f = Serializer.sequenceFromJson(lineIterator.nextLine());
 //
 //			frameStack.add(f);

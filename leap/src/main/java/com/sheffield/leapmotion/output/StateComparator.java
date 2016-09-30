@@ -110,22 +110,26 @@ public class StateComparator {
         return differences;
     }
 
+    private static Integer[] shrink(Integer[] state){
+        Integer[] newState = new Integer[HISTOGRAM_BINS];
+
+        for (int i = 0; i < newState.length; i++) {
+            newState[i] = 0;
+        }
+
+        float mod = (float) (HISTOGRAM_BINS) / (float) state.length;
+
+        for (int i = 0; i < state.length; i++) {
+            int index = (int) (i * mod);
+            newState[index] += state[i];
+        }
+
+        return newState;
+    }
+
     public static int addState(Integer[] state) {
         if (HISTOGRAM_BINS < state.length) {
-            Integer[] newState = new Integer[HISTOGRAM_BINS];
-
-            for (int i = 0; i < newState.length; i++) {
-                newState[i] = 0;
-            }
-
-            float mod = (float) (HISTOGRAM_BINS) / (float) state.length;
-
-            for (int i = 0; i < state.length; i++) {
-                int index = (int) (i * mod);
-                newState[index] += state[i];
-            }
-
-            state = newState;
+            state = shrink(state);
         }
         int closestState = -1;
 
@@ -141,7 +145,7 @@ public class StateComparator {
                 int result = ss[j];
                 int s = state[j];
                 differences += Math.abs(result - s);
-                totalValues += ss[j];
+                //totalValues += ss[j];
             }
 
             ///App.out.println(i + ":" + ((float)differences/(float)
@@ -175,6 +179,9 @@ public class StateComparator {
         return blackAndWhite;
     }
 
+
+    private static int SCREENSHOTS_WROTE = 0;
+
     /**
      * Captures the current screen and returns it as a JSON Integer Array
      *
@@ -186,10 +193,30 @@ public class StateComparator {
             Robot robot = new Robot();
             screenShot = robot.createScreenCapture(
                     new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+
         } catch (AWTException e) {
             e.printStackTrace();
         }
-        return captureState(screenShot);
+        String state = captureState(screenShot);
+
+        try {
+            File f = new File(
+                    SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
+                            "raw/SCREEN" + (SCREENSHOTS_WROTE++) + ".png");
+            if (f.getParentFile() != null)
+                f.getParentFile().mkdirs();
+            ImageIO.write(screenShot, "png", f);
+
+            screenShot.flush();
+
+            screenShot = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+        return state;
     }
 
     public static String captureState(BufferedImage newState) {
@@ -212,9 +239,9 @@ public class StateComparator {
 
         g.dispose();
 
-        newState.flush();
-
-        newState = null;
+//        newState.flush();
+//
+//        newState = null;
 
         //
         int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
@@ -244,14 +271,14 @@ public class StateComparator {
         }
 
 
-        Integer[] bins = new Integer[HISTOGRAM_BINS];
+        Integer[] bins = new Integer[256];
         for (int i = 0; i < bins.length; i++) {
             bins[i] = 0;
         }
 
         float mod = ((float) (HISTOGRAM_BINS - 1) / 255f);
         for (int i = 0; i < dImage.length; i++) {
-            bins[(int) (dImage[i] * mod)]++;
+            bins[(int)dImage[i]]++;
         }
 
         int closestState = -1;

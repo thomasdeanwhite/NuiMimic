@@ -199,6 +199,89 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 	public void tick(long time) {
 		lastUpdate = time;
 
+		fillLists();
+
+
+		if (currentAnimationTime >= Properties.SWITCH_TIME) {
+			// load next frame
+			currentAnimationTime = 0;
+			lastHand = seededHands.get(seededHands.size() - 1);
+			lastLabel = seededLabels.get(seededLabels.size() - 1);
+			String handValue = "";
+
+			for (int i = 0; i < seededLabels.size(); i++){
+				handValue += seededLabels.get(i) + ",";
+			}
+
+			seededHands.clear();
+			seededLabels.clear();
+
+			NGramLog ngLog = new NGramLog();
+			ngLog.element = handValue;
+			ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+			logs.add(ngLog);
+			if (outputFile != null){
+				try {
+					FileHandler.appendToFile(outputFile, ngLog.toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(App.out);
+				}
+			}
+
+			NGramLog posLog = new NGramLog();
+			posLog.element = "";
+
+			for (String s : positionLabels){
+				posLog.element += s + ",";
+			}
+
+			posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+
+			NGramLog rotLog = new NGramLog();
+			rotLog.element = "";
+
+			for (String s : rotationLabels){
+				rotLog.element += s + ",";
+			}
+
+			rotLog.timeSeeded = posLog.timeSeeded;
+			if (outputPosFile != null){
+				try {
+					FileHandler.appendToFile(outputPosFile, posLog.toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(App.out);
+				}
+			}
+
+			if (outputRotFile != null){
+				try {
+					FileHandler.appendToFile(outputRotFile, rotLog.toString());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace(App.out);
+				}
+			}
+
+			lastPosition = seededPositions.get(seededPositions.size()-1);
+			lastPositionLabel = positionLabels.get(positionLabels.size()-1);
+			lastRotation = seededRotations.get(seededRotations.size()-1);
+			lastRotationLabel = rotationLabels.get(rotationLabels.size()-1);
+
+			seededPositions.clear();
+			seededRotations.clear();
+			positionLabels.clear();
+			rotationLabels.clear();
+			fillLists();
+			lastSwitchTime = System.currentTimeMillis();
+		} else {
+			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
+		}
+
+	}
+
+	public void fillLists(){
 		while (lastHand == null){
 			lastLabel = analyzer.getDataAnalyzer().next();
 			lastHand = hands.get(lastLabel);
@@ -287,87 +370,6 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 				rotationLabels.add(0, lastRotationLabel);
 			}
 		}
-
-
-		if (currentAnimationTime >= Properties.SWITCH_TIME) {
-			// load next frame
-			currentAnimationTime = 0;
-			lastHand = seededHands.get(seededHands.size() - 1);
-			lastLabel = seededLabels.get(seededLabels.size() - 1);
-			String handValue = "";
-
-			for (int i = 0; i < seededLabels.size(); i++){
-				handValue += seededLabels.get(i) + ",";
-			}
-
-			seededHands.clear();
-			seededLabels.clear();
-
-			NGramLog ngLog = new NGramLog();
-			ngLog.element = handValue;
-			ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
-			logs.add(ngLog);
-			if (outputFile != null){
-				try {
-					FileHandler.appendToFile(outputFile, ngLog.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(App.out);
-				}
-			}
-
-			NGramLog posLog = new NGramLog();
-			posLog.element = "";
-			currentAnimationTime = 0;
-
-			for (String s : positionLabels){
-				posLog.element += s + ",";
-			}
-
-			posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
-
-			NGramLog rotLog = new NGramLog();
-			rotLog.element = "";
-
-			for (String s : rotationLabels){
-				rotLog.element += s + ",";
-			}
-
-			rotLog.timeSeeded = posLog.timeSeeded;
-			if (outputPosFile != null){
-				try {
-					FileHandler.appendToFile(outputPosFile, posLog.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(App.out);
-				}
-			}
-
-			if (outputRotFile != null){
-				try {
-					FileHandler.appendToFile(outputRotFile, rotLog.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(App.out);
-				}
-			}
-
-			lastSwitchTime = System.currentTimeMillis();
-
-			lastPosition = seededPositions.get(seededPositions.size()-1);
-			lastPositionLabel = positionLabels.get(positionLabels.size()-1);
-			lastRotation = seededRotations.get(seededRotations.size()-1);
-			lastRotationLabel = rotationLabels.get(rotationLabels.size()-1);
-
-			seededPositions.clear();
-			seededRotations.clear();
-			positionLabels.clear();
-			rotationLabels.clear();
-			tick(time);
-		} else {
-			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
-		}
-
 	}
 
 	public long lastTick(){

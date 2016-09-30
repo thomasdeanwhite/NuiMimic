@@ -69,7 +69,7 @@ public class TrainingDataVisualiser extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        filename = "processed/" + filename;
+        filename = filename;
 
         try {
             tpgh = new ReconstructiveGestureHandler(filename);

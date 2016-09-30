@@ -252,18 +252,20 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         }
 
         seededTime = time - startSeededTime;
-        while (currentHand == null || currentPosition == null || currentRotation == null || seededTime > timings.get(0)){
-            if (handLabelStack.size() > 0) {
-                currentHand = handLabelStack.remove(0);
-                currentPosition = positionLabelStack.remove(0);
-                currentRotation = rotationLabelStack.remove(0);
-                tpgh.changeGesture();
-                if (timings.size() > 1) {
-                    animationTime = (int) (timings.get(1) - timings.remove(0));
-                } else {
-                    animationTime = 30;
+        if (seededTime > timings.get(0)) {
+            while (currentHand == null || currentPosition == null || currentRotation == null) {
+                if (handLabelStack.size() > 0) {
+                    currentHand = handLabelStack.remove(0);
+                    currentPosition = positionLabelStack.remove(0);
+                    currentRotation = rotationLabelStack.remove(0);
+                    tpgh.changeGesture();
+                    if (timings.size() > 1) {
+                        animationTime = (int) (timings.get(1) - timings.remove(0));
+                    } else {
+                        animationTime = 30;
+                    }
+                    lastSwitchTime = time;
                 }
-                lastSwitchTime = time;
             }
         }
 

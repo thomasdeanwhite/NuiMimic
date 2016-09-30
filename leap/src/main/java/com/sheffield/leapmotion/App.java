@@ -14,9 +14,12 @@ import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
+import com.sheffield.leapmotion.runtypes.ImageStateIdentifier;
+import com.sheffield.leapmotion.runtypes.StateShowingFrame;
 import com.sheffield.output.Csv;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -26,9 +29,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.Set;
 
 public class App implements ThrowableListener, Tickable {
     public static Random random = new Random();
@@ -65,6 +73,9 @@ public class App implements ThrowableListener, Tickable {
     public static PrintStream out = new PrintStream(originalOut) {
         @Override
         public void println(String s) {
+            if (s == null){
+                return;
+            }
             String[] strs = s.split("\n");
             for (int i = 1; i < strs.length; i++) {
                 println(strs[i]);
@@ -281,6 +292,10 @@ public class App implements ThrowableListener, Tickable {
                //INPUT should contain an array of histograms.
                recogniseStates();
                break;
+           case MANUAL_STATE_RECOGNITION:
+               //INPUT should contain an array of histograms.
+               manualRecogniseStates();
+               break;
            default:
                App.out.println("Unimplemented RUNTIME");
                break;
@@ -288,6 +303,52 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public static void recogniseStates(){
+        ImageStateIdentifier isi = new ImageStateIdentifier() {
+            @Override
+            public int identifyImage(BufferedImage bi,
+                                     HashMap<Integer, BufferedImage> seenStates) {
+                StateComparator.captureState(bi);
+
+                return StateComparator.getCurrentState();
+            }
+
+            @Override
+            public String getOutputFilename() {
+                return "automatic_recognition.csv";
+            }
+        };
+
+
+        //for (int i = 8; i < 256; i+=8) {
+            //StateComparator.cleanUp();
+            //Properties.HISTOGRAM_BINS = i;
+            processStates(isi);
+        //}
+
+
+        System.exit(0);
+
+    }
+
+    public static void manualRecogniseStates() {
+
+        final Scanner sc = new Scanner(System.in);
+
+        ImageStateIdentifier isi = new ImageStateIdentifier() {
+            @Override
+            public int identifyImage(BufferedImage bi, HashMap<Integer, BufferedImage> seenStates) {
+                return sc.nextInt();
+            }
+
+            @Override
+            public String getOutputFilename() {
+                return "manual_recognition.csv";
+            }
+        };
+        processStates(isi);
+    }
+
+    public static void processStates(ImageStateIdentifier isi){
         try {
             //INPUT should be a directory contaning screenshots
             String directory = Properties.INPUT[0];
@@ -301,24 +362,159 @@ public class App implements ThrowableListener, Tickable {
 
             Properties.CURRENT_RUN = 0;
 
-            for (File f : dir.listFiles()) {
-                BufferedImage bi = ImageIO.read(f);
+            final HashMap<Integer, BufferedImage> seenStates = new HashMap<Integer, BufferedImage>();
 
-                StateComparator.captureState(bi);
+            final int STATES_PER_ROW = 5;
+
+            JFrame imageStates = new JFrame("Seen States"){
+                @Override
+                public void paint(Graphics g) {
+                    //super.paint(g);
+
+                    Graphics2D g2d = (Graphics2D) g;
+
+                    g2d.clearRect(0, 0, getWidth(), getHeight());
+
+                    Set<Integer> keys = seenStates.keySet();
+
+                    Integer[] ks = new Integer[keys.size()];
+
+                    keys.toArray(ks);
+
+                    Arrays.sort(ks);
+
+                    int width = getWidth() / STATES_PER_ROW;
+
+                    int height = (width * 9) / 16;
+
+                    for (int i = 0; i < ks.length; i++){
+                        int x = (i % STATES_PER_ROW) * width;
+
+                        int y = (i / STATES_PER_ROW) * height;
+
+                        if (ks[i] == null){
+                            g2d.setColor(Color.RED);
+                            g2d.fillRect(x, y, width, height);
+                            continue;
+                        }
+
+                        int key = ks[i];
+
+                        g2d.drawImage(seenStates.get(key), x, y, width, height, null);
+
+                        g2d.setColor(Color.red);
+
+                        g2d.drawString("" + key, x + 10, y + height/2);
+
+
+                    }
+
+                }
+            };
+
+            imageStates.setSize(800, 600);
+
+            imageStates.setLocation(960, 0);
+
+            StateShowingFrame image = new StateShowingFrame();
+            image.setSize(960, 540);
+
+            image.setLocation(0, 0);
+
+            image.setVisible(true);
+
+            imageStates.setVisible(true);
+
+
+
+            File[] files = dir.listFiles();
+
+            String[] fs = new String[files.length];
+
+            for (int i = 0; i < files.length; i++){
+                fs[i] = files[i].getAbsolutePath();
+            }
+
+            //Arrays.sort(fs);
+
+            Comparator<String> comp = new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    int n = o1.lastIndexOf("SCREEN") + 6;
+                    int n1 = o2.lastIndexOf("SCREEN") + 6;
+
+                    if (n == n1 && n == 5){
+                        return 0;
+                    }
+
+                    if (n == 5){
+                        return 1;
+                    }
+
+                    if (n1 == 5){
+                        return -1;
+                    }
+
+                    int s = Integer.parseInt(o1.substring(n, o1.length()-4));
+                    int s1 = Integer.parseInt(o2.substring(n, o2.length()-4));
+
+                    return s - s1;
+                }
+            };
+
+            Arrays.sort(fs, comp);
+
+            for (String s : fs) {
+
+                File f = new File(s);
+
+                if (f.isDirectory()){
+                    continue;
+                }
+
+                if (!f.getName().toLowerCase().endsWith(".png")){
+                    continue;
+                }
+
+                BufferedImage orig = ImageIO.read(f);
+
+                BufferedImage bi = new BufferedImage(orig.getWidth(), orig.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+                Graphics2D g2 = bi.createGraphics();
+
+                g2.drawImage(orig, 0, 0, null);
+
+                g2.dispose();
+
+                image.setImage(bi);
+
+                image.paint(image.getGraphics());
+
+                int state = isi.identifyImage(bi, seenStates);
+
+                if (!seenStates.containsKey(state)){
+                    seenStates.put(state, bi);
+
+                    imageStates.paint(imageStates.getGraphics());
+                }
 
                 Csv csv = new Csv();
 
-                csv.add("imageId", "" + counter);
+                csv.add("imageId", f.getName());
 
-                csv.add("stateAssignment", "" + StateComparator.getCurrentState
-                        ());
+                csv.add("stateAssignment", "" + state);
 
-                csv.add("totalStates", "" + (StateComparator.statesVisited
-                        .size()));
+                csv.add("totalStates", "" + seenStates.keySet().size());
+
+                csv.add("counter", "" + counter);
+
+                csv.add("histogramBins", "" + Properties.HISTOGRAM_BINS);
+
+                csv.add("histogramThreshold", "" + Properties.HISTOGRAM_THRESHOLD);
 
                 csv.finalize();
 
-                File csvFile = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
+                File csvFile = new File(f.getParentFile().getAbsolutePath(), Properties.TESTING_OUTPUT + "states/" + isi.getOutputFilename());
                 if (csvFile.getParentFile() != null) {
                     csvFile.getParentFile().mkdirs();
                 }
@@ -340,6 +536,14 @@ public class App implements ThrowableListener, Tickable {
                 }
                 counter++;
             }
+
+            imageStates.setVisible(false);
+
+            imageStates = null;
+
+            image.setVisible(false);
+
+            image = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -492,6 +696,11 @@ public class App implements ThrowableListener, Tickable {
             String classes = "";
 
             for (String c : relatedClasses) {
+
+//                if (c.contains("$")){
+//                    continue;
+//                }
+
                 if (c == null || c.length() == 0) {
                     continue;
                 }
@@ -636,7 +845,13 @@ public class App implements ThrowableListener, Tickable {
             StringBuilder linesHit = new StringBuilder();
             ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
             for (LineHit lh : linesCovered) {
+
                 String className = lh.getLine().getClassName();
+
+                if (className.contains("$")){
+                    className = className.substring(0, className.indexOf("$"));
+                }
+
                 if (classSeen.contains(className)) {
                     className = "" + classSeen.indexOf(className);
                 } else {
@@ -659,6 +874,26 @@ public class App implements ThrowableListener, Tickable {
             List<BranchHit> branchesCovered = ClassAnalyzer.getBranchesExecuted();
             for (BranchHit lh : branchesCovered) {
                 String className = lh.getBranch().getClassName();
+
+//                if (className.contains("$")){
+//                    className = className.substring(0, className.indexOf("$"));
+//                }
+
+                if (classSeen.contains(className)) {
+                    className = "" + classSeen.indexOf(className);
+                } else {
+                    File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                    if (classes.getParentFile() != null) {
+                        classes.getParentFile().mkdirs();
+                    }
+                    if (!classes.exists()) {
+                        classes.createNewFile();
+                    }
+                    classSeen.add(className);
+                    FileHandler.appendToFile(classes, className + ":");
+                    className = "" + classSeen.indexOf(className);
+                    FileHandler.appendToFile(classes, className + "\n");
+                }
                 branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
             }
 
@@ -689,6 +924,7 @@ public class App implements ThrowableListener, Tickable {
 
             int lineHits = 0;
             int branchHits = 0;
+
             if (relatedClasses.size() > 0) {
                 for (ClassTracker ct : relatedClasses) {
                     List<Line> lines = ClassAnalyzer.getCoverableLines(ct.className);
@@ -699,7 +935,11 @@ public class App implements ThrowableListener, Tickable {
                     }
                     List<Branch> branches = ClassAnalyzer.getCoverableBranches(ct.className);
                     for (Branch b : branches) {
-                        if (b.getFalseHits() > 0 && b.getTrueHits() > 0) {
+                        if (b.getFalseHits() > 0) {
+                            branchHits++;
+                        }
+
+                        if (b.getTrueHits() > 0){
                             branchHits++;
                         }
                     }

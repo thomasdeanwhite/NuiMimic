@@ -103,19 +103,23 @@ public class Properties extends InstrumentationProperties {
     public static boolean LAPLACE_SMOOTHING = false;
 
     @Parameter(key = "stateWeight", description = "Increase to make state probabilities weigh more", hasArgs = true, category = "Leap Motion Testing")
-    public static float STATE_WEIGHT = 0.25f;
+    public static float STATE_WEIGHT = 0.03f;
 
     @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
     public static int HISTOGRAM_BINS = 50;
 
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
-    public static float HISTOGRAM_THRESHOLD = 0.004f;
+    public static float HISTOGRAM_THRESHOLD = 0.02f;
 
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
 
     @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
     public static int SCREENSHOT_COMPRESSION = 4;
+
+    @Parameter(key = "classDir", description = "Directory of Source Code", hasArgs = true, category = "Results Processing")
+    public static String classDirectory = "";
+
 
     /*
      * Output formatting properties
@@ -155,7 +159,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION
+        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
@@ -222,7 +226,7 @@ public class Properties extends InstrumentationProperties {
                             int lines = Integer.parseInt(clInfo[1]);
                             App.relatedLines += lines;
                             int brans = Integer.parseInt(clInfo[2]);
-                            App.relatedBranches += brans;
+                            App.relatedBranches += (brans * 2);
                             clas.add(new ClassTracker(clInfo[0], lines, brans));
                         }
                     }
