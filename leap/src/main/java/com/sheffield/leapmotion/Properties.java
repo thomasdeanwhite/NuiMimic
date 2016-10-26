@@ -80,10 +80,13 @@ public class Properties extends InstrumentationProperties {
     public static String CLASS_PATH = "";
 
     @Parameter(key = "replace_fingers_method", description = "Replaces com.leap.leapmotion.FingerList.fingers() method with com.leap.leapmotion.FingerList.extended() [for older API versions]", hasArgs = false, category = "Leap Motion Instrumentation")
-    public static boolean REPLACE_FINGERS_METHOD = true;
+    public static boolean REPLACE_FINGERS_METHOD = false;
 
     @Parameter(key = "leave_leapmotion_alone", description = "Leave the Leap Motion API original", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean LEAVE_LEAPMOTION_ALONE = false;
+
+    @Parameter(key = "invertZAxis", description = "Inverts the direction the hand is facing", hasArgs = false, category = "Leap Motion Testing")
+    public static boolean INVERT_Z_AXIS = false;
 
 
     public enum FrameSelectionStrategy {
@@ -103,7 +106,7 @@ public class Properties extends InstrumentationProperties {
     public static boolean LAPLACE_SMOOTHING = false;
 
     @Parameter(key = "stateWeight", description = "Increase to make state probabilities weigh more", hasArgs = true, category = "Leap Motion Testing")
-    public static float STATE_WEIGHT = 0.03f;
+    public static float STATE_WEIGHT = 0.05f;
 
     @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
     public static int HISTOGRAM_BINS = 50;
@@ -119,6 +122,8 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "classDir", description = "Directory of Source Code", hasArgs = true, category = "Results Processing")
     public static String classDirectory = "";
+
+
 
 
     /*

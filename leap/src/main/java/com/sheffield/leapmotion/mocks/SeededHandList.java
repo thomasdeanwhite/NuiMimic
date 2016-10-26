@@ -1,11 +1,12 @@
 package com.sheffield.leapmotion.mocks;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.HandList;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
 
 public class SeededHandList extends HandList implements Serializable {
 
@@ -17,6 +18,8 @@ public class SeededHandList extends HandList implements Serializable {
 
 	public void addHand(Hand h) {
 		hands.add(h);
+
+		sort();
 	}
 
 	public void clear() {
@@ -28,7 +31,21 @@ public class SeededHandList extends HandList implements Serializable {
 		for (Hand h : arg0) {
 			hands.add(h);
 		}
+		sort();
 		return this;
+	}
+
+	public void sort(){
+		hands.sort(new Comparator<Hand>() {
+			@Override
+			public int compare(Hand o1, Hand o2) {
+				int x = o1.isLeft()? 1 : -1;
+
+				int y = o2.isLeft() ? 1 : -1;
+
+				return x - y;
+			}
+		});
 	}
 
 	@Override

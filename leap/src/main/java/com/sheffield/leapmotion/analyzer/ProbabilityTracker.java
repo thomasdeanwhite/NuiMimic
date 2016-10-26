@@ -36,7 +36,7 @@ public class ProbabilityTracker implements ProbabilityListener {
         HashMap<String, Float> currentState = states.get(currState);
         float total = 0f;
         for (SequenceSimilarity s : sequences){
-            float stateProbability = 1f / (float) totals.get(currState);
+            float stateProbability = 0f;//1f / (float) totals.get(currState);
             if (currentState.containsKey(s.sequence)){
                 stateProbability = currentState.get(s.sequence);
             }
@@ -71,10 +71,14 @@ public class ProbabilityTracker implements ProbabilityListener {
             //in an unseen state
             return output.probability;
         }
+
+        float stateProbability = 0f;
+
         if (currentProbabilities.containsKey(output.sequence)) {
-            return ((1f - Properties.STATE_WEIGHT) * output.probability) +
-                    (Properties.STATE_WEIGHT * currentProbabilities.get(output.sequence));
+            stateProbability = currentProbabilities.get(output.sequence);
         }
-        return UNSEEN_OBJECT_PROBABILITY * (totals.size() - currentProbabilities.size()) / totals.size();
+        return ((1f - Properties.STATE_WEIGHT) * output.probability) +
+                (Properties.STATE_WEIGHT * stateProbability);
+        //return UNSEEN_OBJECT_PROBABILITY * (totals.size() - currentProbabilities.size()) / totals.size();
     }
 }

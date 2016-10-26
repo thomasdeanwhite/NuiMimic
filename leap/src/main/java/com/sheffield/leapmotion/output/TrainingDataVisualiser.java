@@ -40,7 +40,7 @@ public class TrainingDataVisualiser extends JFrame {
     private ArrayList<String> handLabelStack;
     private ArrayList<String> positionLabelStack;
     private ArrayList<String> rotationLabelStack;
-    private ArrayList<Long> timings;
+    //private ArrayList<Long> timings;
 
     private PlotType pt = PlotType.JOINTS;
 
@@ -85,6 +85,7 @@ public class TrainingDataVisualiser extends JFrame {
             currentLabel = 0;
 
             String contents = FileHandler.readFile(new File(clusterFile));
+
             String[] lines = contents.split("\n");
             for (String line : lines) {
                 Frame f = SeededController.newFrame();
@@ -104,29 +105,6 @@ public class TrainingDataVisualiser extends JFrame {
                 if (s.length() > 0)
                     handLabelStack.add(s);
             }
-
-            timings = new ArrayList<Long>();
-
-            String[] tim = sequenceInfo.split("\n")[1].split(",");
-
-            for (String s : tim){
-                if (s.length() > 0)
-                    timings.add(Long.parseLong(s.split("@")[0]));
-            }
-
-            for (int i = timings.size()-1; i > 0; i--){
-                long l = timings.remove(i);
-                if (l > timings.get(i-1)) {
-                    long time = l - timings.get(0);
-                    timings.add(i, time);
-                } else {
-                    throw new IllegalArgumentException("Timings must increase chronologically");
-                }
-            }
-
-
-            timings.remove(0);
-            timings.add(0, 0L);
 
             String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
             contents = FileHandler.readFile(new File(positionFile));

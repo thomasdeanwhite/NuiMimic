@@ -19,9 +19,7 @@ public class TestingClassAdapter extends ClassVisitor {
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
 			String[] exceptions) {
-		// MethodNode mn = new MethodNode(access, name, descriptor, signature,
-		// exceptions);
-		return new InstantiationVisitor(parent.visitMethod(access, name, descriptor, signature, exceptions), className);
+		return new InstantiationVisitor(parent.visitMethod(access, name, descriptor, signature, exceptions), className, name);
 	}
 
 }

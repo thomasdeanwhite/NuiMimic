@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.mocks;
 import com.leapmotion.leap.Bone;
 import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Quaternion;
 
 import java.io.Serializable;
@@ -28,7 +29,7 @@ public class SeededBone extends Bone implements Serializable {
 		nextJoint = Vector.zero();
 		prevJoint = Vector.zero();
 		type = Bone.Type.TYPE_PROXIMAL;
-		width = 1;
+		width = 10;
 	}
 
 	@Override
@@ -46,7 +47,7 @@ public class SeededBone extends Bone implements Serializable {
 	@Override
 	public Vector direction() {
 		// TODO Auto-generated method stub
-		return basis.transformDirection(direction);
+		return direction;//basis.transformDirection(direction);
 	}
 
 	@Override
@@ -68,6 +69,8 @@ public class SeededBone extends Bone implements Serializable {
 		direction = prevJoint().minus(nextJoint()).normalized();
 
 		center = prevJoint().plus(nextJoint()).divide(2f);
+
+		length = nextJoint().minus(prevJoint).magnitude();
 	}
 
 	@Override
@@ -82,10 +85,19 @@ public class SeededBone extends Bone implements Serializable {
 		return length;
 	}
 
+	private static final Quaternion FLIP_IN_Z = new Quaternion(0, 0, 1, 0);
+
 	protected Vector translatePoint (Vector v){
 		//basis.setOrigin(offset.minus(new Vector(0f, 0f, 50f)));
-		return offset.plus(rotatePoint(v));
+		v = offset.plus(rotatePoint(v));
+
+		if (Properties.INVERT_Z_AXIS)
+			v = FLIP_IN_Z.rotateVector(v);
+
+		return v;
 	}
+
+
 
 	protected Vector rotatePoint(Vector v){
 		return rotation.rotateVector(v);

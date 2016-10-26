@@ -1,6 +1,12 @@
 package com.sheffield.leapmotion.mocks;
 
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Matrix;
+import com.leapmotion.leap.Pointable;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Quaternion;
 
 import java.io.Serializable;
@@ -215,7 +221,7 @@ public class SeededFinger extends Finger implements Serializable {
 	@Override
 	public Vector tipPosition() {
 		// TODO Auto-generated method stub
-		return bone(Bone.Type.TYPE_DISTAL).nextJoint().plus(direction.normalized().times(2));
+		return bone(Bone.Type.TYPE_DISTAL).nextJoint();
 	}
 
 	@Override

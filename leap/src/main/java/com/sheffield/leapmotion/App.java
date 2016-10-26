@@ -17,6 +17,7 @@ import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 import com.sheffield.leapmotion.runtypes.ImageStateIdentifier;
 import com.sheffield.leapmotion.runtypes.StateShowingFrame;
 import com.sheffield.output.Csv;
+import com.sheffield.util.ClassNameUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -73,7 +74,7 @@ public class App implements ThrowableListener, Tickable {
     public static PrintStream out = new PrintStream(originalOut) {
         @Override
         public void println(String s) {
-            if (s == null){
+            if (s == null) {
                 return;
             }
             String[] strs = s.split("\n");
@@ -214,7 +215,7 @@ public class App implements ThrowableListener, Tickable {
 
     public void setup(boolean initialiseForTesting) {
         testing = initialiseForTesting;
-        if (testing){
+        if (testing) {
             App.getApp().setTesting();
         }
         if (Properties.VISUALISE_DATA) {
@@ -259,8 +260,8 @@ public class App implements ThrowableListener, Tickable {
         System.setSecurityManager(new NoExitSecurityManager());
         App.out.println("- Setup Complete");
 
-        if (testing){
-           startTesting();
+        if (testing) {
+            startTesting();
         }
     }
 
@@ -277,32 +278,32 @@ public class App implements ThrowableListener, Tickable {
         }
         App.out.println(".");
         Properties.instance().setOptions(args);
-       switch (Properties.RUN_TYPE){
-           case INSTRUMENT:
-               instrument();
-               break;
-           case VISUALISE:
-               visualise();
-               break;
-           case RECONSTRUCT:
-               App.getApp().setup(false);
-               reconstruct();
-               break;
-           case STATE_RECOGNITION:
-               //INPUT should contain an array of histograms.
-               recogniseStates();
-               break;
-           case MANUAL_STATE_RECOGNITION:
-               //INPUT should contain an array of histograms.
-               manualRecogniseStates();
-               break;
-           default:
-               App.out.println("Unimplemented RUNTIME");
-               break;
-       }
+        switch (Properties.RUN_TYPE) {
+            case INSTRUMENT:
+                instrument();
+                break;
+            case VISUALISE:
+                visualise();
+                break;
+            case RECONSTRUCT:
+                App.getApp().setup(false);
+                reconstruct();
+                break;
+            case STATE_RECOGNITION:
+                //INPUT should contain an array of histograms.
+                recogniseStates();
+                break;
+            case MANUAL_STATE_RECOGNITION:
+                //INPUT should contain an array of histograms.
+                manualRecogniseStates();
+                break;
+            default:
+                App.out.println("Unimplemented RUNTIME");
+                break;
+        }
     }
 
-    public static void recogniseStates(){
+    public static void recogniseStates() {
         ImageStateIdentifier isi = new ImageStateIdentifier() {
             @Override
             public int identifyImage(BufferedImage bi,
@@ -320,9 +321,9 @@ public class App implements ThrowableListener, Tickable {
 
 
         //for (int i = 8; i < 256; i+=8) {
-            //StateComparator.cleanUp();
-            //Properties.HISTOGRAM_BINS = i;
-            processStates(isi);
+        //StateComparator.cleanUp();
+        //Properties.HISTOGRAM_BINS = i;
+        processStates(isi);
         //}
 
 
@@ -348,7 +349,7 @@ public class App implements ThrowableListener, Tickable {
         processStates(isi);
     }
 
-    public static void processStates(ImageStateIdentifier isi){
+    public static void processStates(ImageStateIdentifier isi) {
         try {
             //INPUT should be a directory contaning screenshots
             String directory = Properties.INPUT[0];
@@ -366,7 +367,7 @@ public class App implements ThrowableListener, Tickable {
 
             final int STATES_PER_ROW = 5;
 
-            JFrame imageStates = new JFrame("Seen States"){
+            JFrame imageStates = new JFrame("Seen States") {
                 @Override
                 public void paint(Graphics g) {
                     //super.paint(g);
@@ -387,12 +388,12 @@ public class App implements ThrowableListener, Tickable {
 
                     int height = (width * 9) / 16;
 
-                    for (int i = 0; i < ks.length; i++){
+                    for (int i = 0; i < ks.length; i++) {
                         int x = (i % STATES_PER_ROW) * width;
 
                         int y = (i / STATES_PER_ROW) * height;
 
-                        if (ks[i] == null){
+                        if (ks[i] == null) {
                             g2d.setColor(Color.RED);
                             g2d.fillRect(x, y, width, height);
                             continue;
@@ -404,7 +405,7 @@ public class App implements ThrowableListener, Tickable {
 
                         g2d.setColor(Color.red);
 
-                        g2d.drawString("" + key, x + 10, y + height/2);
+                        g2d.drawString("" + key, x + 10, y + height / 2);
 
 
                     }
@@ -426,12 +427,11 @@ public class App implements ThrowableListener, Tickable {
             imageStates.setVisible(true);
 
 
-
             File[] files = dir.listFiles();
 
             String[] fs = new String[files.length];
 
-            for (int i = 0; i < files.length; i++){
+            for (int i = 0; i < files.length; i++) {
                 fs[i] = files[i].getAbsolutePath();
             }
 
@@ -443,20 +443,20 @@ public class App implements ThrowableListener, Tickable {
                     int n = o1.lastIndexOf("SCREEN") + 6;
                     int n1 = o2.lastIndexOf("SCREEN") + 6;
 
-                    if (n == n1 && n == 5){
+                    if (n == n1 && n == 5) {
                         return 0;
                     }
 
-                    if (n == 5){
+                    if (n == 5) {
                         return 1;
                     }
 
-                    if (n1 == 5){
+                    if (n1 == 5) {
                         return -1;
                     }
 
-                    int s = Integer.parseInt(o1.substring(n, o1.length()-4));
-                    int s1 = Integer.parseInt(o2.substring(n, o2.length()-4));
+                    int s = Integer.parseInt(o1.substring(n, o1.length() - 4));
+                    int s1 = Integer.parseInt(o2.substring(n, o2.length() - 4));
 
                     return s - s1;
                 }
@@ -468,11 +468,11 @@ public class App implements ThrowableListener, Tickable {
 
                 File f = new File(s);
 
-                if (f.isDirectory()){
+                if (f.isDirectory()) {
                     continue;
                 }
 
-                if (!f.getName().toLowerCase().endsWith(".png")){
+                if (!f.getName().toLowerCase().endsWith(".png")) {
                     continue;
                 }
 
@@ -492,7 +492,7 @@ public class App implements ThrowableListener, Tickable {
 
                 int state = isi.identifyImage(bi, seenStates);
 
-                if (!seenStates.containsKey(state)){
+                if (!seenStates.containsKey(state)) {
                     seenStates.put(state, bi);
 
                     imageStates.paint(imageStates.getGraphics());
@@ -551,9 +551,9 @@ public class App implements ThrowableListener, Tickable {
 
     }
 
-    public static void reconstruct(){
+    public static void reconstruct() {
 
-        while(Properties.INPUT.length > 0) {
+        while (Properties.INPUT.length > 0) {
 
             SeededController sc = SeededController.getSeededController(false);
 
@@ -597,11 +597,11 @@ public class App implements ThrowableListener, Tickable {
 
             String[] gFiles = Properties.INPUT;
 
-            if (gFiles.length > 1){
+            if (gFiles.length > 1) {
                 Properties.INPUT = new String[gFiles.length - 1];
 
-                for (int i = 1; i < gFiles.length; i++){
-                    Properties.INPUT[i-1] = gFiles[i];
+                for (int i = 1; i < gFiles.length; i++) {
+                    Properties.INPUT[i - 1] = gFiles[i];
                 }
             } else {
                 break;
@@ -614,16 +614,17 @@ public class App implements ThrowableListener, Tickable {
         System.exit(0);
     }
 
-    public static void visualise(){
+    public static void visualise() {
         TrainingDataVisualiser tdv = new TrainingDataVisualiser(Properties.INPUT[0]);
     }
 
-    public static void instrument (){
+    public static void instrument() {
         App.out.println("- Instrumenting JAR");
         String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion/", "com/google/",
                 "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
                 "org/junit/", /*"Launcher",*/ "org/apache", "com/garg", "net/sourceforge",
-                "com/steady", "com/thought"};
+                "com/steady", "com/thought", "com/jogamp", "com/bulletphysics", "com/jme3",
+                "com/oracle", "org/objectweb", "javax", "jogamp", "jme3", "org/lwjgl", "net/java"};
         for (String s : defaultHiddenPackages) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
@@ -648,30 +649,56 @@ public class App implements ThrowableListener, Tickable {
             ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
 
+            HashSet<ClassNode> nodes;
+            if (Properties.SLICE_ROOT == null) {
+                ArrayList<ClassNode> superNodes = DependencyTree.getDependencyTree().getPackageNodes(DependencyTree.getClassMethodId("com.leapmotion.leap.Controller", "<init>"));
 
-            ArrayList<ClassNode> nodes;
-            if (Properties.SLICE_ROOT == null){
-                nodes = DependencyTree.getDependencyTree().getPackageNodes("com.leapmotion");
+                nodes = new HashSet<ClassNode>();
+
+                nodes.addAll(superNodes);
+//
+//                for (ClassNode cn : superNodes){
+//                    nodes.addAll(cn.getDependencies());
+//                }
             } else {
-                nodes = DependencyTree.getDependencyTree().getDependencies(Properties.SLICE_ROOT);
+                App.out.println();
+                nodes = new HashSet<ClassNode>();
+                for (String s : Properties.SLICE_ROOT.split(";")) {
+                    s = ClassNameUtils.standardise(s);
+                    App.out.print("\r[Getting dependencies for: " + s + "]");
+                    nodes.addAll(DependencyTree.getDependencyTree().getDependencies(s));
+                }
             }
-            HashSet<String> lines = new HashSet<String>();
+
+            Set<String> lines = new HashSet<String>();
+
+//            HashSet<String> lines = new HashSet<String>();
             ArrayList<String> relatedClasses = new ArrayList<String>();
             for (ClassNode cn : nodes) {
+
+                HashSet<String> classes = new HashSet<String>();
+
+                String[] clazzes = cn.toString(relatedClasses).split("\n");
+
+                classes.addAll(Arrays.asList(clazzes));
+
                 String[] link = cn.toNomnoml().split("\n");
-                for (String s : link) {
-                    lines.add(s);
+                for (String n : link) {
+                    lines.add(n);
                 }
-                String[] classes = cn.toString().split("\n");
 
                 for (String s : classes) {
-                    if (s.length() > 0) {
-                        if (!ClassReplacementTransformer.isForbiddenPackage(s) && !relatedClasses.contains(s)) {
-                            relatedClasses.add(s);
-                            App.out.println(s);
+
+
+                        if (s.length() > 0) {
+                            if (!ClassReplacementTransformer.isForbiddenPackage(s) && !relatedClasses.contains(s)) {
+                                relatedClasses.add(s);
+                                //App.out.println(s);
+                            }
                         }
-                    }
                 }
+
+                //App.out.println(cn.toNomnoml());
             }
 
 //            ArrayList<ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
@@ -695,19 +722,51 @@ public class App implements ThrowableListener, Tickable {
 
             String classes = "";
 
+            String[] forbid = new String[]{};
+
+            if (Properties.UNTRACKED_PACKAGES != null){
+                forbid = Properties.UNTRACKED_PACKAGES.split(",");
+            }
+
+            for (int i = 0; i < forbid.length; i++){
+                forbid[i] = ClassNameUtils.standardise(forbid[i]);
+            }
+
+            relatedClasses.sort(new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    for (int i = 0; i < Math.min(o1.length(), o2.length()); i++){
+                        if (o1.charAt(i) == o2.charAt(i)){
+                            continue;
+                        }
+                        return o1.charAt(i) - o2.charAt(i);
+                    }
+                    return 0;
+                }
+            });
+
             for (String c : relatedClasses) {
 
-//                if (c.contains("$")){
-//                    continue;
-//                }
+                boolean skip = false;
+                for (String f : forbid){
+                    if (c.startsWith(f)){
+                        skip = true;
+                        break;
+                    }
+                }
 
-                if (c == null || c.length() == 0) {
+                if (c == null || c.length() == 0 || skip || c.startsWith("com/leapmotion/leap")) {
                     continue;
                 }
-                classes += c + "," + ClassAnalyzer.getCoverableLines(c).size() + "," + ClassAnalyzer.getCoverableBranches(c).size() + "\n";
+
+                String cName = DependencyTree.getClassName(c);
+                String mName = DependencyTree.getMethodName(c);
+
+                classes += c + "," + ClassAnalyzer.getCoverableLines(cName, mName).size() + "," + ClassAnalyzer.getCoverableBranches(cName, mName).size() + "\n";
             }
             FileHandler.writeToFile(relatedFile, "class,lines,branches\n");
             FileHandler.appendToFile(relatedFile, classes);
+
 
         } catch (Exception e) {
             e.printStackTrace(App.out);
@@ -844,13 +903,9 @@ public class App implements ThrowableListener, Tickable {
             ClassAnalyzer.setOut(App.out);
             StringBuilder linesHit = new StringBuilder();
             ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
-            for (LineHit lh : linesCovered) {
+            for (LineHit lh : ClassAnalyzer.getTotalLines()) {
 
                 String className = lh.getLine().getClassName();
-
-                if (className.contains("$")){
-                    className = className.substring(0, className.indexOf("$"));
-                }
 
                 if (classSeen.contains(className)) {
                     className = "" + classSeen.indexOf(className);
@@ -867,17 +922,16 @@ public class App implements ThrowableListener, Tickable {
                     className = "" + classSeen.indexOf(className);
                     FileHandler.appendToFile(classes, className + "\n");
                 }
-                linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
+
+                if (linesCovered.contains(lh)) {
+                    linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
+                }
             }
 
             StringBuilder branchesHit = new StringBuilder();
             List<BranchHit> branchesCovered = ClassAnalyzer.getBranchesExecuted();
             for (BranchHit lh : branchesCovered) {
                 String className = lh.getBranch().getClassName();
-
-//                if (className.contains("$")){
-//                    className = className.substring(0, className.indexOf("$"));
-//                }
 
                 if (classSeen.contains(className)) {
                     className = "" + classSeen.indexOf(className);
@@ -905,7 +959,7 @@ public class App implements ThrowableListener, Tickable {
             if (gestureFiles.length() > 0)
                 gestureFiles.substring(0, gestureFiles.length() - 1);
 
-            LAST_LINE_COVERAGE = ClassAnalyzer.getLineCoverage();
+            LAST_LINE_COVERAGE = Math.round((ClassAnalyzer.getLineCoverage() * 100f)) / 100f;
             int states = StateComparator.statesVisited.size();
 
 
@@ -926,20 +980,33 @@ public class App implements ThrowableListener, Tickable {
             int branchHits = 0;
 
             if (relatedClasses.size() > 0) {
+                HashMap<String, ArrayList<String>> relClas = new HashMap<String, ArrayList<String>>();
                 for (ClassTracker ct : relatedClasses) {
-                    List<Line> lines = ClassAnalyzer.getCoverableLines(ct.className);
+                    String className = DependencyTree.getClassName(ct.className);
+                    String methodName = DependencyTree.getMethodName(ct.className);
+
+                    if (!relClas.containsKey(className)){
+                        relClas.put(className, new ArrayList<String>());
+                    }
+
+                    relClas.get(className).add(methodName);
+                }
+
+                for (String ct : relClas.keySet()){
+                    List<Line> lines = ClassAnalyzer.
+                            getCoverableLines(ct, relClas.get(ct));
                     for (Line l : lines) {
                         if (l.getHits() > 0) {
                             lineHits++;
                         }
                     }
-                    List<Branch> branches = ClassAnalyzer.getCoverableBranches(ct.className);
+                    List<Branch> branches = ClassAnalyzer.getCoverableBranches(ct, relClas.get(ct));
                     for (Branch b : branches) {
                         if (b.getFalseHits() > 0) {
                             branchHits++;
                         }
 
-                        if (b.getTrueHits() > 0){
+                        if (b.getTrueHits() > 0) {
                             branchHits++;
                         }
                     }
@@ -1017,10 +1084,10 @@ public class App implements ThrowableListener, Tickable {
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
         //if (time - lastSwitchTime > timeBetweenSwitch) {
-            if (sc.lastTick() < time) {
-                sc.tick(time);
-                lastSwitchTime = time;
-            }
+        if (sc.lastTick() < time) {
+            sc.tick(time);
+            lastSwitchTime = time;
+        }
         //}
 
         if (time - lastStateCheck > STATE_CHECK_TIME) {
@@ -1055,7 +1122,7 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
-    public long lastTick(){
+    public long lastTick() {
         return lastUpdate;
     }
 

@@ -6,7 +6,10 @@ import com.leapmotion.leap.FingerList;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 public class SeededFingerList extends FingerList implements Serializable {
 
@@ -21,6 +24,7 @@ public class SeededFingerList extends FingerList implements Serializable {
 		for (Finger f : fingers) {
 			addFinger(f);
 		}
+		sort();
 	}
 
 	public void clear() {
@@ -29,9 +33,19 @@ public class SeededFingerList extends FingerList implements Serializable {
 
 	public void addFinger(Finger f) {
 		fingers.add(f);
-		// if (f.isExtended()){
-		// extended.fingers.add(f);
-		// }
+
+		sort();
+	}
+
+	public void sort(){
+		fingers.sort(new Comparator<Finger>() {
+			@Override
+			public int compare(Finger o1, Finger o2) {
+				List<Type> ft = Arrays.asList(Type.values());
+
+				return (ft.indexOf(01) - ft.indexOf(o2));
+			}
+		});
 	}
 
 	@Override
@@ -39,6 +53,8 @@ public class SeededFingerList extends FingerList implements Serializable {
 		for (Finger f : arg0) {
 			fingers.add(f);
 		}
+
+		sort();
 		return this;
 	}
 
@@ -62,6 +78,9 @@ public class SeededFingerList extends FingerList implements Serializable {
 				ext.addFinger(f);
 			}
 		}
+
+		ext.sort();
+
 		return ext;
 	}
 

@@ -47,10 +47,15 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	}
 
 	public void advanceGestures(){
-		if (gestureState == null || gestureTypes.size() == 0 || gestureState == Gesture.State.STATE_STOP){
-			while (currentGesture == null || currentGesture.equals("NULL")){
-				currentGesture = analyzer.getDataAnalyzer().next();
-			}
+
+		String nextGesture = analyzer.getDataAnalyzer().next();
+
+		while (nextGesture == null || nextGesture.equals("NULL")){
+			nextGesture = analyzer.getDataAnalyzer().next();
+		}
+
+		if (gestureState == null || gestureState == Gesture.State.STATE_STOP){
+			currentGesture = nextGesture;
 			gestureState = Gesture.State.STATE_START;
 			//currentGesture = analyzer.getDataAnalyzer().next();
 
@@ -62,7 +67,7 @@ public class NGramGestureHandler extends RandomGestureHandler {
 			gestureDuration = 3;
 			gestureStart = System.currentTimeMillis()-gestureDuration;
 			for (String s : gestures){
-				if (s != null && !s.equalsIgnoreCase("null")){
+				if (s != null && !s.equalsIgnoreCase("null") && !s.equals("TYPE_INVALID")){
 					gestureTypes.add(Gesture.Type.valueOf(s));
 
 					gestureId++;
@@ -74,13 +79,17 @@ public class NGramGestureHandler extends RandomGestureHandler {
 				long chance = random.nextInt(gestureDuration);
 
 
-				if (chance > GESTURE_TIME_LIMIT) {
+				if (chance > GESTURE_TIME_LIMIT || !nextGesture.equals(currentGesture)) {
 					gestureState = Gesture.State.STATE_STOP;
 					if (outputFile != null){
 						NGramLog nLog = new NGramLog();
 						String gestures = "";
 						for (Gesture.Type gt : gestureTypes) {
 							gestures += gt + ",";
+						}
+
+						if (gestures.length() == 0){
+							gestures = "TYPE_INVALID,";
 						}
 						gestures = gestures.substring(0, gestures.length()-1);
 						nLog.element = gestures;
@@ -111,6 +120,9 @@ public class NGramGestureHandler extends RandomGestureHandler {
 			return gl;
 		int counter = gestureTypes.size();
 		for (Gesture.Type gt : gestureTypes) {
+			if (gt == Gesture.Type.TYPE_INVALID){
+				break;
+			}
 			gl.addGesture(setupGesture(gt, frame, gestureId-(--counter)));
 		}
 		return gl;

@@ -94,6 +94,8 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 		App.out.println("- Finished loading frames. Starting playback.");
 
+
+
 	}
 
 	private Frame fhFrame = null;
@@ -157,6 +159,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 	private long handsSeen = 1;
 	private long lastUpdate = 0;
+
 	@Override
 	public void tick(long time) {
 

@@ -101,30 +101,49 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
 
         SequenceSimilarity newValue = null;
 
-        double r = Math.random();
         for (ProbabilityListener pbl : probabilityListeners) {
             pbl.probabilityListLoaded(seqs, 1f);
         }
 
         assert(seqs.size() == ngramCandidates.size());
 
-        for (SequenceSimilarity ss : seqs) {
+        float totalProbability = 0f;
+
+        float scalingProbability = 1f;
+
+        boolean found = false;
+
+        do {
+
+            double r = Math.random();
+
+            for (SequenceSimilarity ss : seqs) {
 
 
-            float probability = (float) ss.probability;
+                float probability = ss.probability;
 
-            for (ProbabilityListener pbl : probabilityListeners) {
-                probability = pbl.changeProbability(ss, seqs);
+                if (probability == 0){
+                    continue;
+                }
+
+                for (ProbabilityListener pbl : probabilityListeners) {
+                    probability = pbl.changeProbability(ss, seqs);
+                }
+
+                probability *= scalingProbability;
+
+                if (r <= probability) {
+                    newValue = ss;
+                    found = true;
+                    break;
+                }
+                r -= probability;
+
+                totalProbability += probability;
             }
-            if (r < probability) {
-                newValue = ss;
-                break;
-            }
-            r -= ss.probability;
 
-
-
-        }
+            scalingProbability = 1f / totalProbability;
+        } while(scalingProbability > 1f && !found);
 
         // if newValue == null, either no sequence exists (sparse) or additive smoothing in action
         if (newValue == null) {
@@ -137,8 +156,11 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
         return newValue.sequence;
     }
 
+    private int backupSeeded = 0;
+
     public String getBackupSequence() {
         int number = random.nextInt(ngramCandidates.size());
+        backupSeeded++;
         return ngramCandidates.get(number);
     }
 
