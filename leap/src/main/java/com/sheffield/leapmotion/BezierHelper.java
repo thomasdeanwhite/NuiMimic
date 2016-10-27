@@ -15,13 +15,11 @@ public class BezierHelper {
         ArrayList<Vector> points = new ArrayList<Vector>(vectors);
         while (points.size() > 1){
             ArrayList<Vector> newPoints = new ArrayList<Vector>();
-            System.out.println("\n" + points.size() + ":" + modifier);
             for (int i = 0; i < points.size()-1; i++){
                 Vector v = points.get(i);
                 Vector v1 = points.get(i+1);
                 Vector result = fadeVector(v, v1, modifier);
                 newPoints.add(result);
-                System.out.print(result);
             }
             points.clear();
             points = newPoints;

@@ -23,4 +23,13 @@ public class ClusterPlayback {
         }
         throw new EmptyStackException();
     }
+
+    public boolean willExpire(int animTime){
+        if (ngLogs.size() > 0){
+            if (animTime >= ngLogs.get(0).timeSeeded){
+                return true;
+            }
+        }
+        return false;
+    }
 }

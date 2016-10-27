@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class ClusterPlaybackFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
+public class RegressiveFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
 
     private HashMap<String, SeededHand> hands;
     private ArrayList<SeededHand> seededHands;
@@ -60,7 +60,7 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
     private int currentModTime = 0;
 
 
-    public ClusterPlaybackFrameSelector(String filename, ArrayList<NGramLog>[] ngLogs) {
+    public RegressiveFrameSelector(String filename, ArrayList<NGramLog>[] ngLogs) {
         failures = new ArrayList<NGramLog>();
         success = new ArrayList<NGramLog>();
         try {
@@ -226,7 +226,7 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
 
     @Override
     public String status() {
-        return "[" + (Math.round(100f * (success.size() / (float)(success.size() + failures.size())))/100f) + " correctness]";
+        return "[" + (Math.round(100f * (success.size() / (float)(success.size() + failures.size())))/100f) + " matched]";
     }
 
     private long lastUpdate = 0;
@@ -362,19 +362,23 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
         if (gesture != lastGesture){
             //a switch has occurred
             lastGestureSwitch = System.currentTimeMillis();
-            gestureDuration = 0;
-            gestureState = Gesture.State.STATE_STOP;
             cumalitiveGesturePositions = Vector.zero();
             gestureCount = 0;
-            cumalitiveGesturePositions = Vector.zero();
             gestureDuration = 3;
             gestureStart = System.currentTimeMillis()-gestureDuration;
-            gestureCount = 0;
             gestureType = Gesture.Type.valueOf(gesture.element);
             gestureState = Gesture.State.STATE_START;
-            gestureDuration = (int) 3;
         }
 
+        gestureDuration = (int)(System.currentTimeMillis() - lastGestureSwitch);
+
+        lastGesture = gesture;
+
+        if (clusterPlaybacks[3].willExpire(gestureDuration)){
+            gestureState = Gesture.State.STATE_STOP;
+        } else {
+            gestureState = Gesture.State.STATE_UPDATE;
+        }
 
         if (gestureType == Gesture.Type.TYPE_INVALID)
             return gl;
@@ -383,9 +387,6 @@ public class ClusterPlaybackFrameSelector extends FrameSelector implements Frame
 
         gl.addGesture(setupGesture(gestureType, frame, gestureId));
 
-        gestureDuration = (int)(System.currentTimeMillis() - lastGestureSwitch);
-
-        lastGesture = gesture;
 
 
         return gl;

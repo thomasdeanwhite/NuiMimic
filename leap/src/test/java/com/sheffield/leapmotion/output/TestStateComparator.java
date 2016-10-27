@@ -13,10 +13,10 @@ import static org.junit.Assert.assertEquals;
 public class TestStateComparator {
 
     Integer[][] states = new Integer[][]{
-            {20, 20, 20, 20},
-            {80, 0, 0, 0},
-            {0, 25, 25, 30},
-            {19, 21, 20, 20},
+            {50, 50, 50, 50},
+            {200, 0, 0, 0},
+            {0, 60, 60, 80},
+            {49, 51, 50, 50},
         };
 
     @Before
@@ -45,6 +45,9 @@ public class TestStateComparator {
     public void testAddSimilar(){
         assertEquals(0, StateComparator.addState(states[0]));
         assertEquals(1, StateComparator.addState(states[1]));
+
+        float d = StateComparator.calculateStateDifference(states[0], states[3]) / (float) StateComparator.sum(states[0]);
+
         assertEquals(0, StateComparator.addState(states[3]));
         assertEquals(2, StateComparator.getStates().size());
     }
@@ -57,7 +60,7 @@ public class TestStateComparator {
         assertEquals(0, StateComparator.calculateStateDifference(states[0],
                 states[0]));
 
-        assertEquals(40, StateComparator.calculateStateDifference(states[0],
+        assertEquals(100, StateComparator.calculateStateDifference(states[0],
                 states[2]));
         assertEquals(0, StateComparator.getStates().size());
     }
@@ -66,7 +69,7 @@ public class TestStateComparator {
     public void testAddSameResize(){
         Properties.HISTOGRAM_BINS = 4;
         assertEquals(0, StateComparator.addState(states[0]));
-        assertEquals(0, StateComparator.addState(new Integer[]{15, 5, 5, 15, 15, 5, 5, 15}));
+        assertEquals(0, StateComparator.addState(new Integer[]{45, 5, 5, 45, 45, 5, 5, 45}));
         assertEquals(1, StateComparator.getStates().size());
     }
 }

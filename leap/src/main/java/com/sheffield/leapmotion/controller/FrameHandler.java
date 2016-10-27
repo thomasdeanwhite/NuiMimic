@@ -10,7 +10,7 @@ import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.frameselectors.AdaptiveRandomDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.ClusterPlaybackFrameSelector;
+import com.sheffield.leapmotion.frameselectors.RegressiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.EmptyFrameSelector;
 import com.sheffield.leapmotion.frameselectors.EuclideanFrameSelector;
 import com.sheffield.leapmotion.frameselectors.FrameSelector;
@@ -25,6 +25,7 @@ import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
+import com.sheffield.leapmotion.output.StateComparator;
 
 import java.io.File;
 import java.io.IOException;
@@ -92,14 +93,37 @@ public class FrameHandler implements Tickable {
                             String[] d = s.split(":");
                             NGramLog log = new NGramLog();
                             //trailing ,
-                            log.element = d[0].substring(0, d[0].length()-1);
+                            log.element = d[0];
+                            if (d[0].contains(",")) {
+                                log.element = log.element.substring(0, d[0].length() - 1);
+                            }
                             log.timeSeeded = Integer.parseInt(d[1]);
-                            log.state = Integer.parseInt(d[2]);
+                            String currentState = d[2];
+                            currentState = currentState.substring(1, d[2].length()-1);
+
+                            if (currentState.trim().length() == 0){
+                                continue;
+                            }
+
+                            String[] stateArr = currentState.split(",");
+                            Integer[] cState = new Integer[stateArr.length];
+
+                            for (int z = 0; z < stateArr.length; z++){
+                                try {
+                                    cState[z] = Integer.parseInt(stateArr[z]);
+                                } catch (NumberFormatException e){
+                                    App.out.println(files[i] + ": State[" + z + "/" + stateArr.length + "]: " + stateArr[z]);
+                                }
+                            }
+
+                            int newState = StateComparator.addState(cState);
+
+                            log.state = newState;
                             logs[i].add(log);
 
                         }
                     }
-                    frameSelector = new ClusterPlaybackFrameSelector(Properties.INPUT[0], logs);
+                    frameSelector = new RegressiveFrameSelector(Properties.INPUT[0], logs);
                     break;
                 case RANDOM_SINGLE_TOGGLE:
                     frameSelector = new SingleModelGuidedRandomFrameSelector();
@@ -120,7 +144,7 @@ public class FrameHandler implements Tickable {
             addFrameModifier((FrameModifier) frameSelector);
         }
 
-        if (frameSelector instanceof ReconstructiveFrameSelector || frameSelector instanceof ClusterPlaybackFrameSelector){
+        if (frameSelector instanceof ReconstructiveFrameSelector || frameSelector instanceof RegressiveFrameSelector){
             setGestureHandler((GestureHandler) frameSelector);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();
