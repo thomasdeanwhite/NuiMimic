@@ -115,6 +115,9 @@ generate_data <- function(file_start, extension, data, clusters, n, sequences, s
                         col.names = c("state", clusters))
   
   output_string <- ""
+  
+  state_ngrams <- ""
+
   if (rowNum > 2){
     for (i in 1:rowNum){
       ss <- unlist(strsplit(as.character(states[i,2]), "[,]"))
@@ -122,7 +125,8 @@ generate_data <- function(file_start, extension, data, clusters, n, sequences, s
       ss <- ss[!is.null(ss)]
       n_match <- match(ss, n_c[,1])
       n_match <- n_match[!is.na(n_match)]
-      sT <- table(unlist(n_c[n_match,]['means$cluster']))
+      unlistedClusters <- unlist(n_c[n_match,]['means$cluster'])
+      sT <- table(unlistedClusters)
       stateT <- paste(states[i, 1], sep="")
       table_out <- capture.output(write.table(sT, "", col.names = FALSE, sep="#", quote = FALSE, row.names = FALSE, eol=","))
       
@@ -131,6 +135,19 @@ generate_data <- function(file_start, extension, data, clusters, n, sequences, s
       
       output_string <- paste(output_string, table_out, sep=":")
       
+      state_ng <- paste(unlistedClusters)
+
+      state_occurances <- n_sequences(n, state_ng)
+      
+      sink(paste('processed/', file_start, '.state-ngram', extension, sep=''), append=TRUE)
+      print(paste("state:",paste(stateT),"\n", sep=""))
+      
+
+      print("cluster:")
+      print(state_occurances, full=TRUE)
+      print("\n")
+      sink()
+
       remove(output)
       remove(table_out)
       remove(n_match)
@@ -223,6 +240,7 @@ process <- function(file_starts, clusters, n, filename){
   sink(paste('processed/', filename, '.gesture_type_ngram', sep=''))
   print(ngGestures, full=TRUE)
   sink()
+
   
   write_sequences_to_file(gestures, paste('processed/', filename, '.raw_sequence.gesture_type_data', sep=''))
   
