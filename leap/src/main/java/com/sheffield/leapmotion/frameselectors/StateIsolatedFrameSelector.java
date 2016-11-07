@@ -6,18 +6,20 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.*;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
+import com.sheffield.leapmotion.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.leapmotion.output.StateComparator;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class StateSpecificNGramFrameSelector extends FrameSelector implements FrameModifier {
+public class StateIsolatedFrameSelector extends FrameSelector implements FrameModifier {
 
 	private HashMap<String, SeededHand> hands;
 
@@ -32,6 +34,8 @@ public class StateSpecificNGramFrameSelector extends FrameSelector implements Fr
 	private SeededHand lastHand;
 	private String lastLabel;
 	private File outputFile;
+
+	private String stateIsolatedFile = null;
 
 	protected AnalyzerApp positionAnalyzer;
 	protected AnalyzerApp rotationAnalyzer;
@@ -79,11 +83,13 @@ public class StateSpecificNGramFrameSelector extends FrameSelector implements Fr
 		analyzer.addProbabilityListener(pbl);
 	}
 
-	public StateSpecificNGramFrameSelector(String filename) {
+	public StateIsolatedFrameSelector(String filename) {
 		try {
 			App.out.println("* Setting up NGram Frame Selection");
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
+			stateIsolatedFile = Properties.DIRECTORY + "/" + filename +
+					".state-ngram";
 			logs = new ArrayList<NGramLog>();
 			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
 			hands = new HashMap<String, SeededHand>();
@@ -105,7 +111,8 @@ public class StateSpecificNGramFrameSelector extends FrameSelector implements Fr
 			}
 
 			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".joint_position_ngram";
-			analyzer = new AnalyzerApp(sequenceFile);
+			analyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
+					".joint_position_data",	sequenceFile);
 			analyzer.analyze();
 
 			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
@@ -126,7 +133,8 @@ public class StateSpecificNGramFrameSelector extends FrameSelector implements Fr
 			}
 
 			sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_position_ngram";
-			positionAnalyzer = new AnalyzerApp(sequenceFile);
+			positionAnalyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
+					".hand_position_data",	sequenceFile);
 			positionAnalyzer.analyze();
 
 			String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
@@ -147,7 +155,8 @@ public class StateSpecificNGramFrameSelector extends FrameSelector implements Fr
 			}
 
 			sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_ngram";
-			rotationAnalyzer = new AnalyzerApp(sequenceFile);
+			rotationAnalyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
+					".hand_rotation_data",	sequenceFile);
 			rotationAnalyzer.analyze();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -169,7 +178,7 @@ public class StateSpecificNGramFrameSelector extends FrameSelector implements Fr
 
 	@Override
 	public String status() {
-		return null;
+		return "ss[" + StateComparator.getCurrentState() + "]";
 	}
 
 	@Override

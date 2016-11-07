@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class StateDependentAnalyzerApp {
+public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 
 	public static final int PROGRESS_BARS = 20;
 	public static final int SEQUENCE_LENGTH = 1000;
@@ -37,7 +37,7 @@ public class StateDependentAnalyzerApp {
 		return failsafe.getDataAnalyzer();
 	}
 
-	public StateDependentAnalyzerApp(String file, String failsafeFile) {
+	public StateIsolatedAnalyzerApp(String file, String failsafeFile) {
 		//App.out.println("* Loading Sequence Data from " + file);
 		try {
 			contents = FileHandler.readFile(new File(file));

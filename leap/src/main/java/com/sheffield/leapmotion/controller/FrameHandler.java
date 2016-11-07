@@ -20,7 +20,7 @@ import com.sheffield.leapmotion.frameselectors.RandomFrameSelector;
 import com.sheffield.leapmotion.frameselectors.RandomTemplateFrameSelector;
 import com.sheffield.leapmotion.frameselectors.ReconstructiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.SingleModelGuidedRandomFrameSelector;
-import com.sheffield.leapmotion.frameselectors.StateRelatedStaticDistanceFrameSelector;
+import com.sheffield.leapmotion.frameselectors.StateDependentFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
@@ -78,7 +78,7 @@ public class FrameHandler implements Tickable {
                     frameSelector = new RandomTemplateFrameSelector(Properties.INPUT[0]);
                     break;
                 case STATE_DEPENDENT:
-                    frameSelector = new StateRelatedStaticDistanceFrameSelector();
+                    frameSelector = new StateDependentFrameSelector();
                     break;
                 case REPRODUCTION:
                     frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);

@@ -24,6 +24,10 @@ public class AnalyzerApp {
 		this.logBase = logBase;
 	}
 
+	public AnalyzerApp(){
+
+	}
+
 	public static void main(String[] args) {
 		System.out.println("- Loading probabilities...");
 		AnalyzerApp app = new AnalyzerApp("H:/data/leapmotion/processed/circle-25-2.positiondata");

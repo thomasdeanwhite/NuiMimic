@@ -3,12 +3,7 @@ package com.sheffield.leapmotion.frameselectors;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.BezierHelper;
-import com.sheffield.leapmotion.FileHandler;
-import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.Quaternion;
-import com.sheffield.leapmotion.QuaternionHelper;
+import com.sheffield.leapmotion.*;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.controller.SeededController;
@@ -22,44 +17,42 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class NGramFrameSelector extends FrameSelector implements FrameModifier {
-	
-	protected HashMap<String, SeededHand> hands;
-	
-	protected ArrayList<NGramLog> logs;
+public class SingleModelFrameSelector extends FrameSelector implements FrameModifier {
 
-	protected int currentAnimationTime = 0;
-	protected long lastSwitchTime = 0;
+	private HashMap<String, SeededHand> hands;
 
-	protected ArrayList<SeededHand> seededHands;
-	protected ArrayList<String> seededLabels;
+	private ArrayList<NGramLog> logs;
 
-	protected SeededHand lastHand;
-	protected String lastLabel;
-	protected AnalyzerApp analyzer;
-	protected File outputFile;
+	private int currentAnimationTime = 0;
+	private long lastSwitchTime = 0;
+
+	private ArrayList<SeededHand> seededHands;
+	private ArrayList<String> seededLabels;
+
+	private SeededHand lastHand;
+	private String lastLabel;
+	private File outputFile;
 
 	protected AnalyzerApp positionAnalyzer;
 	protected AnalyzerApp rotationAnalyzer;
-	protected HashMap<String, Vector> vectors;
-	protected HashMap<String, Quaternion> rotations;
+    private AnalyzerApp analyzer;
 
-	protected Vector lastPosition;
-	protected String lastPositionLabel;
-	protected ArrayList<Vector> seededPositions = new ArrayList<Vector>();
-	protected ArrayList<String> positionLabels = new ArrayList<String>();
 
-	protected Quaternion lastRotation;
-	protected String lastRotationLabel;
-	protected ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
-	protected ArrayList<String> rotationLabels = new ArrayList<String>();
+	private HashMap<String, Vector> vectors;
+	private HashMap<String, Quaternion> rotations;
 
-	protected File outputPosFile;
-	protected File outputRotFile;
+	private Vector lastPosition;
+	private String lastPositionLabel;
+	private ArrayList<Vector> seededPositions = new ArrayList<Vector>();
+	private ArrayList<String> positionLabels = new ArrayList<String>();
 
-	public NGramFrameSelector(){
+	private Quaternion lastRotation;
+	private String lastRotationLabel;
+	private ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
+	private ArrayList<String> rotationLabels = new ArrayList<String>();
 
-	}
+	private File outputPosFile;
+	private File outputRotFile;
 
     public void setOutputFiles(File pos, File rot){
         outputPosFile = pos;
@@ -73,11 +66,11 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
     public void addRotationProbabilityListener(ProbabilityListener pbl){
         rotationAnalyzer.addProbabilityListener(pbl);
     }
-	
+
 	public void setOutputFile(File outputFile){
 		this.outputFile = outputFile;
 	}
-	
+
 	public ArrayList<NGramLog> getLogs(){
 		return logs;
 	}
@@ -86,7 +79,7 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 		analyzer.addProbabilityListener(pbl);
 	}
 
-	public NGramFrameSelector(String filename) {
+	public SingleModelFrameSelector(String filename) {
 		try {
 			App.out.println("* Setting up NGram Frame Selection");
 			lastSwitchTime = System.currentTimeMillis();
@@ -198,7 +191,7 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 
 	}
 
-	protected long lastUpdate = 0;
+	private long lastUpdate = 0;
 	@Override
 	public void tick(long time) {
 		lastUpdate = time;
@@ -290,7 +283,7 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 			lastLabel = analyzer.getDataAnalyzer().next();
 			lastHand = hands.get(lastLabel);
 		}
-		while (seededHands.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
+		while (seededHands.size() < Properties.BEZIER_POINTS){
 			if (!seededHands.contains(lastHand)){
 				seededHands.clear();
 				seededHands.add(0, lastHand);
@@ -333,7 +326,7 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 		}
 
 
-		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
+		while (seededPositions.size() < Properties.BEZIER_POINTS){
 			if (seededPositions.contains(lastPosition)){
 				Vector position = null;
 				String pLabel = null;
@@ -354,7 +347,7 @@ public class NGramFrameSelector extends FrameSelector implements FrameModifier {
 			}
 		}
 
-		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
+		while (seededRotations.size() < Properties.BEZIER_POINTS){
 			if (seededRotations.contains(lastRotation)){
 				Quaternion rotation = null;
 				String rLabel = null;

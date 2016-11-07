@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class StateRelatedStaticDistanceFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
+public class StateDependentFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
 
 	private Random r = new Random();
 	
@@ -47,7 +47,7 @@ public class StateRelatedStaticDistanceFrameSelector extends FrameSelector imple
         return FileHandler.generateTestingOutputFile(filename);
     }
 
-	public StateRelatedStaticDistanceFrameSelector() {
+	public StateDependentFrameSelector() {
 		String[] gestures = Properties.INPUT;
         frameModifiers = new HashMap<String, FrameModifier>();
         frameSelectors = new HashMap<String, FrameSelector>();
