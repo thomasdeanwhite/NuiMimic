@@ -25,7 +25,7 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
     }
 
     @Override
-    public String next() {
+    public String getCurrentKey(){
         while (sequence.size() == 0) {
             Object[] candidates = map.keySet().toArray();
             String start = (String)candidates[random.nextInt(candidates.length)];
@@ -44,9 +44,30 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
             key += s + " ";
         }
         key = key.substring(0, key.length() - 1);
+        return key;
+    }
+
+    @Override
+    public boolean hasNext(String label) {
+        ArrayList<SequenceSimilarity> seqs = map.get(label);
+        if (seqs == null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String next() {
+        return next(getCurrentKey());
+
+    }
+
+    @Override
+    public String next(String key) {
         ArrayList<SequenceSimilarity> seqs = map.get(key);
 
         if (seqs == null) {
+            AnalyzerApp.MISS++;
             String newHand = null;
             HashMap<String, ArrayList<SequenceSimilarity>> buffer = new HashMap<String, ArrayList<SequenceSimilarity>>();
 
@@ -87,6 +108,7 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
                     buffer.keySet().toArray(buffersKeys);
 
                     newHand = buffersKeys[random.nextInt(buffersKeys.length)];
+                    break;
                 }
             }
 
@@ -97,6 +119,8 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
                 sequence.add(newHand);
                 return newHand;
             }
+        } else {
+            AnalyzerApp.HITS++;
         }
 
         SequenceSimilarity newValue = null;
@@ -105,7 +129,7 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
             pbl.probabilityListLoaded(seqs, 1f);
         }
 
-        assert(seqs.size() == ngramCandidates.size());
+        //assert(seqs.size() == ngramCandidates.size());
 
         float totalProbability = 0f;
 
@@ -145,7 +169,7 @@ public class ProbabilityDataAnalyzer extends HillClimbingDataAnalyzer {
             scalingProbability = 1f / totalProbability;
         } while(scalingProbability > 1f && !found);
 
-        // if newValue == null, either no sequence exists (sparse) or additive smoothing in action
+        // if newValue == null, no sequence exists (sparse)
         if (newValue == null) {
             String newHand = getBackupSequence();
             sequence.add(newHand);

@@ -49,7 +49,7 @@ public class RandomFrameSelector extends FrameSelector implements FrameModifier 
 				seededHands.clear();
 				seededHands.add(0, lastHand);
 			} else {
-				Hand h = HandFactory.createRandomHand(f, "hand" + handId++);;
+				Hand h = HandFactory.createRandomHand(f, "hand" + handId++);
 				if (h != null && h instanceof SeededHand) {
 					seededHands.add((SeededHand) h);
 				}

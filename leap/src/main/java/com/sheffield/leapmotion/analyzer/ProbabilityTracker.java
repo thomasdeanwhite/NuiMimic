@@ -40,8 +40,8 @@ public class ProbabilityTracker implements ProbabilityListener {
             if (currentState.containsKey(s.sequence)){
                 stateProbability = currentState.get(s.sequence);
             }
-            float prob = stateProbability;
-            prob *= s.probability;
+            float prob = ((1f - Properties.STATE_WEIGHT) * s.probability) +
+                    (Properties.STATE_WEIGHT * stateProbability);
             currentProbabilities.put(s.sequence, prob);
             total += prob;
         }
@@ -77,8 +77,7 @@ public class ProbabilityTracker implements ProbabilityListener {
         if (currentProbabilities.containsKey(output.sequence)) {
             stateProbability = currentProbabilities.get(output.sequence);
         }
-        return ((1f - Properties.STATE_WEIGHT) * output.probability) +
-                (Properties.STATE_WEIGHT * stateProbability);
+        return stateProbability;
         //return UNSEEN_OBJECT_PROBABILITY * (totals.size() - currentProbabilities.size()) / totals.size();
     }
 }

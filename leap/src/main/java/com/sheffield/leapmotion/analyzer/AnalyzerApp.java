@@ -20,6 +20,18 @@ public class AnalyzerApp {
 
 	public static long framesBeingProcessed = 0;
 
+
+
+	public static int HITS = 0;
+	public static int MISS = 0;
+
+	public static float hitRatio(){
+		if (HITS + MISS == 0){
+			return 1f;
+		}
+		return (HITS / (float)(HITS + MISS));
+	}
+
 	public void setLogBase(boolean logBase){
 		this.logBase = logBase;
 	}

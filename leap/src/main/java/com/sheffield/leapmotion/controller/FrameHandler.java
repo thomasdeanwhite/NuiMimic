@@ -10,7 +10,6 @@ import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.frameselectors.AdaptiveRandomDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.RegressiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.EmptyFrameSelector;
 import com.sheffield.leapmotion.frameselectors.EuclideanFrameSelector;
 import com.sheffield.leapmotion.frameselectors.FrameSelector;
@@ -19,8 +18,10 @@ import com.sheffield.leapmotion.frameselectors.RandomDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.RandomFrameSelector;
 import com.sheffield.leapmotion.frameselectors.RandomTemplateFrameSelector;
 import com.sheffield.leapmotion.frameselectors.ReconstructiveFrameSelector;
+import com.sheffield.leapmotion.frameselectors.RegressiveFrameSelector;
 import com.sheffield.leapmotion.frameselectors.SingleModelGuidedRandomFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StateDependentFrameSelector;
+import com.sheffield.leapmotion.frameselectors.StateIsolatedFrameSelector;
 import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
@@ -79,6 +80,9 @@ public class FrameHandler implements Tickable {
                     break;
                 case STATE_DEPENDENT:
                     frameSelector = new StateDependentFrameSelector();
+                    break;
+                case STATE_ISOLATED:
+                    frameSelector = new StateIsolatedFrameSelector(Properties.INPUT[0]);
                     break;
                 case REPRODUCTION:
                     frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);

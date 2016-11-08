@@ -418,6 +418,21 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	}
 
 	@Override
+	public String next(String label) {
+		return next();
+	}
+
+	@Override
+	public boolean hasNext(String label) {
+		return false;
+	}
+
+	@Override
+	public String getCurrentKey() {
+		return null;
+	}
+
+	@Override
 	public void addProbabilityListener(ProbabilityListener pbl) {
 		probabilityListeners.add(pbl);
 	}

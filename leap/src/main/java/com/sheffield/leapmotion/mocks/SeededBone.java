@@ -7,6 +7,7 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Quaternion;
 
 import java.io.Serializable;
+import java.util.Random;
 
 public class SeededBone extends Bone implements Serializable {
 
@@ -20,6 +21,8 @@ public class SeededBone extends Bone implements Serializable {
 	protected Bone.Type type;
 	protected float width;
 	protected Quaternion rotation;
+
+	protected static Random RANDOM = new Random(0);
 
 	public SeededBone() {
 		basis = Matrix.identity();
@@ -93,8 +96,9 @@ public class SeededBone extends Bone implements Serializable {
 
 		if (Properties.INVERT_Z_AXIS)
 			v = FLIP_IN_Z.rotateVector(v);
-
-		return v;
+		return v.plus(new Vector(RANDOM.nextFloat() * Properties.JITTER,
+				RANDOM.nextFloat() * Properties.JITTER,
+				RANDOM.nextFloat() * Properties.JITTER));
 	}
 
 

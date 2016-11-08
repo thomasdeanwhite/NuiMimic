@@ -9,6 +9,8 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.sheffield.leapmotion.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
@@ -511,6 +513,12 @@ public class App implements ThrowableListener, Tickable {
                 csv.add("histogramBins", "" + Properties.HISTOGRAM_BINS);
 
                 csv.add("histogramThreshold", "" + Properties.HISTOGRAM_THRESHOLD);
+
+                if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)){
+                    csv.add("dataHitRatio", "" + StateIsolatedAnalyzerApp.hitRatio());
+                } else {
+                    csv.add("dataHitRatio", "" + AnalyzerApp.hitRatio());
+                }
 
                 csv.finalize();
 

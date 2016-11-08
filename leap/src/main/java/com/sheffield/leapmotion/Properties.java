@@ -90,7 +90,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum FrameSelectionStrategy {
-        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE, NONE, MANUAL
+        RANDOM, EUCLIDEAN, RANDOM_DISTANCE, N_GRAM, EMPTY, ADAPTIVE_RANDOM_DISTANCE, VQ, STATE_DEPENDENT, SINGLE_MODEL, REPRODUCTION, REGRESSION, RANDOM_SINGLE_TOGGLE, NONE, MANUAL, STATE_ISOLATED
     }
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
@@ -122,6 +122,9 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "classDir", description = "Directory of Source Code", hasArgs = true, category = "Results Processing")
     public static String classDirectory = "";
+
+    @Parameter(key = "jitter", description = "Random amount to move all joints per frame", hasArgs = true, category = "Leap Motion Testing")
+    public static float JITTER = 0f;
 
 
 

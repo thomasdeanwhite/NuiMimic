@@ -178,7 +178,7 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 
 	@Override
 	public String status() {
-		return "ss[" + StateComparator.getCurrentState() + "]";
+		return "ss[" + StateComparator.getCurrentState() + "] hr: " + StateIsolatedAnalyzerApp.hitRatio();
 	}
 
 	@Override
