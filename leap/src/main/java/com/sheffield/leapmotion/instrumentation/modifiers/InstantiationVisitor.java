@@ -17,7 +17,7 @@ import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
 import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
 import com.sheffield.leapmotion.instrumentation.MockRandom;
-import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
+import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.mocks.SeededGesture;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -72,11 +72,12 @@ public class InstantiationVisitor extends MethodVisitor {
     private static final String MOCK_RANDOM_CLASS = Type.getInternalName(MockRandom.class);
 
     private static final String SYSTEM_CLASS = Type.getInternalName(System.class);
-    private static final String MOCK_SYSTEM_MILLIES = Type.getInternalName(MockSystemMillis.class);
+    private static final String MOCK_SYSTEM_CLASS = Type.getInternalName(MockSystem.class);
 
     private static final String GD_CLASS = Type.getInternalName(GraphicsDevice.class);
     private static final String GE_CLASS = Type.getInternalName(GraphicsEnvironment.class);
     private static final String MOCK_GD_CLASS = Type.getInternalName(MockGraphicsDevice.class);
+
 
     private static Method METHOD_TO_CALL;
     private static Method APP_METHOD_TO_CALL;
@@ -162,9 +163,16 @@ public class InstantiationVisitor extends MethodVisitor {
         } if (owner.equalsIgnoreCase(JOPTIONS_CLASS)){
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_JOPTIONS_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(GD_CLASS)){
-            //shouldCall = false;
-            //super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);
+        } else if (owner.equalsIgnoreCase(GE_CLASS)  && name.equals("getDefaultScreenDevice") ){
+            super.visitInsn(Opcodes.POP);
+            shouldCall = false;
+            super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_GD_CLASS, name, desc, itf);
+            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
+            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
+//        } else if (owner.equalsIgnoreCase(GD_CLASS)){
+//            shouldCall = false;
+//            super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);
         } else if (owner.equalsIgnoreCase(RANDOM_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")){
             shouldCall = false;
             super.visitMethodInsn(opcode, owner, name, desc, itf);
@@ -179,7 +187,10 @@ public class InstantiationVisitor extends MethodVisitor {
             //App.out.println("\n" + className + " uses RANDOM!");
         } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("currentTimeMillis")){
             shouldCall = false;
-            super.visitMethodInsn(opcode, MOCK_SYSTEM_MILLIES, name, desc, itf);
+            super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
+        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("setProperty")){
+            shouldCall = false;
+            super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
         }
 
         if (shouldCall) {

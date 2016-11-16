@@ -29,7 +29,7 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
 
     private HashMap<String, GestureHandler> gestureHandlers;
 
-    private RandomTemplateFrameSelector randomFrameSelector;
+    private VectorQuantizedFrameSelector randomFrameSelector;
     private RandomGestureHandler randomGestureHandler;
 
     private Random random = new Random();
@@ -49,7 +49,7 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
 	public SingleModelGuidedRandomFrameSelector() {
 		String[] gestures = Properties.INPUT;
 
-        randomFrameSelector = new RandomTemplateFrameSelector(gestures[0]);
+        randomFrameSelector = new VectorQuantizedFrameSelector(gestures[0]);
         randomGestureHandler = new RandomGestureHandler();
 
         useModel = false;
@@ -64,7 +64,7 @@ public class SingleModelGuidedRandomFrameSelector extends FrameSelector implemen
         frameSelectors = new HashMap<String, FrameSelector>();
         gestureHandlers = new HashMap<String, GestureHandler>();
 
-        int testIndex = Properties.CURRENT_RUN;
+        long testIndex = Properties.CURRENT_RUN;
 
 		for (String s : gestures){
             try {

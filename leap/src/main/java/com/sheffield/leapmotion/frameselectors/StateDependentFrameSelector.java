@@ -147,7 +147,7 @@ public class StateDependentFrameSelector extends FrameSelector implements FrameM
                 ProbabilityTracker positionPbt = new ProbabilityTracker(stateModels.get(0), totalModels.get(0));
                 ProbabilityTracker rotationPbt = new ProbabilityTracker(stateModels.get(1), totalModels.get(1));
                 NGramFrameSelector ngfs = new NGramFrameSelector(s);
-                int testIndex = Properties.CURRENT_RUN;
+                long testIndex = Properties.CURRENT_RUN;
                 File pFile = generateFile("hand_positions-" + testIndex);
                 pFile.createNewFile();
                 File rFile = generateFile("hand_rotations-" + testIndex);

@@ -5,6 +5,7 @@ import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
@@ -13,7 +14,7 @@ import com.sheffield.leapmotion.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.instrumentation.MockSystemMillis;
+import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 import com.sheffield.leapmotion.runtypes.ImageStateIdentifier;
@@ -232,7 +233,7 @@ public class App implements ThrowableListener, Tickable {
                 f.getParentFile().mkdirs();
             }
         }
-        Properties.CURRENT_RUN = testIndex;
+        Properties.CURRENT_RUN = System.currentTimeMillis();
 
         ClassAnalyzer.addThrowableListener(new ThrowableListener() {
             @Override
@@ -514,11 +515,7 @@ public class App implements ThrowableListener, Tickable {
 
                 csv.add("histogramThreshold", "" + Properties.HISTOGRAM_THRESHOLD);
 
-                if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)){
-                    csv.add("dataHitRatio", "" + StateIsolatedAnalyzerApp.hitRatio());
-                } else {
-                    csv.add("dataHitRatio", "" + AnalyzerApp.hitRatio());
-                }
+
 
                 csv.finalize();
 
@@ -596,9 +593,9 @@ public class App implements ThrowableListener, Tickable {
             csv.add("frameSelectionStrategy", Properties
                     .FRAME_SELECTION_STRATEGY.toString());
 
-            MockSystemMillis.RUNTIME = (int) (time - startTime);
+            MockSystem.RUNTIME = (int) (time - startTime);
 
-            csv.add("runtime", "" + MockSystemMillis.RUNTIME);
+            csv.add("runtime", "" + MockSystem.RUNTIME);
 
             csv.finalize();
             App.getApp().output(csv);
@@ -792,6 +789,8 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
+    public static long START_TIME = 0;
+
     public static void background(String[] args) {
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         Properties.USE_CHANGED_FLAG = true;
@@ -841,8 +840,10 @@ public class App implements ThrowableListener, Tickable {
                     e.printStackTrace();
                 }
 
+                InstrumentingClassLoader.getInstance();
+
                 long lastTime = System.currentTimeMillis();
-                long startTime = lastTime;
+                START_TIME = lastTime;
                 long lastTimeRecorded = 0;
                 while (app.status() != AppStatus.FINISHED) {
                     long time = System.currentTimeMillis();
@@ -859,6 +860,7 @@ public class App implements ThrowableListener, Tickable {
                     }
                     if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL) {
                         ClassAnalyzer.collectHitCounters(false);
+                        MockSystem.RUNTIME = (int) (System.currentTimeMillis() - START_TIME);
                         App.getApp().output(false);
                         lastTimeRecorded = lastTime;
                     }
@@ -866,7 +868,7 @@ public class App implements ThrowableListener, Tickable {
                 }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters(false);
-                MockSystemMillis.RUNTIME = (int) (System.currentTimeMillis() - startTime);
+                MockSystem.RUNTIME = (int) (System.currentTimeMillis() - START_TIME);
                 App.getApp().output(true);
                 System.exit(0);
 
@@ -1028,7 +1030,13 @@ public class App implements ThrowableListener, Tickable {
             csv.add("relatedBranchesTotal", "" + relatedBranches);
             csv.add("relatedBranchesCovered", "" + branchHits);
             csv.add("relatedBranchCoverage", "" + (branchHits / (float) relatedBranches));
-            csv.add("runtime", "" + MockSystemMillis.RUNTIME);
+            csv.add("runtime", "" + MockSystem.RUNTIME);
+
+            if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)){
+                csv.add("dataHitRatio", "" + StateIsolatedAnalyzerApp.hitRatio());
+            } else {
+                csv.add("dataHitRatio", "" + AnalyzerApp.hitRatio());
+            }
 
             csv.finalize();
             output(csv);
@@ -1107,12 +1115,12 @@ public class App implements ThrowableListener, Tickable {
             }
         }
 
-        MockSystemMillis.RUNTIME = System.currentTimeMillis() - startTime;
+        MockSystem.RUNTIME = System.currentTimeMillis() - startTime;
 
         String progress = "[";
 
         final int bars = 10;
-        float percent = MockSystemMillis.RUNTIME / (float) Properties.RUNTIME;
+        float percent = MockSystem.RUNTIME / (float) Properties.RUNTIME;
         int b1 = (int) (percent * bars);
         for (int i = 0; i < b1; i++) {
             progress += "-";
@@ -1125,7 +1133,7 @@ public class App implements ThrowableListener, Tickable {
         progress += "] " + ((int) (percent * 1000)) / 10f + "%";
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
-        if (MockSystemMillis.RUNTIME > Properties.RUNTIME) {
+        if (MockSystem.RUNTIME > Properties.RUNTIME) {
             status = AppStatus.FINISHED;
         }
     }

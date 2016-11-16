@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class RandomTemplateFrameSelector extends FrameSelector implements FrameModifier {
+public class VectorQuantizedFrameSelector extends FrameSelector implements FrameModifier {
 	private HashMap<String, SeededHand> hands;
 
 	private int currentAnimationTime = 0;
@@ -53,9 +53,9 @@ public class RandomTemplateFrameSelector extends FrameSelector implements FrameM
 		return FileHandler.generateTestingOutputFile(filename);
 	}
 
-	public RandomTemplateFrameSelector(String filename) {
+	public VectorQuantizedFrameSelector(String filename) {
 		try {
-			int testIndex = Properties.CURRENT_RUN;
+			long testIndex = Properties.CURRENT_RUN;
 
 			pFile = generateFile("hand_positions-" + testIndex);
 			pFile.createNewFile();

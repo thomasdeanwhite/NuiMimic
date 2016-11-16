@@ -51,7 +51,7 @@ public class Properties extends InstrumentationProperties {
     public static long RUNTIME = 600000;
 
     @Parameter(key = "currentRun", description = "Can be used for experiments to output the current run", hasArgs = true, category = "Leap Motion Testing")
-    public static int CURRENT_RUN = 0;
+    public static long CURRENT_RUN = 0;
 
     @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Testing")
     public static int GESTURE_CIRCLE_RADIUS = 5;
