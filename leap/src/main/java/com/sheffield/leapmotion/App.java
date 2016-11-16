@@ -5,7 +5,6 @@ import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
@@ -839,8 +838,6 @@ public class App implements ThrowableListener, Tickable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
-                InstrumentingClassLoader.getInstance();
 
                 long lastTime = System.currentTimeMillis();
                 START_TIME = lastTime;
