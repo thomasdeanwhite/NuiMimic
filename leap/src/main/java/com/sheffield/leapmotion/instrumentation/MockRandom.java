@@ -10,7 +10,7 @@ import java.util.Random;
  */
 public class MockRandom extends Random {
 
-    private static HashMap<String, Random> randoms;
+    public static HashMap<String, Random> randoms;
 
     static {
         randoms = new HashMap<String, Random>();
