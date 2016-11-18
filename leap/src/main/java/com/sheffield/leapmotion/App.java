@@ -18,6 +18,7 @@ import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 import com.sheffield.leapmotion.runtypes.InstrumentingRunType;
 import com.sheffield.leapmotion.runtypes.RunType;
+import com.sheffield.leapmotion.runtypes.agent.LeapmotionAgentTransformer;
 import com.sheffield.leapmotion.runtypes.state_identification.*;
 
 import com.sheffield.output.Csv;
@@ -32,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.instrument.Instrumentation;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -337,15 +339,15 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
-    public static void runAgent() {
-        String command = "java -javaagent:lm-agent.jar -jar " + Properties.JAR_UNDER_TEST;
-        App.out.print("Executing command: \n\t" + command);
-        try {
-            Process p = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    /**
+     * Premain that will be triggered when application runs with this
+     * attached as a Java agent.
+     * @param args runtime properties to change
+     */
+    public static void premain (String[] args, Instrumentation instr){
+        LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
+
+        instr.addTransformer(lat);
     }
 
     public static long START_TIME = 0;
