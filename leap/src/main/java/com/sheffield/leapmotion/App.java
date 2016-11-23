@@ -344,8 +344,18 @@ public class App implements ThrowableListener, Tickable {
      * attached as a Java agent.
      * @param args runtime properties to change
      */
-    public static void premain (String[] args, Instrumentation instr){
+    public static void premain (String args, Instrumentation instr){
         LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
+
+        App.out.println("- Instrumenting JAR");
+
+        String[] options = args.split(" ");
+
+        Properties.instance().setOptions(options);
+
+        for (String s : Properties.FORBIDDEN_PACKAGES) {
+            ClassReplacementTransformer.addForbiddenPackage(s);
+        }
 
         instr.addTransformer(lat);
     }

@@ -20,12 +20,7 @@ public class InstrumentingRunType implements RunType {
     @Override
     public int run() {
         App.out.println("- Instrumenting JAR");
-        String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion/", "com/google/",
-                "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
-                "org/junit/", /*"Launcher",*/ "org/apache", "com/garg", "net/sourceforge",
-                "com/steady", "com/thought", "com/jogamp", "com/bulletphysics", "com/jme3",
-                "com/oracle", "org/objectweb", "javax", "jogamp", "jme3", "org/lwjgl", "net/java"};
-        for (String s : defaultHiddenPackages) {
+        for (String s : Properties.FORBIDDEN_PACKAGES) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
         App.ENABLE_APPLICATION_OUTPUT = true;
