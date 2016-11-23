@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.runtypes;
+package com.sheffield.leapmotion.runtypes.state_identification;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;

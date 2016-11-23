@@ -76,6 +76,20 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "jar", description = "Jar to instrument", hasArgs = true, category = "Leap Motion Instrumentation")
     public static String JAR_UNDER_TEST = null;
 
+    @Parameter(key = "excludedPackages", description = "Additional packages to exclude from instrumentation", hasArgs = true, category = "Leap Motion Instrumentation")
+    public static String EXCLUDED_PACKAGES_STRING = null;
+
+    @Parameter(key = "forbiddenPackages", description = "Override packages to exclude from instrumentation", hasArgs = true, category = "Leap Motion Instrumentation")
+    public static String FORBIDDEN_PACKAGES_STRING = null;
+
+    public static String[] FORBIDDEN_PACKAGES = new
+    String[]{"com/sheffield/leapmotion/",
+            "com/google/",
+            "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
+            "org/junit/", /*"Launcher",*/ "org/apache", "com/garg", "net/sourceforge",
+            "com/steady", "com/thought", "com/jogamp", "com/bulletphysics", "com/jme3",
+            "com/oracle", "org/objectweb", "javax", "jogamp", "jme3", "org/lwjgl", "net/java"};
+
     @Parameter(key = "cp", description = "Path to library files for application", hasArgs = true, category = "Leap Motion Instrumentation")
     public static String CLASS_PATH = "";
 
@@ -278,6 +292,27 @@ public class Properties extends InstrumentationProperties {
 
             if (!TESTING_OUTPUT.endsWith("/")){
                 TESTING_OUTPUT += "/";
+            }
+
+            if (FORBIDDEN_PACKAGES_STRING != null){
+                FORBIDDEN_PACKAGES = FORBIDDEN_PACKAGES_STRING.split(";");
+            }
+
+            if (EXCLUDED_PACKAGES_STRING != null){
+                ArrayList<String> forbidden = new ArrayList<String>();
+                String[] excluded = EXCLUDED_PACKAGES_STRING.split(";");
+
+                for (String s : excluded){
+                    forbidden.add(s);
+                }
+
+                for (String s : FORBIDDEN_PACKAGES){
+                    forbidden.add(s);
+                }
+
+                FORBIDDEN_PACKAGES = new String[forbidden.size()];
+
+                forbidden.toArray(FORBIDDEN_PACKAGES);
             }
         } catch (Exception e1) {
             // TODO Auto-generated catch block

@@ -16,8 +16,11 @@ import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
-import com.sheffield.leapmotion.runtypes.ImageStateIdentifier;
-import com.sheffield.leapmotion.runtypes.StateShowingFrame;
+import com.sheffield.leapmotion.runtypes.InstrumentingRunType;
+import com.sheffield.leapmotion.runtypes.RunType;
+import com.sheffield.leapmotion.runtypes.agent.LeapmotionAgentTransformer;
+import com.sheffield.leapmotion.runtypes.state_identification.*;
+
 import com.sheffield.output.Csv;
 import com.sheffield.util.ClassNameUtils;
 
@@ -30,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.lang.instrument.Instrumentation;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +50,7 @@ public class App implements ThrowableListener, Tickable {
     public static App APP;
     public static boolean CLOSING = false;
     public static boolean RECORDING_STARTED = false;
-    private static boolean ENABLE_APPLICATION_OUTPUT = false;
+    public static boolean ENABLE_APPLICATION_OUTPUT = false;
     public static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
 
@@ -280,24 +284,54 @@ public class App implements ThrowableListener, Tickable {
         }
         App.out.println(".");
         Properties.instance().setOptions(args);
+
+        RunType run = null;
+
         switch (Properties.RUN_TYPE) {
             case INSTRUMENT:
-                instrument();
+                run = new InstrumentingRunType();
                 break;
             case VISUALISE:
-                visualise();
+                run = new VisualisingRunType();
                 break;
             case RECONSTRUCT:
                 App.getApp().setup(false);
-                reconstruct();
+                run = new ReconstructingRunType();
                 break;
             case STATE_RECOGNITION:
                 //INPUT should contain an array of histograms.
-                recogniseStates();
+                ImageStateIdentifier isi = new ImageStateIdentifier() {
+                    @Override
+                    public int identifyImage(BufferedImage bi,
+                                             HashMap<Integer, BufferedImage> seenStates) {
+                        StateComparator.captureState(bi);
+
+                        return StateComparator.getCurrentState();
+                    }
+
+                    @Override
+                    public String getOutputFilename() {
+                        return "automatic_recognition.csv";
+                    }
+                };
+                run = new StateRecognisingRunType(isi);
                 break;
             case MANUAL_STATE_RECOGNITION:
                 //INPUT should contain an array of histograms.
-                manualRecogniseStates();
+                final Scanner sc = new Scanner(System.in);
+
+                ImageStateIdentifier isiMan = new ImageStateIdentifier() {
+                    @Override
+                    public int identifyImage(BufferedImage bi, HashMap<Integer, BufferedImage> seenStates) {
+                        return sc.nextInt();
+                    }
+
+                    @Override
+                    public String getOutputFilename() {
+                        return "manual_recognition.csv";
+                    }
+                };
+                run = new StateRecognisingRunType(isiMan);
                 break;
             default:
                 App.out.println("Unimplemented RUNTIME");
@@ -305,487 +339,25 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
-    public static void recogniseStates() {
-        ImageStateIdentifier isi = new ImageStateIdentifier() {
-            @Override
-            public int identifyImage(BufferedImage bi,
-                                     HashMap<Integer, BufferedImage> seenStates) {
-                StateComparator.captureState(bi);
+    /**
+     * Premain that will be triggered when application runs with this
+     * attached as a Java agent.
+     * @param args runtime properties to change
+     */
+    public static void premain (String args, Instrumentation instr){
+        LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
 
-                return StateComparator.getCurrentState();
-            }
-
-            @Override
-            public String getOutputFilename() {
-                return "automatic_recognition.csv";
-            }
-        };
-
-
-        //for (int i = 8; i < 256; i+=8) {
-        //StateComparator.cleanUp();
-        //Properties.HISTOGRAM_BINS = i;
-        processStates(isi);
-        //}
-
-
-        System.exit(0);
-
-    }
-
-    public static void manualRecogniseStates() {
-
-        final Scanner sc = new Scanner(System.in);
-
-        ImageStateIdentifier isi = new ImageStateIdentifier() {
-            @Override
-            public int identifyImage(BufferedImage bi, HashMap<Integer, BufferedImage> seenStates) {
-                return sc.nextInt();
-            }
-
-            @Override
-            public String getOutputFilename() {
-                return "manual_recognition.csv";
-            }
-        };
-        processStates(isi);
-    }
-
-    public static void processStates(ImageStateIdentifier isi) {
-        try {
-            //INPUT should be a directory contaning screenshots
-            String directory = Properties.INPUT[0];
-
-            File dir = new File(directory);
-
-            int counter = 1;
-
-            Properties.FRAME_SELECTION_STRATEGY = Properties
-                    .FRAME_SELECTION_STRATEGY.NONE;
-
-            Properties.CURRENT_RUN = 0;
-
-            final HashMap<Integer, BufferedImage> seenStates = new HashMap<Integer, BufferedImage>();
-
-            final int STATES_PER_ROW = 5;
-
-            JFrame imageStates = new JFrame("Seen States") {
-                @Override
-                public void paint(Graphics g) {
-                    //super.paint(g);
-
-                    Graphics2D g2d = (Graphics2D) g;
-
-                    g2d.clearRect(0, 0, getWidth(), getHeight());
-
-                    Set<Integer> keys = seenStates.keySet();
-
-                    Integer[] ks = new Integer[keys.size()];
-
-                    keys.toArray(ks);
-
-                    Arrays.sort(ks);
-
-                    int width = getWidth() / STATES_PER_ROW;
-
-                    int height = (width * 9) / 16;
-
-                    for (int i = 0; i < ks.length; i++) {
-                        int x = (i % STATES_PER_ROW) * width;
-
-                        int y = (i / STATES_PER_ROW) * height;
-
-                        if (ks[i] == null) {
-                            g2d.setColor(Color.RED);
-                            g2d.fillRect(x, y, width, height);
-                            continue;
-                        }
-
-                        int key = ks[i];
-
-                        g2d.drawImage(seenStates.get(key), x, y, width, height, null);
-
-                        g2d.setColor(Color.red);
-
-                        g2d.drawString("" + key, x + 10, y + height / 2);
-
-
-                    }
-
-                }
-            };
-
-            imageStates.setSize(800, 600);
-
-            imageStates.setLocation(960, 0);
-
-            StateShowingFrame image = new StateShowingFrame();
-            image.setSize(960, 540);
-
-            image.setLocation(0, 0);
-
-            image.setVisible(true);
-
-            imageStates.setVisible(true);
-
-
-            File[] files = dir.listFiles();
-
-            String[] fs = new String[files.length];
-
-            for (int i = 0; i < files.length; i++) {
-                fs[i] = files[i].getAbsolutePath();
-            }
-
-            //Arrays.sort(fs);
-
-            Comparator<String> comp = new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    int n = o1.lastIndexOf("SCREEN") + 6;
-                    int n1 = o2.lastIndexOf("SCREEN") + 6;
-
-                    if (n == n1 && n == 5) {
-                        return 0;
-                    }
-
-                    if (n == 5) {
-                        return 1;
-                    }
-
-                    if (n1 == 5) {
-                        return -1;
-                    }
-
-                    int s = Integer.parseInt(o1.substring(n, o1.length() - 4));
-                    int s1 = Integer.parseInt(o2.substring(n, o2.length() - 4));
-
-                    return s - s1;
-                }
-            };
-
-            Arrays.sort(fs, comp);
-
-            for (String s : fs) {
-
-                File f = new File(s);
-
-                if (f.isDirectory()) {
-                    continue;
-                }
-
-                if (!f.getName().toLowerCase().endsWith(".png")) {
-                    continue;
-                }
-
-                BufferedImage orig = ImageIO.read(f);
-
-                BufferedImage bi = new BufferedImage(orig.getWidth(), orig.getHeight(), BufferedImage.TYPE_INT_RGB);
-
-                Graphics2D g2 = bi.createGraphics();
-
-                g2.drawImage(orig, 0, 0, null);
-
-                g2.dispose();
-
-                image.setImage(bi);
-
-                image.paint(image.getGraphics());
-
-                int state = isi.identifyImage(bi, seenStates);
-
-                if (!seenStates.containsKey(state)) {
-                    seenStates.put(state, bi);
-
-                    imageStates.paint(imageStates.getGraphics());
-                }
-
-                Csv csv = new Csv();
-
-                csv.add("imageId", f.getName());
-
-                csv.add("stateAssignment", "" + state);
-
-                csv.add("totalStates", "" + seenStates.keySet().size());
-
-                csv.add("counter", "" + counter);
-
-                csv.add("histogramBins", "" + Properties.HISTOGRAM_BINS);
-
-                csv.add("histogramThreshold", "" + Properties.HISTOGRAM_THRESHOLD);
-
-
-
-                csv.finalize();
-
-                File csvFile = new File(f.getParentFile().getAbsolutePath(), Properties.TESTING_OUTPUT + "states/" + isi.getOutputFilename());
-                if (csvFile.getParentFile() != null) {
-                    csvFile.getParentFile().mkdirs();
-                }
-                try {
-                    boolean newFile = !csvFile.getAbsoluteFile().exists();
-                    String contents = "";
-
-                    if (newFile) {
-                        csvFile.createNewFile();
-                        contents += csv.getHeaders() + "\n";
-                    }
-
-                    contents += csv.getValues() + "\n";
-
-                    FileHandler.appendToFile(csvFile, contents);
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                counter++;
-            }
-
-            imageStates.setVisible(false);
-
-            imageStates = null;
-
-            image.setVisible(false);
-
-            image = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-    }
-
-    public static void reconstruct() {
-
-        while (Properties.INPUT.length > 0) {
-
-            SeededController sc = SeededController.getSeededController(false);
-
-            Properties.FRAME_SELECTION_STRATEGY = Properties
-                    .FrameSelectionStrategy.REPRODUCTION;
-
-            Properties.CURRENT_RUN = 0;
-
-            long startTime = System.currentTimeMillis();
-            long time = startTime;
-            long endTime = time + Properties.RUNTIME;
-            while ((time = System.currentTimeMillis()) < endTime) {
-                sc.tick(time);
-                sc.frame();
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            Csv csv = new Csv();
-
-            csv.add("rootMeanSquared", "" + sc.status().split("rms: ")[1]);
-
-            //Properties.OUTPUT_INCLUDES_ARRAY.add("gestureFiles");
-
-            csv.add("input", Properties.INPUT[0]);
-
-//            csv.merge(Properties.instance().toCsv());
-
-            csv.add("frameSelectionStrategy", Properties
-                    .FRAME_SELECTION_STRATEGY.toString());
-
-            MockSystem.RUNTIME = (int) (time - startTime);
-
-            csv.add("runtime", "" + MockSystem.RUNTIME);
-
-            csv.finalize();
-            App.getApp().output(csv);
-
-            String[] gFiles = Properties.INPUT;
-
-            if (gFiles.length > 1) {
-                Properties.INPUT = new String[gFiles.length - 1];
-
-                for (int i = 1; i < gFiles.length; i++) {
-                    Properties.INPUT[i - 1] = gFiles[i];
-                }
-            } else {
-                break;
-            }
-
-            SeededController.getSeededController().cleanUp();
-            SeededController.resetSeededController();
-        }
-
-        System.exit(0);
-    }
-
-    public static void visualise() {
-        TrainingDataVisualiser tdv = new TrainingDataVisualiser(Properties.INPUT[0]);
-    }
-
-    public static void instrument() {
         App.out.println("- Instrumenting JAR");
-        String[] defaultHiddenPackages = new String[]{"com/sheffield/leapmotion/", "com/google/",
-                "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
-                "org/junit/", /*"Launcher",*/ "org/apache", "com/garg", "net/sourceforge",
-                "com/steady", "com/thought", "com/jogamp", "com/bulletphysics", "com/jme3",
-                "com/oracle", "org/objectweb", "javax", "jogamp", "jme3", "org/lwjgl", "net/java"};
-        for (String s : defaultHiddenPackages) {
+
+        String[] options = args.split(" ");
+
+        Properties.instance().setOptions(options);
+
+        for (String s : Properties.FORBIDDEN_PACKAGES) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
-        ENABLE_APPLICATION_OUTPUT = true;
-        IS_INSTRUMENTING = true;
-        Properties.LOG = false;
-        ClassAnalyzer.setOut(App.out);
 
-
-        Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
-        try {
-            String dir = Properties.JAR_UNDER_TEST.substring(0, Properties.JAR_UNDER_TEST.lastIndexOf("/") + 1);
-
-            Properties.WRITE_CLASS = true;
-            Properties.BYTECODE_DIR = dir + "classes";
-
-            LeapMotionApplicationHandler.instrumentJar(Properties.JAR_UNDER_TEST);
-
-            String output = dir + "branches.csv";
-            String output2 = dir + "lines.csv";
-            App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");
-            ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
-            App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");
-
-            HashSet<ClassNode> nodes;
-            if (Properties.SLICE_ROOT == null) {
-                ArrayList<ClassNode> superNodes = DependencyTree.getDependencyTree().getPackageNodes(DependencyTree.getClassMethodId("com.leapmotion.leap.Controller", "<init>"));
-
-                nodes = new HashSet<ClassNode>();
-
-                nodes.addAll(superNodes);
-//
-//                for (ClassNode cn : superNodes){
-//                    nodes.addAll(cn.getDependencies());
-//                }
-            } else {
-                App.out.println();
-                nodes = new HashSet<ClassNode>();
-                for (String s : Properties.SLICE_ROOT.split(";")) {
-                    s = ClassNameUtils.standardise(s);
-                    App.out.print("\r[Getting dependencies for: " + s + "]");
-                    nodes.addAll(DependencyTree.getDependencyTree().getDependencies(s));
-                }
-            }
-
-            Set<String> lines = new HashSet<String>();
-
-//            HashSet<String> lines = new HashSet<String>();
-            ArrayList<String> relatedClasses = new ArrayList<String>();
-            for (ClassNode cn : nodes) {
-
-                HashSet<String> classes = new HashSet<String>();
-
-                String[] clazzes = cn.toString(relatedClasses).split("\n");
-
-                classes.addAll(Arrays.asList(clazzes));
-
-                String[] link = cn.toNomnoml().split("\n");
-                for (String n : link) {
-                    lines.add(n);
-                }
-
-                for (String s : classes) {
-
-
-                        if (s.length() > 0) {
-                            if (!ClassReplacementTransformer.isForbiddenPackage(s) && !relatedClasses.contains(s)) {
-                                relatedClasses.add(s);
-                                //App.out.println(s);
-                            }
-                        }
-                }
-
-                //App.out.println(cn.toNomnoml());
-            }
-
-//            ArrayList<ClassNode> options = DependencyTree.getDependencyTree().getPackageNodes("JOptionsPane");
-//
-//            for (ClassNode cn : options) {
-//                App.out.println("OPTIONS: " + cn.toNomnoml());
-//            }
-
-
-            for (String s : lines) {
-                App.out.println(s);
-            }
-
-            String related = dir + "related_classes.csv";
-
-            File relatedFile = new File(related);
-
-            if (!relatedFile.exists()) {
-                relatedFile.createNewFile();
-            }
-
-            String classes = "";
-
-            String[] forbid = new String[]{};
-
-            if (Properties.UNTRACKED_PACKAGES != null){
-                forbid = Properties.UNTRACKED_PACKAGES.split(",");
-            }
-
-            for (int i = 0; i < forbid.length; i++){
-                forbid[i] = ClassNameUtils.standardise(forbid[i]);
-            }
-
-            relatedClasses.sort(new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    for (int i = 0; i < Math.min(o1.length(), o2.length()); i++){
-                        if (o1.charAt(i) == o2.charAt(i)){
-                            continue;
-                        }
-                        return o1.charAt(i) - o2.charAt(i);
-                    }
-                    return 0;
-                }
-            });
-
-            for (String c : relatedClasses) {
-
-                boolean skip = false;
-                for (String f : forbid){
-                    if (c.startsWith(f)){
-                        skip = true;
-                        break;
-                    }
-                }
-
-                if (c == null || c.length() == 0 || skip || c.startsWith("com/leapmotion/leap")) {
-                    continue;
-                }
-
-                String cName = DependencyTree.getClassName(c);
-                String mName = DependencyTree.getMethodName(c);
-
-                classes += c + "," + ClassAnalyzer.getCoverableLines(cName, mName).size() + "," + ClassAnalyzer.getCoverableBranches(cName, mName).size() + "\n";
-            }
-            FileHandler.writeToFile(relatedFile, "class,lines,branches\n");
-            FileHandler.appendToFile(relatedFile, classes);
-
-
-        } catch (Exception e) {
-            e.printStackTrace(App.out);
-        }
-    }
-
-    public static void runAgent() {
-        String command = "java -javaagent:lm-agent.jar -jar " + Properties.JAR_UNDER_TEST;
-        App.out.print("Executing command: \n\t" + command);
-        try {
-            Process p = Runtime.getRuntime().exec(command);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        instr.addTransformer(lat);
     }
 
     public static long START_TIME = 0;
@@ -822,7 +394,13 @@ public class App implements ThrowableListener, Tickable {
             }
         }
         App.out.println("- Starting background testing thread.");
-        mainThread = new Thread(new Runnable() {
+        mainThread = getMainThread();
+        mainThread.start();
+
+    }
+
+    public static Thread getMainThread(){
+        return new Thread(new Runnable() {
 
             @Override
             public void run() {
@@ -842,6 +420,11 @@ public class App implements ThrowableListener, Tickable {
                 long lastTime = System.currentTimeMillis();
                 START_TIME = lastTime;
                 long lastTimeRecorded = 0;
+
+                final int BARS = 21;
+
+                App.out.println(ProgressBar.getHeaderBar(BARS));
+
                 while (app.status() != AppStatus.FINISHED) {
                     long time = System.currentTimeMillis();
                     int timePassed = (int) (time - lastTime);
@@ -872,91 +455,16 @@ public class App implements ThrowableListener, Tickable {
             }
 
         });
-        mainThread.start();
-
     }
 
     public void output(boolean finished) {
         if (finished) {
-            App.out.println("- Finished testing: ");
-            App.out.println("@ Coverage Report: ");
-            App.out.println(ClassAnalyzer.getReport());
-            if (Properties.VISUALISE_DATA)
-                App.DISPLAY_WINDOW.setVisible(false);
-
-            BufferedImage bi = null;
-
-            try {
-                Robot robot = new Robot();
-                bi = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-            } catch (AWTException e) {
-                e.printStackTrace();
-            }
-
-            File outFldr = new File(Properties.TESTING_OUTPUT + "result_states");
-            outFldr.mkdirs();
-
-            File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
-            try {
-                ImageIO.write(bi, "png", output);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (Properties.VISUALISE_DATA)
-                App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
+            cleanUp();
         }
         try {
             ClassAnalyzer.setOut(App.out);
-            StringBuilder linesHit = new StringBuilder();
-            ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
-            for (LineHit lh : ClassAnalyzer.getTotalLines()) {
 
-                String className = lh.getLine().getClassName();
-
-                if (classSeen.contains(className)) {
-                    className = "" + classSeen.indexOf(className);
-                } else {
-                    File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
-                    if (classes.getParentFile() != null) {
-                        classes.getParentFile().mkdirs();
-                    }
-                    if (!classes.exists()) {
-                        classes.createNewFile();
-                    }
-                    classSeen.add(className);
-                    FileHandler.appendToFile(classes, className + ":");
-                    className = "" + classSeen.indexOf(className);
-                    FileHandler.appendToFile(classes, className + "\n");
-                }
-
-                if (linesCovered.contains(lh)) {
-                    linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
-                }
-            }
-
-            StringBuilder branchesHit = new StringBuilder();
-            List<BranchHit> branchesCovered = ClassAnalyzer.getBranchesExecuted();
-            for (BranchHit lh : branchesCovered) {
-                String className = lh.getBranch().getClassName();
-
-                if (classSeen.contains(className)) {
-                    className = "" + classSeen.indexOf(className);
-                } else {
-                    File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
-                    if (classes.getParentFile() != null) {
-                        classes.getParentFile().mkdirs();
-                    }
-                    if (!classes.exists()) {
-                        classes.createNewFile();
-                    }
-                    classSeen.add(className);
-                    FileHandler.appendToFile(classes, className + ":");
-                    className = "" + classSeen.indexOf(className);
-                    FileHandler.appendToFile(classes, className + "\n");
-                }
-                branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
-            }
+            outputLineAndBranchHits();
 
             String gestureFiles = "";
             for (String s : Properties.INPUT) {
@@ -1037,26 +545,6 @@ public class App implements ThrowableListener, Tickable {
 
             csv.finalize();
             output(csv);
-
-            File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
-            if (classes.getParentFile() != null) {
-                classes.getParentFile().mkdirs();
-            }
-            if (!classes.exists()) {
-                classes.createNewFile();
-            }
-
-            FileHandler.appendToFile(classes, linesHit.toString() + "\n");
-
-            File branches = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered.csv");
-            if (branches.getParentFile() != null) {
-                branches.getParentFile().mkdirs();
-            }
-            if (!branches.exists()) {
-                branches.createNewFile();
-            }
-
-            FileHandler.appendToFile(branches, branchesHit.toString() + "\n");
         } catch (IOException e) {
             e.printStackTrace(App.out);
         }
@@ -1084,6 +572,108 @@ public class App implements ThrowableListener, Tickable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void cleanUp(){
+        App.out.println("- Finished testing: ");
+        App.out.println("@ Coverage Report: ");
+        App.out.println(ClassAnalyzer.getReport());
+        if (Properties.VISUALISE_DATA)
+            App.DISPLAY_WINDOW.setVisible(false);
+
+        BufferedImage bi = null;
+
+        try {
+            Robot robot = new Robot();
+            bi = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+
+        File outFldr = new File(Properties.TESTING_OUTPUT + "result_states");
+        outFldr.mkdirs();
+
+        File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
+        try {
+            ImageIO.write(bi, "png", output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (Properties.VISUALISE_DATA)
+            App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
+    }
+
+    public void outputLineAndBranchHits() throws IOException {
+        StringBuilder linesHit = new StringBuilder();
+        ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
+        for (LineHit lh : ClassAnalyzer.getTotalLines()) {
+
+            String className = lh.getLine().getClassName();
+
+            if (classSeen.contains(className)) {
+                className = "" + classSeen.indexOf(className);
+            } else {
+                File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                if (classes.getParentFile() != null) {
+                    classes.getParentFile().mkdirs();
+                }
+                if (!classes.exists()) {
+                    classes.createNewFile();
+                }
+                classSeen.add(className);
+                FileHandler.appendToFile(classes, className + ":");
+                className = "" + classSeen.indexOf(className);
+                FileHandler.appendToFile(classes, className + "\n");
+            }
+
+            if (linesCovered.contains(lh)) {
+                linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
+            }
+        }
+
+        StringBuilder branchesHit = new StringBuilder();
+        List<BranchHit> branchesCovered = ClassAnalyzer.getBranchesExecuted();
+        for (BranchHit lh : branchesCovered) {
+            String className = lh.getBranch().getClassName();
+
+            if (classSeen.contains(className)) {
+                className = "" + classSeen.indexOf(className);
+            } else {
+                File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                if (classes.getParentFile() != null) {
+                    classes.getParentFile().mkdirs();
+                }
+                if (!classes.exists()) {
+                    classes.createNewFile();
+                }
+                classSeen.add(className);
+                FileHandler.appendToFile(classes, className + ":");
+                className = "" + classSeen.indexOf(className);
+                FileHandler.appendToFile(classes, className + "\n");
+            }
+            branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
+        }
+
+        File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
+        if (classes.getParentFile() != null) {
+            classes.getParentFile().mkdirs();
+        }
+        if (!classes.exists()) {
+            classes.createNewFile();
+        }
+
+        FileHandler.appendToFile(classes, linesHit.toString() + "\n");
+
+        File branches = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered.csv");
+        if (branches.getParentFile() != null) {
+            branches.getParentFile().mkdirs();
+        }
+        if (!branches.exists()) {
+            branches.createNewFile();
+        }
+
+        FileHandler.appendToFile(branches, branchesHit.toString() + "\n");
     }
 
     public void start() {
@@ -1114,20 +704,8 @@ public class App implements ThrowableListener, Tickable {
 
         MockSystem.RUNTIME = System.currentTimeMillis() - startTime;
 
-        String progress = "[";
+        String progress = ProgressBar.getProgressBar(21, MockSystem.RUNTIME / (float) Properties.RUNTIME);
 
-        final int bars = 10;
-        float percent = MockSystem.RUNTIME / (float) Properties.RUNTIME;
-        int b1 = (int) (percent * bars);
-        for (int i = 0; i < b1; i++) {
-            progress += "-";
-        }
-        progress += ">";
-        int b2 = bars - b1;
-        for (int i = 0; i < b2; i++) {
-            progress += " ";
-        }
-        progress += "] " + ((int) (percent * 1000)) / 10f + "%";
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
         if (MockSystem.RUNTIME > Properties.RUNTIME) {
