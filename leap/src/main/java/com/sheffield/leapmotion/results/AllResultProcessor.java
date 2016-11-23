@@ -98,7 +98,7 @@ public class AllResultProcessor {
 
             HashMap<String, HashMap<String, HashMap<Integer, Integer>>> methodLinesCovered = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
 
-            String[] methodsUsed = {"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDENT", "REPRODUCTION", "EMPTY", "USER_PLAYBACK", "UNKNOWN"};
+            String[] methodsUsed = {"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDENT", "STATE_ISOLATED", "REPRODUCTION", "EMPTY", "USER_PLAYBACK", "UNKNOWN"};
 
             ArrayList<String> seenMethods = new ArrayList<String>();
 
