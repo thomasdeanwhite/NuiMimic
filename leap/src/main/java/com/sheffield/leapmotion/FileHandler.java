@@ -52,7 +52,7 @@ public class FileHandler {
     }
 
     public static File generateTestingOutputFile(String name){
-        File f = new File("testing_output/logs/" + name + ".csv");
+        File f = new File("testing_output/logs/" + Properties.FRAME_SELECTION_STRATEGY + "-" + name + ".csv");
         return f;
     }
 }

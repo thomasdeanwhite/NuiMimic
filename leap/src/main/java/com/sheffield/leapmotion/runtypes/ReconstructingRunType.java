@@ -1,10 +1,9 @@
-package com.sheffield.leapmotion.runtypes.state_identification;
+package com.sheffield.leapmotion.runtypes;
 
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
-import com.sheffield.leapmotion.runtypes.RunType;
 import com.sheffield.output.Csv;
 
 /**
@@ -19,7 +18,7 @@ public class ReconstructingRunType implements RunType {
             SeededController sc = SeededController.getSeededController(false);
 
             Properties.FRAME_SELECTION_STRATEGY = Properties
-                    .FrameSelectionStrategy.REPRODUCTION;
+                    .FrameSelectionStrategy.RECONSTRUCTION;
 
             Properties.CURRENT_RUN = 0;
 
@@ -27,7 +26,9 @@ public class ReconstructingRunType implements RunType {
             long time = startTime;
             long endTime = time + Properties.RUNTIME;
             while ((time = System.currentTimeMillis()) < endTime) {
-                sc.tick(time);
+                if (sc.lastTick() < time) {
+                    sc.tick(time);
+                }
                 sc.frame();
                 try {
                     Thread.sleep(10);

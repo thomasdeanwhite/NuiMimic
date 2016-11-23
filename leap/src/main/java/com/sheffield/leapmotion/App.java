@@ -1,7 +1,6 @@
 package com.sheffield.leapmotion;
 
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
@@ -15,17 +14,17 @@ import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
-import com.sheffield.leapmotion.output.TrainingDataVisualiser;
 import com.sheffield.leapmotion.runtypes.InstrumentingRunType;
+import com.sheffield.leapmotion.runtypes.ReconstructingRunType;
 import com.sheffield.leapmotion.runtypes.RunType;
+import com.sheffield.leapmotion.runtypes.StateRecognisingRunType;
+import com.sheffield.leapmotion.runtypes.VisualisingRunType;
 import com.sheffield.leapmotion.runtypes.agent.LeapmotionAgentTransformer;
 import com.sheffield.leapmotion.runtypes.state_identification.*;
 
 import com.sheffield.output.Csv;
-import com.sheffield.util.ClassNameUtils;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -36,14 +35,10 @@ import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
 import java.security.Permission;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.Set;
 
 public class App implements ThrowableListener, Tickable {
     public static Random random = new Random();
@@ -224,7 +219,7 @@ public class App implements ThrowableListener, Tickable {
         if (testing) {
             App.getApp().setTesting();
         }
-        if (Properties.VISUALISE_DATA) {
+        if (Properties.VISUALISE_DATA && DISPLAY_WINDOW == null) {
             DISPLAY_WINDOW = new DisplayWindow();
         }
         File f = null;
@@ -337,6 +332,7 @@ public class App implements ThrowableListener, Tickable {
                 App.out.println("Unimplemented RUNTIME");
                 break;
         }
+        run.run();
     }
 
     /**
@@ -425,9 +421,15 @@ public class App implements ThrowableListener, Tickable {
 
                 App.out.println(ProgressBar.getHeaderBar(BARS));
 
+                boolean headers = true;
+
                 while (app.status() != AppStatus.FINISHED) {
                     long time = System.currentTimeMillis();
                     int timePassed = (int) (time - lastTime);
+                    if (headers){
+                        App.out.println(ProgressBar.getHeaderBar(BARS));
+                        headers = false;
+                    }
                     app.tick(time);
                     try {
                         int d = delay - timePassed;

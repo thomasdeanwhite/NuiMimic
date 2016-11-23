@@ -47,6 +47,11 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
 
 	@Override
 	public void advanceGestures(long time){
+
+		if (currentGesture == null){
+			return;
+		}
+
 		if (gestureState == null || gestureTypes.size() == 0 || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
 

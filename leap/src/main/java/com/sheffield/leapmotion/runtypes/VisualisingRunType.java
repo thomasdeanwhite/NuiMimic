@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.runtypes.state_identification;
+package com.sheffield.leapmotion.runtypes;
 
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;

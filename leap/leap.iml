@@ -10,9 +10,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="instrumentation" />
-    <orderEntry type="library" name="Maven: com.leapmotion:leapmotion.sdk:1.0" level="project" />
     <orderEntry type="library" name="Maven: com.sheffield:instrumentation:0.0.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.leapmotion:leapmotion.sdk:1.0" level="project" />
+    <orderEntry type="module" module-name="instrumentation" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm:5.0.3" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
