@@ -1,6 +1,7 @@
 language: java
 install:
   git clone https://bitbucket.org/shefinstrumentation/instrumentation.git;
-  cd instrumentation;
+  pushd instrumentation;
   mvn clean install;
+  popd;
 script: mvn package
