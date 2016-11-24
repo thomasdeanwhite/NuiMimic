@@ -19,6 +19,8 @@
 
 	<dependencies>
 
+
+
 		<dependency>
 			<groupId>com.leapmotion</groupId>
 			<artifactId>leapmotion.sdk</artifactId>
