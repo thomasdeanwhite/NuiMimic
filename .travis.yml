@@ -1,10 +1,9 @@
 language: java
-install:
+script:
   git clone https://bitbucket.org/shefinstrumentation/instrumentation.git;
   pushd instrumentation;
   mvn clean install -Dmaven.test.skip=true;
-  popd;
-script: 
+  popd; 
   pushd leap;
   mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dversion=1.0 -Dpackaging=JAR;
   popd;
