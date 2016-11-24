@@ -4,4 +4,4 @@ install:
   pushd instrumentation;
   mvn clean install;
   popd;
-script: mvn package
+script: mvn test
