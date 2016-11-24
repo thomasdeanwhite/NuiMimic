@@ -1,3 +1,6 @@
 language: java
-install: ./before_install.sh
+install:
+  git clone https://bitbucket.org/shefinstrumentation/instrumentation.git;
+  cd instrumentation;
+  mvn clean install;
 script: mvn package
