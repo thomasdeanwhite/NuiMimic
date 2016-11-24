@@ -62,8 +62,12 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 			if (frameSelector instanceof ReconstructiveFrameSelector){
 				Properties.PLAYBACK_FILE = null;
+				boolean vis = Properties.VISUALISE_DATA;
+				Properties.VISUALISE_DATA = false;
 				fh = new FrameHandler();
 				fh.init();
+
+				Properties.VISUALISE_DATA = vis;
 				if (Properties.VISUALISE_DATA) {
 					dw = new DisplayWindow();
 					fh.addFrameSwitchListener(new FrameSwitchListener() {
@@ -206,7 +210,7 @@ public class UserPlaybackFrameSelector extends FrameSelector {
 
 		if (fh != null){
 			fh.tick(time);
-			if (fhFrame != null && fhFrame.isValid()){
+			if (fhFrame != null && fhFrame.isValid() && fhFrame.hands().count() > 0){
 				if (totalDifferences == null){
 					totalDifferences = new HashMap<Finger.Type, HashMap<Bone.Type, Float>>();
 					for (Finger.Type ft : Finger.Type.values()){

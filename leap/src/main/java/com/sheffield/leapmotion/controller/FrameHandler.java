@@ -84,7 +84,7 @@ public class FrameHandler implements Tickable {
                 case STATE_ISOLATED:
                     frameSelector = new StateIsolatedFrameSelector(Properties.INPUT[0]);
                     break;
-                case REPRODUCTION:
+                case RECONSTRUCTION:
                     frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);
                     break;
                 case REGRESSION:

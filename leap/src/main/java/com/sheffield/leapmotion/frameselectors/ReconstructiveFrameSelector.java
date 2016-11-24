@@ -5,11 +5,9 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.BezierHelper;
 import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Quaternion;
-import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.gestures.ReconstructiveGestureHandler;
@@ -177,6 +175,7 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         if (handLabelStack.size() == 0){
             return;
         }
+
         Hand h = Hand.invalid();
         for (Hand hand : frame.hands()) {
             h = hand;
@@ -184,24 +183,12 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         if (h instanceof SeededHand) {
             SeededHand sh = (SeededHand) h;
 
-            Quaternion lastRotation = rotations.get(currentRotation);
-
-            float modifier = Math.max(1f, currentAnimationTime / animationTime);
-
-            Quaternion q = QuaternionHelper.fadeQuaternions(lastRotation, rotations.get(rotationLabelStack.get(0)), modifier).normalise();
-
-            //sh.setRotation(axis, angle);
+            Quaternion q = rotations.get(currentRotation);
 
             q.setBasis(sh);
-
-            //Quaternion.FLIP_IN_Y.setBasis(sh);//
-            ArrayList<Vector> seededPositions = new ArrayList<Vector>();
-
-            seededPositions.add(vectors.get(currentPosition));
-            seededPositions.add(vectors.get(positionLabelStack.get(0)));
-
-            sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
+            sh.setOrigin(vectors.get(positionLabelStack.get(0)));
         }
+        currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
     }
 
     @Override
@@ -215,14 +202,17 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         hs.add(hands.get(handLabelStack.get(0)));
         Hand hand = hands.get(currentHand);
         float modifier = Math.max(1f, currentAnimationTime / animationTime);
-      f = HandFactory.injectHandIntoFrame(f, ((SeededHand)hand).fadeHand(hs, modifier));
+
+        if (hand != null) {
+            f = HandFactory.injectHandIntoFrame(f, hand);
+        }
 
         return f;
     }
 
     @Override
     public String status() {
-        return null;
+        return handLabelStack.size() + " hands";
     }
 
     @Override
@@ -238,7 +228,6 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
     private long lastUpdate = 0;
     @Override
     public synchronized void tick(long time) {
-        lastUpdate = time;
         if (lastSwitchTime == 0){
             lastSwitchTime = time;
         }
@@ -253,7 +242,7 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 
         seededTime = time - startSeededTime;
         if (seededTime > timings.get(0)) {
-            while (currentHand == null || currentPosition == null || currentRotation == null) {
+            do {
                 if (handLabelStack.size() > 0) {
                     currentHand = handLabelStack.remove(0);
                     currentPosition = positionLabelStack.remove(0);
@@ -266,7 +255,7 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
                     }
                     lastSwitchTime = time;
                 }
-            }
+            } while (currentHand == null || currentPosition == null || currentRotation == null);
         }
 
         currentAnimationTime = (int) (time - lastSwitchTime);
@@ -275,6 +264,8 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
         }
 
         tpgh.tick(time);
+
+        lastUpdate = time;
     }
 
     public long lastTick(){
