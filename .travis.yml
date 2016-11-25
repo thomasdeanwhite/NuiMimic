@@ -1,10 +1,15 @@
 language: java
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+before_install:
+  - git clone https://bitbucket.org/shefinstrumentation/instrumentation.git
+  - pushd instrumentation
+  - mvn clean install
+  - popd
 script:
-  git clone https://bitbucket.org/shefinstrumentation/instrumentation.git;
-  pushd instrumentation;
-  mvn clean install;
-  popd; 
-  pushd leap;
-  mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dversion=1.0 -Dpackaging=JAR;
-  popd;
-  mvn test;
+  - pushd leap
+  - mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dversion=1.0 -Dpackaging=JAR
+  - popd
+  - mvn test
