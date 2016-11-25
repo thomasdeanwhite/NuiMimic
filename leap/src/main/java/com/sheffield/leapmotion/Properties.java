@@ -126,7 +126,7 @@ public class Properties extends InstrumentationProperties {
     public static int HISTOGRAM_BINS = 50;
 
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
-    public static float HISTOGRAM_THRESHOLD = 0.02f;
+    public static float HISTOGRAM_THRESHOLD = 0.1f;
 
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
