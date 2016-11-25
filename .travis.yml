@@ -6,7 +6,7 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 before_install:
-  - git clone https://bitbucket.org/shefinstrumentation/instrumentation.git
+  - git clone --depth=1 https://bitbucket.org/shefinstrumentation/instrumentation.git
   - pushd instrumentation
   - mvn clean install
   - popd
