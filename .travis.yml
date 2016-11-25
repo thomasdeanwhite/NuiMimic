@@ -7,6 +7,10 @@ before_script:
   - sleep 3 # give xvfb some time to start
 before_install:
   - sudo apt-get install libstdc++6
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test 
+  - sudo apt-get update
+  - sudo apt-get upgrade
+  - sudo apt-get dist-upgrade
   - git clone --depth=1 https://bitbucket.org/shefinstrumentation/instrumentation.git
   - pushd instrumentation
   - mvn clean install
