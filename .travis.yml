@@ -9,7 +9,7 @@ before_install:
   - mvn clean install
   - popd
 script:
-  - pushd leap
-  - mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dversion=1.0 -Dpackaging=JAR
+  - pushd lib
+  - mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dversion=1.0 -Dpackaging=jar
   - popd
   - mvn test
