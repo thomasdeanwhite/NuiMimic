@@ -44,11 +44,11 @@ public class MockGraphicsDevice extends GraphicsDevice {
 
     @Override
     public DisplayMode getDisplayMode() {
-        return new DisplayMode(800, 600, 32, 60);
+        return original.getDisplayMode();
     }
 
     @Override
     public DisplayMode[] getDisplayModes() {
-        return new DisplayMode[]{getDisplayMode()};
+        return original.getDisplayModes();
     }
 }

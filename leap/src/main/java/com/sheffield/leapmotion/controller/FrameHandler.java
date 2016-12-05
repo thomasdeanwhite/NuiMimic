@@ -82,7 +82,24 @@ public class FrameHandler implements Tickable {
                     frameSelector = new StateDependentFrameSelector();
                     break;
                 case STATE_ISOLATED:
-                    frameSelector = new StateIsolatedFrameSelector(Properties.INPUT[0]);
+                    StateIsolatedFrameSelector sifs = new StateIsolatedFrameSelector(Properties.INPUT[0]);
+                    long testIndex = Properties.CURRENT_RUN;
+                    File g = FileHandler.generateTestingOutputFile("gestures-" + testIndex);
+                    g.createNewFile();
+                    sifs.setGestureOutputFile(g);
+
+                    File p = FileHandler.generateTestingOutputFile("joint_positions-" + testIndex);
+                    p.createNewFile();
+                    sifs.setOutputFile(p);
+
+                    File hp = FileHandler.generateTestingOutputFile("hand_positions-" + testIndex);
+                    hp.createNewFile();
+
+                    File hr = FileHandler.generateTestingOutputFile("hand_rotations-" + testIndex);
+                    hr.createNewFile();
+                    sifs.setOutputFiles(hp, hr);
+
+                    frameSelector = sifs;
                     break;
                 case RECONSTRUCTION:
                     frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);
@@ -141,6 +158,7 @@ public class FrameHandler implements Tickable {
             }
         } catch (Exception e){
             e.printStackTrace(App.out);
+            System.exit(-1);
         }
 
         // addFrameModifier(new RandomFrameModifier());
@@ -148,7 +166,7 @@ public class FrameHandler implements Tickable {
             addFrameModifier((FrameModifier) frameSelector);
         }
 
-        if (frameSelector instanceof ReconstructiveFrameSelector || frameSelector instanceof RegressiveFrameSelector){
+        if (frameSelector instanceof GestureHandler){ //frameSelector instanceof ReconstructiveFrameSelector || frameSelector instanceof RegressiveFrameSelector){
             setGestureHandler((GestureHandler) frameSelector);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();

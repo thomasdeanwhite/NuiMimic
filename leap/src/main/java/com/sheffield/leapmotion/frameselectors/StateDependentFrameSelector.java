@@ -35,10 +35,6 @@ public class StateDependentFrameSelector extends FrameSelector implements FrameM
 
     private boolean changeGestures = false;
 
-    private long lastPositionChange = 0;
-    private final int POSITION_LOCATE_TIME = 500;
-    private final int POSITION_CHANGE_TIME = 4000;
-
     public static final String[] STATE_MODELS = {".state.hand_position_data",
     ".state.hand_rotation_data", ".state.joint_position_data", ".state.gesture_data"};
 

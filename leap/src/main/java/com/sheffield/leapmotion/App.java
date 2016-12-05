@@ -417,19 +417,9 @@ public class App implements ThrowableListener, Tickable {
                 START_TIME = lastTime;
                 long lastTimeRecorded = 0;
 
-                final int BARS = 21;
-
-                App.out.println(ProgressBar.getHeaderBar(BARS));
-
-                boolean headers = true;
-
                 while (app.status() != AppStatus.FINISHED) {
                     long time = System.currentTimeMillis();
                     int timePassed = (int) (time - lastTime);
-                    if (headers){
-                        App.out.println(ProgressBar.getHeaderBar(BARS));
-                        headers = false;
-                    }
                     app.tick(time);
                     try {
                         int d = delay - timePassed;
@@ -685,6 +675,8 @@ public class App implements ThrowableListener, Tickable {
 
     private long lastUpdate = 0;
 
+    private boolean printHeaders = true;
+
     public void tick(long time) {
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
@@ -705,6 +697,11 @@ public class App implements ThrowableListener, Tickable {
         }
 
         MockSystem.RUNTIME = System.currentTimeMillis() - startTime;
+
+        if (printHeaders){
+            App.out.println(ProgressBar.getHeaderBar(21));
+            printHeaders = false;
+        }
 
         String progress = ProgressBar.getProgressBar(21, MockSystem.RUNTIME / (float) Properties.RUNTIME);
 

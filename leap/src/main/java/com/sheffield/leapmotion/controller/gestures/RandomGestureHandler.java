@@ -53,6 +53,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 	public Gesture setupGesture(Gesture.Type gestureType, Frame frame, int gestureId){
 		Gesture g = new SeededGesture(gestureType, gestureState, frame, gestureDuration, gestureId);
 
+
 		if (gestureType == Gesture.Type.TYPE_CIRCLE){
 			scg = new SeededCircleGesture(g);
 			if (cumalitiveGesturePositions.equals(Vector.zero())){
@@ -61,7 +62,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 			cumalitiveGesturePositions = cumalitiveGesturePositions.plus(g.pointables().frontmost().stabilizedTipPosition());
 			Vector center = cumalitiveGesturePositions.divide(gestureCount+1);
 
-			SeededCircleGesture scg = new SeededCircleGesture(g);
+
 
 			scg.setCenter(center);
 
@@ -89,6 +90,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 			ssg = new SeededSwipeGesture(g, startPosition, position, direction, speed, p);
 			((SeededGesture) g).setSwipeGesture(ssg);
 		}
+
 		return g;
 	}
 
@@ -98,12 +100,16 @@ public class RandomGestureHandler extends NoneGestureHandler {
 		if (gestureState == null || gestureType == null || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
 			//currentGesture = analyzer.getDataAnalyzer().next();
-			gestureType = randomType();
+			Gesture.Type newType = Gesture.Type.valueOf(getNextGesture());
 
-			cumalitiveGesturePositions = Vector.zero();
-			gestureCount = 0;
-			gestureDuration = 3;
-			gestureStart = System.currentTimeMillis()-gestureDuration;
+			if (!newType.equals(gestureType)) {
+
+				cumalitiveGesturePositions = Vector.zero();
+				gestureCount = 0;
+				gestureDuration = 3;
+				gestureStart = System.currentTimeMillis() - gestureDuration;
+				gestureType = newType;
+			}
 		} else {
 			long chance = random.nextInt(gestureDuration);
 
@@ -156,5 +162,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
 		return lastUpdate;
 	}
 
-
+	@Override
+	public String getNextGesture() {
+		return super.getNextGesture();
+	}
 }

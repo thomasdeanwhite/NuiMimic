@@ -258,6 +258,24 @@ process <- function(file_starts, clusters, n, filename){
     
     output_string <- paste(output_string, table_out, sep=":")
     
+    output <- stateT
+    output_string <- paste(output_string, paste(stateT), sep="\n")
+    
+    output_string <- paste(output_string, table_out, sep=":")
+    
+    state_ng <- paste(unlistedClusters)
+    
+    state_occurances <- n_sequences(n, state_ng)
+    
+    sink(paste('processed/', file_start, '.state-ngram.gesture_data', sep=''), append=TRUE)
+    print(paste("state:",paste(stateT),"\n", sep=""))
+    
+    
+    print("cluster:")
+    print(state_occurances, full=TRUE)
+    print("\n")
+    sink()
+    
   }
   sink(paste('processed/', filename, '.state.gesture_data', sep=''))
   print(cat(output_string), quote = FALSE, row.names = FALSE)

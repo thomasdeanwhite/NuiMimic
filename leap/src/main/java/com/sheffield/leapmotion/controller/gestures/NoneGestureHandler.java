@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.controller.gestures;
 
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.Gesture.State;
 import com.leapmotion.leap.Gesture.Type;
 import com.leapmotion.leap.GestureList;
@@ -21,9 +22,9 @@ public class NoneGestureHandler implements GestureHandler {
 	protected int gestureId = 0;
 	protected Vector cumalitiveGesturePositions = Vector.zero();
 	protected int gestureCount = 0;
-	
-	//gesture time limit (3 seconds)[in nanoseconds]
-	public static final int GESTURE_TIME_LIMIT = 3 * 1000;
+
+	//33 ms gesture duration (30 fps)
+	public static final int GESTURE_TIME_LIMIT = 3300;
 	
 	@Override
 	public GestureList handleFrame(Frame frame) {
@@ -41,14 +42,10 @@ public class NoneGestureHandler implements GestureHandler {
 	}
 
 	public Frame clearFrame(Frame frame){
-//		// TODO Auto-generated method stub
-//		GestureList gl = frame.gestures();
-//		Iterator<Gesture> i = gl.iterator();
-//		while (i.hasNext()){
-//			i.next();
-//			i.remove();
-//		}
+
+		// TODO Auto-generated method stub
 		return frame;
+
 	}
 	
 	public Type randomType(){
@@ -60,7 +57,7 @@ public class NoneGestureHandler implements GestureHandler {
 		if (gestureState == null || gestureType == null || gestureState == State.STATE_STOP){
 			gestureState = State.STATE_START;
 			//TODO: Implement GestureSelector here!
-			gestureType = randomType();
+			gestureType = Gesture.Type.valueOf(getNextGesture());
 			gestureStart = System.currentTimeMillis()-3;
 			//default duration should be > 0 according to docs
 			gestureDuration = 3;
@@ -82,6 +79,10 @@ public class NoneGestureHandler implements GestureHandler {
 			gestureDuration = (int) (System.currentTimeMillis() - gestureStart);
 		}
 	}
+
+    public String getNextGesture(){
+        return randomType().toString();
+    }
 	
 	
 	

@@ -1,13 +1,20 @@
 package com.sheffield.leapmotion.frameselectors;
 
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.*;
+import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.BezierHelper;
+import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.QuaternionHelper;
 import com.sheffield.leapmotion.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.controller.gestures.GestureHandler;
+import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
@@ -19,7 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class StateIsolatedFrameSelector extends FrameSelector implements FrameModifier {
+public class StateIsolatedFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
 
 	private HashMap<String, SeededHand> hands;
 
@@ -39,7 +46,8 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 
 	protected AnalyzerApp positionAnalyzer;
 	protected AnalyzerApp rotationAnalyzer;
-    private AnalyzerApp analyzer;
+	private AnalyzerApp analyzer;
+	private NGramGestureHandler nggh;
 
 
 	private HashMap<String, Vector> vectors;
@@ -63,24 +71,12 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
         outputRotFile = rot;
     }
 
-    public void addPositionProbabilityListener(ProbabilityListener pbl){
-        positionAnalyzer.addProbabilityListener(pbl);
-    }
-
-    public void addRotationProbabilityListener(ProbabilityListener pbl){
-        rotationAnalyzer.addProbabilityListener(pbl);
-    }
-
 	public void setOutputFile(File outputFile){
 		this.outputFile = outputFile;
 	}
 
 	public ArrayList<NGramLog> getLogs(){
 		return logs;
-	}
-
-	public void addProbabilityListener(ProbabilityListener pbl){
-		analyzer.addProbabilityListener(pbl);
 	}
 
 	public StateIsolatedFrameSelector(String filename) {
@@ -114,6 +110,18 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 			analyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
 					".joint_position_data",	sequenceFile);
 			analyzer.analyze();
+
+			long testIndex = Properties.CURRENT_RUN;
+
+			File pFile = generateFile("hand_positions-" + testIndex);
+			pFile.createNewFile();
+			File rFile = generateFile("hand_rotations-" + testIndex);
+			rFile.createNewFile();
+			setOutputFiles(pFile, rFile);
+
+			File jFile = generateFile("joint_positions-" + testIndex);
+			jFile.createNewFile();
+			setOutputFile(jFile);
 
 			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
 			lastSwitchTime = System.currentTimeMillis();
@@ -158,12 +166,20 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 			rotationAnalyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
 					".hand_rotation_data",	sequenceFile);
 			rotationAnalyzer.analyze();
+
+			sequenceFile = Properties.DIRECTORY  + "/" + filename + ".gesture_type_ngram";
+			nggh = new NGramGestureHandler(new StateIsolatedAnalyzerApp(stateIsolatedFile +
+					".hand_rotation_data", sequenceFile));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace(App.out);
 			System.exit(0);
 		}
 
+	}
+
+	public File generateFile(String filename){
+		return FileHandler.generateTestingOutputFile(filename);
 	}
 
 	@Override
@@ -188,7 +204,7 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 			h = hand;
 		}
 		if (h instanceof SeededHand) {
-			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
+			float modifier = Math.min(1f, currentAnimationTime / (float) Properties.SWITCH_TIME);
 			SeededHand sh = (SeededHand) h;
 
 			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
@@ -208,8 +224,10 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 		fillLists();
 
 
+        nggh.tick(time);
+
 		if (currentAnimationTime >= Properties.SWITCH_TIME) {
-			// load next frame
+
 			currentAnimationTime = 0;
 			lastHand = seededHands.get(seededHands.size() - 1);
 			lastLabel = seededLabels.get(seededLabels.size() - 1);
@@ -293,6 +311,7 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 			lastHand = hands.get(lastLabel);
 		}
 		while (seededHands.size() < Properties.BEZIER_POINTS){
+
 			if (!seededHands.contains(lastHand)){
 				seededHands.clear();
 				seededHands.add(0, lastHand);
@@ -386,4 +405,16 @@ public class StateIsolatedFrameSelector extends FrameSelector implements FrameMo
 	public void cleanUp() {
 
 	}
+
+
+	public void setGestureOutputFile(File f){
+		nggh.setOutputFile(f);
+	}
+
+	@Override
+	public GestureList handleFrame(Frame frame) {
+		return nggh.handleFrame(frame);
+	}
+
+
 }

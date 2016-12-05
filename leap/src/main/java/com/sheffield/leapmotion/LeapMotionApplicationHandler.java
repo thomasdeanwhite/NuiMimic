@@ -4,6 +4,7 @@ import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
+import com.sheffield.util.ClassNameUtils;
 import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;
@@ -112,12 +113,12 @@ public class LeapMotionApplicationHandler {
 	public static void instrumentJar(String jar) throws MalformedURLException {
 		String jarFilePath = "file:/" + jar;
 
-			INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
-				@Override
-				public ClassVisitor intercept(ClassVisitor parent, String name) {
-					return new TestingClassAdapter(parent, name);
-				}
-			});
+		INSTRUMENTING_CLASS_LOADER.addClassInstrumentingInterceptor(new InstrumentingClassLoader.ClassInstrumentingInterceptor() {
+			@Override
+			public ClassVisitor intercept(ClassVisitor parent, String name) {
+				return new TestingClassAdapter(parent, name);
+			}
+		});
 
 
 		if (!JAR_LOADED) {
@@ -146,7 +147,7 @@ public class LeapMotionApplicationHandler {
 				entries.add(je);
 
 				String className = je.getName().substring(0, je.getName().length() - ".class".length());
-				nonDependancies.add(className.replace("/", "."));
+				nonDependancies.add(ClassNameUtils.standardise(className));
 			}
 
 			ArrayList<String> classes = new ArrayList<String>();

@@ -77,7 +77,7 @@ public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 			HashMap<String, Integer[]> stateCache = new HashMap<String, Integer[]>();
 
 			for (int i = 0; i < ps.length-1; i ++) {
-				if (ps[i].contains("state:")){
+				if (ps[i].startsWith("state:")){
 					Integer[] state = null;
 
 					String stateInfo = ps[i].split(":")[1];

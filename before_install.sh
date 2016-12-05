@@ -1,3 +1,3 @@
-git clone https://bitbucket.org/shefinstrumentation/instrumentation.git
+git clone https://github.com/thomasdeanwhite/instrumentation.git
 cd instrumentation
 mvn clean install

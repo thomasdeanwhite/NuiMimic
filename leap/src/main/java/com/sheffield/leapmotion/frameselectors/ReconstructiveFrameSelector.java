@@ -226,8 +226,9 @@ public class ReconstructiveFrameSelector extends FrameSelector implements FrameM
 
 
     private long lastUpdate = 0;
+
     @Override
-    public synchronized void tick(long time) {
+    public void tick(long time) {
         if (lastSwitchTime == 0){
             lastSwitchTime = time;
         }

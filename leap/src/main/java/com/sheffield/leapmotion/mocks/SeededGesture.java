@@ -10,7 +10,6 @@ public class SeededGesture extends Gesture implements Serializable {
 	public static CircleGesture getCircleGesture(Gesture g){
 		if (g instanceof SeededGesture){
 			CircleGesture cg = ((SeededGesture) g).getCircleGesture();
-			cg.center();
 			return cg;
 		}
 		return new CircleGesture(g);
