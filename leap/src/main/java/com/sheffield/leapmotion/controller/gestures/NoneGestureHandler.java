@@ -24,7 +24,7 @@ public class NoneGestureHandler implements GestureHandler {
 	protected int gestureCount = 0;
 
 	//33 ms gesture duration (30 fps)
-	public static final int GESTURE_TIME_LIMIT = 3300;
+	public static final int GESTURE_TIME_LIMIT = 33;
 	
 	@Override
 	public GestureList handleFrame(Frame frame) {

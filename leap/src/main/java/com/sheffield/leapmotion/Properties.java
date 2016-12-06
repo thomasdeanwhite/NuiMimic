@@ -128,6 +128,12 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
     public static float HISTOGRAM_THRESHOLD = 0.1f;
 
+    @Parameter(key = "ThistogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "Oracle")
+    public static float TESTING_HISTOGRAM_THRESHOLD = 0.003f;
+
+    @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "Oracle")
+    public static int TESTING_HISTOGRAM_BINS = 50;
+
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
 
@@ -140,15 +146,17 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "jitter", description = "Random amount to move all joints per frame", hasArgs = true, category = "Leap Motion Testing")
     public static float JITTER = 0f;
 
-
-
+    @Parameter(key = "mutation", description = "Mutation number of " +
+            "application (0 is original)", hasArgs = true, category =
+            "Mutation Testing")
+    public static int MUTATION = 0;
 
     /*
      * Output formatting properties
      */
 
     @Parameter(key = "outputDir", description = "Directory for Output (default testing_output)", hasArgs = true, category = "Output")
-    public static String TESTING_OUTPUT = "testing_output/";
+    public static String TESTING_OUTPUT = "testing_output";
 
     @Parameter(key = "outputNullValue", description = "Output Value of Null Values (\"NONE\" by default)", hasArgs = true, category = "Output")
     public static String NULL_VALUE_OUTPUT = "NONE";
@@ -290,10 +298,6 @@ public class Properties extends InstrumentationProperties {
                 OUTPUT_INCLUDES_ARRAY.addAll(Arrays.asList(OUTPUT_INCLUDES.split(",")));
             }
 
-            if (!TESTING_OUTPUT.endsWith("/")){
-                TESTING_OUTPUT += "/";
-            }
-
             if (FORBIDDEN_PACKAGES_STRING != null){
                 FORBIDDEN_PACKAGES = FORBIDDEN_PACKAGES_STRING.split(";");
             }
@@ -398,7 +402,9 @@ public class Properties extends InstrumentationProperties {
     public void setOptions(String[] args) {
         try {
 
-            Properties.DIRECTORY += "/processed";
+            if (!DIRECTORY.endsWith("/processed")) {
+                Properties.DIRECTORY += "/processed";
+            }
 
             Options options = new Options();
 

@@ -14,10 +14,7 @@ import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
-import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
-import com.sheffield.leapmotion.instrumentation.MockRandom;
-import com.sheffield.leapmotion.instrumentation.MockSystem;
+import com.sheffield.leapmotion.instrumentation.*;
 import com.sheffield.leapmotion.mocks.SeededGesture;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -77,6 +74,13 @@ public class InstantiationVisitor extends MethodVisitor {
     private static final String GD_CLASS = Type.getInternalName(GraphicsDevice.class);
     private static final String GE_CLASS = Type.getInternalName(GraphicsEnvironment.class);
     private static final String MOCK_GD_CLASS = Type.getInternalName(MockGraphicsDevice.class);
+
+
+    private static final String DESKTOP_CLASS = Type.getInternalName
+            (Desktop.class);
+
+    private static final String MOCK_DESKTOP_CLASS = Type.getInternalName
+            (MockDesktop.class);
 
 
     private static Method METHOD_TO_CALL;
@@ -191,6 +195,15 @@ public class InstantiationVisitor extends MethodVisitor {
         } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("setProperty")){
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
+        } else if (owner.equalsIgnoreCase(DESKTOP_CLASS)){
+            if (name.equals
+                    ("browse")) {
+                shouldCall = false;
+                super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_DESKTOP_CLASS,
+                        name, desc, itf);
+            } else if (name.equals("getDesktop")){
+                shouldCall = false;
+            }
         }
 
         if (shouldCall) {

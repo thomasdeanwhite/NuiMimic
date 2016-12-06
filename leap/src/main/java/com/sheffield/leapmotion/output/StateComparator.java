@@ -53,7 +53,7 @@ public class StateComparator {
         statesFound = 0;
         states = new ArrayList<Integer[]>();
         currentState = -1;
-        SCREENSHOT_DIRECTORY = Properties.TESTING_OUTPUT + "screenshots";
+        SCREENSHOT_DIRECTORY = Properties.TESTING_OUTPUT + "/screenshots";
         statesVisited =
                 new HashMap<Integer, Integer>();
         statesActuallyVisited =
@@ -257,9 +257,6 @@ public class StateComparator {
 
         double[] dImage = new double[data.length];
 
-        ArrayList<Point> changes = new ArrayList<Point>();
-
-        ArrayList<Integer> xBlocks = new ArrayList<Integer>();
         for (int i = 0; i < data.length; i++) {
             int blackAndWhite = data[i];
             blackAndWhite = (int) ((0.3 * ((blackAndWhite >> 16) & 0x0FF) +
@@ -291,6 +288,8 @@ public class StateComparator {
         for (int i = 0; i < bins.length; i++) {
             totalValues += bins[i];
         }
+
+        String testingState = TestingStateComparator.captureState(bins, totalValues);
 
         for (int i = 0; i < states.size(); i++) {
             Integer[] ss = states.get(i);

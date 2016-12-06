@@ -16,6 +16,7 @@ import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class NGramFrameSelector extends FrameSelector implements FrameModifier {
-	
+	public Csv getCsv() {
+		return new Csv();
+	}
 	protected HashMap<String, SeededHand> hands;
 	
 	protected ArrayList<NGramLog> logs;

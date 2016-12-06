@@ -2,6 +2,7 @@ package com.sheffield.leapmotion.frameselectors;
 
 import com.google.gson.Gson;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.output.TestingStateComparator;
 
 public class NGramLog {
 	public String element;
@@ -14,6 +15,7 @@ public class NGramLog {
 
 	public String toString(){
 
-		return element + ":" + timeSeeded + ":" + (StateComparator.getCurrentState() >= 0 ? GSON.toJson(StateComparator.getState(StateComparator.getCurrentState())) : "[]") + "\n";
+		return element + ":" + timeSeeded + ":" + (TestingStateComparator
+				.getCurrentState() >= 0 ? GSON.toJson(TestingStateComparator.getState(TestingStateComparator.getCurrentState())) : "[]") + "\n";
 	}
 }

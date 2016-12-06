@@ -200,7 +200,7 @@ public class StateRecognisingRunType implements RunType {
 
                 csv.finalize();
 
-                File csvFile = new File(f.getParentFile().getAbsolutePath(), Properties.TESTING_OUTPUT + "states/" + isi.getOutputFilename());
+                File csvFile = new File(f.getParentFile().getAbsolutePath(), Properties.TESTING_OUTPUT + "/states/" + isi.getOutputFilename());
                 if (csvFile.getParentFile() != null) {
                     csvFile.getParentFile().mkdirs();
                 }

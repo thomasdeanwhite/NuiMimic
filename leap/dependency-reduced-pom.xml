@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.sheffield</groupId>
   <artifactId>leap</artifactId>
-  <name>leap</name>
+  <name>NuiMimic</name>
   <version>0.0.1-SNAPSHOT</version>
   <url>http://maven.apache.org</url>
   <build>

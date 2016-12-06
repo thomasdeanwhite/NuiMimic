@@ -12,11 +12,17 @@ import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.output.Csv;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class RandomFrameSelector extends FrameSelector implements FrameModifier {
+	@Override
+	public Csv getCsv() {
+		return new Csv();
+	}
+
 	private int currentAnimationTime = 0;
 	private long lastSwitchTime = 0;
 	private int handId = 0;

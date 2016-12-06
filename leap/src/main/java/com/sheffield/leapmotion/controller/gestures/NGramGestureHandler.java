@@ -19,6 +19,7 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	
 	public void setOutputFile(File f){
 		outputFile = f;
+		super.setOutputFile(f);
 	}
 
 	public void setAnalyzer(AnalyzerApp an){
@@ -147,6 +148,6 @@ public class NGramGestureHandler extends RandomGestureHandler {
 
 	@Override
 	public String getNextGesture() {
-		return "TYPE_CIRCLE";//analyzer.getDataAnalyzer().next().split("\\+")[0];
+		return analyzer.getDataAnalyzer().next().split("\\+")[0];
 	}
 }

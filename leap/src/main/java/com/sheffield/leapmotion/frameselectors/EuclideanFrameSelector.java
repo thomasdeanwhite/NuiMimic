@@ -9,6 +9,7 @@ import com.sheffield.leapmotion.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Serializer;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,9 @@ import java.util.Set;
 
 public class EuclideanFrameSelector extends FrameSelector {
 	private HashMap<Long, Frame> frames;
+	public Csv getCsv() {
+		return new Csv();
+	}
 
 	// 100^2
 	public static final float MAX_DIFFERENCE = 10000f;

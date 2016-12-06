@@ -14,6 +14,7 @@ import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,11 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class VectorQuantizedFrameSelector extends FrameSelector implements FrameModifier {
+	@Override
+	public Csv getCsv() {
+		return new Csv();
+	}
+
 	private HashMap<String, SeededHand> hands;
 
 	private int currentAnimationTime = 0;

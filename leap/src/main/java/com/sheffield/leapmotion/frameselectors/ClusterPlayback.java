@@ -1,5 +1,7 @@
 package com.sheffield.leapmotion.frameselectors;
 
+import com.sheffield.output.Csv;
+
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 
@@ -9,7 +11,9 @@ import java.util.EmptyStackException;
 public class ClusterPlayback {
     private ArrayList<NGramLog> ngLogs;
     private String hand = null;
-
+    public Csv getCsv() {
+        return new Csv();
+    }
     public ClusterPlayback(ArrayList<NGramLog> ngLogs){
         this.ngLogs = ngLogs;
     }

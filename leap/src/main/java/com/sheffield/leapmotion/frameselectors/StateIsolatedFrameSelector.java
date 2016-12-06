@@ -20,6 +20,7 @@ import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class StateIsolatedFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
-
+	@Override
+	public Csv getCsv() {
+		return new Csv();
+	}
 	private HashMap<String, SeededHand> hands;
 
 	private ArrayList<NGramLog> logs;

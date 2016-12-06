@@ -16,6 +16,7 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.Tickable;
 import com.sheffield.leapmotion.controller.gestures.GestureHandler;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
+import com.sheffield.output.Csv;
 
 import java.util.ArrayList;
 
@@ -70,6 +71,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			initializing = false;
 		}
 		return CONTROLLER;
+	}
+
+	public Csv getCsv(){
+		return frameHandler.getCsv();
 	}
 
 	public static Controller getController() {

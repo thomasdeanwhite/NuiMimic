@@ -6,6 +6,7 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +15,9 @@ import java.util.HashMap;
 
 public class PlaybackFrameSelector extends FrameSelector {
 	private HashMap<String, SeededHand> hands;
-
+	public Csv getCsv() {
+		return new Csv();
+	}
 	private int currentFrame;
 	private String[] frameOrder;
 	private int currentAnimationTime = 0;

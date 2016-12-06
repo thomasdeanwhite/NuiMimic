@@ -3,9 +3,12 @@ package com.sheffield.leapmotion.frameselectors;
 import com.leapmotion.leap.Frame;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
+import com.sheffield.output.Csv;
 
 public class EmptyFrameSelector extends FrameSelector implements FrameModifier {
-
+	public Csv getCsv() {
+		return new Csv();
+	}
 	public EmptyFrameSelector() {
 	}
 

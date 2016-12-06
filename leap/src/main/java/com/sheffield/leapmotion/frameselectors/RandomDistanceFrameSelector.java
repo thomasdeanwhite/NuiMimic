@@ -8,6 +8,7 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.output.Csv;
 
 import java.util.HashMap;
 import java.util.Random;
@@ -109,5 +110,10 @@ public class RandomDistanceFrameSelector extends FrameSelector implements FrameM
     @Override
     public void cleanUp() {
 
+    }
+
+    @Override
+    public Csv getCsv() {
+        return new Csv();
     }
 }

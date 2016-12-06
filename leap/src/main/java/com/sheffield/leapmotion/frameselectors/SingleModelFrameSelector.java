@@ -11,6 +11,7 @@ import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.HandFactory;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SingleModelFrameSelector extends FrameSelector implements FrameModifier {
+	@Override
+	public Csv getCsv() {
+		return new Csv();
+	}
 
 	private HashMap<String, SeededHand> hands;
 

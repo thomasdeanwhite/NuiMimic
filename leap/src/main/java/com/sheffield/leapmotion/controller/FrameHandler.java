@@ -26,7 +26,8 @@ import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
 import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.mocks.SeededFrame;
-import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.output.TestingStateComparator;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -105,12 +106,18 @@ public class FrameHandler implements Tickable {
                     frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);
                     break;
                 case REGRESSION:
+                    Properties.TESTING_OUTPUT = "testing_regression";
                     ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
                     String[] files = {Properties.INPUT[1], Properties.INPUT[2], Properties.INPUT[3], Properties.INPUT[4]};
                     for (int i = 0; i < files.length; i++){
                         logs[i] = new ArrayList<NGramLog>();
                         String[] data = FileHandler.readFile(new File(files[i])).split("\n");
                         for (String s : data){
+                            s = s.trim();
+                            if (s.length() <= 0){
+                                continue;
+                            }
+
                             String[] d = s.split(":");
                             NGramLog log = new NGramLog();
                             //trailing ,
@@ -137,7 +144,8 @@ public class FrameHandler implements Tickable {
                                 }
                             }
 
-                            int newState = StateComparator.addState(cState);
+                            int newState = TestingStateComparator.addState
+                                    (cState);
 
                             log.state = newState;
                             logs[i].add(log);
@@ -158,6 +166,7 @@ public class FrameHandler implements Tickable {
             }
         } catch (Exception e){
             e.printStackTrace(App.out);
+            //TODO: Alert user an error has occurred
             System.exit(-1);
         }
 
@@ -170,7 +179,8 @@ public class FrameHandler implements Tickable {
             setGestureHandler((GestureHandler) frameSelector);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();
-            File f = FileHandler.generateTestingOutputFile("gestures-" + Properties.CURRENT_RUN);
+            File f = FileHandler.generateTestingOutputFile( "gestures-" +
+                    Properties.CURRENT_RUN);
             try {
                 f.createNewFile();
             } catch (IOException e) {
@@ -314,5 +324,9 @@ public class FrameHandler implements Tickable {
 
     public void cleanUp(){
         frameSelector.cleanUp();
+    }
+
+    public Csv getCsv(){
+        return frameSelector.getCsv();
     }
 }

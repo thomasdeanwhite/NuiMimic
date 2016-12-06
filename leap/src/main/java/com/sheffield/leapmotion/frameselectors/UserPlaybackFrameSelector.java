@@ -12,6 +12,7 @@ import com.sheffield.leapmotion.controller.FrameHandler;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.listeners.FrameSwitchListener;
+import com.sheffield.output.Csv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
@@ -23,7 +24,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserPlaybackFrameSelector extends FrameSelector {
-
+	@Override
+	public Csv getCsv() {
+		return new Csv();
+	}
 	private FrameSelector backupFrameSelector;
 	private ArrayList<Frame> frameStack;
 	private long startSeedingTime = 0;

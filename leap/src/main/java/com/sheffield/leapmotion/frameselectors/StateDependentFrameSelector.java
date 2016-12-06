@@ -11,6 +11,7 @@ import com.sheffield.leapmotion.controller.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.framemodifier.FrameModifier;
 import com.sheffield.leapmotion.mocks.SeededFrame;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,7 +19,10 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class StateDependentFrameSelector extends FrameSelector implements FrameModifier, GestureHandler {
-
+    @Override
+    public Csv getCsv() {
+        return new Csv();
+    }
 	private Random r = new Random();
 	
 	private static final boolean WRITE_LOGS_TO_FILE = true;

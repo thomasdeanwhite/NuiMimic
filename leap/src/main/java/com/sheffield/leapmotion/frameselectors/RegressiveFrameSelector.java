@@ -22,7 +22,9 @@ import com.sheffield.leapmotion.mocks.SeededGesture;
 import com.sheffield.leapmotion.mocks.SeededGestureList;
 import com.sheffield.leapmotion.mocks.SeededHand;
 import com.sheffield.leapmotion.mocks.SeededSwipeGesture;
-import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.output.TestingStateComparator;
+import com.sheffield.output.Csv;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -200,7 +202,7 @@ public class RegressiveFrameSelector extends FrameSelector implements FrameModif
                 rotationLabels.clear();
             }
 
-            int state = StateComparator.getCurrentState();
+            int state = TestingStateComparator.getCurrentState();
             if (state != hand.state){
                 failures.add(hand);
             } else {
@@ -211,12 +213,12 @@ public class RegressiveFrameSelector extends FrameSelector implements FrameModif
 
             lastSwitchTime = System.currentTimeMillis();
             lastHandN = hand;
-            return newFrame();
         }
         currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
         Frame f = SeededController.newFrame();
-        float modifier = Math.min(1, currentAnimationTime / (float) hand.timeSeeded);
-        Hand newHand = lastHand.fadeHand(seededHands, modifier);
+//        float modifier = Math.min(1, currentAnimationTime / (float) hand
+//                .timeSeeded);
+        Hand newHand = lastHand;//.fadeHand(seededHands, modifier);
         f = HandFactory.injectHandIntoFrame(f, newHand);
 
         lastHandN = hand;
@@ -328,10 +330,12 @@ public class RegressiveFrameSelector extends FrameSelector implements FrameModif
             float modifier = currentModTime / (float) posLog.timeSeeded;
             SeededHand sh = (SeededHand) h;
 
-            Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
+            Quaternion q = seededRotations.get(0);//QuaternionHelper
+                    // .fadeQuaternions(seededRotations, modifier);
 
             q.setBasis(sh);
-            sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
+            sh.setOrigin(seededPositions.get(0));//BezierHelper.bezier
+                    //(seededPositions, modifier));
         }
         //currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 
@@ -447,5 +451,12 @@ public class RegressiveFrameSelector extends FrameSelector implements FrameModif
     @Override
     public void cleanUp() {
 
+    }
+
+    @Override
+    public Csv getCsv() {
+        Csv csv = new Csv();
+        csv.add("correctStates", "" + (Math.round(100f * (success.size() / (float)(success.size() + failures.size())))/100f));
+        return csv;
     }
 }

@@ -14,6 +14,7 @@ import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.runtypes.InstrumentingRunType;
 import com.sheffield.leapmotion.runtypes.ReconstructingRunType;
 import com.sheffield.leapmotion.runtypes.RunType;
@@ -102,7 +103,7 @@ public class App implements ThrowableListener, Tickable {
     @Override
     public void throwableThrown(Throwable t) {
         App.out.println("Throwable thrown! " + t.getLocalizedMessage());
-        File classes = new File(Properties.TESTING_OUTPUT + "errors/RUN" + Properties.CURRENT_RUN + "-error.log");
+        File classes = new File(Properties.TESTING_OUTPUT + "/errors/RUN" + Properties.CURRENT_RUN + "-error.log");
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
         }
@@ -243,6 +244,16 @@ public class App implements ThrowableListener, Tickable {
         startTime = System.currentTimeMillis();
         lastSwitchTime = startTime;
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
+        setOutput();
+        System.setSecurityManager(new NoExitSecurityManager());
+        App.out.println("- Setup Complete");
+
+        if (testing) {
+            startTesting();
+        }
+    }
+
+    public static void setOutput(){
         if (!ENABLE_APPLICATION_OUTPUT) {
             PrintStream dummyStream = new PrintStream(new OutputStream() {
 
@@ -257,12 +268,6 @@ public class App implements ThrowableListener, Tickable {
             out = System.out;
 
             System.setOut(dummyStream);
-        }
-        System.setSecurityManager(new NoExitSecurityManager());
-        App.out.println("- Setup Complete");
-
-        if (testing) {
-            startTesting();
         }
     }
 
@@ -340,14 +345,40 @@ public class App implements ThrowableListener, Tickable {
      * attached as a Java agent.
      * @param args runtime properties to change
      */
-    public static void premain (String args, Instrumentation instr){
+    public static void premain (String arg, Instrumentation instr){
         LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
 
         App.out.println("- Instrumenting JAR");
 
-        String[] options = args.split(" ");
+        String args[] = null;
 
-        Properties.instance().setOptions(options);
+        if (arg != null && arg.trim().length() > 0){
+            args = arg.split(" ");
+        }
+
+        setOutput();
+
+        if (args != null && args.length > 0) {
+            Properties.instance().setOptions(args);
+            App.out.println("Options setup");
+        } else {
+            File options = new File("testing-options");
+            if (options.getAbsoluteFile().exists()) {
+                try {
+                    String opts = FileHandler.readFile(options).trim();
+
+                    App.out.println("- Found options: " + opts);
+
+                    Properties.instance().setOptions(opts.split(" "));
+
+                } catch (IOException e) {
+                    Properties.instance().setOptions(new String[]{});
+                    e.printStackTrace(App.out);
+                }
+            } else {
+                Properties.instance().setOptions(new String[]{});
+            }
+        }
 
         for (String s : Properties.FORBIDDEN_PACKAGES) {
             ClassReplacementTransformer.addForbiddenPackage(s);
@@ -483,6 +514,17 @@ public class App implements ThrowableListener, Tickable {
             csv.add("statesVisited", "" + StateComparator.getStatesVisited().size());
             csv.add("currentState", "" + StateComparator.getCurrentState());
 
+            csv.add("TstatesStarting", "" + (TestingStateComparator.statesVisited.size() - StateComparator.statesFound));
+            csv.add("TstatesFound", "" + TestingStateComparator.statesFound);
+            csv.add("TstatesVisited", "" + TestingStateComparator.getStatesVisited()
+                    .size());
+            csv.add("TcurrentState", "" + TestingStateComparator.getCurrentState());
+
+            Csv fromFrameSelector = SeededController.getSeededController()
+                    .getCsv();
+
+            csv.merge(fromFrameSelector);
+
             int lineHits = 0;
             int branchHits = 0;
 
@@ -544,7 +586,7 @@ public class App implements ThrowableListener, Tickable {
 
     public void output(Csv csv) {
 
-        File csvFile = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
+        File csvFile = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
         if (csvFile.getParentFile() != null) {
             csvFile.getParentFile().mkdirs();
         }
@@ -582,7 +624,7 @@ public class App implements ThrowableListener, Tickable {
             e.printStackTrace();
         }
 
-        File outFldr = new File(Properties.TESTING_OUTPUT + "result_states");
+        File outFldr = new File(Properties.TESTING_OUTPUT + "/result_states");
         outFldr.mkdirs();
 
         File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
@@ -606,7 +648,7 @@ public class App implements ThrowableListener, Tickable {
             if (classSeen.contains(className)) {
                 className = "" + classSeen.indexOf(className);
             } else {
-                File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                File classes = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
                 if (classes.getParentFile() != null) {
                     classes.getParentFile().mkdirs();
                 }
@@ -632,7 +674,7 @@ public class App implements ThrowableListener, Tickable {
             if (classSeen.contains(className)) {
                 className = "" + classSeen.indexOf(className);
             } else {
-                File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                File classes = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
                 if (classes.getParentFile() != null) {
                     classes.getParentFile().mkdirs();
                 }
@@ -647,7 +689,7 @@ public class App implements ThrowableListener, Tickable {
             branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
         }
 
-        File classes = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
+        File classes = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
         }
@@ -657,7 +699,7 @@ public class App implements ThrowableListener, Tickable {
 
         FileHandler.appendToFile(classes, linesHit.toString() + "\n");
 
-        File branches = new File(Properties.TESTING_OUTPUT + "logs/RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered.csv");
+        File branches = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered.csv");
         if (branches.getParentFile() != null) {
             branches.getParentFile().mkdirs();
         }
