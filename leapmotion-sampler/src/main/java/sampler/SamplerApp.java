@@ -8,7 +8,7 @@ import com.leapmotion.leap.Listener;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.mocks.HandFactory;
+import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
 
 import javax.swing.*;

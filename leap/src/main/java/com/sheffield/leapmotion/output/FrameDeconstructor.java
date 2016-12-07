@@ -9,9 +9,9 @@ import com.leapmotion.leap.ScreenTapGesture;
 import com.leapmotion.leap.SwipeGesture;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.FileHandler;
-import com.sheffield.leapmotion.QuaternionHelper;
-import com.sheffield.leapmotion.Serializer;
+import com.sheffield.leapmotion.util.FileHandler;
+import com.sheffield.leapmotion.frame.util.QuaternionHelper;
+import com.sheffield.leapmotion.util.Serializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +99,7 @@ public class FrameDeconstructor {
                     sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.raw_frame_data");
                     sequenceFile.getParentFile().mkdirs();
                     sequenceFile.createNewFile();
-                    //com.sheffield.leapmotion.FileHandler.appendToFile(sequenceFile, "[");
+                    //com.sheffield.leapmotion.util.FileHandler.appendToFile(sequenceFile, "[");
                     start = true;
                 }
                 String content = Serializer.sequenceToJson(frame);

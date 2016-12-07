@@ -5,8 +5,8 @@ import com.google.gson.reflect.TypeToken;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.ClassTracker;
-import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.util.ClassTracker;
+import com.sheffield.leapmotion.util.FileHandler;
 
 import java.io.File;
 import java.io.IOException;

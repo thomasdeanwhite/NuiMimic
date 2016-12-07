@@ -1,7 +1,7 @@
 package com.sheffield.leapmotion.results;
 
-import com.sheffield.leapmotion.ClassTracker;
-import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.util.ClassTracker;
+import com.sheffield.leapmotion.util.FileHandler;
 
 import java.io.File;
 import java.io.IOException;

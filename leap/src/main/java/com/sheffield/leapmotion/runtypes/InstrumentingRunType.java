@@ -5,8 +5,8 @@ import com.sheffield.instrumenter.analysis.ClassNode;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.FileHandler;
-import com.sheffield.leapmotion.LeapMotionApplicationHandler;
+import com.sheffield.leapmotion.util.FileHandler;
+import com.sheffield.leapmotion.util.LeapMotionApplicationHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.util.ClassNameUtils;
 

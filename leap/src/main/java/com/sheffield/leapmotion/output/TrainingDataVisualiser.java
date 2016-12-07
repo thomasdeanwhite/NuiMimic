@@ -8,13 +8,13 @@ import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.Quaternion;
+import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.gestures.ReconstructiveGestureHandler;
-import com.sheffield.leapmotion.mocks.HandFactory;
-import com.sheffield.leapmotion.mocks.SeededHand;
+import com.sheffield.leapmotion.frame.generators.gestures.ReconstructiveGestureHandler;
+import com.sheffield.leapmotion.controller.mocks.HandFactory;
+import com.sheffield.leapmotion.controller.mocks.SeededHand;
 
 import javax.swing.*;
 import java.awt.*;

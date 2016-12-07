@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion;
 
+import com.sheffield.leapmotion.util.ProgressBar;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -6,6 +6,8 @@ import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.sheffield.leapmotion.util.ClassTracker;
+import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.output.Csv;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -139,6 +141,9 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
     public static int SCREENSHOT_COMPRESSION = 4;
+
+    @Parameter(key = "seededBeforeProcessing", description = "Number of hands to seed before background processing", hasArgs = true, category = "Leap Motion Testing")
+    public static int SEEDED_BEFORE_PROCESSING = 30;
 
     @Parameter(key = "classDir", description = "Directory of Source Code", hasArgs = true, category = "Results Processing")
     public static String classDirectory = "";

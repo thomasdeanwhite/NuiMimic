@@ -8,8 +8,8 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.leapmotion.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.analyzer.StateIsolatedAnalyzerApp;
+import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
@@ -23,16 +23,14 @@ import com.sheffield.leapmotion.runtypes.VisualisingRunType;
 import com.sheffield.leapmotion.runtypes.agent.LeapmotionAgentTransformer;
 import com.sheffield.leapmotion.runtypes.state_identification.*;
 
+import com.sheffield.leapmotion.util.*;
 import com.sheffield.output.Csv;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.lang.instrument.Instrumentation;
 import java.security.Permission;
 import java.util.ArrayList;
@@ -65,6 +63,11 @@ public class App implements ThrowableListener, Tickable {
     //check states every x-ms
     public static final long STATE_CHECK_TIME = 5000;
     public long lastStateCheck = 0;
+    private int framesSeeded = 0;
+    private int fps = 0;
+    private long lastFrameSeededCheck = 0;
+    private int iterationTimes = 0;
+    private int iterations = 0;
 
     ArrayList<String> classSeen = new ArrayList<String>();
 
@@ -244,9 +247,10 @@ public class App implements ThrowableListener, Tickable {
         startTime = System.currentTimeMillis();
         lastSwitchTime = startTime;
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
-        setOutput();
         System.setSecurityManager(new NoExitSecurityManager());
         App.out.println("- Setup Complete");
+
+        setOutput();
 
         if (testing) {
             startTesting();
@@ -268,6 +272,18 @@ public class App implements ThrowableListener, Tickable {
             out = System.out;
 
             System.setOut(dummyStream);
+
+            System.setErr(new PrintStream(new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+
+                    FileOutputStream fos = new FileOutputStream(new File(Properties.TESTING_OUTPUT +
+                            "/err/" + Properties.CURRENT_RUN + "error.log"
+                    ));
+
+                    fos.write(b);
+                }
+            }));
         }
     }
 
@@ -343,7 +359,8 @@ public class App implements ThrowableListener, Tickable {
     /**
      * Premain that will be triggered when application runs with this
      * attached as a Java agent.
-     * @param args runtime properties to change
+     * @param arg runtime properties to change
+     * @param instr Instrumentation instance to attach a ClassFileTransformer
      */
     public static void premain (String arg, Instrumentation instr){
         LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
@@ -355,8 +372,6 @@ public class App implements ThrowableListener, Tickable {
         if (arg != null && arg.trim().length() > 0){
             args = arg.split(" ");
         }
-
-        setOutput();
 
         if (args != null && args.length > 0) {
             Properties.instance().setOptions(args);
@@ -426,6 +441,28 @@ public class App implements ThrowableListener, Tickable {
 
     }
 
+    public void increaseIterationTime(int t){
+        iterationTimes += t;
+        iterations++;
+    }
+
+    public float getAverageIterationTime(){
+        return iterationTimes / (float) iterations;
+    }
+
+    public void increaseFps(int time){
+        if (1000 < time - lastFrameSeededCheck){ // 1 second has passed?
+            lastFrameSeededCheck = time;
+            fps = framesSeeded;
+            framesSeeded = 0;
+        }
+        framesSeeded++;
+    }
+
+    public int getFps(){
+        return fps;
+    }
+
     public static Thread getMainThread(){
         return new Thread(new Runnable() {
 
@@ -451,6 +488,7 @@ public class App implements ThrowableListener, Tickable {
                 while (app.status() != AppStatus.FINISHED) {
                     long time = System.currentTimeMillis();
                     int timePassed = (int) (time - lastTime);
+                    App.getApp().increaseIterationTime(timePassed);
                     app.tick(time);
                     try {
                         int d = delay - timePassed;
@@ -461,7 +499,8 @@ public class App implements ThrowableListener, Tickable {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL) {
+                    if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL &&
+                            SeededController.getSeededController().allowProcessing()) {
                         ClassAnalyzer.collectHitCounters(false);
                         MockSystem.RUNTIME = (int) (System.currentTimeMillis() - START_TIME);
                         App.getApp().output(false);
@@ -514,6 +553,9 @@ public class App implements ThrowableListener, Tickable {
             csv.add("statesVisited", "" + StateComparator.getStatesVisited().size());
             csv.add("currentState", "" + StateComparator.getCurrentState());
 
+            csv.add("fps", "" + getFps());
+            csv.add("iterationTime", "" + getAverageIterationTime());
+
             csv.add("TstatesStarting", "" + (TestingStateComparator.statesVisited.size() - StateComparator.statesFound));
             csv.add("TstatesFound", "" + TestingStateComparator.statesFound);
             csv.add("TstatesVisited", "" + TestingStateComparator.getStatesVisited()
@@ -531,8 +573,8 @@ public class App implements ThrowableListener, Tickable {
             if (relatedClasses.size() > 0) {
                 HashMap<String, ArrayList<String>> relClas = new HashMap<String, ArrayList<String>>();
                 for (ClassTracker ct : relatedClasses) {
-                    String className = DependencyTree.getClassName(ct.className);
-                    String methodName = DependencyTree.getMethodName(ct.className);
+                    String className = DependencyTree.getClassName(ct.getClassName());
+                    String methodName = DependencyTree.getMethodName(ct.getClassName());
 
                     if (!relClas.containsKey(className)){
                         relClas.put(className, new ArrayList<String>());
@@ -729,7 +771,8 @@ public class App implements ThrowableListener, Tickable {
         }
         //}
 
-        if (time - lastStateCheck > STATE_CHECK_TIME) {
+        if (time - lastStateCheck > STATE_CHECK_TIME &&
+        SeededController.getSeededController().allowProcessing()) {
             lastStateCheck = time;
             try {
                 StateComparator.captureState();

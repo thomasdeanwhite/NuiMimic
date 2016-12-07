@@ -1,6 +1,8 @@
 package com.sheffield.leapmotion;
 
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.frame.util.Quaternion;
+import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

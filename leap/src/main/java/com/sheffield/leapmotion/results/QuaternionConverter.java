@@ -2,10 +2,10 @@ package com.sheffield.leapmotion.results;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.ClassTracker;
-import com.sheffield.leapmotion.FileHandler;
-import com.sheffield.leapmotion.Quaternion;
-import com.sheffield.leapmotion.QuaternionHelper;
+import com.sheffield.leapmotion.util.ClassTracker;
+import com.sheffield.leapmotion.util.FileHandler;
+import com.sheffield.leapmotion.frame.util.Quaternion;
+import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 
 import java.io.File;
 import java.io.IOException;

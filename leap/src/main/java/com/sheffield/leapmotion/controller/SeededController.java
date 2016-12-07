@@ -11,11 +11,11 @@ import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.ScreenList;
 import com.leapmotion.leap.TrackedQuad;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.AppStatus;
+import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.Tickable;
-import com.sheffield.leapmotion.controller.gestures.GestureHandler;
-import com.sheffield.leapmotion.listeners.FrameSwitchListener;
+import com.sheffield.leapmotion.util.Tickable;
+import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
+import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.output.Csv;
 
 import java.util.ArrayList;
@@ -363,5 +363,9 @@ public class SeededController extends Controller implements FrameSwitchListener,
 //			App.DISPLAY_WINDOW.setVisible(false);
 //			App.DISPLAY_WINDOW = null;
 //		}
+	}
+
+	public boolean allowProcessing(){
+		return frameHandler.allowProcessing();
 	}
 }

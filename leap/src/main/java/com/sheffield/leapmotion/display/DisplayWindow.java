@@ -11,7 +11,7 @@ import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.mocks.SeededGesture;
+import com.sheffield.leapmotion.controller.mocks.SeededGesture;
 
 import javax.swing.*;
 import java.awt.*;

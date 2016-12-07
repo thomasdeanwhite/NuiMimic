@@ -1,14 +1,12 @@
 package com.sheffield.leapmotion.runtypes;
 
-import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.runtypes.RunType;
 import com.sheffield.leapmotion.runtypes.state_identification.ImageStateIdentifier;
 import com.sheffield.leapmotion.runtypes.state_identification.StateShowingFrame;
 import com.sheffield.output.Csv;
 
 import javax.imageio.ImageIO;
-import javax.management.relation.RoleUnresolved;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;

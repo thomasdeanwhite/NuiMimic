@@ -15,7 +15,7 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.*;
-import com.sheffield.leapmotion.mocks.SeededGesture;
+import com.sheffield.leapmotion.controller.mocks.SeededGesture;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

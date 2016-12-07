@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion;
 
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.frame.util.BezierHelper;
 import org.junit.Test;
 
 import java.util.ArrayList;

@@ -3,29 +3,16 @@ package com.sheffield.leapmotion.controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.FileHandler;
+import com.sheffield.leapmotion.frame.generators.*;
+import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.Tickable;
-import com.sheffield.leapmotion.controller.gestures.GestureHandler;
-import com.sheffield.leapmotion.controller.gestures.RandomGestureHandler;
-import com.sheffield.leapmotion.framemodifier.FrameModifier;
-import com.sheffield.leapmotion.frameselectors.AdaptiveRandomDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.EmptyFrameSelector;
-import com.sheffield.leapmotion.frameselectors.EuclideanFrameSelector;
-import com.sheffield.leapmotion.frameselectors.FrameSelector;
-import com.sheffield.leapmotion.frameselectors.NGramLog;
-import com.sheffield.leapmotion.frameselectors.RandomDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.RandomFrameSelector;
-import com.sheffield.leapmotion.frameselectors.VectorQuantizedFrameSelector;
-import com.sheffield.leapmotion.frameselectors.ReconstructiveFrameSelector;
-import com.sheffield.leapmotion.frameselectors.RegressiveFrameSelector;
-import com.sheffield.leapmotion.frameselectors.SingleModelGuidedRandomFrameSelector;
-import com.sheffield.leapmotion.frameselectors.StateDependentFrameSelector;
-import com.sheffield.leapmotion.frameselectors.StateIsolatedFrameSelector;
-import com.sheffield.leapmotion.frameselectors.StaticDistanceFrameSelector;
-import com.sheffield.leapmotion.frameselectors.UserPlaybackFrameSelector;
-import com.sheffield.leapmotion.listeners.FrameSwitchListener;
-import com.sheffield.leapmotion.mocks.SeededFrame;
+import com.sheffield.leapmotion.util.Tickable;
+import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
+import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
+import com.sheffield.leapmotion.frame.generators.FrameGenerator;
+import com.sheffield.leapmotion.frame.playback.NGramLog;
+import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
+import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.output.Csv;
 
@@ -33,16 +20,18 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class FrameHandler implements Tickable {
-    private FrameSelector frameSelector;
+    private FrameGenerator frameGenerator;
     private ArrayList<FrameSwitchListener> frameSwitchListeners;
     private ArrayList<Frame> frames;
     private GestureHandler gestureHandler;
-    private ArrayList<FrameModifier> frameModifiers;
+
+    private int framesGenerated = 0;
 
     public String status(){
-        return frameSelector.status();
+        return frameGenerator.status();
     }
 
     public FrameHandler() {
@@ -51,39 +40,30 @@ public class FrameHandler implements Tickable {
 
     public void init (){
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
-        frameModifiers = new ArrayList<FrameModifier>();
         frames = new ArrayList<Frame>();
         try {
             switch (Properties.FRAME_SELECTION_STRATEGY) {
                 case RANDOM:
-                    frameSelector = new RandomFrameSelector();
-                    break;
-                case EUCLIDEAN:
-                    frameSelector = new EuclideanFrameSelector();
-                    break;
-                case RANDOM_DISTANCE:
-                    frameSelector = new RandomDistanceFrameSelector();
-                    break;
-                case ADAPTIVE_RANDOM_DISTANCE:
-                    frameSelector = new AdaptiveRandomDistanceFrameSelector();
+                    frameGenerator = new RandomFrameGenerator();
                     break;
                 case SINGLE_MODEL:
-                    frameSelector = new StaticDistanceFrameSelector();
+                    frameGenerator = new SingleModelFrameGenerator();
                     break;
                 case N_GRAM:
-                    //frameSelector = new NGramFrameSelector("");
+                    //frameGenerator = new NGramFrameGenerator("");
                     throw new UnsupportedOperationException("NGram is deprecated. Please use SINGLE_MODEL or STATE_DEPENDENT");
                 case EMPTY:
-                    frameSelector = new EmptyFrameSelector();
+                    frameGenerator = new EmptyFrameGenerator();
                     break;
                 case VQ:
-                    frameSelector = new VectorQuantizedFrameSelector(Properties.INPUT[0]);
+                    frameGenerator = new VectorQuantizedFrameGenerator(Properties.INPUT[0]);
                     break;
                 case STATE_DEPENDENT:
-                    frameSelector = new StateDependentFrameSelector();
+                    frameGenerator = new StateDependentFrameGenerator();
                     break;
                 case STATE_ISOLATED:
-                    StateIsolatedFrameSelector sifs = new StateIsolatedFrameSelector(Properties.INPUT[0]);
+                    StateIsolatedFrameGenerator
+                            sifs = new StateIsolatedFrameGenerator(Properties.INPUT[0]);
                     long testIndex = Properties.CURRENT_RUN;
                     File g = FileHandler.generateTestingOutputFile("gestures-" + testIndex);
                     g.createNewFile();
@@ -100,15 +80,19 @@ public class FrameHandler implements Tickable {
                     hr.createNewFile();
                     sifs.setOutputFiles(hp, hr);
 
-                    frameSelector = sifs;
+                    frameGenerator = sifs;
                     break;
                 case RECONSTRUCTION:
-                    frameSelector = new ReconstructiveFrameSelector(Properties.INPUT[0]);
+                    frameGenerator = new ReconstructiveFrameGenerator(Properties.INPUT[0]);
                     break;
                 case REGRESSION:
                     Properties.TESTING_OUTPUT = "testing_regression";
                     ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
                     String[] files = {Properties.INPUT[1], Properties.INPUT[2], Properties.INPUT[3], Properties.INPUT[4]};
+
+                    HashMap<NGramLog, String> handStateMap = new HashMap
+                            <NGramLog, String>();
+
                     for (int i = 0; i < files.length; i++){
                         logs[i] = new ArrayList<NGramLog>();
                         String[] data = FileHandler.readFile(new File(files[i])).split("\n");
@@ -128,6 +112,9 @@ public class FrameHandler implements Tickable {
                             log.timeSeeded = Integer.parseInt(d[1]);
                             String currentState = d[2];
                             currentState = currentState.substring(1, d[2].length()-1);
+
+                            handStateMap.put(log, currentState.replace(",",
+                                    ";"));
 
                             if (currentState.trim().length() == 0){
                                 continue;
@@ -152,16 +139,14 @@ public class FrameHandler implements Tickable {
 
                         }
                     }
-                    frameSelector = new RegressiveFrameSelector(Properties.INPUT[0], logs);
-                    break;
-                case RANDOM_SINGLE_TOGGLE:
-                    frameSelector = new SingleModelGuidedRandomFrameSelector();
+                    frameGenerator = new RegressionFrameGenerator(Properties
+                            .INPUT[0], logs, handStateMap);
                     break;
                 case MANUAL:
-                    frameSelector = null;
+                    frameGenerator = null;
                     return;
                 default:
-                    frameSelector = new RandomFrameSelector();
+                    frameGenerator = new RandomFrameGenerator();
                     break;
             }
         } catch (Exception e){
@@ -170,13 +155,8 @@ public class FrameHandler implements Tickable {
             System.exit(-1);
         }
 
-        // addFrameModifier(new RandomFrameModifier());
-        if (frameSelector instanceof FrameModifier) {
-            addFrameModifier((FrameModifier) frameSelector);
-        }
-
-        if (frameSelector instanceof GestureHandler){ //frameSelector instanceof ReconstructiveFrameSelector || frameSelector instanceof RegressiveFrameSelector){
-            setGestureHandler((GestureHandler) frameSelector);
+        if (frameGenerator instanceof GestureHandler){ //frameGenerator instanceof ReconstructiveFrameGenerator || frameGenerator instanceof RegressionFrameGenerator){
+            setGestureHandler((GestureHandler) frameGenerator);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();
             File f = FileHandler.generateTestingOutputFile( "gestures-" +
@@ -194,16 +174,12 @@ public class FrameHandler implements Tickable {
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();
 
         if (Properties.PLAYBACK_FILE != null) {
-            FrameSelector backupFs = frameSelector;
-            frameSelector = new UserPlaybackFrameSelector(backupFs);
+            FrameGenerator backupFs = frameGenerator;
+            frameGenerator = new UserPlaybackFrameGenerator(backupFs);
             output = "USER_PLAYBACK_FRAME_SELECTOR(" + output + ")";
         }
 
         App.out.println("- Using " + output + " for frame selection.");
-    }
-
-    public void addFrameModifier(FrameModifier fm) {
-        frameModifiers.add(fm);
     }
 
     public void setGestureHandler(GestureHandler gh) {
@@ -234,8 +210,8 @@ public class FrameHandler implements Tickable {
     }
 
     public synchronized void loadNewFrame() {
-        Frame frame = frameSelector.newFrame();
-        if (frameSelector instanceof EmptyFrameSelector){
+        Frame frame = frameGenerator.newFrame();
+        if (frameGenerator instanceof EmptyFrameGenerator){
             final Frame last = getFrame(1);
             final Frame next = frame;
             for (FrameSwitchListener fsl : frameSwitchListeners) {
@@ -250,13 +226,14 @@ public class FrameHandler implements Tickable {
                 }).start();
             }
             return;
-        } else if (frameSelector instanceof UserPlaybackFrameSelector) {
-            UserPlaybackFrameSelector upfs = (UserPlaybackFrameSelector) frameSelector;
+        } else if (frameGenerator instanceof UserPlaybackFrameGenerator) {
+            UserPlaybackFrameGenerator
+                    upfs = (UserPlaybackFrameGenerator) frameGenerator;
 
             //frame = upfs.newFrame();
 
             if (upfs.finished()){
-                frameSelector = upfs.getBackupFrameSelector();
+                frameGenerator = upfs.getBackupFrameGenerator();
                 loadNewFrame();
                 return;
             }
@@ -266,11 +243,8 @@ public class FrameHandler implements Tickable {
             }
             SeededFrame sf = (SeededFrame) frame;
 
-            //App.out.println(sf.toJson());
             GestureList gl = null;
-            for (FrameModifier fm : frameModifiers) {
-                fm.modifyFrame(sf);
-            }
+            frameGenerator.modifyFrame(sf);
             if (gestureHandler == null) {
                 gestureHandler = new RandomGestureHandler();
             }
@@ -288,16 +262,21 @@ public class FrameHandler implements Tickable {
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-        for (int i = 0; i < frameSwitchListeners.size(); i++) {
-            final FrameSwitchListener fl = frameSwitchListeners.get(i);
+        if (next != null && !next.equals(last)) {
 
-            new Thread(new Runnable() {
+            framesGenerated++;
 
-                @Override
-                public void run() {
-                    fl.onFrameSwitch(last, next);
-                }
-            }).start();
+            for (int i = 0; i < frameSwitchListeners.size(); i++) {
+                final FrameSwitchListener fl = frameSwitchListeners.get(i);
+
+                new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        fl.onFrameSwitch(last, next);
+                    }
+                }).start();
+            }
         }
     }
 
@@ -308,13 +287,8 @@ public class FrameHandler implements Tickable {
         if (gestureHandler.lastTick() < time) {
             gestureHandler.tick(time);
         }
-        if (frameSelector.lastTick() < time) {
-            frameSelector.tick(time);
-        }
-        for (FrameModifier fm : frameModifiers){
-            if (fm.lastTick() < time) {
-                fm.tick(time);
-            }
+        if (frameGenerator.lastTick() < time) {
+            frameGenerator.tick(time);
         }
     }
 
@@ -323,10 +297,16 @@ public class FrameHandler implements Tickable {
     }
 
     public void cleanUp(){
-        frameSelector.cleanUp();
+        frameGenerator.cleanUp();
     }
 
     public Csv getCsv(){
-        return frameSelector.getCsv();
+        return frameGenerator.getCsv();
+    }
+
+    public boolean allowProcessing(){
+        return framesGenerated % Properties.SEEDED_BEFORE_PROCESSING == 0 &&
+        frameGenerator
+                .allowProcessing();
     }
 }
