@@ -182,33 +182,7 @@ public class TestingStateComparator {
 
     private static int SCREENSHOTS_WROTE = 0;
 
-    public static String captureState(Integer[] bins, int totalValues) {
-
-        int closestState = -1;
-
-        int maxDifference = Integer.MAX_VALUE;
-
-        for (int i = 0; i < states.size(); i++) {
-            Integer[] ss = states.get(i);
-            int differences = calculateStateDifference(bins, ss);
-
-            ///App.out.println(i + ":" + ((float)differences/(float)
-            // resultData.length));
-
-            if (differences < maxDifference) {
-                maxDifference = differences;
-                closestState = i;
-            }
-
-        }
-        //
-
-        int stateNumber = states.size();
-
-        double difference =
-                maxDifference / (double) (totalValues / (states.size() + 1));
-
-        //App.out.println(difference);
+    public static void captureState(Integer[] bins, int totalValues) {
 
         int totalStates = states.size();
 
@@ -222,25 +196,16 @@ public class TestingStateComparator {
             statesFound++;
 
         } else {
-            currentState = closestState;
             statesVisited
                     .put(currentState, statesVisited.get(currentState) + 1);
             if (!statesActuallyVisited.contains(currentState)) {
                 statesActuallyVisited.add(currentState);
             }
         }
-
-        bins = states.get(currentState);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bins.length; i++) {
-            sb.append(bins[i] + ",");
-        }
-        String output = sb.toString();
-        return output.substring(0, output.length() - 1);
     }
 
-    public static ArrayList<Integer> getStatesVisited() {
-        return statesActuallyVisited;
+    public static HashMap<Integer, Integer> getStatesVisited() {
+        return statesVisited;
     }
 
 }
