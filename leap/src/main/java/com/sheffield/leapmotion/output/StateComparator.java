@@ -289,7 +289,7 @@ public class StateComparator {
             totalValues += bins[i];
         }
 
-        String testingState = TestingStateComparator.captureState(bins, totalValues);
+        TestingStateComparator.captureState(bins, totalValues);
 
         for (int i = 0; i < states.size(); i++) {
             Integer[] ss = states.get(i);
@@ -330,9 +330,15 @@ public class StateComparator {
                 }
             }
             try {
+                int currentTestingState = TestingStateComparator
+                        .getCurrentState();
                 File f = new File(
                         SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
-                                "STATE" + stateNumber + "-" + statesVisited.get(currentState) + ".png");
+                                "STATE" + stateNumber + "-" + statesVisited
+                                .get(currentState) + "-" +
+                                 + currentTestingState + "-" +
+                                TestingStateComparator.getStatesVisited().get
+                                        (currentTestingState) + ".png");
                 if (f.getParentFile() != null)
                     f.getParentFile().mkdirs();
                 ImageIO.write(compressed, "png", f);
