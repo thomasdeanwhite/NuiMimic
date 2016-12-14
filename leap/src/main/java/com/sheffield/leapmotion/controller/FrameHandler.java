@@ -58,10 +58,9 @@ public class FrameHandler implements Tickable {
                 case VQ:
                     frameGenerator = new VectorQuantizedFrameGenerator(Properties.INPUT[0]);
                     break;
-                case STATE_DEPENDENT:
-                    frameGenerator = new StateDependentFrameGenerator();
-                    break;
                 case STATE_ISOLATED:
+                    App.out.println("- Redirecting to StateDependent Frame Generation");
+                case STATE_DEPENDENT:
                     StateIsolatedFrameGenerator
                             sifs = new StateIsolatedFrameGenerator(Properties.INPUT[0]);
                     long testIndex = Properties.CURRENT_RUN;
