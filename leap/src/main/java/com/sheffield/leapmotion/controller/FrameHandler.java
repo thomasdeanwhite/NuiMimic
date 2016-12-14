@@ -93,6 +93,11 @@ public class FrameHandler implements Tickable {
                     HashMap<NGramLog, String> handStateMap = new HashMap
                             <NGramLog, String>();
 
+                    int lastState = -1;
+                    HashMap<Integer, ArrayList<Integer>> stateMapping = new
+                            HashMap
+                            <Integer, ArrayList<Integer>>();
+
                     for (int i = 0; i < files.length; i++){
                         logs[i] = new ArrayList<NGramLog>();
                         String[] data = FileHandler.readFile(new File(files[i])).split("\n");
@@ -135,12 +140,23 @@ public class FrameHandler implements Tickable {
                                     (cState);
 
                             log.state = newState;
+
+                            if (!stateMapping.containsKey(lastState)) {
+                                stateMapping.put(lastState, new ArrayList
+                                        <Integer>());
+                            }
+                            if (!stateMapping.get(lastState).contains
+                                    (newState)) {
+                                stateMapping.get(lastState).add(newState);
+                            }
                             logs[i].add(log);
+
+                            lastState = newState;
 
                         }
                     }
                     frameGenerator = new RegressionFrameGenerator(Properties
-                            .INPUT[0], logs, handStateMap);
+                            .INPUT[0], logs, handStateMap, stateMapping);
                     break;
                 case MANUAL:
                     frameGenerator = null;

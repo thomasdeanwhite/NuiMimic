@@ -39,6 +39,8 @@ public class InstantiationVisitor extends MethodVisitor {
 
     private static final ArrayList<String> EMPTY_REPLACE_CLASSES = new ArrayList<String>();
 
+    private boolean controllerIsSuperclass = true;
+
     static {
         /*
             PointableList::empty() — use PointableList::isEmpty() instead.
@@ -133,15 +135,25 @@ public class InstantiationVisitor extends MethodVisitor {
         if (!Properties.LEAVE_LEAPMOTION_ALONE) {
             if (owner.equals(CONTROLLER_CLASS)) {
                 if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
-                    super.visitMethodInsn(opcode, owner, name, desc, itf);
                     try {
-                        super.visitInsn(Opcodes.POP);
-                        super.visitMethodInsn(Opcodes.INVOKESTATIC, NEW_CONTROLLER, "getController",
-                                Type.getMethodDescriptor(METHOD_TO_CALL), itf);
-                        super.visitMethodInsn(Opcodes.INVOKESTATIC, APP_CLASS, "setTesting",
-                                Type.getMethodDescriptor(APP_METHOD_TO_CALL), itf);
+                        if (!controllerIsSuperclass) {
+                            super.visitMethodInsn(opcode, owner, name, desc, itf);
+                            super.visitInsn(Opcodes.POP);
 
-                        //App.out.println("Replaced Controller instantiation in " + className + " with method call to " + METHOD_TO_CALL.toGenericString());
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                    NEW_CONTROLLER, "getController",
+                                    Type.getMethodDescriptor(METHOD_TO_CALL),
+                                    itf);
+                            super.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                    APP_CLASS, "setTesting",
+                                    Type.getMethodDescriptor(
+                                            APP_METHOD_TO_CALL), itf);
+                        } else {
+                            super.visitMethodInsn(opcode, NEW_CONTROLLER, name,
+                                    desc, itf);
+
+
+                        }
 
                     } catch (SecurityException e) {
                         e.printStackTrace();
@@ -217,4 +229,11 @@ public class InstantiationVisitor extends MethodVisitor {
         }
     }
 
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+        if (opcode == Opcodes.NEW && type == CONTROLLER_CLASS){
+            controllerIsSuperclass = false;
+        }
+        super.visitTypeInsn(opcode, type);
+    }
 }

@@ -24,6 +24,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	public static SeededController CONTROLLER;
 	private static boolean initializing = false;
+	private static boolean calledAsSuperclass = true;
 
 	public String status(){
 		if (frameHandler == null){
@@ -78,6 +79,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public static Controller getController() {
+		calledAsSuperclass = false;
 		return getSeededController();
 	}
 
@@ -100,6 +102,16 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		enableGesture(Gesture.Type.TYPE_CIRCLE);
         App.getApp().setStatus(AppStatus.TESTING);
 		CONTROLLER = this;
+
+        if (calledAsSuperclass){
+            initializing = true;
+            App.setTesting();
+
+            //App.startTesting();
+            App.getApp().setup(true);
+            CONTROLLER.setup();
+            initializing = false;
+        }
 
 	}
 

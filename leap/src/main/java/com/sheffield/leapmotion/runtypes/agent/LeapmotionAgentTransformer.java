@@ -1,9 +1,11 @@
 package com.sheffield.leapmotion.runtypes.agent;
 
+import com.leapmotion.leap.Controller;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
 import com.sheffield.util.ClassNameUtils;
 import org.objectweb.asm.ClassVisitor;
@@ -28,6 +30,10 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
         instrumentingClassLoader.getClassReplacementTransformer().setWriteClasses(true);
 
         instrumentingClassLoader.setShouldInstrument(true);
+
+        instrumentingClassLoader.addSuperClassReplacement
+                (Controller.class.getCanonicalName(), SeededController.class.getCanonicalName
+                        ());
 
         App.ENABLE_APPLICATION_OUTPUT = true;
         App.IS_INSTRUMENTING = true;

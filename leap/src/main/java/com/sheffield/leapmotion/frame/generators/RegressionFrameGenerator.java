@@ -42,6 +42,8 @@ public class RegressionFrameGenerator extends FrameGenerator implements
 
     private HashMap<NGramLog, String> handStateMap;
 
+    private HashMap<Integer, ArrayList<Integer>> stateMapping;
+
     private ClusterPlayback[] clusterPlaybacks;
 
     private int currentAnimationTime = 0;
@@ -65,12 +67,19 @@ public class RegressionFrameGenerator extends FrameGenerator implements
 
     private File regressionStateComparisons;
 
+    private int stateContractViolations = 0;
+    private int stateContractSatisfied = 0;
+
 
     public RegressionFrameGenerator(String filename,
                                     ArrayList<NGramLog>[] ngLogs,
-                                    HashMap<NGramLog, String> handStateMap) {
+                                    HashMap<NGramLog, String> handStateMap,
+                                    HashMap<Integer, ArrayList<Integer>>
+                                            stateMapping) {
         failures = new ArrayList<NGramLog>();
         success = new ArrayList<NGramLog>();
+
+        this.stateMapping = stateMapping;
 
         this.handStateMap = handStateMap;
 
@@ -170,6 +179,9 @@ public class RegressionFrameGenerator extends FrameGenerator implements
 
     private NGramLog lastHandN = null;
     private boolean headers = true;
+
+
+    private int lastState = -1;
 
     @Override
     public Frame newFrame() {
@@ -274,6 +286,32 @@ public class RegressionFrameGenerator extends FrameGenerator implements
                     / (float)TestingStateComparator.sum(TestingStateComparator
                     .getState
                     (lastHandN.state))));
+
+            boolean stateContractViolation = true;
+
+            if (state != lastState && (
+                    stateMapping.containsKey(state) ||
+                    stateMapping.containsKey(lastState)
+            )) {
+
+                if (stateMapping.containsKey(lastState) && stateMapping.get
+                        (lastState)
+                        .contains(state)) {
+                    stateContractViolation = false;
+                    stateContractSatisfied++;
+                } else {
+                    stateContractViolations++;
+                }
+            }
+
+            csv.add("TstateContractsViolated", "" + stateContractViolations);
+            csv.add("TstateContractsSatisfied", "" + stateContractSatisfied);
+            csv.add("TstateContractCorrectness", "" + stateContractSatisfied
+                    / (float)(stateContractSatisfied +
+                    stateContractViolations));
+
+            lastState = state;
+
 
             csv.finalize();
 

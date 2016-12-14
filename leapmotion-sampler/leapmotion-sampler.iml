@@ -13,6 +13,8 @@
     <orderEntry type="module" module-name="leap" />
     <orderEntry type="module" module-name="instrumentation" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm:5.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.ow2.asm:asm-commons:5.0.3" level="project" />
+    <orderEntry type="library" name="Maven: org.ow2.asm:asm-tree:5.0.3" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
     <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.6" level="project" />
     <orderEntry type="library" name="Maven: org.jacoco:jacoco-maven-plugin:0.7.7.201606060606" level="project" />

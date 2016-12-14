@@ -459,8 +459,8 @@ public class App implements ThrowableListener, Tickable {
         framesSeeded++;
     }
 
-    public int getFps(){
-        return fps;
+    public float getFps(){
+        return (int) (iterations / MockSystem.RUNTIME);
     }
 
     public static Thread getMainThread(){
@@ -545,6 +545,7 @@ public class App implements ThrowableListener, Tickable {
             Csv propertyValues = Properties.instance().toCsv();
             Csv csv = new Csv();
 
+
             csv.merge(testingValues);
             csv.merge(propertyValues);
 
@@ -555,6 +556,7 @@ public class App implements ThrowableListener, Tickable {
 
             csv.add("fps", "" + getFps());
             csv.add("iterationTime", "" + getAverageIterationTime());
+            csv.add("iterations", "" + iterations);
 
             csv.add("TstatesStarting", "" + (TestingStateComparator.statesVisited.size() - StateComparator.statesFound));
             csv.add("TstatesFound", "" + TestingStateComparator.statesFound);
