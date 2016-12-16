@@ -460,7 +460,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public float getFps(){
-        return (int) (iterations / MockSystem.RUNTIME);
+        return (int) (1000 * iterations / (float)MockSystem.RUNTIME);
     }
 
     public static Thread getMainThread(){

@@ -360,6 +360,11 @@ public class StateComparator {
 
         } else {
             currentState = closestState;
+
+            if (!statesVisited.containsKey(currentState)){
+                statesVisited.put(currentState, 0);
+            }
+
             statesVisited
                     .put(currentState, statesVisited.get(currentState) + 1);
             if (!statesActuallyVisited.contains(currentState)) {

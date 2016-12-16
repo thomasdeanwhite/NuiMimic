@@ -38,7 +38,7 @@ public class Properties extends InstrumentationProperties {
     public static String PLAYBACK_FILE = null;
 
     @Parameter(key = "framesPerSecond", description = "Number of frames to seed per second", hasArgs = true, category = "Leap Motion Testing")
-    public static long FRAMES_PER_SECOND = 90;
+    public static long FRAMES_PER_SECOND = 100;
 
     @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Leap Motion Testing")
     public static int SWITCH_TIME = 33;//400;
@@ -199,6 +199,11 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
     public static RunType RUN_TYPE = RunType.INSTRUMENT;
+
+    @Parameter(key = "processPlayback", description = "Should frames be " +
+            "processed during playback?",
+            hasArgs = false, category = "Leap Motion Sampling")
+    public static boolean PROCESS_PLAYBACK = false;
 
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {

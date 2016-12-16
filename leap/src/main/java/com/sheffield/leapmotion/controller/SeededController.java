@@ -134,7 +134,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			App.out.println("- Only recording testing information!");
 		} else {
 			frameHandler = new FrameHandler();
-			frameHandler.init();
+			frameHandler.init(this);
 			frameHandler.addFrameSwitchListener(this);
 		}
 

@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.controller;
 
+import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
@@ -38,7 +39,7 @@ public class FrameHandler implements Tickable {
 
     }
 
-    public void init (){
+    public void init (Controller seededController){
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
         frames = new ArrayList<Frame>();
         try {
@@ -190,7 +191,7 @@ public class FrameHandler implements Tickable {
 
         if (Properties.PLAYBACK_FILE != null) {
             FrameGenerator backupFs = frameGenerator;
-            frameGenerator = new UserPlaybackFrameGenerator(backupFs);
+            frameGenerator = new UserPlaybackFrameGenerator(backupFs, seededController);
             output = "USER_PLAYBACK_FRAME_SELECTOR(" + output + ")";
         }
 

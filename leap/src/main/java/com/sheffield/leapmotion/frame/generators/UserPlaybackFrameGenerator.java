@@ -1,12 +1,11 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Bone;
-import com.leapmotion.leap.Finger;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.leapmotion.controller.FrameHandler;
 import com.sheffield.leapmotion.controller.SeededController;
@@ -60,7 +59,20 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 
 	private DisplayWindow dw;
 	
-	public UserPlaybackFrameGenerator(FrameGenerator frameGenerator) {
+	public UserPlaybackFrameGenerator(FrameGenerator frameGenerator,
+                                      Controller controller) {
+
+		if (Properties.PROCESS_PLAYBACK){
+			// This happens when we want to split frames into separate models
+			SamplerApp.LOOP = false;
+			SamplerApp.main(new String[]{Properties.PLAYBACK_FILE.substring
+					(0, Properties.PLAYBACK_FILE.indexOf("."))});
+
+			SamplerApp.RECORDING_USERS = false;
+
+            controller.addListener(SamplerApp.getApp());
+		}
+
 		lastSwitchRate = Properties.FRAMES_PER_SECOND;
 		Properties.FRAMES_PER_SECOND = 30;
 		backupFrameGenerator = frameGenerator;
@@ -72,7 +84,12 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 			//int counter = Properties.MAX_LOADED_FRAMES;
 
 			while (lineIterator.hasNext()){
-				frameStack.add(Serializer.sequenceFromJson(lineIterator.nextLine()));
+				try {
+					frameStack.add(Serializer
+							.sequenceFromJson(lineIterator.nextLine()));
+				} catch (JsonSyntaxException e){
+					// some bad JSON data;
+				}
 				//counter--;
 			}
 
@@ -81,7 +98,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 				boolean vis = Properties.VISUALISE_DATA;
 				Properties.VISUALISE_DATA = false;
 				fh = new FrameHandler();
-				fh.init();
+				fh.init(controller);
 
 				Properties.VISUALISE_DATA = vis;
 				if (Properties.VISUALISE_DATA) {
@@ -166,7 +183,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 			}
 			return "rms: " + Math.sqrt(differences / counter);
 		} else {
-			return "";
+			return App.getApp().getFps() + " fps";
 		}
 	}
 
@@ -186,7 +203,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 
 		lastUpdate = time;
 
-		if (frameStack.size() <= 0){// || !lineIterator.hasNext()) {
+		if (frameStack.size() <= 1){ // last frame!
 			seeded = true;
 			Properties.FRAMES_PER_SECOND = lastSwitchRate;
 			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
@@ -203,15 +220,14 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 
 		Frame f = frameStack.get(0);
 
-		if (currentTimePassed > seededTimePassed){// && lineIterator.hasNext()){
-//			f = Serializer.sequenceFromJson(lineIterator.nextLine());
-//
-//			frameStack.add(f);
+		if (currentTimePassed > seededTimePassed){
 
 			f = frameStack.get(1);
 
+            assert frameStack.get(0).timestamp() < f.timestamp();
+
 			if (firstFrameTimeStamp == 0) {
-				firstFrameTimeStamp = f.timestamp()/1000;
+				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
 			} else {
 				frameStack.remove(0);
 			}
@@ -219,12 +235,12 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
 		}
 
-		if (firstFrameTimeStamp == 0) {
-			firstFrameTimeStamp = f.timestamp()/1000;
-		} else {
+		if (firstFrameTimeStamp != 0) {
 			handsSeen++;
 		}
 
+		// This compares RECONSTRUCTION to USER_PLAYBACK and calculates
+        // differences
 		if (fh != null){
 			fh.tick(time);
 			if (fhFrame != null && fhFrame.isValid() && fhFrame.hands().count() > 0){
