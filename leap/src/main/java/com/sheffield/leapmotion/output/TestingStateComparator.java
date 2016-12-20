@@ -2,16 +2,11 @@ package com.sheffield.leapmotion.output;
 
 import com.sheffield.leapmotion.Properties;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.sheffield.leapmotion.Properties.*;
+import static com.sheffield.leapmotion.Properties.TESTING_HISTOGRAM_BINS;
+import static com.sheffield.leapmotion.Properties.TESTING_HISTOGRAM_THRESHOLD;
 
 /**
  * Created by thomas on 15/03/2016.
@@ -21,8 +16,6 @@ public class TestingStateComparator {
     public static int statesFound = 0;
 
     private static ArrayList<Integer[]> states;
-
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
 
     private static int currentState;
 

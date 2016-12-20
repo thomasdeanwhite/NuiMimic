@@ -50,9 +50,6 @@ public class FrameHandler implements Tickable {
                 case SINGLE_MODEL:
                     frameGenerator = new SingleModelFrameGenerator();
                     break;
-                case N_GRAM:
-                    //frameGenerator = new NGramFrameGenerator("");
-                    throw new UnsupportedOperationException("NGram is deprecated. Please use SINGLE_MODEL or STATE_DEPENDENT");
                 case EMPTY:
                     frameGenerator = new EmptyFrameGenerator();
                     break;
@@ -232,14 +229,7 @@ public class FrameHandler implements Tickable {
             final Frame next = frame;
             for (FrameSwitchListener fsl : frameSwitchListeners) {
                 final FrameSwitchListener fl = fsl;
-
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        fl.onFrameSwitch(last, next);
-                    }
-                }).start();
+                fl.onFrameSwitch(last, next);
             }
             return;
         } else if (frameGenerator instanceof UserPlaybackFrameGenerator) {
@@ -272,26 +262,23 @@ public class FrameHandler implements Tickable {
 
             sf.setGestures(gl);
         }
+        if (frames.contains(frame)){
+            return;
+        }
         frames.add(0, frame);
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {
             frames.remove(frames.size() - 1);
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-        if (next != null && !next.equals(last)) {
+        if (next != null) {
 
             framesGenerated++;
 
             for (int i = 0; i < frameSwitchListeners.size(); i++) {
                 final FrameSwitchListener fl = frameSwitchListeners.get(i);
 
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        fl.onFrameSwitch(last, next);
-                    }
-                }).start();
+                fl.onFrameSwitch(last, next);
             }
         }
     }

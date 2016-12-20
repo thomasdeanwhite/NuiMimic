@@ -148,6 +148,6 @@ public class NGramGestureHandler extends RandomGestureHandler {
 
 	@Override
 	public String getNextGesture() {
-		return analyzer.getDataAnalyzer().next().split("\\+")[0];
+		return analyzer.getDataAnalyzer().next();
 	}
 }

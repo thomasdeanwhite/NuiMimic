@@ -99,6 +99,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             }
 
             timings = new ArrayList<Long>();
+            ArrayList<Long> timings = new ArrayList<Long>();
 
             String[] tim = sequenceInfo.split("\n")[1].split(",");
 
@@ -107,11 +108,11 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                     timings.add(Long.parseLong(s.split("@")[0]));
             }
 
-            for (int i = timings.size()-1; i > 0; i--){
-                long l = timings.remove(i);
-                if (l > timings.get(i-1)) {
+            for (int i = 1; i < timings.size()-1; i++){
+                long l = timings.get(i);
+                if (l < timings.get(i+1)) {
                     long time = l - timings.get(0);
-                    timings.add(i, time);
+                    this.timings.add(time);
                 } else {
                     throw new IllegalArgumentException("Timings must increase chronologically");
                 }
@@ -208,10 +209,12 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             return Frame.invalid();
         }
         Frame f = SeededController.newFrame();
-        ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
-        hs.add(hands.get(handLabelStack.get(0)));
+//        ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
+//        hs.add(hands.get(handLabelStack.get(0)));
+//        float modifier = Math.max(1f, currentAnimationTime / animationTime);
+
+
         Hand hand = hands.get(currentHand);
-        float modifier = Math.max(1f, currentAnimationTime / animationTime);
 
         if (hand != null) {
             f = HandFactory.injectHandIntoFrame(f, hand);

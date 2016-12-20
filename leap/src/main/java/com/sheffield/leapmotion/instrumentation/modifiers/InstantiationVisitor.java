@@ -14,8 +14,12 @@ import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.instrumentation.*;
 import com.sheffield.leapmotion.controller.mocks.SeededGesture;
+import com.sheffield.leapmotion.instrumentation.MockDesktop;
+import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
+import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
+import com.sheffield.leapmotion.instrumentation.MockRandom;
+import com.sheffield.leapmotion.instrumentation.MockSystem;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -136,7 +140,7 @@ public class InstantiationVisitor extends MethodVisitor {
             if (owner.equals(CONTROLLER_CLASS)) {
                 if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
                     try {
-                        if (!controllerIsSuperclass) {
+                        if (!Properties.CONTROLLER_SUPER_CLASS) {
                             super.visitMethodInsn(opcode, owner, name, desc, itf);
                             super.visitInsn(Opcodes.POP);
 
@@ -204,18 +208,23 @@ public class InstantiationVisitor extends MethodVisitor {
         } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("currentTimeMillis")){
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
+            App.out.println(className + " calls millis");
+
+        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("nanoTime")){
+            shouldCall = false;
+            super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
+            App.out.println(className + " calls nanos");
         } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("setProperty")){
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
         } else if (owner.equalsIgnoreCase(DESKTOP_CLASS)){
-            if (name.equals
-                    ("browse")) {
-                shouldCall = false;
-                super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_DESKTOP_CLASS,
-                        name, desc, itf);
-            } else if (name.equals("getDesktop")){
-                shouldCall = false;
+            if (opcode != Opcodes.INVOKESTATIC){
+                super.visitInsn(Opcodes.DUP_X1);
+                super.visitInsn(Opcodes.POP2);
             }
+            shouldCall = false;
+            super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_DESKTOP_CLASS,
+                    name, desc, itf);
         }
 
         if (shouldCall) {
@@ -231,9 +240,6 @@ public class InstantiationVisitor extends MethodVisitor {
 
     @Override
     public void visitTypeInsn(int opcode, String type) {
-        if (opcode == Opcodes.NEW && type == CONTROLLER_CLASS){
-            controllerIsSuperclass = false;
-        }
         super.visitTypeInsn(opcode, type);
     }
 }

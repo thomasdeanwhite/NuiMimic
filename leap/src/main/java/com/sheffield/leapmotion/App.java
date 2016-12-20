@@ -8,10 +8,10 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
@@ -21,16 +21,23 @@ import com.sheffield.leapmotion.runtypes.RunType;
 import com.sheffield.leapmotion.runtypes.StateRecognisingRunType;
 import com.sheffield.leapmotion.runtypes.VisualisingRunType;
 import com.sheffield.leapmotion.runtypes.agent.LeapmotionAgentTransformer;
-import com.sheffield.leapmotion.runtypes.state_identification.*;
-
-import com.sheffield.leapmotion.util.*;
+import com.sheffield.leapmotion.runtypes.state_identification.ImageStateIdentifier;
+import com.sheffield.leapmotion.util.AppStatus;
+import com.sheffield.leapmotion.util.ClassTracker;
+import com.sheffield.leapmotion.util.FileHandler;
+import com.sheffield.leapmotion.util.ProgressBar;
+import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.output.Csv;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
 import java.security.Permission;
 import java.util.ArrayList;
@@ -61,7 +68,7 @@ public class App implements ThrowableListener, Tickable {
     public static int timePassed = 0;
 
     //check states every x-ms
-    public static final long STATE_CHECK_TIME = 5000;
+    public static final long STATE_CHECK_TIME = 10000;
     public long lastStateCheck = 0;
     private int framesSeeded = 0;
     private int fps = 0;
@@ -75,6 +82,24 @@ public class App implements ThrowableListener, Tickable {
 
     public static DisplayWindow DISPLAY_WINDOW = null;
     private static PrintStream originalOut = System.out;
+
+    public interface TimeHandler {
+        void setMillis(long executionTimeMillis);
+        void setNanos(long executionTimeNanos);
+    }
+
+    public static TimeHandler TIME_HANDLER = new TimeHandler() {
+        @Override
+        public void setMillis(long executionTime) {
+            MockSystem.MILLIS = executionTime;
+        }
+
+        @Override
+        public void setNanos(long executionTime) {
+            MockSystem.NANOS = executionTime;
+        }
+    };
+
 
     public static PrintStream out = new PrintStream(originalOut) {
         @Override
@@ -106,7 +131,7 @@ public class App implements ThrowableListener, Tickable {
     @Override
     public void throwableThrown(Throwable t) {
         App.out.println("Throwable thrown! " + t.getLocalizedMessage());
-        File classes = new File(Properties.TESTING_OUTPUT + "/errors/RUN" + Properties.CURRENT_RUN + "-error.log");
+        File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.errors");
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
         }
@@ -244,7 +269,7 @@ public class App implements ThrowableListener, Tickable {
             }
         });
 
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
         lastSwitchTime = startTime;
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         System.setSecurityManager(new NoExitSecurityManager());
@@ -350,7 +375,7 @@ public class App implements ThrowableListener, Tickable {
                 run = new StateRecognisingRunType(isiMan);
                 break;
             default:
-                App.out.println("Unimplemented RUNTIME");
+                App.out.println("Unimplemented MILLIS");
                 break;
         }
         run.run();
@@ -460,7 +485,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public float getFps(){
-        return (int) (1000 * iterations / (float)MockSystem.RUNTIME);
+        return (int) (1000 * iterations / (float)MockSystem.MILLIS);
     }
 
     public static Thread getMainThread(){
@@ -481,13 +506,13 @@ public class App implements ThrowableListener, Tickable {
                     e.printStackTrace();
                 }
 
-                long lastTime = System.currentTimeMillis();
+                long lastTime = System.nanoTime();
                 START_TIME = lastTime;
                 long lastTimeRecorded = 0;
 
                 while (app.status() != AppStatus.FINISHED) {
-                    long time = System.currentTimeMillis();
-                    int timePassed = (int) (time - lastTime);
+                    long time = System.nanoTime();
+                    int timePassed = (int) ((time - lastTime)/ 1000000);
                     App.getApp().increaseIterationTime(timePassed);
                     app.tick(time);
                     try {
@@ -502,7 +527,11 @@ public class App implements ThrowableListener, Tickable {
                     if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL &&
                             SeededController.getSeededController().allowProcessing()) {
                         ClassAnalyzer.collectHitCounters(false);
-                        MockSystem.RUNTIME = (int) (System.currentTimeMillis() - START_TIME);
+
+                        long timePassedNanos = time - START_TIME;
+
+                        TIME_HANDLER.setMillis(timePassedNanos / 1000000);
+                        TIME_HANDLER.setNanos(timePassedNanos);
                         App.getApp().output(false);
                         lastTimeRecorded = lastTime;
                     }
@@ -510,7 +539,11 @@ public class App implements ThrowableListener, Tickable {
                 }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters(false);
-                MockSystem.RUNTIME = (int) (System.currentTimeMillis() - START_TIME);
+                long timePassedNanos = System.nanoTime() - START_TIME;
+
+                TIME_HANDLER.setMillis(timePassedNanos / 1000000);
+                TIME_HANDLER.setNanos(timePassedNanos);
+
                 App.getApp().output(true);
                 System.exit(0);
 
@@ -613,7 +646,7 @@ public class App implements ThrowableListener, Tickable {
             csv.add("relatedBranchesTotal", "" + relatedBranches);
             csv.add("relatedBranchesCovered", "" + branchHits);
             csv.add("relatedBranchCoverage", "" + (branchHits / (float) relatedBranches));
-            csv.add("runtime", "" + MockSystem.RUNTIME);
+            csv.add("runtime", "" + MockSystem.MILLIS);
 
             if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)){
                 csv.add("dataHitRatio", "" + StateIsolatedAnalyzerApp.hitRatio());
@@ -630,7 +663,7 @@ public class App implements ThrowableListener, Tickable {
 
     public void output(Csv csv) {
 
-        File csvFile = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.csv");
+        File csvFile = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results");
         if (csvFile.getParentFile() != null) {
             csvFile.getParentFile().mkdirs();
         }
@@ -671,7 +704,7 @@ public class App implements ThrowableListener, Tickable {
         File outFldr = new File(Properties.TESTING_OUTPUT + "/result_states");
         outFldr.mkdirs();
 
-        File output = new File(outFldr, "RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
+        File output = new File(outFldr, Properties.FRAME_SELECTION_STRATEGY + "-RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
         try {
             ImageIO.write(bi, "png", output);
         } catch (IOException e) {
@@ -692,7 +725,8 @@ public class App implements ThrowableListener, Tickable {
             if (classSeen.contains(className)) {
                 className = "" + classSeen.indexOf(className);
             } else {
-                File classes = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.classes");
+
                 if (classes.getParentFile() != null) {
                     classes.getParentFile().mkdirs();
                 }
@@ -718,7 +752,7 @@ public class App implements ThrowableListener, Tickable {
             if (classSeen.contains(className)) {
                 className = "" + classSeen.indexOf(className);
             } else {
-                File classes = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.classes.csv");
+                File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.classes");
                 if (classes.getParentFile() != null) {
                     classes.getParentFile().mkdirs();
                 }
@@ -733,7 +767,7 @@ public class App implements ThrowableListener, Tickable {
             branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
         }
 
-        File classes = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered.csv");
+        File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.lines_covered");
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
         }
@@ -743,7 +777,7 @@ public class App implements ThrowableListener, Tickable {
 
         FileHandler.appendToFile(classes, linesHit.toString() + "\n");
 
-        File branches = new File(Properties.TESTING_OUTPUT + "/logs/RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered.csv");
+        File branches = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.branches_covered");
         if (branches.getParentFile() != null) {
             branches.getParentFile().mkdirs();
         }
@@ -767,34 +801,42 @@ public class App implements ThrowableListener, Tickable {
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
         //if (time - lastSwitchTime > timeBetweenSwitch) {
+
         if (sc.lastTick() < time) {
             sc.tick(time);
             lastSwitchTime = time;
         }
         //}
 
-        if (time - lastStateCheck > STATE_CHECK_TIME &&
+        if (MockSystem.MILLIS - lastStateCheck > STATE_CHECK_TIME &&
         SeededController.getSeededController().allowProcessing()) {
-            lastStateCheck = time;
+            lastStateCheck = time + 60000;
             try {
-                StateComparator.captureState();
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        StateComparator.captureState();
+                        lastStateCheck = MockSystem.MILLIS;
+                    }
+                }).start();
             } catch (Exception e) {
                 e.printStackTrace(App.out);
             }
+
         }
 
-        MockSystem.RUNTIME = System.currentTimeMillis() - startTime;
+        MockSystem.MILLIS = time - startTime;
 
         if (printHeaders){
             App.out.println(ProgressBar.getHeaderBar(21));
             printHeaders = false;
         }
 
-        String progress = ProgressBar.getProgressBar(21, MockSystem.RUNTIME / (float) Properties.RUNTIME);
+        String progress = ProgressBar.getProgressBar(21, MockSystem.MILLIS / (float) Properties.RUNTIME);
 
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
-        if (MockSystem.RUNTIME > Properties.RUNTIME) {
+        if (MockSystem.MILLIS > Properties.RUNTIME) {
             status = AppStatus.FINISHED;
         }
     }

@@ -56,7 +56,6 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 
 		for (String s : gestures){
             try {
-                App.out.println(s);
                 File pFile = generateFile("hand_positions-" + testIndex);
                 pFile.createNewFile();
                 File rFile = generateFile("hand_rotations-" + testIndex);

@@ -101,12 +101,15 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "leave_leapmotion_alone", description = "Leave the Leap Motion API original", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean LEAVE_LEAPMOTION_ALONE = false;
 
+    @Parameter(key = "controllerSuperClass", description = "The Controller class is extended instead of instantiated", hasArgs = false, category = "Leap Motion Instrumentation")
+    public static boolean CONTROLLER_SUPER_CLASS = false;
+
     @Parameter(key = "invertZAxis", description = "Inverts the direction the hand is facing", hasArgs = false, category = "Leap Motion Testing")
     public static boolean INVERT_Z_AXIS = false;
 
 
     public enum FrameSelectionStrategy {
-        RANDOM, N_GRAM, EMPTY, VQ, STATE_DEPENDENT, SINGLE_MODEL, RECONSTRUCTION, REGRESSION, NONE, MANUAL, STATE_ISOLATED
+        RANDOM, EMPTY, VQ, STATE_DEPENDENT, SINGLE_MODEL, RECONSTRUCTION, REGRESSION, NONE, MANUAL, STATE_ISOLATED
     }
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
@@ -125,7 +128,7 @@ public class Properties extends InstrumentationProperties {
     public static float STATE_WEIGHT = 0.05f;
 
     @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
-    public static int HISTOGRAM_BINS = 50;
+    public static int HISTOGRAM_BINS = 25;
 
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
     public static float HISTOGRAM_THRESHOLD = 0.1f;
@@ -134,13 +137,13 @@ public class Properties extends InstrumentationProperties {
     public static float TESTING_HISTOGRAM_THRESHOLD = 0.01f;
 
     @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "Oracle")
-    public static int TESTING_HISTOGRAM_BINS = 50;
+    public static int TESTING_HISTOGRAM_BINS = 25;
 
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
 
     @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
-    public static int SCREENSHOT_COMPRESSION = 4;
+    public static int SCREENSHOT_COMPRESSION = 10;
 
     @Parameter(key = "seededBeforeProcessing", description = "Number of hands to seed before background processing", hasArgs = true, category = "Leap Motion Testing")
     public static int SEEDED_BEFORE_PROCESSING = 30;

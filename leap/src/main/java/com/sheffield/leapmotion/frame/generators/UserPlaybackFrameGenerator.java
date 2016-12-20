@@ -1,17 +1,22 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.MalformedJsonException;
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Bone;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Finger;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.sampler.SamplerApp;
-import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.leapmotion.controller.FrameHandler;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
+import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.instrumentation.MockSystem;
+import com.sheffield.leapmotion.sampler.SamplerApp;
+import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.output.Csv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
@@ -23,7 +28,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class UserPlaybackFrameGenerator extends FrameGenerator {
+public class UserPlaybackFrameGenerator extends FrameGenerator implements App.TimeHandler {
+
+
+	int currentFrame = 0;
+
 	@Override
 	public Csv getCsv() {
 		return new Csv();
@@ -74,7 +83,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 		}
 
 		lastSwitchRate = Properties.FRAMES_PER_SECOND;
-		Properties.FRAMES_PER_SECOND = 30;
+		Properties.FRAMES_PER_SECOND = 120;
 		backupFrameGenerator = frameGenerator;
 		String playback = Properties.PLAYBACK_FILE;
 		try {
@@ -121,6 +130,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 //					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
 //				}
 
+				App.TIME_HANDLER = this;
+
 
 			}
 
@@ -155,7 +166,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 
 
 		
-		f =  frameStack.get(0);
+		f =  frameStack.get(currentFrame);
 
 
 		return f;
@@ -182,9 +193,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 				}
 			}
 			return "rms: " + Math.sqrt(differences / counter);
-		} else {
-			return App.getApp().getFps() + " fps";
 		}
+		return (frameStack.size() - currentFrame) + " frames";
 	}
 
 	public FrameGenerator getBackupFrameGenerator(){
@@ -203,7 +213,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 
 		lastUpdate = time;
 
-		if (frameStack.size() <= 1){ // last frame!
+		if (currentFrame >= frameStack.size()-1){ // last frame!
 			seeded = true;
 			Properties.FRAMES_PER_SECOND = lastSwitchRate;
 			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
@@ -222,14 +232,12 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 
 		if (currentTimePassed > seededTimePassed){
 
-			f = frameStack.get(1);
-
-            assert frameStack.get(0).timestamp() < f.timestamp();
+			f = frameStack.get(currentFrame+1);
 
 			if (firstFrameTimeStamp == 0) {
 				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
 			} else {
-				frameStack.remove(0);
+				currentFrame++;
 			}
 
 			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
@@ -311,4 +319,13 @@ public class UserPlaybackFrameGenerator extends FrameGenerator {
 		}
 	}
 
+	@Override
+	public void setMillis(long executionTime) {
+		MockSystem.MILLIS = frameStack.get(0).timestamp() / 1000;
+	}
+
+	@Override
+	public void setNanos(long executionTime) {
+		MockSystem.NANOS = frameStack.get(0).timestamp() * 1000;
+	}
 }

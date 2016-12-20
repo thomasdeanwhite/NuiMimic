@@ -27,10 +27,15 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	private static boolean calledAsSuperclass = true;
 
 	public String status(){
+
+		String status = App.getApp().getFps() + " fps ";
+
 		if (frameHandler == null){
-			return "Manual Testing";
+			status += "Manual Testing";
+		} else {
+			status += frameHandler.status();
 		}
-		return frameHandler.status();
+		return status;
 	}
 
 	private Listener leapmotionListener = new Listener(){
@@ -149,7 +154,9 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	@Override
 	public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
 		for (int i = 0; i < listeners.size(); i++) {
-			listeners.get(i).onFrame(this);
+			final Listener l = listeners.get(i);
+			final Controller controller = this;
+			l.onFrame(controller);
 		}
 	}
 

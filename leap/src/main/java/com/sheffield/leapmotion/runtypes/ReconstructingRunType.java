@@ -50,9 +50,9 @@ public class ReconstructingRunType implements RunType {
             csv.add("frameSelectionStrategy", Properties
                     .FRAME_SELECTION_STRATEGY.toString());
 
-            MockSystem.RUNTIME = (int) (time - startTime);
+            MockSystem.MILLIS = (int) (time - startTime);
 
-            csv.add("runtime", "" + MockSystem.RUNTIME);
+            csv.add("runtime", "" + MockSystem.MILLIS);
 
             csv.finalize();
             App.getApp().output(csv);

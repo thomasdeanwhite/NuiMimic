@@ -9,8 +9,8 @@ import com.leapmotion.leap.ScreenTapGesture;
 import com.leapmotion.leap.SwipeGesture;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
+import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.Serializer;
 
 import java.io.File;
@@ -187,6 +187,7 @@ public class FrameDeconstructor {
         if (calculatingScreenshot) {
             return;
         }
+
         calculatingScreenshot = true;
         if (currentDct == null) {
             currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct");
@@ -246,7 +247,6 @@ public class FrameDeconstructor {
 
     public void outputGestureModel(Frame frame) throws IOException {
         if (currentGestures == null) {
-            App.out.println("- New Gestures File: " + filenameStart);
             currentGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.sequence_gesture_data");
             currentGestures.getParentFile().mkdirs();
             currentGestures.createNewFile();

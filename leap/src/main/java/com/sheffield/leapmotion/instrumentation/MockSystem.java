@@ -5,10 +5,15 @@ package com.sheffield.leapmotion.instrumentation;
  */
 public class MockSystem {
 
-    public static long RUNTIME = 0;
+    public static long MILLIS = 0;
+    public static long NANOS = 0;
 
     public static long currentTimeMillis(){
-        return RUNTIME;
+        return MILLIS;
+    }
+
+    public static long nanoTime(){
+        return NANOS;
     }
 
     public static String setProperty (String p, String v){

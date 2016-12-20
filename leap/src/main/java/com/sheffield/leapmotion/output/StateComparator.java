@@ -22,7 +22,7 @@ public class StateComparator {
 
     private static ArrayList<Integer[]> states;
 
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
+    private static final boolean WRITE_SCREENSHOTS_TO_FILE = false;
 
     private static int currentState;
 
@@ -199,19 +199,21 @@ public class StateComparator {
         }
         String state = captureState(screenShot);
 
-        try {
-            File f = new File(
-                    SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
-                            "raw/SCREEN" + (SCREENSHOTS_WROTE++) + ".png");
-            if (f.getParentFile() != null)
-                f.getParentFile().mkdirs();
-            ImageIO.write(screenShot, "png", f);
+        if (WRITE_SCREENSHOTS_TO_FILE) {
+            try {
+                File f = new File(
+                        SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
+                                "raw/SCREEN" + (SCREENSHOTS_WROTE++) + ".png");
+                if (f.getParentFile() != null)
+                    f.getParentFile().mkdirs();
+                ImageIO.write(screenShot, "png", f);
 
-            screenShot.flush();
+                screenShot.flush();
 
-            screenShot = null;
-        } catch (IOException e) {
-            e.printStackTrace();
+                screenShot = null;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 
@@ -221,61 +223,68 @@ public class StateComparator {
 
     public static String captureState(BufferedImage newState) {
 
-        BufferedImage bi =
-                new BufferedImage(newState.getWidth() / SCREENSHOT_COMPRESSION,
-                        newState.getHeight() / SCREENSHOT_COMPRESSION,
-                        newState.getType());
-
-        Graphics2D g = bi.createGraphics();
-
-        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-
-
-        g.drawImage(newState, 0, 0,
-                newState.getWidth() / SCREENSHOT_COMPRESSION,
-                newState.getHeight() / SCREENSHOT_COMPRESSION, 0, 0,
-                newState.getWidth(), newState.getHeight(), null);
-
-        g.dispose();
+//        BufferedImage bi =
+//                new BufferedImage(newState.getWidth() / SCREENSHOT_COMPRESSION,
+//                        newState.getHeight() / SCREENSHOT_COMPRESSION,
+//                        newState.getType());
+//
+//        Graphics2D g = bi.createGraphics();
+//
+//        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+//                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+//
+//
+//        g.drawImage(newState, 0, 0,
+//                newState.getWidth() / SCREENSHOT_COMPRESSION,
+//                newState.getHeight() / SCREENSHOT_COMPRESSION, 0, 0,
+//                newState.getWidth(), newState.getHeight(), null);
+//
+//        g.dispose();
 
 //        newState.flush();
 //
 //        newState = null;
 
         //
-        int[] data = ((DataBufferInt) bi.getRaster().getDataBuffer()).getData();
+        int[] data = ((DataBufferInt) newState.getRaster().getDataBuffer()).getData();
 
-        int width = bi.getWidth();
-        int height = bi.getHeight();
+        int width = newState.getWidth();
+        int height = newState.getHeight();
 
-        bi.flush();
+        newState.flush();
 
-        bi = null;
+        newState = null;
 
-        System.gc();
+        //System.gc();
 
-        double[] dImage = new double[data.length];
+        final int X_LIM = width/SCREENSHOT_COMPRESSION;
+        final int Y_LIM = height/SCREENSHOT_COMPRESSION;
 
-        for (int i = 0; i < data.length; i++) {
-            int blackAndWhite = data[i];
-            blackAndWhite = (int) ((0.3 * ((blackAndWhite >> 16) & 0x0FF) +
-                    0.59 * ((blackAndWhite >> 8) & 0x0FF) +
-                    0.11 * (blackAndWhite & 0x0FF)));
+        double[] dImage = new double[X_LIM * Y_LIM];
 
-            dImage[i] = blackAndWhite;
+
+
+        for (int i = 0; i < X_LIM; i++) {
+            for (int j = 0; j < Y_LIM; j++) {
+                int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * X_LIM) + (i*SCREENSHOT_COMPRESSION)];
+                blackAndWhite = (int) ((0.3 * ((blackAndWhite >> 16) & 0x0FF) +
+                        0.59 * ((blackAndWhite >> 8) & 0x0FF) +
+                        0.11 * (blackAndWhite & 0x0FF)));
+
+                dImage[(j * X_LIM) + i] = blackAndWhite;
+            }
 
         }
 
 
-        Integer[] bins = new Integer[256];
+        Integer[] bins = new Integer[HISTOGRAM_BINS];
         for (int i = 0; i < bins.length; i++) {
             bins[i] = 0;
         }
 
         float mod = ((float) (HISTOGRAM_BINS - 1) / 255f);
         for (int i = 0; i < dImage.length; i++) {
-            bins[(int)dImage[i]]++;
+            bins[(int)(dImage[i] * mod)]++;
         }
 
         int closestState = -1;

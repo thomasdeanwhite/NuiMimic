@@ -209,7 +209,7 @@ public class SeededFinger extends Finger implements Serializable {
 	public Vector stabilizedTipPosition() {
 		// TODO Auto-generated method stub
 		//App.out.println("tip: " + tipPosition);
-		return tipPosition;
+		return tipPosition();
 	}
 
 	@Override

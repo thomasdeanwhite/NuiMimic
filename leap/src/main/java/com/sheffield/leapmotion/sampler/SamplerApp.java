@@ -58,7 +58,7 @@ public class SamplerApp extends Listener {
         this.status = status;
     }
 
-    private SamplerApp(String filenameStart){
+    private SamplerApp(String filenameStart) {
         this();
         this.filenameStart = filenameStart;
     }
@@ -83,18 +83,28 @@ public class SamplerApp extends Listener {
         if (APP == null) {
             APP = new SamplerApp();
         }
+
+        if (Properties.DIRECTORY.trim().toLowerCase().endsWith("/processed")) {
+            Properties.DIRECTORY = Properties.DIRECTORY.substring(0, Properties.DIRECTORY.toLowerCase().indexOf("/processed"));
+        }
+
         return APP;
     }
 
-    public static SamplerApp getApp(String filenameStart){
+    public static SamplerApp getApp(String filenameStart) {
         if (APP == null) {
             APP = new SamplerApp(filenameStart);
         }
+
+        if (Properties.DIRECTORY.trim().toLowerCase().endsWith("/processed")) {
+            Properties.DIRECTORY = Properties.DIRECTORY.substring(0, Properties.DIRECTORY.toLowerCase().indexOf("/processed"));
+        }
+
         return APP;
     }
 
     public static void main(String[] args) {
-        if (args != null && args.length >= 1){
+        if (args != null && args.length >= 1) {
             REQUEST_NAME = false;
             SamplerApp.getApp(args[0]);
         }
@@ -159,141 +169,129 @@ public class SamplerApp extends Listener {
 
     private boolean framesProcessing = false;
 
+    private final String UNIQUE_MACHINE_NAME = ManagementFactory.getRuntimeMXBean().getName();
+
     public synchronized void frame(Frame f) {
 
         Properties.HISTOGRAM_THRESHOLD = 0;
         Properties.HISTOGRAM_BINS = 256;
 
-        if (!frames.contains(f)) {
-            frames.add(f);
-        }
+        Frame frame = f;
+        FRAMES++;
 
-        if (framesProcessing) {
-            return;
-        }
+        try {
+            final long time = System.currentTimeMillis();
 
-        framesProcessing = true;
-        for (int i = 0; i < frames.size(); i++) {
-            Frame frame = frames.get(i);
-            FRAMES++;
+            if (!startedRecording) {
+                boolean validHand = false;
 
-            try {
-                final long time = System.currentTimeMillis();
+                for (Hand h : frame.hands()) {
+                    if (h.isValid()) {
+                        validHand = true;
+                    }
+                }
 
-                if (!startedRecording) {
-                    boolean validHand = false;
+                if (validHand) {
+                    startedRecording = true;
+                    startTime = System.currentTimeMillis();
+                }
+                if (SHOW_GUI) {
+                    display.setFrame(frame);
+                }
+            } else {
+                frameDeconstructor.setFilenameStart(filenameStart);
+
+                if (RECORDING_USERS) {
+                    frameDeconstructor.setAddition("");
+                    frameDeconstructor.outputRawFrameData(frame);
+                } else {
+                    if (breakIndex >= 0 && breakIndex < BREAK_TIMES.length) {
+                        if (time - startTime > BREAK_TIMES[breakIndex]) {
+                            breakIndex++;
+                            if (breakIndex >= BREAK_TIMES.length) {
+                                status = AppStatus.FINISHED;
+                                return;
+                            }
+                            frameDeconstructor.resetFiles(breakIndex);
+                        }
+                    } else {
+                        status = AppStatus.FINISHED;
+                        return;
+                    }
+
+                    String addition = "-" + BREAK_TIMES[breakIndex];
+
+                    frameDeconstructor.setAddition(addition);
+
+                    //write gestures out to file
+                    try {
+                        frameDeconstructor.outputGestureModel(frame);
+                    } catch (IOException e) {
+                        e.printStackTrace(App.out);
+                    }
 
                     for (Hand h : frame.hands()) {
-                        if (h.isValid()) {
-                            validHand = true;
-                        }
-                    }
+                        //write hands out to file
+                        if (h.isValid() && h.isRight()) {
 
-                    if (validHand) {
-                        startedRecording = true;
-                        startTime = System.currentTimeMillis();
-                    }
-                    if (SHOW_GUI) {
-                        display.setFrame(frame);
-                    }
-                } else {
-                    frameDeconstructor.setFilenameStart(filenameStart);
+                            String uniqueId = System.currentTimeMillis() + "@"
+                                    + UNIQUE_MACHINE_NAME;
 
-                    if (RECORDING_USERS) {
-                        frameDeconstructor.setAddition("");
-                        frameDeconstructor.outputRawFrameData(frame);
-                    } else {
-                        if (breakIndex >= 0 && breakIndex < BREAK_TIMES.length) {
-                            if (time - startTime > BREAK_TIMES[breakIndex]) {
-                                breakIndex++;
-                                if (breakIndex >= BREAK_TIMES.length) {
-                                    status = AppStatus.FINISHED;
-                                    return;
+                            frameDeconstructor.setUniqueId(uniqueId);
+                            if (frame.gestures().count() > 0) {
+                                for (Gesture g : frame.gestures()) {
+                                    frameDeconstructor.setCurrentGesture(g.type().name());
                                 }
-                                frameDeconstructor.resetFiles(breakIndex);
                             }
-                        } else {
-                            status = AppStatus.FINISHED;
-                            return;
-                        }
-
-                        String addition = "-" + BREAK_TIMES[breakIndex];
-
-                        frameDeconstructor.setAddition(addition);
-
-                        //write gestures out to file
-                        try {
-                            frameDeconstructor.outputGestureModel(frame);
-                        } catch (IOException e) {
-                            e.printStackTrace(App.out);
-                        }
-
-                        for (Hand h : frame.hands()) {
-                            //write hands out to file
-                            if (h.isValid() && h.isRight()) {
-
-                                if (SHOW_GUI) {
-                                    frame = HandFactory.injectHandIntoFrame(frame,
-                                            HandFactory.createHand(HandFactory.handToString("hand", h), frame));
-                                    display.setFrame(frame);
+                            String frameAsString = HandFactory.handToString(uniqueId, h);
+                            try {
+                                frameDeconstructor.outputJointPositionModel(frameAsString);
+                                frameDeconstructor.outputSequence();
+                                frameDeconstructor.outputHandPositionModel(h);
+                                frameDeconstructor.outputHandRotationModel(h);
+                                if (!frameDeconstructor.isCalculating()) {
+                                    frameDeconstructor.outputCurrentState();
                                 }
 
-                                String uniqueId = System.currentTimeMillis() + "@"
-                                        + ManagementFactory.getRuntimeMXBean().getName();
-
-                                frameDeconstructor.setUniqueId(uniqueId);
-                                if (frame.gestures().count() > 0) {
-                                    for (Gesture g : frame.gestures()) {
-                                        frameDeconstructor.setCurrentGesture(g.type().name());
-                                    }
-                                }
-                                String frameAsString = HandFactory.handToString(uniqueId, h);
-                                try {
-                                    frameDeconstructor.outputJointPositionModel(frameAsString);
-                                    frameDeconstructor.outputSequence();
-                                    frameDeconstructor.outputHandPositionModel(h);
-                                    frameDeconstructor.outputHandRotationModel(h);
-                                    if (!frameDeconstructor.isCalculating()) {
-                                        frameDeconstructor.outputCurrentState();
-                                    }
-
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-
-
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
+
+
                         }
                     }
                 }
-                if (LOOP) {
-                    long done = time - startTime;
-                    FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
-
-                    final int bars = 60;
-                    long total = BREAK_TIMES[BREAK_TIMES.length - 1];
-
-                    String progress = "[";
-                    float percent = done / (float) total;
-                    int b1 = (int) (percent * bars);
-                    for (int j = 0; j < b1; j++) {
-                        progress += "-";
-                    }
-                    progress += ">";
-                    int b2 = bars - b1;
-                    for (int j = 0; j < b2; j++) {
-                        progress += " ";
-                    }
-                    progress += "] " + (int) (percent * 100) + "% (" +
-                            (int) FRAMES_PER_SECOND + ")";
-                    out.print("\r" + progress);
-                }
-            } catch (Exception e) {
-                e.printStackTrace(App.out);
             }
+            if (LOOP) {
+                long done = time - startTime;
+                FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
+
+                final int bars = 60;
+                long total = BREAK_TIMES[BREAK_TIMES.length - 1];
+
+                String progress = "[";
+                float percent = done / (float) total;
+                int b1 = (int) (percent * bars);
+                for (int j = 0; j < b1; j++) {
+                    progress += "-";
+                }
+                progress += ">";
+                int b2 = bars - b1;
+                for (int j = 0; j < b2; j++) {
+                    progress += " ";
+                }
+                progress += "] " + (int) (percent * 100) + "% (" +
+                        (int) FRAMES_PER_SECOND + ")";
+
+                out.print("\r" + progress);
+
+                if (percent >= 1) {
+                    status = AppStatus.FINISHED;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace(App.out);
         }
-        frames.clear();
-        framesProcessing = false;
 
     }
 

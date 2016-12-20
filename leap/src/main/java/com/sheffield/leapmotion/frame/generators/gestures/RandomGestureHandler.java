@@ -96,11 +96,28 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
 	@Override
 	public void advanceGestures(long time){
-		super.advanceGestures(time);
+		//super.advanceGestures(time);
 		if (gestureState == null || gestureType == null || gestureState == Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
 			//currentGesture = analyzer.getDataAnalyzer().next();
-			Gesture.Type newType = Gesture.Type.valueOf(getNextGesture());
+
+			String[] nextSet = getNextGesture().split("\\+");
+			Gesture.Type newType = Gesture.Type.TYPE_INVALID;
+
+			for (String s : nextSet){
+				Gesture.Type newGesture = Gesture.Type.TYPE_INVALID;
+				try {
+					newGesture = Gesture.Type.valueOf(s);
+
+					if (newGesture != Gesture.Type.TYPE_INVALID){
+						newType = newGesture;
+					}
+				} catch (Exception e){
+
+				}
+			}
+
+
 
 			if (!newType.equals(gestureType)) {
 
