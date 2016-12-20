@@ -71,7 +71,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	public UserPlaybackFrameGenerator(FrameGenerator frameGenerator,
                                       Controller controller) {
 
-		if (Properties.PROCESS_PLAYBACK){
+		if (Properties.PROCESS_PLAYBACK || Properties.PROCESS_SCREENSHOTS){
 			// This happens when we want to split frames into separate models
 			SamplerApp.LOOP = false;
 			SamplerApp.main(new String[]{Properties.PLAYBACK_FILE.substring
@@ -130,7 +130,6 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 //					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
 //				}
 
-				App.TIME_HANDLER = this;
 
 
 			}
@@ -140,6 +139,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			e.printStackTrace(App.out);
 			seeded = true;
 		}
+
+		App.TIME_HANDLER = this;
 
 		App.out.println("- Finished loading frames. Starting playback.");
 

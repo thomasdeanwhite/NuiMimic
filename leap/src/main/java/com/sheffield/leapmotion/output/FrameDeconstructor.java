@@ -204,7 +204,7 @@ public class FrameDeconstructor {
             lastStateCapture = System.currentTimeMillis();
 
             try {
-                String output = StateComparator.captureState();
+                String output = StateComparator.peekState();
 
                 if (output != null && output.length() > 0) {
                     FileHandler.appendToFile(currentDct, "\n" + output + ":");

@@ -7,8 +7,8 @@ import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Listener;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
+import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
 
 import javax.swing.*;
@@ -234,23 +234,34 @@ public class SamplerApp extends Listener {
                         //write hands out to file
                         if (h.isValid() && h.isRight()) {
 
-                            String uniqueId = System.currentTimeMillis() + "@"
+                            String uniqueId = frame.timestamp() + "@"
                                     + UNIQUE_MACHINE_NAME;
 
                             frameDeconstructor.setUniqueId(uniqueId);
+
                             if (frame.gestures().count() > 0) {
                                 for (Gesture g : frame.gestures()) {
                                     frameDeconstructor.setCurrentGesture(g.type().name());
                                 }
                             }
-                            String frameAsString = HandFactory.handToString(uniqueId, h);
                             try {
-                                frameDeconstructor.outputJointPositionModel(frameAsString);
-                                frameDeconstructor.outputSequence();
-                                frameDeconstructor.outputHandPositionModel(h);
-                                frameDeconstructor.outputHandRotationModel(h);
-                                if (!frameDeconstructor.isCalculating()) {
-                                    frameDeconstructor.outputCurrentState();
+
+                                if (Properties.PROCESS_PLAYBACK) {
+
+
+                                    String frameAsString = HandFactory.handToString(uniqueId, h);
+
+                                    frameDeconstructor.outputJointPositionModel(frameAsString);
+                                    frameDeconstructor.outputSequence();
+                                    frameDeconstructor.outputHandPositionModel(h);
+                                    frameDeconstructor.outputHandRotationModel(h);
+                                }
+
+                                if (Properties.PROCESS_SCREENSHOTS) {
+
+                                    if (!frameDeconstructor.isCalculating()) {
+                                        frameDeconstructor.outputCurrentState();
+                                    }
                                 }
 
                             } catch (IOException e) {

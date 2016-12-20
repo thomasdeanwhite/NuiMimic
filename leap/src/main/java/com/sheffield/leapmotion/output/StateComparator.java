@@ -182,6 +182,78 @@ public class StateComparator {
 
     private static int SCREENSHOTS_WROTE = 0;
 
+
+    /**
+     * Captures the current screen and returns it as a JSON Integer Array
+     *
+     * @return
+     */
+    public static String peekState() {
+        BufferedImage screenShot = null;
+        try {
+            Robot robot = new Robot();
+            screenShot = robot.createScreenCapture(
+                    new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+        String state = peekState(screenShot);
+
+
+
+        return state;
+    }
+
+    public static String peekState(BufferedImage newState) {
+
+        int[] data = ((DataBufferInt) newState.getRaster().getDataBuffer()).getData();
+
+        int width = newState.getWidth();
+        int height = newState.getHeight();
+
+        newState.flush();
+
+        newState = null;
+
+        final int X_LIM = width/SCREENSHOT_COMPRESSION;
+        final int Y_LIM = height/SCREENSHOT_COMPRESSION;
+
+        double[] dImage = new double[X_LIM * Y_LIM];
+
+
+
+        for (int i = 0; i < X_LIM; i++) {
+            for (int j = 0; j < Y_LIM; j++) {
+                int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * X_LIM) + (i*SCREENSHOT_COMPRESSION)];
+                blackAndWhite = (int) ((0.3 * ((blackAndWhite >> 16) & 0x0FF) +
+                        0.59 * ((blackAndWhite >> 8) & 0x0FF) +
+                        0.11 * (blackAndWhite & 0x0FF)));
+
+                dImage[(j * X_LIM) + i] = blackAndWhite;
+            }
+
+        }
+
+
+        Integer[] bins = new Integer[HISTOGRAM_BINS];
+        for (int i = 0; i < bins.length; i++) {
+            bins[i] = 0;
+        }
+
+        float mod = ((float) (HISTOGRAM_BINS - 1) / 255f);
+        for (int i = 0; i < dImage.length; i++) {
+            bins[(int)(dImage[i] * mod)]++;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bins.length; i++) {
+            sb.append(bins[i] + ",");
+        }
+        String output = sb.toString();
+        return output.substring(0, output.length() - 1);
+    }
+
     /**
      * Captures the current screen and returns it as a JSON Integer Array
      *
@@ -223,29 +295,6 @@ public class StateComparator {
 
     public static String captureState(BufferedImage newState) {
 
-//        BufferedImage bi =
-//                new BufferedImage(newState.getWidth() / SCREENSHOT_COMPRESSION,
-//                        newState.getHeight() / SCREENSHOT_COMPRESSION,
-//                        newState.getType());
-//
-//        Graphics2D g = bi.createGraphics();
-//
-//        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-//                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-//
-//
-//        g.drawImage(newState, 0, 0,
-//                newState.getWidth() / SCREENSHOT_COMPRESSION,
-//                newState.getHeight() / SCREENSHOT_COMPRESSION, 0, 0,
-//                newState.getWidth(), newState.getHeight(), null);
-//
-//        g.dispose();
-
-//        newState.flush();
-//
-//        newState = null;
-
-        //
         int[] data = ((DataBufferInt) newState.getRaster().getDataBuffer()).getData();
 
         int width = newState.getWidth();

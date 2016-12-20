@@ -208,6 +208,10 @@ public class Properties extends InstrumentationProperties {
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean PROCESS_PLAYBACK = false;
 
+    @Parameter(key = "processScreenshots", description = "Should screenshots be taken during playback?",
+            hasArgs = false, category = "Leap Motion Sampling")
+    public static boolean PROCESS_SCREENSHOTS = false;
+
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {
         try {

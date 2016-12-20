@@ -825,18 +825,18 @@ public class App implements ThrowableListener, Tickable {
 
         }
 
-        MockSystem.MILLIS = time - startTime;
-
         if (printHeaders){
             App.out.println(ProgressBar.getHeaderBar(21));
             printHeaders = false;
         }
 
-        String progress = ProgressBar.getProgressBar(21, MockSystem.MILLIS / (float) Properties.RUNTIME);
+        long timePassed = time - startTime;
+
+        String progress = ProgressBar.getProgressBar(21, timePassed / (float) Properties.RUNTIME);
 
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
-        if (MockSystem.MILLIS > Properties.RUNTIME) {
+        if (timePassed > Properties.RUNTIME) {
             status = AppStatus.FINISHED;
         }
     }
