@@ -89,7 +89,7 @@ public class InstantiationVisitor extends MethodVisitor {
             (MockDesktop.class);
 
 
-    private static Method METHOD_TO_CALL;
+    private static Method CONTROLLER_METHOD_TO_CALL;
     private static Method APP_METHOD_TO_CALL;
     private static Method CIRCLE_METHOD_TO_CALL;
     private static Method RANDOM_METHOD_TO_CALL;
@@ -105,7 +105,7 @@ public class InstantiationVisitor extends MethodVisitor {
 
     static {
         try {
-            METHOD_TO_CALL = SeededController.class.getMethod("getController", new Class[]{});
+            CONTROLLER_METHOD_TO_CALL = SeededController.class.getMethod("getController", new Class[]{});
             APP_METHOD_TO_CALL = App.class.getMethod("setTesting", new Class[]{});
             CIRCLE_METHOD_TO_CALL = SeededGesture.class.getMethod("getCircleGesture", new Class[]{Gesture.class});
             RANDOM_METHOD_TO_CALL = MockRandom.class.getMethod("random", new Class[]{String.class});
@@ -146,7 +146,8 @@ public class InstantiationVisitor extends MethodVisitor {
 
                             super.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     NEW_CONTROLLER, "getController",
-                                    Type.getMethodDescriptor(METHOD_TO_CALL),
+                                    Type.getMethodDescriptor(
+                                            CONTROLLER_METHOD_TO_CALL),
                                     itf);
                             super.visitMethodInsn(Opcodes.INVOKESTATIC,
                                     APP_CLASS, "setTesting",

@@ -514,7 +514,7 @@ public class App implements ThrowableListener, Tickable {
                     long time = System.nanoTime();
                     int timePassed = (int) ((time - lastTime)/ 1000000);
                     App.getApp().increaseIterationTime(timePassed);
-                    app.tick(time);
+                    app.tick(time/1000000);
                     try {
                         int d = delay - timePassed;
                         if (d >= 0) {
