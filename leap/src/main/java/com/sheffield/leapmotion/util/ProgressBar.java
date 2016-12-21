@@ -59,6 +59,8 @@ public class ProgressBar {
         public String drawBar(int width, float percent) {
             String progChar = "=";
 
+            percent = Math.min(1f, percent);
+
             String progress = progChar;
             int b1 = (int) (percent * width);
             for (int i = 0; i < b1; i++) {

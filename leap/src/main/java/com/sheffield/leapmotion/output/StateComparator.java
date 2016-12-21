@@ -20,9 +20,11 @@ public class StateComparator {
 
     public static int statesFound = 0;
 
+    private static int SCREENSHOT_PADDING = 10;
+
     private static ArrayList<Integer[]> states;
 
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = false;
+    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
 
     private static int currentState;
 
@@ -183,21 +185,32 @@ public class StateComparator {
     private static int SCREENSHOTS_WROTE = 0;
 
 
+    public static BufferedImage screenshot(){
+        Window activeWindow = javax.swing.FocusManager.getCurrentManager().getActiveWindow();
+
+
+        Robot robot = null;
+        try {
+            robot = new Robot();
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+        return robot.createScreenCapture(new Rectangle((int)activeWindow
+                .getBounds().getX() +
+                SCREENSHOT_PADDING,
+                (int)activeWindow.getBounds().getY(),
+                (int)activeWindow.getBounds().getWidth() - SCREENSHOT_PADDING,
+                (int)activeWindow.getBounds().getHeight() -
+                        SCREENSHOT_PADDING));
+    }
+
     /**
      * Captures the current screen and returns it as a JSON Integer Array
      *
      * @return
      */
     public static String peekState() {
-        BufferedImage screenShot = null;
-        try {
-            Robot robot = new Robot();
-            screenShot = robot.createScreenCapture(
-                    new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
+        BufferedImage screenShot = screenshot();
         String state = peekState(screenShot);
 
 
@@ -260,15 +273,7 @@ public class StateComparator {
      * @return
      */
     public static String captureState() {
-        BufferedImage screenShot = null;
-        try {
-            Robot robot = new Robot();
-            screenShot = robot.createScreenCapture(
-                    new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
+        BufferedImage screenShot = screenshot();
         String state = captureState(screenShot);
 
         if (WRITE_SCREENSHOTS_TO_FILE) {

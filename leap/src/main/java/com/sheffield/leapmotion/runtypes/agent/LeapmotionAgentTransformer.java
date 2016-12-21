@@ -61,6 +61,9 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
                             byte[] classfileBuffer)
             throws IllegalClassFormatException {
 
+        InstrumentationProperties.BYTECODE_DIR = Properties
+                .TESTING_OUTPUT + "/instrumented_classes/";
+
 
         String fileName = InstrumentationProperties.BYTECODE_DIR +
                 ClassNameUtils.replaceDots(className);

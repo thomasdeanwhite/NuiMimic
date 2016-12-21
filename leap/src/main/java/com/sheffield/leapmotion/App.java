@@ -516,15 +516,15 @@ public class App implements ThrowableListener, Tickable {
                     App.getApp().increaseIterationTime(timePassed);
                     App.getApp().increaseFps(time/1000000);
                     app.tick(time/1000000);
-                    try {
-                        int d = delay - timePassed;
-                        if (d >= 0) {
-                            Thread.sleep(d);
-                        }
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        int d = delay - timePassed;
+//                        if (d >= 0) {
+//                            Thread.sleep(d);
+//                        }
+//                    } catch (InterruptedException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
                     if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL &&
                             SeededController.getSeededController().allowProcessing()) {
                         ClassAnalyzer.collectHitCounters(false);
@@ -792,7 +792,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public void start() {
-        startTime = System.currentTimeMillis();
+        startTime = System.nanoTime();
     }
 
 
@@ -833,13 +833,17 @@ public class App implements ThrowableListener, Tickable {
             printHeaders = false;
         }
 
-        long timePassed = time - (startTime/1000000);
+
+        long start = (startTime/1000000);
+        long timePassed = time - start;
 
         String progress = ProgressBar.getProgressBar(21, timePassed / (float) Properties.RUNTIME);
 
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
         if (timePassed > Properties.RUNTIME) {
+            App.out.println(time + " - " + start + " = " + timePassed + "\n"
+                    + timePassed + " > " + Properties.RUNTIME);
             status = AppStatus.FINISHED;
         }
     }
