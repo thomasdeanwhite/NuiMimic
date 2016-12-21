@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.runtypes.agent;
 
 import com.leapmotion.leap.Controller;
+import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.App;
@@ -10,7 +11,7 @@ import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
 import com.sheffield.util.ClassNameUtils;
 import org.objectweb.asm.ClassVisitor;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
@@ -47,7 +48,8 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
             }
         });
 
-        Properties.BYTECODE_DIR = "./testing_output/instrumented_classes";
+        InstrumentationProperties.BYTECODE_DIR = Properties
+                .TESTING_OUTPUT + "/instrumented_classes/";
 
 
     }
@@ -60,8 +62,26 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
             throws IllegalClassFormatException {
 
 
-        String fileName = "./testing_output/instrumented_classes/" +
+        String fileName = InstrumentationProperties.BYTECODE_DIR +
                 ClassNameUtils.replaceDots(className);
+
+        File classFile = new File(fileName);
+
+        if (classFile.exists()){
+            try {
+                FileInputStream fis = new FileInputStream(classFile);
+
+                byte[] oldClass = new byte[fis.available()];
+
+                fis.read(oldClass);
+
+                return oldClass;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         try {
             if (instrumentingClassLoader.shouldInstrumentClass(className)) {

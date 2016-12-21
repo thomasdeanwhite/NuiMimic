@@ -92,7 +92,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			frameStack = new ArrayList<Frame>();
 			//int counter = Properties.MAX_LOADED_FRAMES;
 
+			int counter = 0;
 			while (lineIterator.hasNext()){
+				App.out.print("\rLoading frame " + counter++);
 				try {
 					frameStack.add(Serializer
 							.sequenceFromJson(lineIterator.nextLine()));

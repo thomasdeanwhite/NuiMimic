@@ -475,7 +475,7 @@ public class App implements ThrowableListener, Tickable {
         return iterationTimes / (float) iterations;
     }
 
-    public void increaseFps(int time){
+    public void increaseFps(long time){
         if (1000 < time - lastFrameSeededCheck){ // 1 second has passed?
             lastFrameSeededCheck = time;
             fps = framesSeeded;
@@ -485,7 +485,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public float getFps(){
-        return (int) (1000 * iterations / (float)MockSystem.MILLIS);
+        return fps;
     }
 
     public static Thread getMainThread(){
@@ -514,6 +514,7 @@ public class App implements ThrowableListener, Tickable {
                     long time = System.nanoTime();
                     int timePassed = (int) ((time - lastTime)/ 1000000);
                     App.getApp().increaseIterationTime(timePassed);
+                    App.getApp().increaseFps(time/1000000);
                     app.tick(time/1000000);
                     try {
                         int d = delay - timePassed;
@@ -528,13 +529,15 @@ public class App implements ThrowableListener, Tickable {
                             SeededController.getSeededController().allowProcessing()) {
                         ClassAnalyzer.collectHitCounters(false);
 
-                        long timePassedNanos = time - START_TIME;
-
-                        TIME_HANDLER.setMillis(timePassedNanos / 1000000);
-                        TIME_HANDLER.setNanos(timePassedNanos);
                         App.getApp().output(false);
                         lastTimeRecorded = lastTime;
                     }
+
+                    long timePassedNanos = time - START_TIME;
+
+                    TIME_HANDLER.setMillis(timePassedNanos / 1000000);
+                    TIME_HANDLER.setNanos(timePassedNanos);
+
                     lastTime += timePassed;
                 }
                 App.out.println("- Gathering Testing Information...");
@@ -830,7 +833,7 @@ public class App implements ThrowableListener, Tickable {
             printHeaders = false;
         }
 
-        long timePassed = time - startTime;
+        long timePassed = time - (startTime/1000000);
 
         String progress = ProgressBar.getProgressBar(21, timePassed / (float) Properties.RUNTIME);
 
