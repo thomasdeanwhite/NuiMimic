@@ -385,6 +385,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public boolean allowProcessing(){
-		return frameHandler.allowProcessing();
+		return frameHandler.allowProcessing() && !Properties
+				.PROCESS_SCREENSHOTS;
 	}
 }
