@@ -695,14 +695,7 @@ public class App implements ThrowableListener, Tickable {
         if (Properties.VISUALISE_DATA)
             App.DISPLAY_WINDOW.setVisible(false);
 
-        BufferedImage bi = null;
-
-        try {
-            Robot robot = new Robot();
-            bi = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
-        } catch (AWTException e) {
-            e.printStackTrace();
-        }
+        BufferedImage bi = StateComparator.screenshot();
 
         File outFldr = new File(Properties.TESTING_OUTPUT + "/result_states");
         outFldr.mkdirs();

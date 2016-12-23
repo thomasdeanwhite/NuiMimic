@@ -24,6 +24,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 	private SeededCircleGesture scg;
 	private SeededSwipeGesture ssg;
 	protected Frame lastFrame;
+	protected int cumalitiveGestureDuration = 0;
 
 
 	private File outputFile;
@@ -50,8 +51,11 @@ public class RandomGestureHandler extends NoneGestureHandler {
 		return gl;
 	}
 
+	private Gesture.Type nextGesture = Gesture.Type.TYPE_INVALID;
+
 	public Gesture setupGesture(Gesture.Type gestureType, Frame frame, int gestureId){
-		Gesture g = new SeededGesture(gestureType, gestureState, frame, gestureDuration, gestureId);
+		Gesture g = new SeededGesture(gestureType, gestureState, frame,
+				cumalitiveGestureDuration, gestureId);
 
 
 		if (gestureType == Gesture.Type.TYPE_CIRCLE){
@@ -70,7 +74,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 			scg.setRadius(gradient.magnitude() + Properties.GESTURE_CIRCLE_RADIUS);
 			gradient = gradient.normalized();
 			scg.setNormal(new Vector(gradient.getY(), -gradient.getX(), gradient.getZ()));
-			scg.setProgress(gestureDuration / 1000f);
+			scg.setProgress(cumalitiveGestureDuration / 1000f);
 			scg.setPointable(g.pointables().frontmost());
 
 			((SeededGesture) g).setCircleGesture(scg);
@@ -85,7 +89,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
 				startPosition = position;
 			}
 			Vector direction = position.minus(startPosition);
-			float speed = startPosition.distanceTo(position)/ (float)gestureDuration;
+			float speed = startPosition.distanceTo(position)/ (float)
+					cumalitiveGestureDuration;
 
 			ssg = new SeededSwipeGesture(g, startPosition, position, direction, speed, p);
 			((SeededGesture) g).setSwipeGesture(ssg);
@@ -97,61 +102,61 @@ public class RandomGestureHandler extends NoneGestureHandler {
 	@Override
 	public void advanceGestures(long time){
 		//super.advanceGestures(time);
-		if (gestureState == null || gestureType == null || gestureState == Gesture.State.STATE_STOP){
+		if (gestureState == null || gestureType == null ||
+				gestureState
+				== Gesture.State.STATE_STOP){
 			gestureState = Gesture.State.STATE_START;
 			//currentGesture = analyzer.getDataAnalyzer().next();
 
-			String[] nextSet = getNextGesture().split("\\+");
-			Gesture.Type newType = Gesture.Type.TYPE_INVALID;
-
-			for (String s : nextSet){
-				Gesture.Type newGesture = Gesture.Type.TYPE_INVALID;
-				try {
-					newGesture = Gesture.Type.valueOf(s);
-
-					if (newGesture != Gesture.Type.TYPE_INVALID){
-						newType = newGesture;
-					}
-				} catch (Exception e){
-
-				}
-			}
-
-
-
-			if (!newType.equals(gestureType)) {
-
-				cumalitiveGesturePositions = Vector.zero();
-				gestureCount = 0;
-				gestureDuration = 3;
-				gestureStart = System.currentTimeMillis() - gestureDuration;
-				gestureType = newType;
-			}
+			gestureType = nextGesture;
 		} else {
-			long chance = random.nextInt(gestureDuration);
+			if (gestureState == Gesture.State.STATE_UPDATE) {
 
-			if (gestureType == Gesture.Type.TYPE_INVALID){
-				if (chance > GESTURE_TIME_LIMIT) {
-					gestureState = Gesture.State.STATE_STOP;
-				}
-			} else {
-				if (gestureState == Gesture.State.STATE_UPDATE) {
+				if (gestureDuration > GESTURE_TIME_LIMIT) {
 
-					if (chance > GESTURE_TIME_LIMIT) {
-						gestureState = Gesture.State.STATE_STOP;
+					String[] nextSet = getNextGesture().split("\\+");
+					Gesture.Type newType = Gesture.Type.TYPE_INVALID;
+
+					for (String s : nextSet){
+						Gesture.Type newGesture = Gesture.Type.TYPE_INVALID;
+						try {
+							newGesture = Gesture.Type.valueOf(s);
+
+							if (newGesture != Gesture.Type.TYPE_INVALID){
+								newType = newGesture;
+							}
+						} catch (Exception e){
+
+						}
 					}
 
-				} else {
-					gestureState = Gesture.State.STATE_UPDATE;
+
+
+					if (!newType.equals(gestureType)) {
+
+						cumalitiveGesturePositions = Vector.zero();
+						gestureCount = 0;
+						gestureDuration = 3;
+						gestureStart = time - gestureDuration;
+						gestureType = newType;
+						gestureState = Gesture.State.STATE_STOP;
+
+					}
 				}
+
+			} else {
+				gestureState = Gesture.State.STATE_UPDATE;
 			}
 			//update times
-			gestureDuration = (int) (System.currentTimeMillis() - gestureStart);
+			int newDuration = (int)(time - gestureStart);
+			int passed = newDuration - gestureDuration;
+			gestureDuration =  newDuration;
+			cumalitiveGestureDuration += passed;
 
 			if (gestureState == Gesture.State.STATE_STOP){
 				NGramLog ngLog = new NGramLog();
 				ngLog.element = gestureType.toString() + ",";
-				ngLog.timeSeeded = (int) (gestureDuration);
+				ngLog.timeSeeded = (int) (cumalitiveGestureDuration);
 				logs.add(ngLog);
 				if (outputFile != null){
 					try {
