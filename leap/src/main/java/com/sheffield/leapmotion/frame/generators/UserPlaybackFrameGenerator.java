@@ -146,7 +146,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			seeded = true;
 		}
 
-		App.TIME_HANDLER = this;
+		//App.TIME_HANDLER = this;
 
 		App.out.println("- Finished loading frames. Starting playback.");
 
