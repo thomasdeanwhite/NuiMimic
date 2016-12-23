@@ -35,7 +35,13 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 	@Override
 	public Csv getCsv() {
-		return new Csv();
+		Csv csv = new Csv();
+
+		csv.add("discardedFrames", (handsSeen - handsSeeded) + "");
+
+		csv.finalize();
+
+		return csv;
 	}
 
 	@Override
@@ -206,7 +212,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		return seeded;
 	}
 
-	private long handsSeen = 1;
+	private long handsSeen = 0;
+	private long handsSeeded = 0;
 	private long lastUpdate = 0;
 
 	@Override
@@ -229,24 +236,22 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		long currentTimePassed = seededTime - startSeedingTime;
 
-		Frame f = frameStack.get(0);
+		Frame f = frameStack.get(currentFrame);
 
-		if (currentTimePassed > seededTimePassed){
+		seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
 
-			f = frameStack.get(currentFrame+1);
+		while (currentTimePassed > seededTimePassed && currentFrame <
+				frameStack.size()){
+			f = frameStack.get(currentFrame++);
 
 			if (firstFrameTimeStamp == 0) {
 				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
-			} else {
-				currentFrame++;
 			}
 
 			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
 		}
 
-		if (firstFrameTimeStamp != 0) {
-			handsSeen++;
-		}
+		handsSeeded++;
 
 		// This compares RECONSTRUCTION to USER_PLAYBACK and calculates
         // differences

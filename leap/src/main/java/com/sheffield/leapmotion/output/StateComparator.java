@@ -195,13 +195,13 @@ public class StateComparator {
         } catch (AWTException e) {
             e.printStackTrace();
         }
-        return robot.createScreenCapture(new Rectangle((int)activeWindow
-                .getBounds().getX() +
-                SCREENSHOT_PADDING,
-                (int)activeWindow.getBounds().getY(),
-                (int)activeWindow.getBounds().getWidth() - SCREENSHOT_PADDING,
-                (int)activeWindow.getBounds().getHeight() -
-                        SCREENSHOT_PADDING));
+        return robot.createScreenCapture(new Rectangle(
+                (int)activeWindow.getBounds().getX()+SCREENSHOT_PADDING,
+                (int)activeWindow.getBounds().getY()+SCREENSHOT_PADDING,
+                (int)activeWindow.getBounds().getWidth()-(2 *
+                        SCREENSHOT_PADDING),
+                (int)activeWindow.getBounds().getHeight()-
+                        (2 * SCREENSHOT_PADDING)));
     }
 
     /**
@@ -239,9 +239,10 @@ public class StateComparator {
         for (int i = 0; i < X_LIM; i++) {
             for (int j = 0; j < Y_LIM; j++) {
                 int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * X_LIM) + (i*SCREENSHOT_COMPRESSION)];
-                blackAndWhite = (int) ((0.3 * ((blackAndWhite >> 16) & 0x0FF) +
-                        0.59 * ((blackAndWhite >> 8) & 0x0FF) +
-                        0.11 * (blackAndWhite & 0x0FF)));
+                blackAndWhite = (int) ((0.333 * ((blackAndWhite >> 16) &
+                        0x0FF) +
+                        0.333 * ((blackAndWhite >> 8) & 0x0FF) +
+                        0.333 * (blackAndWhite & 0x0FF)));
 
                 dImage[(j * X_LIM) + i] = blackAndWhite;
             }
@@ -321,9 +322,10 @@ public class StateComparator {
         for (int i = 0; i < X_LIM; i++) {
             for (int j = 0; j < Y_LIM; j++) {
                 int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * X_LIM) + (i*SCREENSHOT_COMPRESSION)];
-                blackAndWhite = (int) ((0.3 * ((blackAndWhite >> 16) & 0x0FF) +
-                        0.59 * ((blackAndWhite >> 8) & 0x0FF) +
-                        0.11 * (blackAndWhite & 0x0FF)));
+                blackAndWhite = (int) ((0.333 * ((blackAndWhite >> 16) &
+                        0x0FF) +
+                        0.333 * ((blackAndWhite >> 8) & 0x0FF) +
+                        0.333 * (blackAndWhite & 0x0FF)));
 
                 dImage[(j * X_LIM) + i] = blackAndWhite;
             }
