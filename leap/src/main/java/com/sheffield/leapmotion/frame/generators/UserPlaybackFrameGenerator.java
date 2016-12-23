@@ -37,7 +37,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	public Csv getCsv() {
 		Csv csv = new Csv();
 
-		csv.add("discardedFrames", (handsSeen - handsSeeded) + "");
+		csv.add("discardedFrames", (currentFrame - handsSeeded) + "");
 
 		csv.finalize();
 
@@ -159,6 +159,10 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	@Override
 	public Frame newFrame() {
 
+		if (frameStack.size() == 0){
+			return Frame.invalid();
+		}
+
 		if (seeded) {
 			return backupFrameGenerator.newFrame();
 		}
@@ -193,7 +197,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				for (Bone.Type bt : Bone.Type.values()){
 					if (totalDifferences.containsKey(ft) &&
 							totalDifferences.get(ft).containsKey(bt)){
-						float mean = totalDifferences.get(ft).get(bt) / handsSeen;
+						float mean = totalDifferences.get(ft).get(bt) / currentFrame;
 						counter++;
 						differences += mean*mean;
 					}
@@ -201,7 +205,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			}
 			return "rms: " + Math.sqrt(differences / counter);
 		}
-		return (frameStack.size() - currentFrame) + " frames";
+		return (frameStack.size() - currentFrame) + "s, " + (currentFrame -
+				handsSeeded) + "d";
 	}
 
 	public FrameGenerator getBackupFrameGenerator(){
@@ -212,12 +217,15 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		return seeded;
 	}
 
-	private long handsSeen = 0;
 	private long handsSeeded = 0;
 	private long lastUpdate = 0;
 
 	@Override
 	public void tick(long time) {
+
+		if (frameStack.size() == 0){
+			return;
+		}
 
 		lastUpdate = time;
 
@@ -239,7 +247,6 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		Frame f = frameStack.get(currentFrame);
 
 		seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
-
 		while (currentTimePassed > seededTimePassed && currentFrame <
 				frameStack.size()){
 			f = frameStack.get(currentFrame++);

@@ -38,7 +38,7 @@ public class Properties extends InstrumentationProperties {
     public static String PLAYBACK_FILE = null;
 
     @Parameter(key = "framesPerSecond", description = "Number of frames to seed per second", hasArgs = true, category = "Leap Motion Testing")
-    public static long FRAMES_PER_SECOND = 100;
+    public static long FRAMES_PER_SECOND = 200;
 
     @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Leap Motion Testing")
     public static int SWITCH_TIME = 33;//400;

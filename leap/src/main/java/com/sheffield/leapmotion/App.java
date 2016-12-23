@@ -195,19 +195,19 @@ public class App implements ThrowableListener, Tickable {
         public void checkExit(int status) {
             if (CLOSING) {
                 super.checkExit(status);
-            } else if (RECORDING_STARTED) {
-                App.getApp().end();
-                while (App.getApp().status() != AppStatus.CLOSING) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-                //App.getApp().output(true);
-                super.checkExit(status);
-            }
+            } //else if (RECORDING_STARTED) {
+//                App.getApp().end();
+//                while (App.getApp().status() != AppStatus.CLOSING) {
+//                    try {
+//                        Thread.sleep(100);
+//                    } catch (InterruptedException e) {
+//                        // TODO Auto-generated catch block
+//                        e.printStackTrace();
+//                    }
+//                }
+//                //App.getApp().output(true);
+//                super.checkExit(status);
+//            }
         }
     }
 
@@ -516,16 +516,16 @@ public class App implements ThrowableListener, Tickable {
                     App.getApp().increaseIterationTime(timePassed);
                     App.getApp().increaseFps(time/1000000);
                     app.tick(time/1000000);
-//                    try {
-//                        int d = delay - timePassed;
-//                        if (d >= 0) {
-//                            Thread.sleep(d);
-//                        }
-//                    } catch (InterruptedException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
-                    if (lastTime - lastTimeRecorded >= RECORDING_INTERVAL &&
+                    try {
+                        int d = delay - timePassed;
+                        if (d >= 0) {
+                            Thread.sleep(d);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if ((lastTime - lastTimeRecorded)/1000000 >=
+                            RECORDING_INTERVAL &&
                             SeededController.getSeededController().allowProcessing()) {
                         ClassAnalyzer.collectHitCounters(false);
 
@@ -538,7 +538,7 @@ public class App implements ThrowableListener, Tickable {
                     TIME_HANDLER.setMillis(timePassedNanos / 1000000);
                     TIME_HANDLER.setNanos(timePassedNanos);
 
-                    lastTime += timePassed;
+                    lastTime = time;
                 }
                 App.out.println("- Gathering Testing Information...");
                 ClassAnalyzer.collectHitCounters(false);
@@ -811,17 +811,11 @@ public class App implements ThrowableListener, Tickable {
         }
         //}
 
-        if (MockSystem.MILLIS - lastStateCheck > STATE_CHECK_TIME &&
+        if (time - lastStateCheck > STATE_CHECK_TIME &&
         SeededController.getSeededController().allowProcessing()) {
-            lastStateCheck = time + 60000;
             try {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        StateComparator.captureState();
-                        lastStateCheck = MockSystem.MILLIS;
-                    }
-                }).start();
+                StateComparator.captureState();
+                lastStateCheck = time;
             } catch (Exception e) {
                 e.printStackTrace(App.out);
             }
