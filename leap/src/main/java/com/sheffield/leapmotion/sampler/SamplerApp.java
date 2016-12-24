@@ -169,7 +169,7 @@ public class SamplerApp extends Listener {
 
     private boolean framesProcessing = false;
 
-    private final String UNIQUE_MACHINE_NAME = ManagementFactory.getRuntimeMXBean().getName();
+    private final String UNIQUE_MACHINE_NAME = "pepper";
 
     public synchronized void frame(Frame f) {
 
