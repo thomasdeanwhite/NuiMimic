@@ -228,7 +228,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     @Override
     public String status() {
-        return handLabelStack.size() + " hands";
+        return (handLabelStack.size() - currentHandIndex) + " hands";
     }
 
     @Override

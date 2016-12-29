@@ -34,6 +34,9 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "dataPoolDirectory", description = "Directory containing data pool", hasArgs = true, category = "Leap Motion Testing")
     public static String DIRECTORY = "C:/data/leap-motion";
 
+    @Parameter(key = "gestureTimeLimit", description = "Duration to seed gestures for", hasArgs = true, category = "Leap Motion Testing")
+    public static int GESTURE_TIME_LIMIT = 100;
+
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
     public static String PLAYBACK_FILE = null;
 

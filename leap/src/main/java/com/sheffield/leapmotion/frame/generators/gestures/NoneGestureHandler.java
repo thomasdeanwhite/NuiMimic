@@ -6,6 +6,7 @@ import com.leapmotion.leap.Gesture.State;
 import com.leapmotion.leap.Gesture.Type;
 import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.Properties;
 
 import java.util.Random;
 
@@ -22,9 +23,6 @@ public class NoneGestureHandler implements GestureHandler {
 	protected int gestureId = 0;
 	protected Vector cumalitiveGesturePositions = Vector.zero();
 	protected int gestureCount = 0;
-
-	//33 ms gesture duration (30 fps)
-	public static final int GESTURE_TIME_LIMIT = 33;
 	
 	@Override
 	public GestureList handleFrame(Frame frame) {
@@ -67,8 +65,8 @@ public class NoneGestureHandler implements GestureHandler {
 		} else {
 			if (gestureState == State.STATE_UPDATE){
 				long chance = random.nextInt(gestureDuration);
-				
-				if (chance > GESTURE_TIME_LIMIT){
+
+				if (chance > Properties.GESTURE_TIME_LIMIT){
 					//new frame
 					gestureState = State.STATE_STOP;
 				}
