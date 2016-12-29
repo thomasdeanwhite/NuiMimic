@@ -261,9 +261,6 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         seededTime = time - startSeededTime;
 
-        App.out.println(seededTime + " " + timings.get(currentHandIndex) +
-                "\n");
-
         if (seededTime > timings.get(currentHandIndex)) {
             do {
                 if (handLabelStack.size() > 0) {
