@@ -195,13 +195,21 @@ public class StateComparator {
         } catch (AWTException e) {
             e.printStackTrace();
         }
-        return robot.createScreenCapture(new Rectangle(
-                (int)activeWindow.getBounds().getX()+SCREENSHOT_PADDING,
-                (int)activeWindow.getBounds().getY()+SCREENSHOT_PADDING,
-                (int)activeWindow.getBounds().getWidth()-(2 *
-                        SCREENSHOT_PADDING),
-                (int)activeWindow.getBounds().getHeight()-
-                        (2 * SCREENSHOT_PADDING)));
+
+        Rectangle bounds = new Rectangle(Toolkit.getDefaultToolkit()
+                .getScreenSize());
+
+        if (activeWindow != null){
+            bounds = new Rectangle(
+                    (int)activeWindow.getBounds().getX()+SCREENSHOT_PADDING,
+                    (int)activeWindow.getBounds().getY()+SCREENSHOT_PADDING,
+                    (int)activeWindow.getBounds().getWidth()-(2 *
+                            SCREENSHOT_PADDING),
+                    (int)activeWindow.getBounds().getHeight()-
+                            (2 * SCREENSHOT_PADDING));
+        }
+
+        return robot.createScreenCapture(bounds);
     }
 
     /**

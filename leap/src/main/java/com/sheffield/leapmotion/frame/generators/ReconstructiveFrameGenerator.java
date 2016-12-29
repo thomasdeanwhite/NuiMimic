@@ -105,7 +105,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             for (String s : tim){
                 if (s.length() > 0)
-                    timings.add(Long.parseLong(s.split("@")[0]));
+                    // x / 1000 microsec to millisec
+                    timings.add(Long.parseLong(s.split("@")[0])/1000);
             }
 
             for (int i = 1; i < timings.size()-1; i++){
