@@ -120,7 +120,7 @@ public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 			//App.out.println("\t*! Sequence Loading Done (" + file + ")");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace(App.out);
 		}
 
 	}
