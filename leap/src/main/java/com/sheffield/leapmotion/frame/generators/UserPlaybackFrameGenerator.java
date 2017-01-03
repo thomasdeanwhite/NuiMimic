@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class UserPlaybackFrameGenerator extends FrameGenerator implements App.TimeHandler {
@@ -111,6 +112,13 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				}
 				//counter--;
 			}
+
+			frameStack.sort(new Comparator<Frame>() {
+				@Override
+				public int compare(Frame o1, Frame o2) {
+					return (int) (o1.timestamp() - o2.timestamp());
+				}
+			});
 
 			if (frameGenerator instanceof ReconstructiveFrameGenerator){
 				Properties.PLAYBACK_FILE = null;
