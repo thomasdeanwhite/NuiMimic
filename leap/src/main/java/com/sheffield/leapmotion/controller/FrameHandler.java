@@ -58,6 +58,8 @@ public class FrameHandler implements Tickable {
                     break;
                 case STATE_ISOLATED:
                     App.out.println("- Redirecting to StateDependent Frame Generation");
+                    Properties.FRAME_SELECTION_STRATEGY = Properties
+                            .FrameSelectionStrategy.STATE_DEPENDENT;
                 case STATE_DEPENDENT:
                     StateIsolatedFrameGenerator
                             sifs = new StateIsolatedFrameGenerator(Properties.INPUT[0]);

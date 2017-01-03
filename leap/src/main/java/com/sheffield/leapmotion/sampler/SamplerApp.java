@@ -200,9 +200,8 @@ public class SamplerApp extends Listener {
                 }
             } else {
                 frameDeconstructor.setFilenameStart(filenameStart);
-
+                frameDeconstructor.setAddition("");
                 if (RECORDING_USERS) {
-                    frameDeconstructor.setAddition("");
                     frameDeconstructor.outputRawFrameData(frame);
                 } else {
                     if (breakIndex >= 0 && breakIndex < BREAK_TIMES.length) {
