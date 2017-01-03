@@ -259,16 +259,17 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		long currentTimePassed = seededTime - startSeedingTime;
 
 		Frame f = frameStack.get(currentFrame);
-		do {
+		if (currentTimePassed >= seededTimePassed && currentFrame <
+				frameStack.size()) {
 			f = frameStack.get(currentFrame++);
 
 			if (firstFrameTimeStamp == 0) {
-				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
+				firstFrameTimeStamp = frameStack.get(0).timestamp() / 1000;
 			}
 
-			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
-		} while (currentTimePassed > seededTimePassed && currentFrame <
-				frameStack.size());
+			seededTimePassed = (((f.timestamp() / 1000) - firstFrameTimeStamp));
+
+		}
 
 		handsSeeded++;
 
