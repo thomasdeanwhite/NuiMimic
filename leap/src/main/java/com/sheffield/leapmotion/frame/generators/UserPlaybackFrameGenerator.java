@@ -16,6 +16,7 @@ import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.sampler.SamplerApp;
+import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.output.Csv;
 import org.apache.commons.io.FileUtils;
@@ -76,6 +77,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	
 	public UserPlaybackFrameGenerator(FrameGenerator frameGenerator,
                                       Controller controller) {
+
+		Properties.FRAME_SELECTION_STRATEGY = Properties
+				.FrameSelectionStrategy.USER_PLAYBACK;
 
 		if (Properties.PROCESS_PLAYBACK || Properties.PROCESS_SCREENSHOTS){
 			// This happens when we want to split frames into separate models
@@ -159,12 +163,14 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	@Override
 	public Frame newFrame() {
 
-		if (frameStack.size() == 0){
-			return Frame.invalid();
+		if (seeded) {
+			App.getApp().setStatus(AppStatus.FINISHED);
+			return backupFrameGenerator.newFrame();
 		}
 
-		if (seeded) {
-			return backupFrameGenerator.newFrame();
+		if (frameStack.size() == 0){
+			App.getApp().setStatus(AppStatus.FINISHED);
+			return Frame.invalid();
 		}
 
 		Frame f = null;

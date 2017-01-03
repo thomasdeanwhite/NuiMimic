@@ -250,6 +250,8 @@ public class SamplerApp extends Listener {
 
                                     String frameAsString = HandFactory.handToString(uniqueId, h);
 
+                                    Properties.FRAMES_PER_SECOND = 1000;
+
                                     frameDeconstructor.outputJointPositionModel(frameAsString);
                                     frameDeconstructor.outputSequence();
                                     frameDeconstructor.outputHandPositionModel(h);
