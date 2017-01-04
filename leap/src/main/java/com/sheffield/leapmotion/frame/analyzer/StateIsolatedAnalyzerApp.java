@@ -64,9 +64,10 @@ public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 
 		dataAnalyzers = new HashMap<Integer, DataAnalyzer>();
 		try {
-			contents = FileHandler.readFile(new File(file));
 
 			failsafe = new AnalyzerApp(failsafeFile);
+
+			contents = FileHandler.readFile(new File(file));
 
 			probabilities = new HashMap<Integer, ArrayList<String>>();
 

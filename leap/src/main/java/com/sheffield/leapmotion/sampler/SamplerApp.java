@@ -9,6 +9,7 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.frame.generators.UserPlaybackFrameGenerator;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
 
 import javax.swing.*;
@@ -171,6 +172,16 @@ public class SamplerApp extends Listener {
 
     private final String UNIQUE_MACHINE_NAME = "pepper";
 
+    public void peekFrame(Frame frame){
+        String uniqueId = frame.timestamp() + "@"
+                + UNIQUE_MACHINE_NAME;
+
+        frameDeconstructor.addHandId(uniqueId);
+        for (Gesture g : frame.gestures()) {
+            frameDeconstructor.addGesture(g.type().name());
+        }
+    }
+
     public synchronized void frame(Frame f) {
 
         Properties.HISTOGRAM_THRESHOLD = 0;
@@ -259,10 +270,9 @@ public class SamplerApp extends Listener {
                                 }
 
                                 if (Properties.PROCESS_SCREENSHOTS) {
-
-                                    if (!frameDeconstructor.isCalculating()) {
-                                        frameDeconstructor.outputCurrentState();
-                                    }
+                                    UserPlaybackFrameGenerator.MAX_FRAME_SKIP
+                                            = 0;
+                                    frameDeconstructor.outputCurrentState();
                                 }
 
                             } catch (IOException e) {

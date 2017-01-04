@@ -60,6 +60,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	private ArrayList<Frame> frameStack;
 	private long startSeedingTime = 0;
 
+	public static int MAX_FRAME_SKIP = 10;
+
 	private long lastSwitchRate = 0;
 
 	private boolean seeded = false;
@@ -259,17 +261,24 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		long currentTimePassed = seededTime - startSeedingTime;
 
 		Frame f = frameStack.get(currentFrame);
-		if (currentTimePassed >= seededTimePassed && currentFrame <
-				frameStack.size()) {
+
+		int skipped = 0;
+		boolean peekFrames = false;
+		do {
+			if (peekFrames){
+				SamplerApp.getApp().peekFrame(f);
+			}
 			f = frameStack.get(currentFrame++);
 
 			if (firstFrameTimeStamp == 0) {
-				firstFrameTimeStamp = frameStack.get(0).timestamp() / 1000;
+				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
 			}
 
-			seededTimePassed = (((f.timestamp() / 1000) - firstFrameTimeStamp));
-
-		}
+			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
+			skipped++;
+			peekFrames = Properties.PROCESS_SCREENSHOTS;
+		} while (currentTimePassed > seededTimePassed && currentFrame <
+				frameStack.size() && skipped < MAX_FRAME_SKIP);
 
 		handsSeeded++;
 

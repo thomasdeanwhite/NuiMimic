@@ -60,6 +60,14 @@ public class FrameDeconstructor {
         gestures = new ArrayList<String>();
     }
 
+    public void addHandId(String id){
+        handIds.add(id);
+    }
+
+    public void addGesture(String gesture){
+        gestures.add(gesture);
+    }
+
     public void setUniqueId(String uId) {
         uniqueId = uId;
     }
