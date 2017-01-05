@@ -233,13 +233,6 @@ public class SamplerApp extends Listener {
 
                     frameDeconstructor.setAddition(addition);
 
-                    //write gestures out to file
-                    try {
-                        frameDeconstructor.outputGestureModel(frame);
-                    } catch (IOException e) {
-                        e.printStackTrace(App.out);
-                    }
-
                     for (Hand h : frame.hands()) {
                         //write hands out to file
                         if (h.isValid() && h.isRight()) {
@@ -267,6 +260,12 @@ public class SamplerApp extends Listener {
                                     frameDeconstructor.outputSequence();
                                     frameDeconstructor.outputHandPositionModel(h);
                                     frameDeconstructor.outputHandRotationModel(h);
+
+                                    try {
+                                        frameDeconstructor.outputGestureModel(frame);
+                                    } catch (IOException e) {
+                                        e.printStackTrace(App.out);
+                                    }
                                 }
 
                                 if (Properties.PROCESS_SCREENSHOTS) {

@@ -527,7 +527,9 @@ public class App implements ThrowableListener, Tickable {
                     }
                     if ((lastTime - lastTimeRecorded)/1000000 >=
                             RECORDING_INTERVAL &&
-                            SeededController.getSeededController().allowProcessing()) {
+                            SeededController.getSeededController()
+                                    .allowProcessing() && !Properties
+                            .PROCESS_PLAYBACK && !Properties.PROCESS_SCREENSHOTS) {
                         ClassAnalyzer.collectHitCounters(false);
 
                         App.getApp().output(false);
