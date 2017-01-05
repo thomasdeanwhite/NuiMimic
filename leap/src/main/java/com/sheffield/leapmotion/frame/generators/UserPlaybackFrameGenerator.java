@@ -261,7 +261,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		Frame f = frameStack.get(currentFrame);
 
 		while ((currentTimePassed > seededTimePassed && currentFrame <
-				frameStack.size()) || firstFrameTimeStamp == 0) {
+				frameStack.size()) || firstFrameTimeStamp == 0 || Properties
+				.PROCESS_PLAYBACK) {
 			SamplerApp.getApp().peekFrame(f);
 			f = frameStack.get(currentFrame++);
 
@@ -270,6 +271,10 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			}
 
 			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
+
+			if (Properties.PROCESS_PLAYBACK){
+				break;
+			}
 		}
 
 		handsSeeded++;
