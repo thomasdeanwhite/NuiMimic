@@ -237,17 +237,15 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	@Override
 	public void tick(long time) {
 
-		if (frameStack.size() == 0){
-			return;
-		}
+        if (currentFrame >= frameStack.size()-1){ // last frame!
+            seeded = true;
+            Properties.FRAMES_PER_SECOND = lastSwitchRate;
+            App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
+            App.getApp().setStatus(AppStatus.FINISHED);
+            return;
+        }
 
 		lastUpdate = time;
-
-		if (currentFrame >= frameStack.size()-1){ // last frame!
-			seeded = true;
-			Properties.FRAMES_PER_SECOND = lastSwitchRate;
-			App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
-		}
 
 
 		if (startSeedingTime == 0){
