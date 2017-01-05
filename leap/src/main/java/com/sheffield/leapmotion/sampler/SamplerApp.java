@@ -269,8 +269,6 @@ public class SamplerApp extends Listener {
                                 }
 
                                 if (Properties.PROCESS_SCREENSHOTS) {
-                                    UserPlaybackFrameGenerator.MAX_FRAME_SKIP
-                                            = 0;
                                     frameDeconstructor.outputCurrentState();
                                 }
 
