@@ -234,7 +234,7 @@ public class FrameHandler implements Tickable {
                 fl.onFrameSwitch(last, next);
             }
             return;
-        } else {
+        } else if (!(frameGenerator instanceof UserPlaybackFrameGenerator) {
             if (!(frame instanceof  SeededFrame)) {
                 frame = new SeededFrame(frame);
             }
