@@ -261,7 +261,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		while ((currentTimePassed > seededTimePassed && currentFrame <
 				frameStack.size()) || firstFrameTimeStamp == 0 || Properties
 				.PROCESS_PLAYBACK) {
-			SamplerApp.getApp().peekFrame(f);
+			if (Properties.PROCESS_SCREENSHOTS) {
+				SamplerApp.getApp().peekFrame(f);
+			}
 			f = frameStack.get(currentFrame++);
 
 			if (firstFrameTimeStamp == 0) {
