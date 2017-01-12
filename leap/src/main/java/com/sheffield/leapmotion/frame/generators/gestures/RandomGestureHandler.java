@@ -137,12 +137,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
                     }
                 }
 
-                App.out.println(newType + ": " + gestureDuration + " < " +
-                        gestureTimeLimit);
-
                 if (newType.equals(gestureType)) {
                     int newDuration = (int) (time - gestureStart);
-                    int passed = newDuration - gestureDuration;
                     gestureTimeLimit = gestureDuration + Properties.GESTURE_TIME_LIMIT;
                 } else if (gestureType.equals(Gesture.Type.TYPE_INVALID)
                         || !newType.equals(Gesture.Type.TYPE_INVALID)) {
