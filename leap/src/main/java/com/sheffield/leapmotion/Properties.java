@@ -137,7 +137,7 @@ public class Properties extends InstrumentationProperties {
     public static float HISTOGRAM_THRESHOLD = 0.1f;
 
     @Parameter(key = "ThistogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "Oracle")
-    public static float TESTING_HISTOGRAM_THRESHOLD = 0.01f;
+    public static float TESTING_HISTOGRAM_THRESHOLD = 0.003f;
 
     @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "Oracle")
     public static int TESTING_HISTOGRAM_BINS = 25;
