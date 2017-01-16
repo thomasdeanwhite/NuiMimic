@@ -89,9 +89,9 @@ public class QuaternionHelper {
         try {
             quaternions = new ArrayList<Quaternion>(quaternions);
 
-            int i = (int) (modifier * (quaternions.size()-1));
+            float size = quaternions.size()-2;
 
-            float size = quaternions.size()-1;
+            int i = (int) (modifier * (size));
 
             modifier = modifier - (i * (1f/size));
 

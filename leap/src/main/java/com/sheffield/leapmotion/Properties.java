@@ -44,7 +44,7 @@ public class Properties extends InstrumentationProperties {
     public static long FRAMES_PER_SECOND = 200;
 
     @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Leap Motion Testing")
-    public static int SWITCH_TIME = 5;//400;
+    public static int SWITCH_TIME = 100;//400;
 
     @Parameter(key = "startDelayTime", description = "Delay Time before frames are seeded", hasArgs = true, category = "Leap Motion Testing")
     public static long DELAY_TIME = 1;
@@ -119,7 +119,7 @@ public class Properties extends InstrumentationProperties {
     public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
 
     @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Leap Motion Testing")
-    public static int BEZIER_POINTS = 2;
+    public static int BEZIER_POINTS = 10;
 
     @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
     public static float LERP_RATE = 1f;//0.8f;

@@ -92,7 +92,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 	public NGramFrameGenerator(String filename) {
 		try {
 			App.out.println("* Setting up NGram Frame Selection");
-			lastSwitchTime = System.currentTimeMillis();
+			lastSwitchTime = 0;
 			currentAnimationTime = Properties.SWITCH_TIME;
 			logs = new ArrayList<NGramLog>();
 			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
@@ -119,7 +119,6 @@ public class NGramFrameGenerator extends FrameGenerator {
 			analyzer.analyze();
 
 			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
-			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
 			contents = FileHandler.readFile(new File(positionFile));
 			lines = contents.split("\n");
@@ -167,10 +166,12 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 	}
 
+	private float modifier = 0f;
+
 	@Override
 	public Frame newFrame() {
 		Frame f = SeededController.newFrame();
-		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
+		modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
 		Hand newHand = lastHand.fadeHand(seededHands, modifier);
 		f = HandFactory.injectHandIntoFrame(f, newHand);
 
@@ -189,7 +190,8 @@ public class NGramFrameGenerator extends FrameGenerator {
 			h = hand;
 		}
 		if (h instanceof SeededHand) {
-			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
+			//float modifier = Math.min(1f, currentAnimationTime / (float)
+			//		Properties.SWITCH_TIME);
 			SeededHand sh = (SeededHand) h;
 
 			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
@@ -197,7 +199,6 @@ public class NGramFrameGenerator extends FrameGenerator {
 			q.setBasis(sh);
 			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
 		}
-		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 
 	}
 
@@ -286,9 +287,9 @@ public class NGramFrameGenerator extends FrameGenerator {
 			positionLabels.clear();
 			rotationLabels.clear();
 			fillLists();
-			lastSwitchTime = System.currentTimeMillis();
+			lastSwitchTime = time;
 		} else {
-			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
+			currentAnimationTime = (int) (time - lastSwitchTime);
 		}
 
 	}
