@@ -135,14 +135,14 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             timings.sort(new ListComparator<Long>(indices));
 
-            //remove repeated times
-            for (int i = 0; i < timings.size(); i++){
-                long time = timings.remove(i);
-
-                if (!timings.contains(time)){
-                    timings.add(i, time);
-                }
-            }
+//            //remove repeated times
+//            for (int i = 0; i < timings.size(); i++){
+//                long time = timings.remove(i);
+//
+//                if (!timings.contains(time)){
+//                    timings.add(i, time);
+//                }
+//            }
 
             handLabelStack.sort(new ListComparator<String>(indices));
 
@@ -274,11 +274,12 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         modifier = Math.min(1f, currentAnimationTime / animationTime);
 
+        if (currentHands.size() != 0){
+            Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
 
-        Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
-
-        if (hand != null) {
-            f = HandFactory.injectHandIntoFrame(f, hand);
+            if (hand != null) {
+                f = HandFactory.injectHandIntoFrame(f, hand);
+            }
         }
 
         return f;
@@ -305,6 +306,10 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     @Override
     public void tick(long time) {
+        if (handLabelStack.size() == 0){
+//          App.out.println("Finished seeding hands after " + (System.currentTimeMillis() - startSeededTime) + "secs "  + SeededController.getSeededController().now());
+            return;
+        }
         if (lastSwitchTime == 0){
             lastSwitchTime = time;
         }
@@ -319,9 +324,11 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         seededTime = time - startSeededTime;
 
-        if (seededTime >= timings.get(currentHandIndex)) {
+        long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+        if (seededTime > frameTime) {
 
-            App.out.println(seededTime - timings.get(currentHandIndex));
+            App.out.println((seededTime - timings.get(currentHandIndex)) + " "
+                    + seededTime + " " + timings.get(currentHandIndex));
 
             lastSwitchTime = seededTime;
 
@@ -329,7 +336,12 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             currentPositions.clear();
             currentRotations.clear();
 
-            while (timings.get(currentHandIndex) < seededTime + Properties.SWITCH_TIME) {
+            while(frameTime < seededTime - Properties.SWITCH_TIME){
+                frameTime = timings.get(currentHandIndex++) -
+                        Properties.SWITCH_TIME;
+            }
+
+            while (frameTime < seededTime) {
 
                 String currentHand = null;
                 String currentPosition = null;
@@ -344,7 +356,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                                 (currentHandIndex);
                         tpgh.changeGesture();
 
-                        currentHandIndex++;
+                        frameTime = timings.get(currentHandIndex++) -
+                                Properties.SWITCH_TIME;
                     }
                 }
                 while (currentHand == null || currentPosition == null || currentRotation == null);
