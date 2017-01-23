@@ -182,21 +182,19 @@ public class HandFactory {
 
 	public static String handToString(String uniqueId, Hand h) {
 
-//		Vector handXBasis = h.palmNormal().cross(h.direction()).normalized();
-//		Vector handYBasis = h.palmNormal().opposite();
-//		Vector handZBasis = h.direction().opposite();
-//		Vector handOrigin = h.palmPosition();
-//		Matrix handTransform = new Matrix(handXBasis, handYBasis, handZBasis, handOrigin);
-//		handTransform = handTransform.rigidInverse();
+		Vector handXBasis = h.palmNormal().cross(h.direction()).normalized();
+		Vector handYBasis = h.palmNormal().opposite();
+		Vector handZBasis = h.direction().opposite();
+		Vector handOrigin = h.palmPosition();
+		Matrix handTransform = new Matrix(handXBasis, handYBasis, handZBasis, handOrigin);
+		handTransform = handTransform.rigidInverse();
 		FingerList fl = h.fingers();
 		String output = uniqueId + ",";
 		Finger thumb = fl.fingerType(Finger.Type.TYPE_THUMB).get(0);
 		for (int i = 0; i < thumbBoneTypes.length; i++) {
 			Bone b = thumb.bone(thumbBoneTypes[i]);
-			Vector prev = b.prevJoint();//handTransform.transformPoint(b
-			// .prevJoint());
-			Vector next = b.nextJoint();//handTransform.transformPoint(b
-			//		.nextJoint());
+			Vector prev = handTransform.transformPoint(b.prevJoint());
+			Vector next = handTransform.transformPoint(b.nextJoint());
 			output += prev.getX() + ",";
 			output += prev.getY() + ",";
 			output += prev.getZ() + ",";
@@ -208,10 +206,8 @@ public class HandFactory {
 			Finger finger = fl.fingerType(fingerTypes[j]).get(0);
 			for (int i = 0; i < fingerBoneTypes.length; i++) {
 				Bone b = finger.bone(fingerBoneTypes[i]);
-				Vector prev = b.prevJoint();//handTransform.transformPoint(b
-				// .prevJoint());
-				Vector next = b.nextJoint();//handTransform.transformPoint(b
-				// .nextJoint());
+				Vector prev = handTransform.transformPoint(b.prevJoint());
+				Vector next = handTransform.transformPoint(b.nextJoint());
 				output += prev.getX() + ",";
 				output += prev.getY() + ",";
 				output += prev.getZ() + ",";
