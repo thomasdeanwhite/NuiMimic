@@ -249,7 +249,7 @@ public class FrameHandler implements Tickable {
             SeededFrame sf = (SeededFrame) frame;
 
             GestureList gl = null;
-            //frameGenerator.modifyFrame(sf);
+            frameGenerator.modifyFrame(sf);
             if (gestureHandler == null) {
                 gestureHandler = new RandomGestureHandler();
             }
