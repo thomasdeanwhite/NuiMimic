@@ -137,7 +137,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             handLabelStack.sort(new ListComparator<String>(indices));
 
-            for (int i = timings.size()-2; i > 0; i--){
+            for (int i = timings.size()-2; i >= 0; i--){
                 long l = timings.get(i);
                 if (l > timings.get(i+1)) {
                     throw new IllegalArgumentException("Timings must increase chronologically");
