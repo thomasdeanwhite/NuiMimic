@@ -327,8 +327,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
         if (seededTime > frameTime) {
 
-            App.out.println((seededTime - timings.get(currentHandIndex)) + " "
-                    + seededTime + " " + timings.get(currentHandIndex));
+//            App.out.println((seededTime - timings.get(currentHandIndex)) + " "
+//                    + seededTime + " " + timings.get(currentHandIndex));
 
             lastSwitchTime = seededTime;
 
