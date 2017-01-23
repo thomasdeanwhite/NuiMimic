@@ -106,7 +106,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             }
 
             timings = new ArrayList<Long>();
-            //final ArrayList<Long> timings = new ArrayList<Long>();
+            final ArrayList<Long> timings = new ArrayList<Long>();
 
             String[] tim = sequenceInfo.split("\n")[1].split(",");
 
@@ -137,10 +137,13 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             handLabelStack.sort(new ListComparator<String>(indices));
 
-            for (int i = 1; i < timings.size()-1; i++){
+            for (int i = timings.size()-2; i > 0; i--){
                 long l = timings.get(i);
                 if (l > timings.get(i+1)) {
                     throw new IllegalArgumentException("Timings must increase chronologically");
+                } else {
+                    long m = timings.remove(i+1);
+                    timings.add(i+1, m-l);
                 }
             }
 
