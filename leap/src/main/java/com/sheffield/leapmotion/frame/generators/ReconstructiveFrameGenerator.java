@@ -135,6 +135,15 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             timings.sort(new ListComparator<Long>(indices));
 
+            //remove repeated times
+            for (int i = 0; i < timings.size(); i++){
+                long time = timings.remove(i);
+
+                if (!timings.contains(time)){
+                    timings.add(i, time);
+                }
+            }
+
             handLabelStack.sort(new ListComparator<String>(indices));
 
             long first = tims.get(indices.get(0));
