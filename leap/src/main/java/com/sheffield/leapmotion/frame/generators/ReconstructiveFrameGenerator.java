@@ -124,7 +124,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                 indices.add(i);
             }
 
-            final ArrayList<Long> tims = this.timings;
+            final ArrayList<Long> tims = timings;
 
             indices.sort(new Comparator<Integer>() {
                 @Override
