@@ -16,6 +16,7 @@ import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.runtypes.InstrumentingRunType;
+import com.sheffield.leapmotion.runtypes.ModelGeneratingRunType;
 import com.sheffield.leapmotion.runtypes.ReconstructingRunType;
 import com.sheffield.leapmotion.runtypes.RunType;
 import com.sheffield.leapmotion.runtypes.StateRecognisingRunType;
@@ -30,11 +31,9 @@ import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.output.Csv;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -174,8 +173,8 @@ public class App implements ThrowableListener, Tickable {
         public void checkPermission(Permission perm) {
             if (perm.getName().contains("loadLibrary")) {
                 if (perm.getName().contains("LeapJava")) {
-                    App.out.println("LeapJava loaded dynamically.");
-                    App.getApp().setStatus(AppStatus.TESTING);
+                    App.out.println("- LeapJava loaded dynamically.");
+                    //App.getApp().setStatus(AppStatus.TESTING);
                     // new Exception().printStackTrace(App.out);
                     // throw new IllegalStateException("NO LOAD");
                     // throw new SecurityException("Cannot load LeapLibrary");
@@ -282,8 +281,10 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
+    private static boolean outputSet = false;
+
     public static void setOutput(){
-        if (!ENABLE_APPLICATION_OUTPUT) {
+        if (!ENABLE_APPLICATION_OUTPUT && !outputSet) {
             PrintStream dummyStream = new PrintStream(new OutputStream() {
 
                 @Override
@@ -298,17 +299,19 @@ public class App implements ThrowableListener, Tickable {
 
             System.setOut(dummyStream);
 
-            System.setErr(new PrintStream(new OutputStream() {
-                @Override
-                public void write(int b) throws IOException {
+//            System.setErr(new PrintStream(new OutputStream() {
+//                @Override
+//                public void write(int b) throws IOException {
+//
+//                    FileOutputStream fos = new FileOutputStream(new File(Properties.TESTING_OUTPUT +
+//                            "/err/" + Properties.CURRENT_RUN + "error.log"
+//                    ));
+//
+//                    fos.write(b);
+//                }
+//            }));
 
-                    FileOutputStream fos = new FileOutputStream(new File(Properties.TESTING_OUTPUT +
-                            "/err/" + Properties.CURRENT_RUN + "error.log"
-                    ));
-
-                    fos.write(b);
-                }
-            }));
+            outputSet = true;
         }
     }
 
@@ -374,11 +377,20 @@ public class App implements ThrowableListener, Tickable {
                 };
                 run = new StateRecognisingRunType(isiMan);
                 break;
+            case MODEL_GEN_RUNTYPE:
+                Properties.RUNTIME = Long.MAX_VALUE;
+                Properties.PROCESS_PLAYBACK = true;
+                App.DISABLE_BACKGROUND_THREAD = true;
+
+                App.getApp().setup(false);
+                run = new ModelGeneratingRunType();
+                break;
             default:
                 App.out.println("Unimplemented MILLIS");
                 break;
         }
         run.run();
+        System.exit(0);
     }
 
     /**
@@ -429,10 +441,17 @@ public class App implements ThrowableListener, Tickable {
 
     public static long START_TIME = 0;
 
+    public static boolean DISABLE_BACKGROUND_THREAD = false;
+
     public static void background(String[] args) {
+
         Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
         Properties.USE_CHANGED_FLAG = true;
         Properties.LOG = false;
+
+        if (DISABLE_BACKGROUND_THREAD){
+            return;
+        }
 
         if (mainThread != null) {
             App.out.println("Found thread already running!");
@@ -827,7 +846,7 @@ public class App implements ThrowableListener, Tickable {
         long start = (startTime/1000000);
         long timePassed = time - start;
 
-        String progress = ProgressBar.getProgressBar(21, timePassed / (float) Properties.RUNTIME);
+        String progress = ProgressBar.getProgressBar(21, getProgress());
 
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
 
@@ -836,6 +855,10 @@ public class App implements ThrowableListener, Tickable {
                     + timePassed + " > " + Properties.RUNTIME);
             status = AppStatus.FINISHED;
         }
+    }
+
+    public float getProgress(){
+        return timePassed / (float) Properties.RUNTIME;
     }
 
     public long lastTick() {

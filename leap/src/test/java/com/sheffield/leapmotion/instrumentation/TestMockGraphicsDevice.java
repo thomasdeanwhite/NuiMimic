@@ -1,11 +1,13 @@
-package com.sheffield.leapmotion.controller.mocks;
+package com.sheffield.leapmotion.instrumentation;
+
 
 import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
 import org.junit.Test;
 
 import java.awt.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by thomas on 11/15/2016.

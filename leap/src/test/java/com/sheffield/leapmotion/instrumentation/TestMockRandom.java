@@ -1,6 +1,6 @@
-package com.sheffield.leapmotion.controller.mocks;
+package com.sheffield.leapmotion.instrumentation;
 
-import com.sheffield.leapmotion.instrumentation.MockRandom;
+
 import org.junit.Before;
 import org.junit.Test;
 

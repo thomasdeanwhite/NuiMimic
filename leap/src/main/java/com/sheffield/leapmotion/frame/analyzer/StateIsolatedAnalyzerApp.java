@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.frame.analyzer;
 import com.sheffield.instrumenter.FileHandler;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.util.ProgressBar;
 
 import java.io.File;
 import java.io.IOException;
@@ -77,6 +78,8 @@ public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 
 			HashMap<String, Integer[]> stateCache = new HashMap<String, Integer[]>();
 
+			App.out.println(ProgressBar.getHeaderBar(21));
+
 			for (int i = 0; i < ps.length-1; i ++) {
 				if (ps[i].startsWith("state:")){
 					Integer[] state = null;
@@ -115,6 +118,7 @@ public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 					}
                     i--;
 				}
+				App.out.print("\r" + ProgressBar.getProgressBar(21, (i/(float)ps.length)));
 				// System.out.print("\r" + conts);
 			}
 
@@ -127,13 +131,16 @@ public class StateIsolatedAnalyzerApp extends AnalyzerApp {
 	}
 
 	public void analyze() {
+		App.out.println(ProgressBar.getHeaderBar(21));
 		failsafe.analyze();
 		try {
+			int counter = 0;
 			for (Integer i : probabilities.keySet()) {
 				if (!dataAnalyzers.containsKey(i)) {
 					dataAnalyzers.put(i, new ProbabilityDataAnalyzer());
 					dataAnalyzers.get(i).analyze(probabilities.get(i), logBase);
 				}
+				App.out.print("\r" + ProgressBar.getProgressBar(21, (counter/(float)probabilities.size())));
 			}
 
 		} catch (Exception e){

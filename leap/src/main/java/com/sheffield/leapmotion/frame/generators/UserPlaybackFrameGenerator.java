@@ -17,6 +17,7 @@ import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.AppStatus;
+import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.output.Csv;
 import org.apache.commons.io.FileUtils;
@@ -86,7 +87,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			// This happens when we want to split frames into separate models
 			SamplerApp.LOOP = false;
 			SamplerApp.main(new String[]{Properties.PLAYBACK_FILE.substring
-					(0, Properties.PLAYBACK_FILE.indexOf("."))});
+					(Properties.PLAYBACK_FILE.replace("\\", "/").lastIndexOf("/")+1, Properties.PLAYBACK_FILE.indexOf("."))});
 
 			SamplerApp.RECORDING_USERS = false;
 
@@ -102,7 +103,10 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			lineIterator = FileUtils.lineIterator(new File(playback));
 			frameStack = new ArrayList<Frame>();
 			//int counter = Properties.MAX_LOADED_FRAMES;
+			int counter = 0;
 
+			App.out.println("- Loading Leap Motion Frames");
+			App.out.println(ProgressBar.getHeaderBar(21));
 			while (lineIterator.hasNext()){
 				try {
 					frameStack.add(Serializer
@@ -110,6 +114,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				} catch (JsonSyntaxException e){
 					// some bad JSON data;
 				}
+
+				App.out.print("\r" + ProgressBar.getProgressBar(21, counter++/(float)maxFrames));
 				//counter--;
 			}
 
@@ -353,11 +359,24 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 	@Override
 	public void setMillis(long executionTime) {
-		MockSystem.MILLIS = frameStack.get(0).timestamp() / 1000;
+		MockSystem.MILLIS = frameStack.get(currentFrame).timestamp() / 1000;
 	}
 
 	@Override
 	public void setNanos(long executionTime) {
-		MockSystem.NANOS = frameStack.get(0).timestamp() * 1000;
+		MockSystem.NANOS = frameStack.get(currentFrame).timestamp() * 1000;
+	}
+
+	@Override
+	public boolean hasNextFrame() {
+		return frameStack == null || currentFrame < frameStack.size();
+	}
+
+	@Override
+	public float getProgress(){
+		if (frameStack == null){
+			return 0f;
+		}
+		return currentFrame / (float)frameStack.size();
 	}
 }

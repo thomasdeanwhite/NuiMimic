@@ -52,6 +52,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		}
 	};
 
+	public boolean hasNextFrame(){
+		return frameHandler.hasNextFrame();
+	}
+
 	public static void resetSeededController(){
 		CONTROLLER = null;
 	}
@@ -120,7 +124,15 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	}
 
+
+	private boolean setup = false;
+
 	private void setup(){
+		if (setup){
+			return;
+		}
+
+		setup = true;
 		listeners = new ArrayList<Listener>();
 		CONTROLLER = this;
 
@@ -209,6 +221,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			App.DISPLAY_WINDOW.setFrame(f);
 		}
 		return f;
+	}
+
+	public float getProgress(){
+		return frameHandler.getProgress();
 	}
 
 	@Override
