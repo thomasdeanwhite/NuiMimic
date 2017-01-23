@@ -43,8 +43,11 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "framesPerSecond", description = "Number of frames to seed per second", hasArgs = true, category = "Leap Motion Testing")
     public static long FRAMES_PER_SECOND = 200;
 
-    @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Leap Motion Testing")
-    public static int SWITCH_TIME = 100;//400;
+    @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Data Interpolation")
+    public static int SWITCH_TIME = 5;//100;
+
+    @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Data Interpolation")
+    public static int BEZIER_POINTS = 2;//10;
 
     @Parameter(key = "startDelayTime", description = "Delay Time before frames are seeded", hasArgs = true, category = "Leap Motion Testing")
     public static long DELAY_TIME = 1;
@@ -118,8 +121,7 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
     public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
 
-    @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Leap Motion Testing")
-    public static int BEZIER_POINTS = 10;
+
 
     @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
     public static float LERP_RATE = 1f;//0.8f;
@@ -200,7 +202,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION
+        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN_RUNTYPE
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")

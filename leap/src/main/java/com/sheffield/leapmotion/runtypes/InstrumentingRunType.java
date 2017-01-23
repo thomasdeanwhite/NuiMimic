@@ -77,10 +77,12 @@ public class InstrumentingRunType implements RunType {
 
                 classes.addAll(Arrays.asList(clazzes));
 
-                String[] link = cn.toNomnoml().split("\n");
-                for (String n : link) {
-                    lines.add(n);
-                }
+//                String[] link = cn.toNomnoml().split("\n");
+//                for (String n : link) {
+//                    if (!lines.contains(n)) {
+//                        lines.add(n);
+//                    }
+//                }
 
                 for (String s : classes) {
 
@@ -103,9 +105,9 @@ public class InstrumentingRunType implements RunType {
 //            }
 
 
-            for (String s : lines) {
-                App.out.println(s);
-            }
+//            for (String s : lines) {
+//                App.out.println(s);
+//            }
 
             String related = dir + "related_classes.csv";
 

@@ -47,6 +47,11 @@ public class HillClimbingDataAnalyzer implements DataAnalyzer {
 	}
 
 	public void setupParents(SequenceSimilarity ss){
+
+//		if (Properties.LERP_RATE == 1f) {//lerp disabled
+//			return;
+//		}
+
 		if (ss.parentSeq != null){
 			return;
 		}

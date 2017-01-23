@@ -29,6 +29,8 @@ public class FrameHandler implements Tickable {
     private ArrayList<Frame> frames;
     private GestureHandler gestureHandler;
 
+    private boolean initialised = false;
+
     private int framesGenerated = 0;
 
     public String status(){
@@ -40,6 +42,10 @@ public class FrameHandler implements Tickable {
     }
 
     public void init (Controller seededController){
+        if (initialised){
+            new Exception("init is being called again!").printStackTrace(App.out);
+            return;
+        }
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
         frames = new ArrayList<Frame>();
         try {
@@ -161,7 +167,7 @@ public class FrameHandler implements Tickable {
                     frameGenerator = null;
                     return;
                 default:
-                    frameGenerator = new RandomFrameGenerator();
+                    frameGenerator = new EmptyFrameGenerator();
                     break;
             }
         } catch (Exception e){
@@ -195,6 +201,8 @@ public class FrameHandler implements Tickable {
         }
 
         App.out.println("- Using " + output + " for frame selection.");
+
+        initialised = true;
     }
 
     public void setGestureHandler(GestureHandler gh) {
@@ -302,5 +310,16 @@ public class FrameHandler implements Tickable {
         return framesGenerated % Properties.SEEDED_BEFORE_PROCESSING == 0 &&
         frameGenerator
                 .allowProcessing();
+    }
+
+    public boolean hasNextFrame() {
+        return !initialised || frameGenerator.hasNextFrame();
+    }
+
+    public float getProgress() {
+        if (!initialised){
+            return 0f;
+        }
+        return frameGenerator.getProgress();
     }
 }

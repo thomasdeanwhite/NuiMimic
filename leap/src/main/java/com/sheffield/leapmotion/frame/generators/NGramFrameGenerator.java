@@ -231,7 +231,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 			NGramLog ngLog = new NGramLog();
 			ngLog.element = handValue;
-			ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+			ngLog.timeSeeded = (int) (time - lastSwitchTime);
 			logs.add(ngLog);
 			if (outputFile != null){
 				try {
@@ -249,7 +249,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 				posLog.element += s + ",";
 			}
 
-			posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+			posLog.timeSeeded = (int) (time - lastSwitchTime);
 
 			NGramLog rotLog = new NGramLog();
 			rotLog.element = "";

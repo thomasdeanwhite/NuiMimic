@@ -5,21 +5,21 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.frame.util.BezierHelper;
-import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.util.Quaternion;
-import com.sheffield.leapmotion.frame.util.QuaternionHelper;
-import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
-import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
-import com.sheffield.leapmotion.frame.playback.NGramLog;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
+import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
+import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
+import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
+import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
+import com.sheffield.leapmotion.frame.playback.NGramLog;
+import com.sheffield.leapmotion.frame.util.BezierHelper;
+import com.sheffield.leapmotion.frame.util.Quaternion;
+import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.output.Csv;
 
 import java.io.File;
@@ -86,7 +86,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 	public StateIsolatedFrameGenerator(String filename) {
 		try {
 			App.out.println("* Setting up NGram Frame Selection");
-			lastSwitchTime = System.currentTimeMillis();
+			lastSwitchTime = 0;
 			currentAnimationTime = Properties.SWITCH_TIME;
 			stateIsolatedFile = Properties.DIRECTORY + "/" + filename +
 					".state-ngram";
@@ -128,7 +128,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			setOutputFile(jFile);
 
 			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
-			lastSwitchTime = System.currentTimeMillis();
+			lastSwitchTime = 0;
 			currentAnimationTime = Properties.SWITCH_TIME;
 			contents = FileHandler.readFile(new File(positionFile));
 			lines = contents.split("\n");
@@ -189,9 +189,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 	@Override
 	public Frame newFrame() {
 		Frame f = SeededController.newFrame();
-//		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
-//		Hand newHand = lastHand.fadeHand(seededHands, modifier);
-		f = HandFactory.injectHandIntoFrame(f, lastHand);
+		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
+		Hand newHand = lastHand.fadeHand(seededHands, modifier);
+		f = HandFactory.injectHandIntoFrame(f, newHand);
 
 		return f;
 	}
@@ -211,16 +211,12 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			float modifier = Math.min(1f, currentAnimationTime / (float) Properties.SWITCH_TIME);
 			SeededHand sh = (SeededHand) h;
 
-			Quaternion q = lastRotation;
-					//QuaternionHelper.fadeQuaternions
-					//(seededRotations,	modifier);
+			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
 
 			q.setBasis(sh);
-			sh.setOrigin(lastPosition);
-			//BezierHelper.bezier(seededPositions,
-			//modifier));
+			sh.setOrigin(BezierHelper.bezier(seededPositions,
+				modifier));
 		}
-		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 
 	}
 
@@ -255,7 +251,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 			NGramLog ngLog = new NGramLog();
 			ngLog.element = handValue;
-			ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+			ngLog.timeSeeded = (int) (time - lastSwitchTime);
 			logs.add(ngLog);
 			if (outputFile != null){
 				try {
@@ -273,7 +269,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 				posLog.element += s + ",";
 			}
 
-			posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
+			posLog.timeSeeded = (int) (time - lastSwitchTime);
 
 			NGramLog rotLog = new NGramLog();
 			rotLog.element = "";
@@ -311,9 +307,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			positionLabels.clear();
 			rotationLabels.clear();
 			fillLists();
-			lastSwitchTime = System.currentTimeMillis();
+			lastSwitchTime = time;
 		} else {
-			currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
+			currentAnimationTime = (int) (time - lastSwitchTime);
 		}
 
 	}

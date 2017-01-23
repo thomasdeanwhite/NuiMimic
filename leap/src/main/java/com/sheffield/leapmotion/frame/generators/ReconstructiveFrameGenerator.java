@@ -5,6 +5,8 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.frame.util.BezierHelper;
+import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
@@ -31,7 +33,6 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         return new Csv();
     }
 
-    long lastSwitchTime = 0;
     int currentAnimationTime = 0;
     int currentLabel = 0;
 
@@ -43,10 +44,12 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     private ArrayList<String> positionLabelStack;
     private ArrayList<String> rotationLabelStack;
 
-    private String currentHand;
-    private String currentPosition;
-    private String currentRotation;
+    private ArrayList<SeededHand> currentHands;
+    private ArrayList<Vector> currentPositions;
+    private ArrayList<Quaternion> currentRotations;
     private ArrayList<Long> timings;
+
+    private long lastSwitchTime = 0;
 
     private long startTime = 0;
 
@@ -60,6 +63,9 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     public ReconstructiveFrameGenerator(String filename){
         try {
+            currentRotations = new ArrayList<Quaternion>();
+            currentPositions = new ArrayList<Vector>();
+            currentHands = new ArrayList<SeededHand>();
             tpgh = new ReconstructiveGestureHandler(filename);
             App.out.println("* Setting up Reconstruction");
             lastSwitchTime = 0;
@@ -179,8 +185,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     @Override
     public void modifyFrame(SeededFrame frame) {
-        if (handLabelStack.size() == 0 || currentPosition == null
-                || currentRotation == null){
+        if (handLabelStack.size() == 0 || currentPositions == null
+                || currentRotations == null || currentPositions.size() == 0 || currentRotations.size() == 0){
             return;
         }
 
@@ -191,19 +197,19 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         if (h instanceof SeededHand) {
             SeededHand sh = (SeededHand) h;
 
-
-            Quaternion q = rotations.get(currentRotation);
+            Quaternion q = QuaternionHelper.fadeQuaternions(currentRotations, modifier);
             q.setBasis(sh);
 
-            sh.setOrigin(vectors.get(currentPosition));
+            sh.setOrigin(BezierHelper.bezier(currentPositions, modifier));
         }
-        currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
     }
 
     @Override
     public boolean allowProcessing() {
         return true;
     }
+
+    float modifier = 0f;
 
     @Override
     public Frame newFrame() {
@@ -214,10 +220,11 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         Frame f = SeededController.newFrame();
 //        ArrayList<SeededHand> hs = new ArrayList<SeededHand>();
 //        hs.add(hands.get(handLabelStack.get(0)));
-//        float modifier = Math.max(1f, currentAnimationTime / animationTime);
+
+        modifier = Math.min(1f, currentAnimationTime / animationTime);
 
 
-        Hand hand = hands.get(currentHand);
+        Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
 
         if (hand != null) {
             f = HandFactory.injectHandIntoFrame(f, hand);
@@ -261,26 +268,40 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         seededTime = time - startSeededTime;
 
-        if (seededTime > timings.get(currentHandIndex)) {
-            do {
-                if (handLabelStack.size() > 0) {
-                    currentHand = handLabelStack.get(currentHandIndex);
-                    currentPosition = positionLabelStack.get
-                            (currentHandIndex);
-                    currentRotation = rotationLabelStack.get
-                            (currentHandIndex);
-                    tpgh.changeGesture();
-                    if (timings.size() > currentHandIndex+1) {
-                        animationTime = (int) (timings.get(currentHandIndex++)
-                                - timings.get(currentHandIndex));
-                    } else {
-                        animationTime = 30;
-                    }
-                    lastSwitchTime = time;
+        if (seededTime >= timings.get(currentHandIndex)) {
 
-                    currentHandIndex++;
+            App.out.println(seededTime - timings.get(currentHandIndex));
+
+            lastSwitchTime = seededTime;
+
+            currentHands.clear();
+            currentPositions.clear();
+            currentRotations.clear();
+
+            while (timings.get(currentHandIndex) < seededTime + Properties.SWITCH_TIME) {
+
+                String currentHand = null;
+                String currentPosition = null;
+                String currentRotation = null;
+
+                do {
+                    if (handLabelStack.size() > 0) {
+                        currentHand = handLabelStack.get(currentHandIndex);
+                        currentPosition = positionLabelStack.get
+                                (currentHandIndex);
+                        currentRotation = rotationLabelStack.get
+                                (currentHandIndex);
+                        tpgh.changeGesture();
+
+                        currentHandIndex++;
+                    }
                 }
-            } while (currentHand == null || currentPosition == null || currentRotation == null);
+                while (currentHand == null || currentPosition == null || currentRotation == null);
+
+                currentHands.add(hands.get(currentHand));
+                currentPositions.add(vectors.get(currentPosition));
+                currentRotations.add(rotations.get(currentRotation));
+            }
         }
 
         currentAnimationTime = (int) (time - lastSwitchTime);
@@ -291,6 +312,11 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         tpgh.tick(time);
 
         lastUpdate = time;
+    }
+
+    @Override
+    public boolean hasNextFrame (){
+        return currentHandIndex < handLabelStack.size();
     }
 
     public long lastTick(){

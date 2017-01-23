@@ -1,4 +1,4 @@
-package com.sheffield.leapmotion.controller.mocks;
+package com.sheffield.leapmotion.instrumentation;
 
 import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
 import org.junit.Test;
