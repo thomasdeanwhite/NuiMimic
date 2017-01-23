@@ -248,6 +248,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
             Properties.FRAMES_PER_SECOND = lastSwitchRate;
             App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
             App.getApp().setStatus(AppStatus.FINISHED);
+			if (Properties.PROCESS_PLAYBACK){
+				System.exit(0);
+			}
             return;
         }
 
