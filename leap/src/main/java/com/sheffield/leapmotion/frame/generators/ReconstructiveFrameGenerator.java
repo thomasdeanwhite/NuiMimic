@@ -21,6 +21,7 @@ import com.sheffield.output.Csv;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -105,9 +106,11 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             }
 
             timings = new ArrayList<Long>();
-            ArrayList<Long> timings = new ArrayList<Long>();
+            final ArrayList<Long> timings = new ArrayList<Long>();
 
             String[] tim = sequenceInfo.split("\n")[1].split(",");
+
+
 
             for (String s : tim){
                 if (s.length() > 0)
@@ -115,12 +118,28 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                     timings.add(Long.parseLong(s.split("@")[0])/1000);
             }
 
+            final ArrayList<Integer> indices = new ArrayList<Integer>();
+
+            for (int i = 0; i < timings.size(); i++){
+                indices.add(i);
+            }
+
+            final ArrayList<Long> tims = this.timings;
+
+            indices.sort(new Comparator<Integer>() {
+                @Override
+                public int compare(Integer o1, Integer o2) {
+                    return (int)(tims.get(o1) - tims.get(o2));
+                }
+            });
+
+            timings.sort(new ListComparator<Long>(indices));
+
+            handLabelStack.sort(new ListComparator<String>(indices));
+
             for (int i = 1; i < timings.size()-1; i++){
                 long l = timings.get(i);
-                if (l < timings.get(i+1)) {
-                    long time = l - timings.get(0);
-                    this.timings.add(time);
-                } else {
+                if (l > timings.get(i+1)) {
                     throw new IllegalArgumentException("Timings must increase chronologically");
                 }
             }
@@ -154,6 +173,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                     positionLabelStack.add(s);
             }
 
+            positionLabelStack.sort(new ListComparator<String>(indices));
+
             String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
             contents = FileHandler.readFile(new File(rotationFile));
             lines = contents.split("\n");
@@ -178,8 +199,25 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                     rotationLabelStack.add(s);
             }
 
+            rotationLabelStack.sort(new ListComparator<String>(indices));
+
         } catch (IOException e){
             e.printStackTrace(App.out);
+        }
+    }
+
+    private class ListComparator<T> implements Comparator<T> {
+
+        private ArrayList<Integer> indices;
+
+        public ListComparator(ArrayList<Integer> indices){
+            this.indices = indices;
+        }
+
+        @Override
+        public int compare(T o1, T o2) {
+            return indices.indexOf(timings.indexOf(o1)) -
+                    indices.indexOf(timings.indexOf(o2));
         }
     }
 
