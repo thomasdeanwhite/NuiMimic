@@ -115,7 +115,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             for (String s : tim){
                 if (s.length() > 0)
                     // x / 1000 microsec to millisec
-                    timings.add(Long.parseLong(s.split("@")[0])/1000);
+                    timings.add(Long.parseLong(s.split("@")[0]));
             }
 
             final ArrayList<Integer> indices = new ArrayList<Integer>();
@@ -137,19 +137,20 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             handLabelStack.sort(new ListComparator<String>(indices));
 
+            long first = tims.get(indices.get(0));
+
             for (int i = timings.size()-2; i >= 0; i--){
                 long l = timings.get(i);
                 if (l > timings.get(i+1)) {
                     throw new IllegalArgumentException("Timings must increase chronologically");
                 } else {
                     long m = timings.remove(i+1);
-                    timings.add(i+1, m-l);
+                    timings.add(i+1, (m-first)/1000);
                 }
             }
 
 
             timings.remove(0);
-            timings.add(0, 0L);
             timings.add(0, 0L);
 
             String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
