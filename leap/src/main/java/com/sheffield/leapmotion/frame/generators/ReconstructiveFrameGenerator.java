@@ -106,7 +106,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             }
 
             timings = new ArrayList<Long>();
-            final ArrayList<Long> timings = new ArrayList<Long>();
+            //final ArrayList<Long> timings = new ArrayList<Long>();
 
             String[] tim = sequenceInfo.split("\n")[1].split(",");
 
