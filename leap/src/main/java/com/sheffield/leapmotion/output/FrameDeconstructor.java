@@ -27,7 +27,7 @@ public class FrameDeconstructor {
     private String filenameStart = "";
     private String addition = "";
 
-    public static long[] BREAK_TIMES = new long[]{300000};
+    public static long[] BREAK_TIMES = new long[]{Long.MAX_VALUE};
 
     private boolean calculatingScreenshot = false;
 
@@ -103,8 +103,7 @@ public class FrameDeconstructor {
                 boolean start = false;
 
                 if (sequenceFile == null) {
-                    String addition = "-" + BREAK_TIMES[breakIndex];
-                    sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.raw_frame_data");
+                    sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + "ms.raw_frame_data");
                     sequenceFile.getParentFile().mkdirs();
                     sequenceFile.createNewFile();
                     //com.sheffield.leapmotion.util.FileHandler.appendToFile(sequenceFile, "[");
@@ -124,7 +123,7 @@ public class FrameDeconstructor {
 
     public void outputSequence() throws IOException {
         if (currentSequence == null) {
-            currentSequence = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.sequence_hand_data");
+            currentSequence = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".sequence_hand_data");
             currentSequence.getParentFile().mkdirs();
             currentSequence.createNewFile();
         }
@@ -133,7 +132,7 @@ public class FrameDeconstructor {
 
     public void outputJointPositionModel(String frameAsString) throws IOException {
         if (currentHands == null) {
-            currentHands = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_joint_positions");
+            currentHands = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_joint_positions");
             currentHands.getParentFile().mkdirs();
             currentHands.createNewFile();
         }
@@ -142,7 +141,7 @@ public class FrameDeconstructor {
 
     public void outputHandPositionModel(Hand h) throws IOException {
         if (currentPosition == null) {
-            currentPosition = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_hand_positions");
+            currentPosition = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_hand_positions");
             currentPosition.getParentFile().mkdirs();
             currentPosition.createNewFile();
         }
@@ -154,7 +153,7 @@ public class FrameDeconstructor {
     public void outputHandRotationModel(Hand h) throws IOException {
 
         if (currentRotation == null) {
-            currentRotation = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_hand_rotations");
+            currentRotation = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_hand_rotations");
             currentRotation.getParentFile().mkdirs();
             currentRotation.createNewFile();
         }
@@ -168,21 +167,7 @@ public class FrameDeconstructor {
         vectors[1] = h.basis().getYBasis();
         vectors[2] = h.basis().getZBasis();
 
-        Vector normal = h.palmNormal();
-
-//        Vector[] rotMatrix = new Vector[3];
-//
-//        rotMatrix[1] = normal;
-//        rotMatrix[2] = h.direction();
-//
-//        rotMatrix[0] = h.basis().getXBasis();
-
-        rotation += QuaternionHelper.toQuaternion(vectors).toCsv() + ",";
-
-        for (Vector v : vectors) {
-            rotation += v.getX() + "," + v.getY() + "," + v.getZ() + ",";
-        }
-        rotation.substring(0, rotation.length() - 1);
+        rotation += QuaternionHelper.toQuaternion(vectors).toCsv();
         rotation += "\n";
         FileHandler.appendToFile(currentRotation, rotation);
     }
@@ -198,12 +183,12 @@ public class FrameDeconstructor {
 
         calculatingScreenshot = true;
         if (currentDct == null) {
-            currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct");
+            currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_dct");
             currentDct.getParentFile().mkdirs();
             currentDct.createNewFile();
         }
         if (currentDctGestures == null) {
-            currentDctGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_dct_gestures");
+            currentDctGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_dct_gestures");
             currentDctGestures.getParentFile().mkdirs();
             currentDctGestures.createNewFile();
         }
@@ -255,23 +240,23 @@ public class FrameDeconstructor {
 
     public void outputGestureModel(Frame frame) throws IOException {
         if (currentGestures == null) {
-            currentGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.sequence_gesture_data");
+            currentGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".sequence_gesture_data");
             currentGestures.getParentFile().mkdirs();
             currentGestures.createNewFile();
 
-            currentGesturesCircle = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_circle");
+            currentGesturesCircle = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_circle");
             currentGesturesCircle.getParentFile().mkdirs();
             currentGesturesCircle.createNewFile();
 
-            currentGesturesSwipe = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_swipe");
+            currentGesturesSwipe = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_swipe");
             currentGesturesSwipe.getParentFile().mkdirs();
             currentGesturesSwipe.createNewFile();
 
-            currentGesturesScreenTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_screentap");
+            currentGesturesScreenTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_screentap");
             currentGesturesScreenTap.getParentFile().mkdirs();
             currentGesturesScreenTap.createNewFile();
 
-            currentGesturesKeyTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "ms.pool_gesture_keytap");
+            currentGesturesKeyTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_keytap");
             currentGesturesKeyTap.getParentFile().mkdirs();
             currentGesturesKeyTap.createNewFile();
         }

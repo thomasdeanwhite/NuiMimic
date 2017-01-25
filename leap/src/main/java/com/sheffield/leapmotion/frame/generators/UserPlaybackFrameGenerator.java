@@ -130,8 +130,13 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				Properties.PLAYBACK_FILE = null;
 				boolean vis = Properties.VISUALISE_DATA;
 				Properties.VISUALISE_DATA = false;
+				Properties.FRAME_SELECTION_STRATEGY = Properties
+						.FrameSelectionStrategy.RECONSTRUCTION;
 				fh = new FrameHandler();
 				fh.init(controller);
+
+				Properties.FRAME_SELECTION_STRATEGY = Properties
+						.FrameSelectionStrategy.USER_PLAYBACK;
 
 				Properties.VISUALISE_DATA = vis;
 				if (Properties.VISUALISE_DATA) {
@@ -139,7 +144,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 					fh.addFrameSwitchListener(new FrameSwitchListener() {
 						@Override
 						public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
-							dw.setFrame(nextFrame);
+							if (nextFrame != null) {
+								dw.setFrame(nextFrame);
+							}
 						}
 					});
 					dw.setLocation(dw.getWidth(), 0);
@@ -212,6 +219,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		int counter = 0;
 
+		String ret = "";
+
  		if (totalDifferences != null){
 			for (Finger.Type ft : Finger.Type.values()){
 				for (Bone.Type bt : Bone.Type.values()){
@@ -223,10 +232,12 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 					}
 				}
 			}
-			return "rms: " + Math.sqrt(differences / counter);
+			ret += "rms: " + (Math.round(Math.sqrt(differences / counter)*100f)/100f) + " ";
 		}
-		return (frameStack.size() - currentFrame) + "s, " + (currentFrame -
+		ret += (frameStack.size() - currentFrame) + "s, " + (currentFrame -
 				handsSeeded) + "d";
+
+		return ret;
 	}
 
 	public FrameGenerator getBackupFrameGenerator(){
@@ -306,7 +317,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 				}
 				Hand fh = fhFrame.hands().iterator().next();
-				Hand h = frameStack.get(0).hands().iterator().next();
+				Hand h = frameStack.get(currentFrame).hands().iterator().next();
 
 				for (Finger rf : h.fingers()) {
 					Finger f1 = null;

@@ -1,14 +1,8 @@
 package com.sheffield.leapmotion.frame.generators.gestures;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.controller.mocks.SeededGestureList;
+import com.sheffield.leapmotion.util.FileHandler;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,8 +37,8 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
 		return gestureLabels.get(currentGesture);
 	}
 
-	public void changeGesture(){
-		currentGesture++;
+	public void changeGesture(int num){
+		currentGesture=num;
 	}
 	
 }

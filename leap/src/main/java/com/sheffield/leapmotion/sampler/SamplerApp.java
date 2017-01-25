@@ -9,13 +9,11 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.frame.generators.UserPlaybackFrameGenerator;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 
 
@@ -182,13 +180,30 @@ public class SamplerApp extends Listener {
         }
     }
 
+    private long lastTimeSeen = 0;
+
+    private long lastFrame = 0;
+
     public synchronized void frame(Frame f) {
 
         Properties.HISTOGRAM_THRESHOLD = 0;
         Properties.HISTOGRAM_BINS = 256;
 
+        if (lastFrame == f.id()){
+            return;
+        }
+
+        lastFrame = f.id();
+
         Frame frame = f;
         FRAMES++;
+
+        if(f.timestamp() < lastTimeSeen){
+            throw new InvalidFrameException("This frame was seen after it's following frame!");
+        }
+
+        lastTimeSeen = f.timestamp();
+
 
         try {
             final long time = System.currentTimeMillis();
@@ -229,9 +244,9 @@ public class SamplerApp extends Listener {
                         return;
                     }
 
-                    String addition = "-" + BREAK_TIMES[breakIndex];
-
-                    frameDeconstructor.setAddition(addition);
+//                    String addition = "-" + BREAK_TIMES[breakIndex];
+//
+//                    frameDeconstructor.setAddition(addition);
 
                     for (Hand h : frame.hands()) {
                         //write hands out to file

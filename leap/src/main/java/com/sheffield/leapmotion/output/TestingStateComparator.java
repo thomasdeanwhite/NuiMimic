@@ -164,18 +164,7 @@ public class TestingStateComparator {
         return stateNumber;
     }
 
-    public static int changeContrast(int blackAndWhite, int iterations) {
-        for (int s = 0; s < iterations; s++) {
-            blackAndWhite = (int) (255 * (1 + Math.sin(
-                    (((blackAndWhite) * Math.PI) / 255d) - Math.PI / 2d)));
-        }
-        return blackAndWhite;
-    }
-
-
-    private static int SCREENSHOTS_WROTE = 0;
-
-    public static void captureState(Integer[] bins, int totalValues) {
+    public static void captureState(Integer[] bins) {
 
         int totalStates = states.size();
 

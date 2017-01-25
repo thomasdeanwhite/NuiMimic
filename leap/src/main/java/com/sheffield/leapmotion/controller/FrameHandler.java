@@ -234,6 +234,9 @@ public class FrameHandler implements Tickable {
 
     public synchronized void loadNewFrame() {
         Frame frame = frameGenerator.newFrame();
+        if (frame == null){
+            return;
+        }
         if (frameGenerator instanceof EmptyFrameGenerator){
             final Frame last = getFrame(1);
             final Frame next = frame;

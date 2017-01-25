@@ -340,16 +340,18 @@ public class StateComparator {
 
         }
 
-
-        Integer[] bins = new Integer[HISTOGRAM_BINS];
+        Integer[] bins = new Integer[255];
         for (int i = 0; i < bins.length; i++) {
             bins[i] = 0;
         }
 
-        float mod = ((float) (HISTOGRAM_BINS - 1) / 255f);
         for (int i = 0; i < dImage.length; i++) {
-            bins[(int)(dImage[i] * mod)]++;
+            bins[(int)(dImage[i])]++;
         }
+
+        TestingStateComparator.captureState(bins);
+
+        bins = shrink(bins);
 
         int closestState = -1;
 
@@ -361,8 +363,6 @@ public class StateComparator {
         for (int i = 0; i < bins.length; i++) {
             totalValues += bins[i];
         }
-
-        TestingStateComparator.captureState(bins, totalValues);
 
         for (int i = 0; i < states.size(); i++) {
             Integer[] ss = states.get(i);
@@ -377,28 +377,19 @@ public class StateComparator {
             }
 
         }
-        //
 
         int stateNumber = states.size();
-
-        double difference =
-                maxDifference / (double) (totalValues / (states.size() + 1));
-
-        //App.out.println(difference);
 
         int totalStates = states.size();
 
         currentState = addState(bins);
 
         if (WRITE_SCREENSHOTS_TO_FILE) {
-            BufferedImage compressed = new BufferedImage(width, height,
+            BufferedImage compressed = new BufferedImage(X_LIM, Y_LIM,
                     BufferedImage.TYPE_INT_RGB);
-            for (int i = 0; i < width; i++) {
-                for (int j = 0; j < height; j++) {
-                    int value = (int) (data[(j * width) + i]);
-
-                    value = 0xFF000000 | ((value & 0x0ff) << 16) |
-                            ((value & 0x0ff) << 8) | (value & 0x0ff);
+            for (int i = 0; i < X_LIM; i++) {
+                for (int j = 0; j < Y_LIM; j++) {
+                    int value = (int) (dImage[(j * X_LIM) + i]);
                     compressed.setRGB(i, j, value);
                 }
             }
