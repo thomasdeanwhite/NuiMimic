@@ -327,9 +327,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
-        while (seededTime + Properties.SWITCH_TIME > timings.get(gestureHandIndex)){
-            gestureHandIndex++;
-            tpgh.changeGesture(gestureHandIndex);
+        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
+            tpgh.changeGesture(gestureHandIndex++);
         }
 
         if (seededTime > frameTime) {
@@ -346,18 +345,18 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             gestureHandIndex = currentHandIndex;
 
 
-            int skippedHands = 0;
-            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
-
-            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
-                newFrameTime = timings.get(currentHandIndex+skippedHands) -
-                        Properties.SWITCH_TIME;
-                skippedHands++;
-            }
-
-            if (skippedHands != 0){
-                currentHandIndex += (skippedHands-1);
-            }
+//            int skippedHands = 0;
+//            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+//
+//            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
+//                newFrameTime = timings.get(currentHandIndex+skippedHands) -
+//                        Properties.SWITCH_TIME;
+//                skippedHands++;
+//            }
+//
+//            if (skippedHands != 0){
+//                currentHandIndex += (skippedHands-1);
+//            }
 
             frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 

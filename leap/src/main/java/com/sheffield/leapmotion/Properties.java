@@ -133,7 +133,7 @@ public class Properties extends InstrumentationProperties {
     public static float STATE_WEIGHT = 0.05f;
 
     @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
-    public static int HISTOGRAM_BINS = 50;
+    public static int HISTOGRAM_BINS = 25;
 
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
     public static float HISTOGRAM_THRESHOLD = 0.1f;
@@ -142,7 +142,7 @@ public class Properties extends InstrumentationProperties {
     public static float TESTING_HISTOGRAM_THRESHOLD = 0.003f;
 
     @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "Oracle")
-    public static int TESTING_HISTOGRAM_BINS = 50;
+    public static int TESTING_HISTOGRAM_BINS = 25;
 
     @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
