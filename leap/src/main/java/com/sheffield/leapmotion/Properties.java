@@ -44,10 +44,10 @@ public class Properties extends InstrumentationProperties {
     public static long FRAMES_PER_SECOND = 200;
 
     @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Data Interpolation")
-    public static int SWITCH_TIME = 5;//100;
+    public static int SWITCH_TIME = 200;//100;
 
     @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Data Interpolation")
-    public static int BEZIER_POINTS = 2;//10;
+    public static int BEZIER_POINTS = 20;//10;
 
     @Parameter(key = "startDelayTime", description = "Delay Time before frames are seeded", hasArgs = true, category = "Leap Motion Testing")
     public static long DELAY_TIME = 1;
