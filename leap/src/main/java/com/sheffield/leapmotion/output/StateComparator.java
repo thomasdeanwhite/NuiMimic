@@ -246,7 +246,7 @@ public class StateComparator {
 
         for (int i = 0; i < X_LIM; i++) {
             for (int j = 0; j < Y_LIM; j++) {
-                int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * X_LIM) + (i*SCREENSHOT_COMPRESSION)];
+                int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * width) + (i*SCREENSHOT_COMPRESSION)];
                 blackAndWhite = (int) ((0.333 * ((blackAndWhite >> 16) &
                         0x0FF) +
                         0.333 * ((blackAndWhite >> 8) & 0x0FF) +
@@ -329,7 +329,7 @@ public class StateComparator {
 
         for (int i = 0; i < X_LIM; i++) {
             for (int j = 0; j < Y_LIM; j++) {
-                int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * X_LIM) + (i*SCREENSHOT_COMPRESSION)];
+                int blackAndWhite = data[((j*SCREENSHOT_COMPRESSION) * width) + (i*SCREENSHOT_COMPRESSION)];
                 blackAndWhite = (int) ((0.333 * ((blackAndWhite >> 16) &
                         0x0FF) +
                         0.333 * ((blackAndWhite >> 8) & 0x0FF) +
@@ -390,7 +390,14 @@ public class StateComparator {
             for (int i = 0; i < X_LIM; i++) {
                 for (int j = 0; j < Y_LIM; j++) {
                     int value = (int) (dImage[(j * X_LIM) + i]);
-                    compressed.setRGB(i, j, value);
+                    int newValue = 255;
+                    newValue = newValue << 8;
+                    newValue += value;
+                    newValue = newValue << 8;
+                    newValue += value;
+                    newValue = newValue << 8;
+                    newValue += value;
+                    compressed.setRGB(i, j, newValue);
                 }
             }
             try {
