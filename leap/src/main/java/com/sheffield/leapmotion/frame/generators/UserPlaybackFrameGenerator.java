@@ -42,6 +42,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		csv.add("discardedFrames", (currentFrame - handsSeeded) + "");
 
+		if (recFrameGen != null){
+			csv.add("rms", "" + rms);
+			csv.add("clusters", "" + recFrameGen.clusters());
+		}
+
 		csv.finalize();
 
 		return csv;
@@ -76,6 +81,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	private long maxFrames = 0;
 
 	private DisplayWindow dw;
+
+	private ReconstructiveFrameGenerator
+			recFrameGen = null;
 	
 	public UserPlaybackFrameGenerator(FrameGenerator frameGenerator,
                                       Controller controller) {
@@ -154,8 +162,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				Properties.PLAYBACK_FILE = playback;
 
 
-				ReconstructiveFrameGenerator
-                        tdps = (ReconstructiveFrameGenerator) frameGenerator;
+				recFrameGen = (ReconstructiveFrameGenerator) frameGenerator;
 
 //				if (tdps.size() != maxFrames){
 //					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
@@ -212,6 +219,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 	private HashMap<Finger.Type, HashMap<Bone.Type, Float>> totalDifferences;
 
+	private double rms = 0;
+
 	@Override
 	public String status() {
 
@@ -232,7 +241,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 					}
 				}
 			}
-			ret += "rms: " + (Math.round(Math.sqrt(differences / counter)*100f)/100f) + " ";
+
+			rms = Math.sqrt(differences / counter);
+			ret += "rms: " + (Math.round(rms*100f)/1000f) + " ";
 		}
 		ret += (frameStack.size() - currentFrame) + "s, " + (currentFrame -
 				handsSeeded) + "d";

@@ -34,11 +34,17 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "dataPoolDirectory", description = "Directory containing data pool", hasArgs = true, category = "Leap Motion Testing")
     public static String DIRECTORY = "C:/data/leap-motion";
 
+    @Parameter(key = "remainingBudget", description = "Remaining Budget after resuming from system halt", hasArgs = true, category = "Leap Motion Testing")
+    public static long REMAINING_BUDGET = -1;
+
     @Parameter(key = "gestureTimeLimit", description = "Duration to seed gestures for", hasArgs = true, category = "Leap Motion Testing")
     public static int GESTURE_TIME_LIMIT = 100;
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
     public static String PLAYBACK_FILE = null;
+
+    @Parameter(key = "resumingFile", description = "CURRENT_RUN of run to resume after system halt or premature exit", hasArgs = true, category = "Leap Motion Testing")
+    public static int RESUME_RUN = -1;
 
     @Parameter(key = "framesPerSecond", description = "Number of frames to seed per second", hasArgs = true, category = "Leap Motion Testing")
     public static long FRAMES_PER_SECOND = 200;
@@ -58,8 +64,8 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "runtime", description = "Time for testing application before exiting", hasArgs = true, category = "Leap Motion Testing")
     public static long RUNTIME = 600000;
 
-    @Parameter(key = "currentRun", description = "Can be used for experiments to output the current run", hasArgs = true, category = "Leap Motion Testing")
-    public static long CURRENT_RUN = 0;
+    @Parameter(key = "currentRun", description = "Can be used for experiments to output the current run (-1 will set to system runtime)", hasArgs = true, category = "Experiments")
+    public static long CURRENT_RUN = -1;
 
     @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Testing")
     public static int GESTURE_CIRCLE_RADIUS = 5;
@@ -168,8 +174,8 @@ public class Properties extends InstrumentationProperties {
      * Output formatting properties
      */
 
-    @Parameter(key = "outputDir", description = "Directory for Output (default testing_output)", hasArgs = true, category = "Output")
-    public static String TESTING_OUTPUT = "testing_output";
+    @Parameter(key = "outputDir", description = "Directory for Output (default NuiMimic)", hasArgs = true, category = "Output")
+    public static String TESTING_OUTPUT = "NuiMimic";
 
     @Parameter(key = "outputNullValue", description = "Output Value of Null Values (\"NONE\" by default)", hasArgs = true, category = "Output")
     public static String NULL_VALUE_OUTPUT = "NONE";
@@ -340,6 +346,108 @@ public class Properties extends InstrumentationProperties {
 
                 forbidden.toArray(FORBIDDEN_PACKAGES);
             }
+
+
+            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
+
+            if (lastRunDump.exists()) {
+
+                String linesString = null;
+                try {
+                    linesString = FileHandler.readFile(lastRunDump);
+                } catch (IOException e) {
+                    e.printStackTrace(App.out);
+                }
+
+                String[] lines = linesString.split("\n");
+
+                Gson g = new Gson();
+
+                boolean acceptRestoration = false;
+
+                for (String l : lines){
+                    l = l.trim();
+
+                    if (l.startsWith("#")) {
+                        continue;
+                    }
+
+                    String opt = l.substring(0, l.indexOf(":"));
+
+                    String val = l.substring(l.indexOf(":")+1);
+                    if (opt.equalsIgnoreCase("frameGenerator"))
+                        try {
+                            acceptRestoration = FRAME_SELECTION_STRATEGY.equals(FrameSelectionStrategy.valueOf(val));
+                        } catch (Exception e){
+                            acceptRestoration = false;
+                        }
+                }
+
+                if (acceptRestoration) {
+
+                    for (String l : lines) {
+
+                        l = l.trim();
+
+                        if (l.startsWith("#")) {
+                            continue;
+                        }
+
+                        String opt = l.substring(0, l.indexOf(":"));
+
+                        String val = l.substring(l.indexOf(":") + 1);
+
+
+                        switch (opt) {
+                            case "lines": {
+                                Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
+                                }.getType();
+
+                                ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(val, mapType));
+                            }
+                            break;
+
+                            case "branches": {
+                                Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
+                                }.getType();
+
+                                ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(val, mapType));
+                            }
+                            break;
+
+                            case "current-run": {
+                                Properties.CURRENT_RUN = Long.parseLong(val);
+                            }
+
+                            break;
+
+                            case "remaining-budget": {
+                                Properties.REMAINING_BUDGET = Long.parseLong(val);
+                            }
+
+                            break;
+
+                            default: {
+                                //do nothing
+                            }
+
+                            break;
+
+                        }
+
+                    }
+
+                    App.out.println("--- Resuming after system halt (" + REMAINING_BUDGET + " budget)");
+
+                    App.getApp().start();
+                }
+            }
+
+            if (RESUME_RUN >= 0){
+                CURRENT_RUN = RESUME_RUN;
+
+
+            }
         } catch (Exception e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace(App.out);
@@ -440,6 +548,9 @@ public class Properties extends InstrumentationProperties {
             try {
                 cmd = parser.parse(options, args);
             } catch (UnrecognizedOptionException e) {
+
+                App.out.println(e.getLocalizedMessage());
+
                 for (String s : categoryMap.keySet()) {
                     App.out.println(s);
                     for (String opt : categoryMap.get(s)) {

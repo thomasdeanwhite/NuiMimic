@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion;
 
+import com.google.gson.Gson;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
@@ -34,12 +35,15 @@ import javax.imageio.ImageIO;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.instrument.Instrumentation;
 import java.security.Permission;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -64,7 +68,7 @@ public class App implements ThrowableListener, Tickable {
 
     public static ArrayList<ClassTracker> relatedClasses = new ArrayList<ClassTracker>();
 
-    public static int timePassed = 0;
+    public static long timePassed = 0;
 
     //check states every x-ms
     public static final long STATE_CHECK_TIME = 10000;
@@ -167,6 +171,10 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
+    static {
+        System.setSecurityManager(new NoExitSecurityManager());
+    }
+
     private static class NoExitSecurityManager extends SecurityManager {
 
         @Override
@@ -194,19 +202,15 @@ public class App implements ThrowableListener, Tickable {
         public void checkExit(int status) {
             if (CLOSING) {
                 super.checkExit(status);
-            } //else if (RECORDING_STARTED) {
-//                App.getApp().end();
-//                while (App.getApp().status() != AppStatus.CLOSING) {
-//                    try {
-//                        Thread.sleep(100);
-//                    } catch (InterruptedException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
-//                }
-//                //App.getApp().output(true);
-//                super.checkExit(status);
-//            }
+            } else {
+                //App.getApp().setStatus(AppStatus.FINISHED);
+
+                CLOSING = true;
+
+                App.getApp().dump(1);
+
+                throw new SecurityException("Cannot exit: dumping testing information.");
+            }
         }
     }
 
@@ -259,7 +263,9 @@ public class App implements ThrowableListener, Tickable {
                 f.getParentFile().mkdirs();
             }
         }
-        Properties.CURRENT_RUN = System.currentTimeMillis();
+        if (Properties.CURRENT_RUN == -1) {
+            Properties.CURRENT_RUN = System.currentTimeMillis();
+        }
 
         ClassAnalyzer.addThrowableListener(new ThrowableListener() {
             @Override
@@ -268,10 +274,10 @@ public class App implements ThrowableListener, Tickable {
             }
         });
 
-        startTime = System.nanoTime();
+        start();
         lastSwitchTime = startTime;
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
-        System.setSecurityManager(new NoExitSecurityManager());
+
         App.out.println("- Setup Complete");
 
         setOutput();
@@ -404,32 +410,10 @@ public class App implements ThrowableListener, Tickable {
 
         App.out.println("- Instrumenting JAR");
 
-        String args[] = null;
-
-        if (arg != null && arg.trim().length() > 0){
-            args = arg.split(" ");
-        }
-
-        if (args != null && args.length > 0) {
-            Properties.instance().setOptions(args);
-            App.out.println("Options setup");
-        } else {
-            File options = new File("testing-options");
-            if (options.getAbsoluteFile().exists()) {
-                try {
-                    String opts = FileHandler.readFile(options).trim();
-
-                    App.out.println("- Found options: " + opts);
-
-                    Properties.instance().setOptions(opts.split(" "));
-
-                } catch (IOException e) {
-                    Properties.instance().setOptions(new String[]{});
-                    e.printStackTrace(App.out);
-                }
-            } else {
-                Properties.instance().setOptions(new String[]{});
-            }
+        try {
+            loadOptions(arg);
+        } catch (IOException e) {
+            Properties.instance().setOptions(arg.split(" "));
         }
 
         for (String s : Properties.FORBIDDEN_PACKAGES) {
@@ -437,6 +421,57 @@ public class App implements ThrowableListener, Tickable {
         }
 
         instr.addTransformer(lat);
+    }
+
+    public static void loadOptions(String priorityOptions) throws IOException {
+        String opts = "";
+        File cfgDir = new File(Properties.TESTING_OUTPUT + "/" + "cfg");
+
+        File[] cfgs = cfgDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().endsWith(".cfg");
+            }
+        });
+
+        //sort list alphabetically
+        Arrays.sort(cfgs, new Comparator<File>() {
+            @Override
+            public int compare(File o1, File o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        //loop through, creating a big options string
+        for(File options : cfgs) {
+            if (options.getAbsoluteFile().exists()) {
+                try {
+
+                    String op = FileHandler.readFile(options).trim();
+
+                    String[] lines = op.split("\n");
+
+                    for (String line : lines) {
+                        if (!line.trim().startsWith("#")) {
+                            opts += " " + line.trim();
+                        }
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace(App.out);
+                }
+            }
+        }
+
+        App.out.println("- Total options: " + opts);
+
+        if (priorityOptions != null) {
+            opts += " " + priorityOptions;
+        }
+
+        opts = opts.trim();
+
+        Properties.instance().setOptions(opts.split(" "));
     }
 
     public static long START_TIME = 0;
@@ -458,27 +493,23 @@ public class App implements ThrowableListener, Tickable {
             return;
         }
 
-        if (args != null && args.length > 0) {
-            Properties.instance().setOptions(args);
-            App.out.println("Options setup");
-        } else {
-            File options = new File("testing-options");
-            if (options.getAbsoluteFile().exists()) {
-                try {
-                    String opts = FileHandler.readFile(options).trim();
-
-                    App.out.println("- Found options: " + opts);
-
-                    Properties.instance().setOptions(opts.split(" "));
-
-                } catch (IOException e) {
-                    Properties.instance().setOptions(new String[]{});
-                    e.printStackTrace(App.out);
-                }
-            } else {
-                Properties.instance().setOptions(new String[]{});
-            }
+        if (args == null){
+            args = new String[]{};
         }
+
+        try {
+
+            String ags = "";
+
+            for (String s : args){
+                ags += " " + s;
+            }
+
+            loadOptions(ags);
+        } catch (IOException e) {
+            Properties.instance().setOptions(args);
+        }
+
         App.out.println("- Starting background testing thread.");
         mainThread = getMainThread();
         mainThread.start();
@@ -562,19 +593,25 @@ public class App implements ThrowableListener, Tickable {
 
                     lastTime = time;
                 }
-                App.out.println("- Gathering Testing Information...");
-                ClassAnalyzer.collectHitCounters(false);
-                long timePassedNanos = System.nanoTime() - START_TIME;
 
-                TIME_HANDLER.setMillis(timePassedNanos / 1000000);
-                TIME_HANDLER.setNanos(timePassedNanos);
+                App.getApp().dump(0);
 
-                App.getApp().output(true);
-                System.exit(0);
 
             }
 
         });
+    }
+
+    public void dump(int exitCode){
+        App.out.println("- Gathering Testing Information...");
+        ClassAnalyzer.collectHitCounters(false);
+        long timePassedNanos = System.nanoTime() - START_TIME;
+
+        TIME_HANDLER.setMillis(timePassedNanos / 1000000);
+        TIME_HANDLER.setNanos(timePassedNanos);
+
+        App.getApp().output(true);
+        System.exit(exitCode);
     }
 
     public void output(boolean finished) {
@@ -679,8 +716,27 @@ public class App implements ThrowableListener, Tickable {
                 csv.add("dataHitRatio", "" + AnalyzerApp.hitRatio());
             }
 
+
+
+            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
+
+            if (status() != AppStatus.FINISHED) { // still running so dump stuff!
+
+                Gson g = new Gson();
+
+                String dump = "current-run:" + Properties.CURRENT_RUN + "\n" +
+                        "remaining-budget:" + (Properties.RUNTIME - timePassed) + "\n" +
+                        "frameGenerator:" + Properties.FRAME_SELECTION_STRATEGY + "\n" +
+                        "lines:" + g.toJson(ClassAnalyzer.getRawLines()) + "\n" +
+                        "branches:" + g.toJson(ClassAnalyzer.getRawBranches()) + "\n";
+
+                FileHandler.writeToFile(lastRunDump, dump);
+            }
+
+
             csv.finalize();
             output(csv);
+
         } catch (IOException e) {
             e.printStackTrace(App.out);
         }
@@ -807,7 +863,11 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public void start() {
-        startTime = System.nanoTime();
+        if (Properties.REMAINING_BUDGET >= 0) {
+            startTime = System.nanoTime() - ((Properties.RUNTIME - Properties.REMAINING_BUDGET) * 1000000);
+        } else {
+            startTime = System.nanoTime();
+        }
     }
 
 
@@ -846,6 +906,8 @@ public class App implements ThrowableListener, Tickable {
         long start = (startTime/1000000);
         long timePassed = time - start;
 
+        this.timePassed = timePassed;
+
         String progress = ProgressBar.getProgressBar(21, getProgress());
 
         out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
@@ -854,6 +916,10 @@ public class App implements ThrowableListener, Tickable {
             App.out.println(time + " - " + start + " = " + timePassed + "\n"
                     + timePassed + " > " + Properties.RUNTIME);
             status = AppStatus.FINISHED;
+
+            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
+
+            lastRunDump.delete();
         }
     }
 

@@ -417,4 +417,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     public void cleanUp() {
 
     }
+
+    public int clusters(){
+        return hands.size();
+    }
 }

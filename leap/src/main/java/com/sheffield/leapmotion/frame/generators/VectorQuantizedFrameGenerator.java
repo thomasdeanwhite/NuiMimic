@@ -133,16 +133,32 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 	}
 
+	private String[] candidateHands = null;
+	private String[] candidatePositions = null;
+	private String[] candidateRotations = null;
+
 	public String randomHand(){
-		return (String) hands.keySet().toArray()[random.nextInt(hands.keySet().size())];
+		if (candidateHands == null){
+			candidateHands = new String[hands.keySet().size()];
+			hands.keySet().toArray(candidateHands);
+		}
+		return candidateHands[random.nextInt(hands.keySet().size())];
 	}
 
 	public String randomPosition(){
-		return (String) vectors.keySet().toArray()[random.nextInt(vectors.keySet().size())];
+		if (candidatePositions == null){
+			candidatePositions = new String[vectors.keySet().size()];
+			vectors.keySet().toArray(candidatePositions);
+		}
+		return candidatePositions[random.nextInt(vectors.keySet().size())];
 	}
 
 	public String randomRotation(){
-		return (String) rotations.keySet().toArray()[random.nextInt(rotations.keySet().size())];
+		if (candidateRotations == null){
+			candidateRotations = new String[rotations.keySet().size()];
+			rotations.keySet().toArray(candidateRotations);
+		}
+		return candidateRotations[random.nextInt(rotations.keySet().size())];
 	}
 
 	@Override

@@ -288,7 +288,7 @@ public class StateComparator {
         if (WRITE_SCREENSHOTS_TO_FILE) {
             try {
                 File f = new File(
-                        SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
+                        SCREENSHOT_DIRECTORY + "/" + Properties.FRAME_SELECTION_STRATEGY + "/" + CURRENT_RUN + "/" +
                                 "raw/SCREEN" + (SCREENSHOTS_WROTE++) + ".png");
                 if (f.getParentFile() != null)
                     f.getParentFile().mkdirs();
@@ -404,7 +404,7 @@ public class StateComparator {
                 int currentTestingState = TestingStateComparator
                         .getCurrentState();
                 File f = new File(
-                        SCREENSHOT_DIRECTORY + "/" + CURRENT_RUN + "/" +
+                        SCREENSHOT_DIRECTORY + "/" + Properties.FRAME_SELECTION_STRATEGY + "/" + CURRENT_RUN + "/" +
                                 "STATE" + stateNumber + "-" + statesVisited
                                 .get(currentState) + "-" +
                                  + currentTestingState + "-" +

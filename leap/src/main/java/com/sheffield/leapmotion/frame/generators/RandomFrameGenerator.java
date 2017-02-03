@@ -145,7 +145,7 @@ public class RandomFrameGenerator extends FrameGenerator {
 			h = hand;
 		}
 		if (h instanceof SeededHand) {
-			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
+			float modifier = Math.min(1f, currentAnimationTime / (float) Properties.SWITCH_TIME);
 			SeededHand sh = (SeededHand) h;
 
 			ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
