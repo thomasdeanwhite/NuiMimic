@@ -103,7 +103,7 @@ public class FrameDeconstructor {
                 boolean start = false;
 
                 if (sequenceFile == null) {
-                    sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + "ms.raw_frame_data");
+                    sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + "/raw_frame_data.bin");
                     sequenceFile.getParentFile().mkdirs();
                     sequenceFile.createNewFile();
                     //com.sheffield.leapmotion.util.FileHandler.appendToFile(sequenceFile, "[");
@@ -123,7 +123,7 @@ public class FrameDeconstructor {
 
     public void outputSequence() throws IOException {
         if (currentSequence == null) {
-            currentSequence = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".sequence_hand_data");
+            currentSequence = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/sequence_hand_data");
             currentSequence.getParentFile().mkdirs();
             currentSequence.createNewFile();
         }
@@ -132,32 +132,31 @@ public class FrameDeconstructor {
 
     public void outputJointPositionModel(String frameAsString) throws IOException {
         if (currentHands == null) {
-            currentHands = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_joint_positions");
+            currentHands = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/joint_positions_pool.ARFF");
             currentHands.getParentFile().mkdirs();
             currentHands.createNewFile();
+
+            FileHandler.writeToFile(currentHands, getHeaders(frameAsString, "jointposition"));
         }
         FileHandler.appendToFile(currentHands, frameAsString + "\n");
     }
 
     public void outputHandPositionModel(Hand h) throws IOException {
-        if (currentPosition == null) {
-            currentPosition = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_hand_positions");
-            currentPosition.getParentFile().mkdirs();
-            currentPosition.createNewFile();
-        }
+
         String position = uniqueId + "," + h.palmPosition().getX() + ","
                 + h.palmPosition().getY() + "," + h.palmPosition().getZ() + "\n";
+
+        if (currentPosition == null) {
+            currentPosition = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/hand_positions_pool.ARFF");
+            currentPosition.getParentFile().mkdirs();
+            currentPosition.createNewFile();
+
+            FileHandler.writeToFile(currentPosition, getHeaders(position, "handposition"));
+        }
         FileHandler.appendToFile(currentPosition, position);
     }
 
     public void outputHandRotationModel(Hand h) throws IOException {
-
-        if (currentRotation == null) {
-            currentRotation = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_hand_rotations");
-            currentRotation.getParentFile().mkdirs();
-            currentRotation.createNewFile();
-        }
-
         String rotation = uniqueId + ",";
         Vector[] vectors = new Vector[3];
 
@@ -169,7 +168,38 @@ public class FrameDeconstructor {
 
         rotation += QuaternionHelper.toQuaternion(vectors).toCsv();
         rotation += "\n";
+
+        if (currentRotation == null) {
+            currentRotation = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/hand_rotations_pool.ARFF");
+            currentRotation.getParentFile().mkdirs();
+            currentRotation.createNewFile();
+
+            FileHandler.writeToFile(currentRotation, getHeaders(rotation, "handrotation"));
+        }
+
+
         FileHandler.appendToFile(currentRotation, rotation);
+    }
+
+
+    public String getHeaders(String data, String relation){
+        int features = data.split(",").length;
+
+
+        String header = "% 1. Leap Motion Hands\n"+
+                "% 2. Created by NuiMimic\n" +
+                "@RELATION " + relation + "\n" +
+                "\n" +
+                "@ATTRIBUTE id STRING\n";
+
+        for (int i = 1; i < features; i++){
+            header += "@ATTRIBUTE v" + i + " NUMERIC\n";
+        }
+
+
+        header += "@DATA\n";
+
+        return header;
     }
 
     public boolean isCalculating() {
@@ -183,12 +213,12 @@ public class FrameDeconstructor {
 
         calculatingScreenshot = true;
         if (currentDct == null) {
-            currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_dct");
+            currentDct = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/dct_pool");
             currentDct.getParentFile().mkdirs();
             currentDct.createNewFile();
         }
         if (currentDctGestures == null) {
-            currentDctGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_dct_gestures");
+            currentDctGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/dct_gestures_pool");
             currentDctGestures.getParentFile().mkdirs();
             currentDctGestures.createNewFile();
         }
@@ -239,27 +269,6 @@ public class FrameDeconstructor {
     }
 
     public void outputGestureModel(Frame frame) throws IOException {
-        if (currentGestures == null) {
-            currentGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".sequence_gesture_data");
-            currentGestures.getParentFile().mkdirs();
-            currentGestures.createNewFile();
-
-            currentGesturesCircle = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_circle");
-            currentGesturesCircle.getParentFile().mkdirs();
-            currentGesturesCircle.createNewFile();
-
-            currentGesturesSwipe = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_swipe");
-            currentGesturesSwipe.getParentFile().mkdirs();
-            currentGesturesSwipe.createNewFile();
-
-            currentGesturesScreenTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_screentap");
-            currentGesturesScreenTap.getParentFile().mkdirs();
-            currentGesturesScreenTap.createNewFile();
-
-            currentGesturesKeyTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + ".pool_gesture_keytap");
-            currentGesturesKeyTap.getParentFile().mkdirs();
-            currentGesturesKeyTap.createNewFile();
-        }
         String gestureString = "";
         if (frame.gestures().count() > 0) {
 
@@ -270,7 +279,7 @@ public class FrameDeconstructor {
                 switch (g.type()) {
                     case TYPE_CIRCLE:
                         CircleGesture cg = new CircleGesture(g);
-                        String circleGesture = cg.center().getX() + "," +
+                        String circleGesture = uniqueId + cg.center().getX() + "," +
                                 cg.center().getY() + "," +
                                 cg.center().getZ() + ",";
 
@@ -281,11 +290,20 @@ public class FrameDeconstructor {
                         circleGesture += cg.radius();
 
                         circleGesture += cg.duration() + "\n";
+
+                        if (currentGesturesCircle == null) {
+                            currentGesturesCircle = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/gesture_circle_pool.ARFF");
+                            currentGesturesCircle.getParentFile().mkdirs();
+                            currentGesturesCircle.createNewFile();
+
+                            FileHandler.writeToFile(currentGesturesCircle, getHeaders(circleGesture, "circlegesture"));
+                        }
+
                         FileHandler.appendToFile(currentGesturesCircle, circleGesture);
                         break;
                     case TYPE_SWIPE:
                         SwipeGesture sg = new SwipeGesture(g);
-                        String swipeGesture = sg.startPosition().getX() + "," +
+                        String swipeGesture = uniqueId + sg.startPosition().getX() + "," +
                                 sg.startPosition().getY() + "," +
                                 sg.startPosition().getZ() + ",";
 
@@ -299,12 +317,21 @@ public class FrameDeconstructor {
 
                         swipeGesture += sg.speed() + "\n";
 
+
+                        if (currentGesturesSwipe == null) {
+                            currentGesturesSwipe = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/gesture_swipe_pool.ARFF");
+                            currentGesturesSwipe.getParentFile().mkdirs();
+                            currentGesturesSwipe.createNewFile();
+
+                            FileHandler.writeToFile(currentGesturesSwipe, getHeaders(swipeGesture, "swipegesture"));
+                        }
+
                         FileHandler.appendToFile(currentGesturesSwipe, swipeGesture);
                         break;
                     case TYPE_SCREEN_TAP:
                         ScreenTapGesture stg = new ScreenTapGesture(g);
 
-                        String screenTapGesture = stg.position().getX() + "," +
+                        String screenTapGesture = uniqueId + stg.position().getX() + "," +
                                 stg.position().getY() + "," +
                                 stg.position().getZ() + ",";
 
@@ -314,13 +341,21 @@ public class FrameDeconstructor {
 
                         screenTapGesture += stg.progress();
 
+                        if (currentGesturesScreenTap == null) {
+                            currentGesturesScreenTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/gesture_screentap_pool.ARFF");
+                            currentGesturesScreenTap.getParentFile().mkdirs();
+                            currentGesturesScreenTap.createNewFile();
+
+                            FileHandler.writeToFile(currentGesturesScreenTap, getHeaders(screenTapGesture, "screentapgesture"));
+                        }
+
                         FileHandler.appendToFile(currentGesturesScreenTap, screenTapGesture);
                         break;
 
                     case TYPE_KEY_TAP:
                         KeyTapGesture ktg = new KeyTapGesture(g);
 
-                        String keyTapGesture = ktg.position().getX() + "," +
+                        String keyTapGesture = uniqueId + ktg.position().getX() + "," +
                                 ktg.position().getY() + "," +
                                 ktg.position().getZ() + ",";
 
@@ -329,6 +364,14 @@ public class FrameDeconstructor {
                                 ktg.position().getZ() + ",";
 
                         keyTapGesture += ktg.progress() + "\n";
+
+                        if (currentGesturesKeyTap == null) {
+                            currentGesturesKeyTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/gesture_keytap_pool.ARFF");
+                            currentGesturesKeyTap.getParentFile().mkdirs();
+                            currentGesturesKeyTap.createNewFile();
+
+                            FileHandler.writeToFile(currentGesturesKeyTap, getHeaders(keyTapGesture, "keytapgesture"));
+                        }
 
                         FileHandler.appendToFile(currentGesturesKeyTap, keyTapGesture);
                         break;
@@ -339,6 +382,12 @@ public class FrameDeconstructor {
             gestureString = Gesture.Type.TYPE_INVALID.toString();
         } else {
             gestureString = gestureString.substring(0, gestureString.length() - 1);
+        }
+
+        if (currentGestures == null) {
+            currentGestures = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/sequence_gesture_data.csv");
+            currentGestures.getParentFile().mkdirs();
+            currentGestures.createNewFile();
         }
         FileHandler.appendToFile(currentGestures, gestureString + " ");
     }

@@ -150,7 +150,7 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "Oracle")
     public static int TESTING_HISTOGRAM_BINS = 25;
 
-    @Parameter(key = "ngramSkip", description = "Number of NGram elements to skip", hasArgs = true, category = "Statistical Modelling")
+    @Parameter(key = "ngramSkip", description = "Number of NGramModel elements to skip", hasArgs = true, category = "Statistical Modelling")
     public static int NGRAM_SKIP = 0;
 
     @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
@@ -208,7 +208,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN_RUNTYPE
+        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN_RUNTYPE, HELP
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
@@ -550,19 +550,6 @@ public class Properties extends InstrumentationProperties {
             } catch (UnrecognizedOptionException e) {
 
                 App.out.println(e.getLocalizedMessage());
-
-                for (String s : categoryMap.keySet()) {
-                    App.out.println(s);
-                    for (String opt : categoryMap.get(s)) {
-                        Parameter p = annotationMap.get(opt);
-                        String opts = "";
-                        if (p.hasArgs()) {
-                            opts = "[arg] ";
-                        }
-                        App.out.println("\t- " + p.key() + ": " + opts + "(" + p.description() + ").");
-                    }
-                }
-                App.out.println(e.getLocalizedMessage());
                 System.exit(-1);
             }
 
@@ -572,6 +559,20 @@ public class Properties extends InstrumentationProperties {
         } catch (Exception e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace(App.out);
+        }
+    }
+
+    public void printOptions(){
+        for (String s : categoryMap.keySet()) {
+            App.out.println(s);
+            for (String opt : categoryMap.get(s)) {
+                Parameter p = annotationMap.get(opt);
+                String opts = " ";
+                if (p.hasArgs()) {
+                    opts = ":[arg] ";
+                }
+                App.out.println(" -" + p.key() + opts + " #" + p.description() + ".");
+            }
         }
     }
 

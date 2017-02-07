@@ -332,71 +332,88 @@ public class App implements ThrowableListener, Tickable {
         for (String s : args) {
             App.out.print(s + " ");
         }
+
+        if (args != null && args.length > 0){
+            if (args[0].trim().toLowerCase().equals("help")){
+                Properties.instance().printOptions();
+                return;
+            }
+        }
+
         App.out.println(".");
         Properties.instance().setOptions(args);
 
         RunType run = null;
 
-        switch (Properties.RUN_TYPE) {
-            case INSTRUMENT:
-                run = new InstrumentingRunType();
-                break;
-            case VISUALISE:
-                run = new VisualisingRunType();
-                break;
-            case RECONSTRUCT:
-                App.getApp().setup(false);
-                run = new ReconstructingRunType();
-                break;
-            case STATE_RECOGNITION:
-                //INPUT should contain an array of histograms.
-                ImageStateIdentifier isi = new ImageStateIdentifier() {
-                    @Override
-                    public int identifyImage(BufferedImage bi,
-                                             HashMap<Integer, BufferedImage> seenStates) {
-                        StateComparator.captureState(bi);
+        try {
 
-                        return StateComparator.getCurrentState();
-                    }
+            switch (Properties.RUN_TYPE) {
+                case HELP:
+                    Properties.instance().printOptions();
+                    return;
+                case INSTRUMENT:
+                    run = new InstrumentingRunType();
+                    break;
+                case VISUALISE:
+                    run = new VisualisingRunType();
+                    break;
+                case RECONSTRUCT:
+                    App.getApp().setup(false);
+                    run = new ReconstructingRunType();
+                    break;
+                case STATE_RECOGNITION:
+                    //INPUT should contain an array of histograms.
+                    ImageStateIdentifier isi = new ImageStateIdentifier() {
+                        @Override
+                        public int identifyImage(BufferedImage bi,
+                                                 HashMap<Integer, BufferedImage> seenStates) {
+                            StateComparator.captureState(bi);
 
-                    @Override
-                    public String getOutputFilename() {
-                        return "automatic_recognition.csv";
-                    }
-                };
-                run = new StateRecognisingRunType(isi);
-                break;
-            case MANUAL_STATE_RECOGNITION:
-                //INPUT should contain an array of histograms.
-                final Scanner sc = new Scanner(System.in);
+                            return StateComparator.getCurrentState();
+                        }
 
-                ImageStateIdentifier isiMan = new ImageStateIdentifier() {
-                    @Override
-                    public int identifyImage(BufferedImage bi, HashMap<Integer, BufferedImage> seenStates) {
-                        return sc.nextInt();
-                    }
+                        @Override
+                        public String getOutputFilename() {
+                            return "automatic_recognition.csv";
+                        }
+                    };
+                    run = new StateRecognisingRunType(isi);
+                    break;
+                case MANUAL_STATE_RECOGNITION:
+                    //INPUT should contain an array of histograms.
+                    final Scanner sc = new Scanner(System.in);
 
-                    @Override
-                    public String getOutputFilename() {
-                        return "manual_recognition.csv";
-                    }
-                };
-                run = new StateRecognisingRunType(isiMan);
-                break;
-            case MODEL_GEN_RUNTYPE:
-                Properties.RUNTIME = Long.MAX_VALUE;
-                Properties.PROCESS_PLAYBACK = true;
-                App.DISABLE_BACKGROUND_THREAD = true;
+                    ImageStateIdentifier isiMan = new ImageStateIdentifier() {
+                        @Override
+                        public int identifyImage(BufferedImage bi, HashMap<Integer, BufferedImage> seenStates) {
+                            return sc.nextInt();
+                        }
 
-                App.getApp().setup(false);
-                run = new ModelGeneratingRunType();
-                break;
-            default:
-                App.out.println("Unimplemented MILLIS");
-                break;
+                        @Override
+                        public String getOutputFilename() {
+                            return "manual_recognition.csv";
+                        }
+                    };
+                    run = new StateRecognisingRunType(isiMan);
+                    break;
+                case MODEL_GEN_RUNTYPE:
+                    Properties.RUNTIME = Long.MAX_VALUE;
+                    Properties.PROCESS_PLAYBACK = true;
+                    App.DISABLE_BACKGROUND_THREAD = true;
+
+                    App.getApp().setup(false);
+                    run = new ModelGeneratingRunType();
+                    break;
+                default:
+                    App.out.println("Unimplemented MILLIS");
+                    break;
+            }
+            run.run();
+            System.exit(0);
+        } catch (Throwable t){
+            Properties.instance().printOptions();
+            return;
         }
-        run.run();
-        System.exit(0);
     }
 
     /**

@@ -91,7 +91,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 	public NGramFrameGenerator(String filename) {
 		try {
-			App.out.println("* Setting up NGram Frame Selection");
+			App.out.println("* Setting up NGramModel Frame Selection");
 			lastSwitchTime = 0;
 			currentAnimationTime = Properties.SWITCH_TIME;
 			logs = new ArrayList<NGramLog>();
