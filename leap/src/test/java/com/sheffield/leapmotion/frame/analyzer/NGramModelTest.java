@@ -43,7 +43,7 @@ public class NGramModelTest {
 
         ng.calculateProbabilities();
 
-        assertEquals(0.5f, ng.getProbability("that that"), 0.00000001f);
+        assertEquals(0.4f, ng.getProbability("that that"), 0.00000001f);
     }
 
 }
