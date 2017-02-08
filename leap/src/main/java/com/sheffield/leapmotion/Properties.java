@@ -32,7 +32,7 @@ public class Properties extends InstrumentationProperties {
             Properties for Leap Motion Testing
      */
     @Parameter(key = "dataPoolDirectory", description = "Directory containing data pool", hasArgs = true, category = "Leap Motion Testing")
-    public static String DIRECTORY = "C:/data/leap-motion";
+    public static String DIRECTORY = System.getProperty("user.home") + "/data/leap-motion";
 
     @Parameter(key = "remainingBudget", description = "Remaining Budget after resuming from system halt", hasArgs = true, category = "Leap Motion Testing")
     public static long REMAINING_BUDGET = -1;
@@ -105,7 +105,7 @@ public class Properties extends InstrumentationProperties {
             "com/oracle", "org/objectweb", "javax", "jogamp", "jme3", "org/lwjgl", "net/java"};
 
     @Parameter(key = "cp", description = "Path to library files for application", hasArgs = true, category = "Leap Motion Instrumentation")
-    public static String CLASS_PATH = "";
+    public static String CLASS_PATH = "./lib";
 
     @Parameter(key = "replace_fingers_method", description = "Replaces com.leap.leapmotion.FingerList.fingers() method with com.leap.leapmotion.FingerList.extended() [for older API versions]", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean REPLACE_FINGERS_METHOD = false;
@@ -208,7 +208,7 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN_RUNTYPE, HELP
+        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN, HELP, PROCESS_DATA
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
@@ -532,9 +532,9 @@ public class Properties extends InstrumentationProperties {
     public void setOptions(String[] args) {
         try {
 
-            if (!DIRECTORY.endsWith("/processed")) {
-                Properties.DIRECTORY += "/processed";
-            }
+//            if (!DIRECTORY.endsWith("/processed")) {
+//                Properties.DIRECTORY += "/processed";
+//            }
 
             Options options = new Options();
 

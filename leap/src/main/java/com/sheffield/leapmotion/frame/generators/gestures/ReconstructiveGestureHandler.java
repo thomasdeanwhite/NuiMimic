@@ -16,7 +16,7 @@ public class ReconstructiveGestureHandler extends RandomGestureHandler {
         //super(filename);
         try {
             String sequenceFile = Properties.DIRECTORY + "/" + filename +
-                    ".raw_sequence.gesture_type_data";
+                    "/processed/gesture_type_data.raw_sequence";
             gestureLabels = new ArrayList<String>();
 
             String gestureData = FileHandler.readFile(new File(sequenceFile));

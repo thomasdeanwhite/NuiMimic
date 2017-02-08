@@ -40,17 +40,6 @@ public class AnalyzerApp {
 
 	}
 
-	public static void main(String[] args) {
-		System.out.println("- Loading probabilities...");
-		AnalyzerApp app = new AnalyzerApp("H:/data/leapmotion/processed/circle-25-2.positiondata");
-		System.out.println("Probabilities loaded.\n- Starting Sequence Generation...");
-		app.analyze();
-		System.out.println("Sequence Generation Complete.\n- Starting Output");
-		app.output();
-		System.out.println("Output complete.");
-
-	}
-
 	public DataAnalyzer getDataAnalyzer() {
 		return dataAnalyzer;
 	}

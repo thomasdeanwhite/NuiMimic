@@ -16,12 +16,7 @@ import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
-import com.sheffield.leapmotion.runtypes.InstrumentingRunType;
-import com.sheffield.leapmotion.runtypes.ModelGeneratingRunType;
-import com.sheffield.leapmotion.runtypes.ReconstructingRunType;
-import com.sheffield.leapmotion.runtypes.RunType;
-import com.sheffield.leapmotion.runtypes.StateRecognisingRunType;
-import com.sheffield.leapmotion.runtypes.VisualisingRunType;
+import com.sheffield.leapmotion.runtypes.*;
 import com.sheffield.leapmotion.runtypes.agent.LeapmotionAgentTransformer;
 import com.sheffield.leapmotion.runtypes.state_identification.ImageStateIdentifier;
 import com.sheffield.leapmotion.util.AppStatus;
@@ -341,6 +336,7 @@ public class App implements ThrowableListener, Tickable {
         }
 
         App.out.println(".");
+        App.out.println("Java library path: " + System.getProperty("java.library.path"));
         Properties.instance().setOptions(args);
 
         RunType run = null;
@@ -396,7 +392,7 @@ public class App implements ThrowableListener, Tickable {
                     };
                     run = new StateRecognisingRunType(isiMan);
                     break;
-                case MODEL_GEN_RUNTYPE:
+                case MODEL_GEN:
                     Properties.RUNTIME = Long.MAX_VALUE;
                     Properties.PROCESS_PLAYBACK = true;
                     App.DISABLE_BACKGROUND_THREAD = true;
@@ -404,13 +400,18 @@ public class App implements ThrowableListener, Tickable {
                     App.getApp().setup(false);
                     run = new ModelGeneratingRunType();
                     break;
+                case PROCESS_DATA:
+                    run = new DataProcessingRunType();
+                    break;
                 default:
                     App.out.println("Unimplemented MILLIS");
-                    break;
+                    return;
             }
             run.run();
+            CLOSING = true;
             System.exit(0);
         } catch (Throwable t){
+            t.printStackTrace(App.out);
             Properties.instance().printOptions();
             return;
         }
@@ -452,30 +453,34 @@ public class App implements ThrowableListener, Tickable {
         });
 
         //sort list alphabetically
-        Arrays.sort(cfgs, new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        if (cfgs != null && cfgs.length > 0) {
 
-        //loop through, creating a big options string
-        for(File options : cfgs) {
-            if (options.getAbsoluteFile().exists()) {
-                try {
+            Arrays.sort(cfgs, new Comparator<File>() {
+                @Override
+                public int compare(File o1, File o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
 
-                    String op = FileHandler.readFile(options).trim();
 
-                    String[] lines = op.split("\n");
+            //loop through, creating a big options string
+            for (File options : cfgs) {
+                if (options.getAbsoluteFile().exists()) {
+                    try {
 
-                    for (String line : lines) {
-                        if (!line.trim().startsWith("#")) {
-                            opts += " " + line.trim();
+                        String op = FileHandler.readFile(options).trim();
+
+                        String[] lines = op.split("\n");
+
+                        for (String line : lines) {
+                            if (!line.trim().startsWith("#")) {
+                                opts += " " + line.trim();
+                            }
                         }
-                    }
 
-                } catch (IOException e) {
-                    e.printStackTrace(App.out);
+                    } catch (IOException e) {
+                        e.printStackTrace(App.out);
+                    }
                 }
             }
         }
@@ -626,8 +631,8 @@ public class App implements ThrowableListener, Tickable {
 
         TIME_HANDLER.setMillis(timePassedNanos / 1000000);
         TIME_HANDLER.setNanos(timePassedNanos);
-
         App.getApp().output(true);
+        CLOSING = true;
         System.exit(exitCode);
     }
 

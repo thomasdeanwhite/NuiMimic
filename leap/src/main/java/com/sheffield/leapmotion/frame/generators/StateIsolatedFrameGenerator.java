@@ -172,8 +172,8 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			rotationAnalyzer.analyze();
 
 			sequenceFile = Properties.DIRECTORY  + "/" + filename + ".gesture_type_ngram";
-			nggh = new NGramGestureHandler(new StateIsolatedAnalyzerApp(stateIsolatedFile +
-					".hand_rotation_data", sequenceFile));
+//			nggh = new NGramGestureHandler(new StateIsolatedAnalyzerApp(stateIsolatedFile +
+//					".hand_rotation_data", sequenceFile));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace(App.out);

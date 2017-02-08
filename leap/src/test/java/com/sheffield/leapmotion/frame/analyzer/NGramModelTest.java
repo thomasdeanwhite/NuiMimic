@@ -1,7 +1,7 @@
 package com.sheffield.leapmotion.frame.analyzer;
 
-import com.sheffield.leapmotion.frame.analyzer.ngram.NGram;
-import com.sheffield.leapmotion.frame.analyzer.ngram.NGramModel;
+import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
+import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

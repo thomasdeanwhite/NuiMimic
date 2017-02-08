@@ -1,9 +1,12 @@
 package com.sheffield.leapmotion.frame.generators;
 
+import com.google.gson.Gson;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
+import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
@@ -28,6 +31,8 @@ public class NGramFrameGenerator extends FrameGenerator {
 		return new Csv();
 	}
 	protected HashMap<String, SeededHand> hands;
+
+	protected NGram ngram;
 	
 	protected ArrayList<NGramLog> logs;
 
@@ -38,22 +43,21 @@ public class NGramFrameGenerator extends FrameGenerator {
 	protected ArrayList<String> seededLabels;
 
 	protected SeededHand lastHand;
-	protected String lastLabel;
-	protected AnalyzerApp analyzer;
+	protected String lastLabel = "";
 	protected File outputFile;
 
-	protected AnalyzerApp positionAnalyzer;
-	protected AnalyzerApp rotationAnalyzer;
+	protected NGram positionNgram;
+	protected NGram rotationNgram;
 	protected HashMap<String, Vector> vectors;
 	protected HashMap<String, Quaternion> rotations;
 
 	protected Vector lastPosition;
-	protected String lastPositionLabel;
+	protected String lastPositionLabel = "";
 	protected ArrayList<Vector> seededPositions = new ArrayList<Vector>();
 	protected ArrayList<String> positionLabels = new ArrayList<String>();
 
 	protected Quaternion lastRotation;
-	protected String lastRotationLabel;
+	protected String lastRotationLabel = "";
 	protected ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
 	protected ArrayList<String> rotationLabels = new ArrayList<String>();
 
@@ -68,14 +72,6 @@ public class NGramFrameGenerator extends FrameGenerator {
         outputPosFile = pos;
         outputRotFile = rot;
     }
-
-    public void addPositionProbabilityListener(ProbabilityListener pbl){
-        positionAnalyzer.addProbabilityListener(pbl);
-    }
-
-    public void addRotationProbabilityListener(ProbabilityListener pbl){
-        rotationAnalyzer.addProbabilityListener(pbl);
-    }
 	
 	public void setOutputFile(File outputFile){
 		this.outputFile = outputFile;
@@ -85,17 +81,14 @@ public class NGramFrameGenerator extends FrameGenerator {
 		return logs;
 	}
 
-	public void addProbabilityListener(ProbabilityListener pbl){
-		analyzer.addProbabilityListener(pbl);
-	}
-
 	public NGramFrameGenerator(String filename) {
 		try {
 			App.out.println("* Setting up NGramModel Frame Selection");
+			filename += "/processed/";
 			lastSwitchTime = 0;
 			currentAnimationTime = Properties.SWITCH_TIME;
 			logs = new ArrayList<NGramLog>();
-			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
+			String clusterFile = Properties.DIRECTORY + "/" + filename + "joint_position_data";
 			hands = new HashMap<String, SeededHand>();
 
 			seededHands = new ArrayList<SeededHand>();
@@ -114,11 +107,16 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 			}
 
-			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".joint_position_ngram";
-			analyzer = new AnalyzerApp(sequenceFile);
-			analyzer.analyze();
+			String sequenceFile = Properties.DIRECTORY  + "/" + filename + "joint_position_ngram";
 
-			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
+			String ngString = FileHandler.readFile(new File(sequenceFile));
+
+			Gson gson = new Gson();
+			ngram = gson.fromJson(ngString, NGram.class);
+
+			ngram.calculateProbabilities();
+
+			String positionFile = Properties.DIRECTORY + "/" + filename + "hand_position_data";
 			currentAnimationTime = Properties.SWITCH_TIME;
 			contents = FileHandler.readFile(new File(positionFile));
 			lines = contents.split("\n");
@@ -134,11 +132,13 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 			}
 
-			sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_position_ngram";
-			positionAnalyzer = new AnalyzerApp(sequenceFile);
-			positionAnalyzer.analyze();
+			ngString = Properties.DIRECTORY + "/" + filename + "hand_position_ngram";
 
-			String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
+			positionNgram = gson.fromJson(FileHandler.readFile(new File(ngString)), NGram.class);
+
+			positionNgram.calculateProbabilities();
+
+			String rotationFile = Properties.DIRECTORY + "/" + filename + "hand_rotation_data";
 			contents = FileHandler.readFile(new File(rotationFile));
 			lines = contents.split("\n");
 			rotations = new HashMap<String, Quaternion>();
@@ -155,9 +155,11 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 			}
 
-			sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_ngram";
-			rotationAnalyzer = new AnalyzerApp(sequenceFile);
-			rotationAnalyzer.analyze();
+			ngString = Properties.DIRECTORY + "/" + filename + "hand_rotation_ngram";
+
+			rotationNgram = gson.fromJson(FileHandler.readFile(new File(ngString)), NGram.class);
+
+			rotationNgram.calculateProbabilities();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace(App.out);
@@ -223,7 +225,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 			String handValue = "";
 
 			for (int i = 0; i < seededLabels.size(); i++){
-				handValue += seededLabels.get(i) + ",";
+				handValue += seededLabels.get(i) + NGramModel.DELIMITER;
 			}
 
 			seededHands.clear();
@@ -246,7 +248,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 			posLog.element = "";
 
 			for (String s : positionLabels){
-				posLog.element += s + ",";
+				posLog.element += s + NGramModel.DELIMITER;
 			}
 
 			posLog.timeSeeded = (int) (time - lastSwitchTime);
@@ -255,7 +257,7 @@ public class NGramFrameGenerator extends FrameGenerator {
 			rotLog.element = "";
 
 			for (String s : rotationLabels){
-				rotLog.element += s + ",";
+				rotLog.element += s + NGramModel.DELIMITER;
 			}
 
 			rotLog.timeSeeded = posLog.timeSeeded;
@@ -294,10 +296,25 @@ public class NGramFrameGenerator extends FrameGenerator {
 
 	}
 
+	private String currentSequence = "";
+	private String currentSequencePosition = "";
+	private String currentSequenceRotation = "";
+
+	public static String getLastLabel(String s){
+		int delimSubstring = s.lastIndexOf(NGramModel.DELIMITER)+1;
+		if (delimSubstring > 0) {
+			s = s.substring(delimSubstring);
+		}
+
+		return s;
+	}
+
 	public void fillLists(){
 		while (lastHand == null){
-			lastLabel = analyzer.getDataAnalyzer().next();
+			currentSequence = ngram.babbleNext(currentSequence);
+			lastLabel = getLastLabel(currentSequence);
 			lastHand = hands.get(lastLabel);
+
 		}
 		while (seededHands.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
 			if (!seededHands.contains(lastHand)){
@@ -306,11 +323,10 @@ public class NGramFrameGenerator extends FrameGenerator {
 				seededLabels.clear();
 				seededLabels.add(lastLabel);
 			} else {
-				//skip ahead in N-Gram
-				for (int i = 0; i < Properties.NGRAM_SKIP; i++){
-					analyzer.getDataAnalyzer().next();
-				}
-				String label = analyzer.getDataAnalyzer().next();
+
+				currentSequence = ngram.babbleNext(currentSequence);
+				String label = getLastLabel(currentSequence);
+
 				Hand h = hands.get(label);
 				if (h != null && h instanceof SeededHand) {
 					seededHands.add((SeededHand) h);
@@ -323,19 +339,21 @@ public class NGramFrameGenerator extends FrameGenerator {
 //		}
 
 		while (lastPosition == null){
-			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
-				positionAnalyzer.getDataAnalyzer().next();
-			}
-			lastPositionLabel = positionAnalyzer.getDataAnalyzer().next();
+
+			currentSequencePosition = positionNgram.babbleNext(currentSequencePosition);
+			lastPositionLabel = getLastLabel(currentSequencePosition);
+
 			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
 				lastPosition = vectors.get(lastPositionLabel);
 			}
 		}
 
 		while (lastRotation== null){
-			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
-				rotationAnalyzer.getDataAnalyzer().next();			}
-			lastRotationLabel = rotationAnalyzer.getDataAnalyzer().next();
+
+
+			currentSequenceRotation = rotationNgram.babbleNext(currentSequenceRotation);
+			lastRotationLabel = getLastLabel(currentSequenceRotation);
+
 			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
 				lastRotation = rotations.get(lastRotationLabel);
 			}
@@ -347,7 +365,9 @@ public class NGramFrameGenerator extends FrameGenerator {
 				Vector position = null;
 				String pLabel = null;
 				while (position == null){
-					pLabel = positionAnalyzer.getDataAnalyzer().next();
+
+					currentSequencePosition = positionNgram.babbleNext(currentSequencePosition);
+					pLabel = getLastLabel(currentSequencePosition);
 
 					if (pLabel != null){
 						position = vectors.get(pLabel);
@@ -368,7 +388,8 @@ public class NGramFrameGenerator extends FrameGenerator {
 				Quaternion rotation = null;
 				String rLabel = null;
 				while (rotation == null){
-					rLabel = rotationAnalyzer.getDataAnalyzer().next();
+					currentSequenceRotation = rotationNgram.babbleNext(currentSequenceRotation);
+					rLabel = getLastLabel(currentSequenceRotation);
 
 					if (rLabel != null){
 						rotation = rotations.get(rLabel);

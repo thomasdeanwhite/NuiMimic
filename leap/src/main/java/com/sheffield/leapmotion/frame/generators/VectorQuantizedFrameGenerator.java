@@ -78,7 +78,7 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 			App.out.println("* Setting up VQ Frame Selector");
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
-			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
+			String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/joint_position_data";
 			hands = new HashMap<String, SeededHand>();
 
 			String contents = FileHandler.readFile(new File(clusterFile));
@@ -94,7 +94,7 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 			}
 
-			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
+			String positionFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_position_data";
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
 			contents = FileHandler.readFile(new File(positionFile));
@@ -111,7 +111,7 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 			}
 
-			String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
+			String rotationFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_rotation_data";
 			contents = FileHandler.readFile(new File(rotationFile));
 			lines = contents.split("\n");
 			rotations = new HashMap<String, Quaternion>();
@@ -326,7 +326,7 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 			h = hand;
 		}
 		if (h instanceof SeededHand) {
-			float modifier = currentAnimationTime / (float) Properties.SWITCH_TIME;
+			float modifier = Math.min(1f, currentAnimationTime / (float) Properties.SWITCH_TIME);
 			SeededHand sh = (SeededHand) h;
 
 			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);

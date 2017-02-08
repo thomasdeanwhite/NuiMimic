@@ -106,19 +106,24 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     private long lastUpdate = 0;
     @Override
     public void tick(long time) {
-        lastUpdate = time;
+        try {
+            lastUpdate = time;
 
-        if (time - lastGestureChange > GESTURE_CHANGE_TIME){
-            String[] gestures = Properties.INPUT;
-            currentGesture = gestures[r.nextInt(gestures.length)];
-            lastGestureChange = time;
-        }
 
-        if (gestureHandlers.get(currentGesture).lastTick() < time){
-            gestureHandlers.get(currentGesture).tick(time);
-        }
-        if (frameSelectors.get(currentGesture).lastTick() < time){
-            frameSelectors.get(currentGesture).tick(time);
+            if (time - lastGestureChange > GESTURE_CHANGE_TIME) {
+                String[] gestures = Properties.INPUT;
+                currentGesture = gestures[r.nextInt(gestures.length)];
+                lastGestureChange = time;
+            }
+
+            if (gestureHandlers.get(currentGesture).lastTick() < time) {
+                gestureHandlers.get(currentGesture).tick(time);
+            }
+            if (frameSelectors.get(currentGesture).lastTick() < time) {
+                frameSelectors.get(currentGesture).tick(time);
+            }
+        } catch (Throwable t){
+            t.printStackTrace(App.out);
         }
     }
 
