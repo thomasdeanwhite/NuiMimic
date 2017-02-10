@@ -200,6 +200,16 @@ public class App implements ThrowableListener, Tickable {
             } else {
                 //App.getApp().setStatus(AppStatus.FINISHED);
 
+                StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+
+                if (stackTraceElements.length > 2){
+                    String className = stackTraceElements[2].getClassName();
+                    if (className.contains("javax.swing.JFrame") && stackTraceElements[2].getMethodName().contains("setDefaultCloseOperation")){
+                        super.checkExit(status);
+                        return;
+                    }
+                }
+
                 CLOSING = true;
 
                 App.getApp().dump(1);
