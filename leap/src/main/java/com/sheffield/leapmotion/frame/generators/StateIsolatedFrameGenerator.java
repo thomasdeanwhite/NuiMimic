@@ -1,5 +1,7 @@
 package com.sheffield.leapmotion.frame.generators;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Hand;
@@ -12,6 +14,7 @@ import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
 import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
+import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.frame.playback.NGramLog;
@@ -21,179 +24,126 @@ import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.output.Csv;
+import java.lang.reflect.Type;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class StateIsolatedFrameGenerator extends FrameGenerator implements GestureHandler {
 	@Override
 	public Csv getCsv() {
 		return new Csv();
 	}
-	private HashMap<String, SeededHand> hands;
 
-	private ArrayList<NGramLog> logs;
+	private HashMap<Integer, NGramFrameGenerator> generators;
 
-	private int currentAnimationTime = 0;
-	private long lastSwitchTime = 0;
+	private NGramFrameGenerator currentGenerator;
 
-	private ArrayList<SeededHand> seededHands;
-	private ArrayList<String> seededLabels;
-
-	private SeededHand lastHand;
-	private String lastLabel;
-	private File outputFile;
-
-	private String stateIsolatedFile = null;
-
-	protected AnalyzerApp positionAnalyzer;
-	protected AnalyzerApp rotationAnalyzer;
-	private AnalyzerApp analyzer;
-	private NGramGestureHandler nggh;
-
-
-	private HashMap<String, Vector> vectors;
-	private HashMap<String, Quaternion> rotations;
-
-	private Vector lastPosition;
-	private String lastPositionLabel;
-	private ArrayList<Vector> seededPositions = new ArrayList<Vector>();
-	private ArrayList<String> positionLabels = new ArrayList<String>();
-
-	private Quaternion lastRotation;
-	private String lastRotationLabel;
-	private ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
-	private ArrayList<String> rotationLabels = new ArrayList<String>();
-
-	private File outputPosFile;
-	private File outputRotFile;
+	private int currentState = 0;
 
     public void setOutputFiles(File pos, File rot){
-        outputPosFile = pos;
-        outputRotFile = rot;
+		for (NGramFrameGenerator ngfg : generators.values()){
+			ngfg.setOutputFiles(pos, rot);
+		}
     }
 
 	public void setOutputFile(File outputFile){
-		this.outputFile = outputFile;
+		for (NGramFrameGenerator ngfg : generators.values()){
+			ngfg.setOutputFile(outputFile);
+		}
 	}
 
-	public ArrayList<NGramLog> getLogs(){
-		return logs;
+	public void setGestureOutputFile(File outputFile){
+		for (NGramFrameGenerator ngfg : generators.values()){
+			ngfg.setGestureOutputFile(outputFile);
+		}
 	}
 
-	public StateIsolatedFrameGenerator(String filename) {
-		try {
-			App.out.println("* Setting up NGramModel Frame Selection");
-			lastSwitchTime = 0;
-			currentAnimationTime = Properties.SWITCH_TIME;
-			stateIsolatedFile = Properties.DIRECTORY + "/" + filename +
-					".state-ngram";
-			logs = new ArrayList<NGramLog>();
-			String clusterFile = Properties.DIRECTORY + "/" + filename + ".joint_position_data";
-			hands = new HashMap<String, SeededHand>();
+	public StateIsolatedFrameGenerator(String filename) throws IOException {
 
-			seededHands = new ArrayList<SeededHand>();
-			seededLabels = new ArrayList<String>();
+		String fileStart = Properties.DIRECTORY + "/" + filename + "/processed/";
 
-			String contents = FileHandler.readFile(new File(clusterFile));
-			String[] lines = contents.split("\n");
-			for (String line : lines) {
-				Frame f = SeededController.newFrame();
-				SeededHand hand = HandFactory.createHand(line, f);
+		HashMap<String, SeededHand> joints = NGramFrameGenerator.getJoints(fileStart );
 
-				hands.put(hand.getUniqueId(), hand);
-				// order.add(hand.getUniqueId());
+		HashMap<String, Vector> positions = NGramFrameGenerator.getPositions(fileStart);
 
-				HandFactory.injectHandIntoFrame(f, hand);
+		HashMap<String, Quaternion> rotations = NGramFrameGenerator.getRotations(fileStart);
 
-			}
+		Type type =  new TypeToken<Map<Integer, Integer[]>>(){}.getType();
 
-			String sequenceFile = Properties.DIRECTORY  + "/" + filename + ".joint_position_ngram";
-			analyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
-					".joint_position_data",	sequenceFile);
-			analyzer.analyze();
+		HashMap<Integer, Integer[]> states = gson.fromJson(FileHandler.readFile(new File(fileStart + "raw_states")), type);
 
-			long testIndex = Properties.CURRENT_RUN;
+		HashMap<Integer, Integer> stateAssignment = new HashMap<>();
 
-			File pFile = generateFile("hand_positions-" + testIndex);
-			pFile.createNewFile();
-			File rFile = generateFile("hand_rotations-" + testIndex);
-			rFile.createNewFile();
-			setOutputFiles(pFile, rFile);
+		for (Integer state : states.keySet()){
+			int newState = StateComparator.addState(states.get(state));
 
-			File jFile = generateFile("joint_positions-" + testIndex);
-			jFile.createNewFile();
-			setOutputFile(jFile);
-
-			String positionFile = Properties.DIRECTORY + "/" + filename + ".hand_position_data";
-			lastSwitchTime = 0;
-			currentAnimationTime = Properties.SWITCH_TIME;
-			contents = FileHandler.readFile(new File(positionFile));
-			lines = contents.split("\n");
-			vectors = new HashMap<String, Vector>();
-			for (String line : lines) {
-				Vector v = new Vector();
-				String[] vect = line.split(",");
-				v.setX(Float.parseFloat(vect[1]));
-				v.setY(Float.parseFloat(vect[2]));
-				v.setZ(Float.parseFloat(vect[3]));
-
-				vectors.put(vect[0], v);
-
-			}
-
-			sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_position_ngram";
-			positionAnalyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
-					".hand_position_data",	sequenceFile);
-			positionAnalyzer.analyze();
-
-			String rotationFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_data";
-			contents = FileHandler.readFile(new File(rotationFile));
-			lines = contents.split("\n");
-			rotations = new HashMap<String, Quaternion>();
-			for (String line : lines) {
-				String[] vect = line.split(",");
-				Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
-						Float.parseFloat(vect[2]),
-						Float.parseFloat(vect[3]),
-						Float.parseFloat(vect[4])).normalise();
-
-				rotations.put(vect[0], q.inverse());
-
-				//App.out.println(vect[0] + ": " + q);
-
-			}
-
-			sequenceFile = Properties.DIRECTORY + "/" + filename + ".hand_rotation_ngram";
-			rotationAnalyzer = new StateIsolatedAnalyzerApp(stateIsolatedFile +
-					".hand_rotation_data",	sequenceFile);
-			rotationAnalyzer.analyze();
-
-			sequenceFile = Properties.DIRECTORY  + "/" + filename + ".gesture_type_ngram";
-//			nggh = new NGramGestureHandler(new StateIsolatedAnalyzerApp(stateIsolatedFile +
-//					".hand_rotation_data", sequenceFile));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace(App.out);
-			System.exit(0);
+			stateAssignment.put(state, newState);
 		}
 
+		Map<Integer, NGram> jointNgrams = loadStateNgram(fileStart + "joint_position_stategram", stateAssignment);
+		Map<Integer, NGram> positionNgrams = loadStateNgram(fileStart + "hand_position_stategram", stateAssignment);
+		Map<Integer, NGram> rotationNgrams = loadStateNgram(fileStart + "hand_rotation_stategram", stateAssignment);
+		Map<Integer, NGram> gestureNgrams = loadStateNgram(fileStart + "gesture_type_stategram", stateAssignment);
+
+		generators = new HashMap<Integer, NGramFrameGenerator>();
+
+		for (Integer i : stateAssignment.keySet()){
+			Integer newState = stateAssignment.get(i);
+			NGramFrameGenerator newFs = new NGramFrameGenerator(jointNgrams.get(i), positionNgrams.get(i), rotationNgrams.get(i),
+					gestureNgrams.get(i),
+					joints, positions, rotations);
+			if (generators.containsKey(newState)){
+				generators.get(newState).merge(newFs);
+			} else {
+				generators.put(newState, newFs);
+			}
+		}
+
+		NGram jNgram = jointNgrams.get(-1);
+		NGram pNgram = positionNgrams.get(-1);
+		NGram rNgram = rotationNgrams.get(-1);
+		NGram gNgram = gestureNgrams.get(-1);
+
+		generators.put(-1, new NGramFrameGenerator(jNgram, pNgram, rNgram, gNgram,
+				joints, positions, rotations));
+
+		currentGenerator = generators.get(-1);
+
+
 	}
 
-	public File generateFile(String filename){
-		return FileHandler.generateTestingOutputFile(filename);
+	private	Gson gson = new Gson();
+
+	public Map<Integer, NGram> loadStateNgram(String file, HashMap<Integer, Integer> stateAssignment) throws IOException {
+
+		Type type =  new TypeToken<Map<Integer, NGram>>(){}.getType();
+
+		Map<Integer, NGram> stateNg = gson.fromJson(FileHandler.readFile(new File(file)), type);
+
+		HashMap<Integer, NGram> reassigned = new HashMap<>();
+
+		for (Integer state : stateNg.keySet()){
+			if (state != -1) {
+				reassigned.put(stateAssignment.get(state), stateNg.get(state));
+			}
+		}
+
+		NGram defaultNgram = stateNg.get(-1);
+
+		reassigned.put(-1, defaultNgram);
+
+		return reassigned;
+
 	}
+
 
 	@Override
 	public Frame newFrame() {
-		Frame f = SeededController.newFrame();
-		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
-		Hand newHand = lastHand.fadeHand(seededHands, modifier);
-		f = HandFactory.injectHandIntoFrame(f, newHand);
-
-		return f;
+		return currentGenerator.newFrame();
 	}
 
 	@Override
@@ -203,20 +153,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public void modifyFrame(SeededFrame frame) {
-		Hand h = Hand.invalid();
-		for (Hand hand : frame.hands()) {
-			h = hand;
-		}
-		if (h instanceof SeededHand) {
-			float modifier = Math.min(1f, currentAnimationTime / (float) Properties.SWITCH_TIME);
-			SeededHand sh = (SeededHand) h;
-
-			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
-
-			q.setBasis(sh);
-			sh.setOrigin(BezierHelper.bezier(seededPositions,
-				modifier));
-		}
+		currentGenerator.modifyFrame(frame);
 
 	}
 
@@ -230,180 +167,17 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 	public void tick(long time) {
 		lastUpdate = time;
 
-		fillLists();
+		currentState = StateComparator.getCurrentState();
 
-
-        nggh.tick(time);
-
-		if (currentAnimationTime >= Properties.SWITCH_TIME) {
-
-			currentAnimationTime = 0;
-			lastHand = seededHands.get(seededHands.size() - 1);
-			lastLabel = seededLabels.get(seededLabels.size() - 1);
-			String handValue = "";
-
-			for (int i = 0; i < seededLabels.size(); i++){
-				handValue += seededLabels.get(i) + ",";
-			}
-
-			seededHands.clear();
-			seededLabels.clear();
-
-			NGramLog ngLog = new NGramLog();
-			ngLog.element = handValue;
-			ngLog.timeSeeded = (int) (time - lastSwitchTime);
-			logs.add(ngLog);
-			if (outputFile != null){
-				try {
-					FileHandler.appendToFile(outputFile, ngLog.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(App.out);
-				}
-			}
-
-			NGramLog posLog = new NGramLog();
-			posLog.element = "";
-
-			for (String s : positionLabels){
-				posLog.element += s + ",";
-			}
-
-			posLog.timeSeeded = (int) (time - lastSwitchTime);
-
-			NGramLog rotLog = new NGramLog();
-			rotLog.element = "";
-
-			for (String s : rotationLabels){
-				rotLog.element += s + ",";
-			}
-
-			rotLog.timeSeeded = posLog.timeSeeded;
-			if (outputPosFile != null){
-				try {
-					FileHandler.appendToFile(outputPosFile, posLog.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(App.out);
-				}
-			}
-
-			if (outputRotFile != null){
-				try {
-					FileHandler.appendToFile(outputRotFile, rotLog.toString());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace(App.out);
-				}
-			}
-
-			lastPosition = seededPositions.get(seededPositions.size()-1);
-			lastPositionLabel = positionLabels.get(positionLabels.size()-1);
-			lastRotation = seededRotations.get(seededRotations.size()-1);
-			lastRotationLabel = rotationLabels.get(rotationLabels.size()-1);
-
-			seededPositions.clear();
-			seededRotations.clear();
-			positionLabels.clear();
-			rotationLabels.clear();
-			fillLists();
-			lastSwitchTime = time;
+		if (generators.containsKey(currentState)){
+			currentGenerator = generators.get(currentState);
 		} else {
-			currentAnimationTime = (int) (time - lastSwitchTime);
+			//-1 contains single model NGram
+			currentGenerator = generators.get(-1);
 		}
 
-	}
+		currentGenerator.tick(time);
 
-	public void fillLists(){
-		while (lastHand == null){
-			lastLabel = analyzer.getDataAnalyzer().next();
-			lastHand = hands.get(lastLabel);
-		}
-		while (seededHands.size() < Properties.BEZIER_POINTS){
-
-			if (!seededHands.contains(lastHand)){
-				seededHands.clear();
-				seededHands.add(0, lastHand);
-				seededLabels.clear();
-				seededLabels.add(lastLabel);
-			} else {
-				//skip ahead in N-Gram
-				for (int i = 0; i < Properties.NGRAM_SKIP; i++){
-					analyzer.getDataAnalyzer().next();
-				}
-				String label = analyzer.getDataAnalyzer().next();
-				Hand h = hands.get(label);
-				if (h != null && h instanceof SeededHand) {
-					seededHands.add((SeededHand) h);
-					seededLabels.add(label);
-				}
-			}
-		}
-//		if (nextHand == null) {
-//			nextHand = hands.get(analyzer.getDataAnalyzer().next());
-//		}
-
-		while (lastPosition == null){
-			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
-				positionAnalyzer.getDataAnalyzer().next();
-			}
-			lastPositionLabel = positionAnalyzer.getDataAnalyzer().next();
-			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
-				lastPosition = vectors.get(lastPositionLabel);
-			}
-		}
-
-		while (lastRotation== null){
-			for (int i = 0; i < Properties.NGRAM_SKIP; i++) {
-				rotationAnalyzer.getDataAnalyzer().next();			}
-			lastRotationLabel = rotationAnalyzer.getDataAnalyzer().next();
-			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
-				lastRotation = rotations.get(lastRotationLabel);
-			}
-		}
-
-
-		while (seededPositions.size() < Properties.BEZIER_POINTS){
-			if (seededPositions.contains(lastPosition)){
-				Vector position = null;
-				String pLabel = null;
-				while (position == null){
-					pLabel = positionAnalyzer.getDataAnalyzer().next();
-
-					if (pLabel != null){
-						position = vectors.get(pLabel);
-						if (position != null) {
-							positionLabels.add(pLabel);
-							seededPositions.add(position);
-						}
-					}
-				}
-			} else {
-				seededPositions.add(0, lastPosition);
-				positionLabels.add(0, lastPositionLabel);
-			}
-		}
-
-		while (seededRotations.size() < Properties.BEZIER_POINTS){
-			if (seededRotations.contains(lastRotation)){
-				Quaternion rotation = null;
-				String rLabel = null;
-				while (rotation == null){
-					rLabel = rotationAnalyzer.getDataAnalyzer().next();
-
-					if (rLabel != null){
-						rotation = rotations.get(rLabel);
-						if (rotation != null) {
-							rotationLabels.add(rLabel);
-							seededRotations.add(rotation);
-						}
-					}
-				}
-			} else {
-				seededRotations.add(0, lastRotation);
-				rotationLabels.add(0, lastRotationLabel);
-			}
-		}
 	}
 
 	public long lastTick(){
@@ -412,17 +186,14 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public void cleanUp() {
-
-	}
-
-
-	public void setGestureOutputFile(File f){
-		nggh.setOutputFile(f);
+		for (NGramFrameGenerator ngfg : generators.values()){
+			ngfg.cleanUp();
+		}
 	}
 
 	@Override
 	public GestureList handleFrame(Frame frame) {
-		return nggh.handleFrame(frame);
+		return currentGenerator.handleFrame(frame);
 	}
 
 

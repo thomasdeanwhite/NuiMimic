@@ -68,9 +68,9 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
                 frameSelectors.put(s, ngfs);
                 File gFile = generateFile("gestures-" + testIndex);
                 gFile.createNewFile();
-                NGramGestureHandler nggh = new NGramGestureHandler(s);
-                nggh.setOutputFile(gFile);
-                gestureHandlers.put(s, nggh);
+
+                ngfs.setGestureOutputFile(gFile);
+                gestureHandlers.put(s, ngfs);
             } catch (Exception e){
                 e.printStackTrace(App.out);
             }
@@ -104,21 +104,19 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     }
 
     private long lastUpdate = 0;
+
     @Override
     public void tick(long time) {
         try {
             lastUpdate = time;
 
 
-            if (time - lastGestureChange > GESTURE_CHANGE_TIME) {
+            if (time - lastGestureChange > GESTURE_CHANGE_TIME && Properties.INPUT.length > 1) {
                 String[] gestures = Properties.INPUT;
                 currentGesture = gestures[r.nextInt(gestures.length)];
                 lastGestureChange = time;
             }
 
-            if (gestureHandlers.get(currentGesture).lastTick() < time) {
-                gestureHandlers.get(currentGesture).tick(time);
-            }
             if (frameSelectors.get(currentGesture).lastTick() < time) {
                 frameSelectors.get(currentGesture).tick(time);
             }

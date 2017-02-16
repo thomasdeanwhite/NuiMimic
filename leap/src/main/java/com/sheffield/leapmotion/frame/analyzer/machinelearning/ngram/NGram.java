@@ -79,13 +79,16 @@ public class NGram implements Serializable {
             return;
         }
 
-        int total = 0;
-
+        calculateProbabilitiesChildren();
 
         finalised = true;
+    }
+
+    private void calculateProbabilitiesChildren(){
+        int total = 0;
 
         for (NGram n: children){
-            n.calculateProbabilities();
+            n.calculateProbabilitiesChildren();
             total += n.count;
         }
 
@@ -117,6 +120,19 @@ public class NGram implements Serializable {
         }
 
         return probability;
+    }
+
+    public int getCount(String child){
+
+        String[] cs = child.split(NGramModel.DELIMITER);
+
+        for (NGram n : children){
+            if (n.element.equals(cs[0])){
+                return n.getCount(child.substring(child.indexOf(NGramModel.DELIMITER)+1));
+            }
+        }
+
+        return count;
     }
 
     public float getProbability(){
@@ -183,6 +199,40 @@ public class NGram implements Serializable {
         }
 
         return ngram;
+    }
+
+
+    public void merge(NGram ng){
+        //TODO: Implement NGram data Merge
+
+        mergeChildren(ng);
+
+        calculateProbabilitiesChildren();
+    }
+
+    public void mergeChildren(NGram ng){
+        //TODO: Implement NGram data Merge
+
+        if (ng.element.equals(element)){
+            count += ng.count;
+
+            if (ng.children.size() != 0 && children.size() != 0){
+                for (NGram on : ng.children){
+                    boolean matched = false;
+                    for (NGram n : children){
+                        if (n.element.equals(on.element)) {
+                            n.mergeChildren(on);
+                            matched = true;
+                        }
+                    }
+
+                    //add new child if doens't exist
+                    if (!matched){
+                        children.add(on);
+                    }
+                }
+            }
+        }
     }
 
 }

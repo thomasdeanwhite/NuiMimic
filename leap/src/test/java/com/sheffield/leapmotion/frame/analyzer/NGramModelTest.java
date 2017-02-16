@@ -43,7 +43,68 @@ public class NGramModelTest {
 
         ng.calculateProbabilities();
 
-        assertEquals(0.4f, ng.getProbability("that that"), 0.00000001f);
+        assertEquals(0.4, ng.getProbability("that that"), 0.000001f);
+    }
+
+
+    @Test
+    public void checkMergeAddition(){
+        String sentence = "That that is is that that is not is not Is that it It is".toLowerCase();
+
+        ng = NGramModel.getNGram(1, sentence);
+
+        ng.calculateProbabilities();
+
+        assertEquals(2, ng.getCount("that that"));
+        assertEquals(2, ng.getCount("that is"));
+        assertEquals(1, ng.getCount("that it"));
+
+        ng.merge(ng);
+
+        assertEquals(4, ng.getCount("that that"));
+        assertEquals(4, ng.getCount("that is"));
+        assertEquals(2, ng.getCount("that it"));
+    }
+
+    @Test
+    public void checkMergeAdditionOther(){
+        String sentence = "George whilst Harry had had had had had had had had had had had a better effect on the teacher".toLowerCase();
+
+        ng = NGramModel.getNGram(1, sentence);
+
+        ng.calculateProbabilities();
+
+        //ng.merge(ng);
+
+        assertEquals(10, ng.getCount("had had"));
+        assertEquals(0.90909094f, ng.getProbability("had had"), 0.000001f);
+
+        sentence = "had Harry had what george had had this all time".toLowerCase();
+
+        NGram ng2 = NGramModel.getNGram(1, sentence);
+
+        ng2.calculateProbabilities();
+
+        ng.merge(ng2);
+
+        assertEquals(11, ng.getCount("had had"));
+        assertEquals(0.25f, ng2.getProbability("had had"), 0.000001f);
+        assertEquals(0.73333335f, ng.getProbability("had had"), 0.000001f);
+    }
+
+    @Test
+    public void checkMergeProbability(){
+        String sentence = "That that is is that that is not is not Is that it It is".toLowerCase();
+
+        ng = NGramModel.getNGram(1, sentence);
+        NGram ng2 = NGramModel.getNGram(1, sentence);
+
+        ng.calculateProbabilities();
+        ng2.calculateProbabilities();
+
+        ng.merge(ng2);
+
+        assertEquals(ng2.getProbability("that that"), ng.getProbability("that that"), 0.0000001f);
     }
 
 }

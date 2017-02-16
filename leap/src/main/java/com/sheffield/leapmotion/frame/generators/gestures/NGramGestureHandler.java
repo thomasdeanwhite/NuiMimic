@@ -34,6 +34,10 @@ public class NGramGestureHandler extends RandomGestureHandler {
 
 	}
 
+	public void merge (NGramGestureHandler nggh){
+		ngram.merge(nggh.ngram);
+	}
+
 	public NGramGestureHandler(String filename) {
 		try {
 

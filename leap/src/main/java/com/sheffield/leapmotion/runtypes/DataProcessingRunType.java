@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
+import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import weka.core.FileHelper;
 import weka.core.Instance;
@@ -41,6 +42,52 @@ public class DataProcessingRunType implements RunType {
             Properties.DIRECTORY = Properties.DIRECTORY.substring(0, Properties.DIRECTORY.lastIndexOf("/"));
         }
         String dataDir = Properties.DIRECTORY + "/" + Properties.INPUT[0];
+
+
+        HashMap<Integer, String> stateSequences = new HashMap<Integer, String>();
+
+        HashMap<Integer, Integer[]> rawStates = new HashMap<Integer, Integer[]>();
+
+        try {
+            String[] lines = FileHandler.readFile(new File(dataDir + "/dct_pool")).split("\n");
+
+            for (String s : lines){
+                if (s.trim().length() == 0 || !s.contains(":")){
+                    continue;
+                }
+                String[] elements = s.split(":");
+
+                String state = elements[0];
+                String candidates = elements[1];
+
+                String[] stateElements = state.split(",");
+
+                Integer[] stateHist = new Integer[stateElements.length];
+
+                try {
+                    for (int i = 0; i < stateHist.length; i++) {
+                        stateHist[i] = Integer.parseInt(stateElements[i]);
+                    }
+                } catch (NumberFormatException e){
+                    App.out.println(e);
+                    continue;
+                }
+
+                Integer currentState = StateComparator.addState(stateHist);
+                if (!stateSequences.containsKey(currentState)){
+                    stateSequences.put(currentState, candidates);
+                } else {
+                    stateSequences.put(currentState, stateSequences.get(currentState) + " " + candidates);
+                }
+
+                if (!rawStates.containsKey(currentState)){
+                    rawStates.put(currentState, stateHist);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace(App.out);
+            System.exit(-1);
+        }
 
         for (String s : files.keySet()) {
 
@@ -90,6 +137,37 @@ public class DataProcessingRunType implements RunType {
                     sb.append(clusterOrder.get(i) + " ");
                 }
 
+                HashMap<Integer, NGram> stateNgrams = new HashMap<Integer, NGram>();
+
+                for (Integer state : stateSequences.keySet()){
+                    String[] stateInfo = stateSequences.get(state).split(",");
+
+                    String replacedSequence = "";
+
+                    for (String candidate : stateInfo){
+                        candidate = candidate.trim();
+                        if (candidate.length() > 0){
+
+                            int index = keys.indexOf(candidate);
+
+                            if (index < 0){
+                                //throw new IllegalArgumentException("Candidate " + candidate + " not found!");
+                                continue;
+                            }
+
+                            replacedSequence += " " + clusterOrder.get(index);
+                        }
+                    }
+
+                    NGram stateGram = NGramModel.getNGram(n, replacedSequence);
+
+                    stateGram.calculateProbabilities();
+
+                    stateNgrams.put(state, stateGram);
+                }
+
+
+
                 FileHandler.appendToFile(outputSequence, clusterOrder.get(clusterOrder.size()-1));
 
                 FileHandler.appendToFile(outputSequence, "\n");
@@ -133,15 +211,21 @@ public class DataProcessingRunType implements RunType {
 
                 FileHandler.writeToFile(ngramOutput, gson.toJson(ng));
 
+                stateNgrams.put(-1, ng);
+
+                FileHandler.writeToFile(new File(dataDir + "/processed/" + files.get(s) + "_stategram"), gson.toJson(stateNgrams));
+
             } catch (Exception e) {
                 e.printStackTrace(App.out);
             }
         }
 
+        NGram gestureNgram = null;
+
         try {
             String gestureString = FileHandler.readFile(new File(dataDir + "/sequence_gesture_data.csv"));
 
-            NGram gestureNgram = NGramModel.getNGram(n, gestureString);
+            gestureNgram = NGramModel.getNGram(n, gestureString);
 
             gestureNgram.calculateProbabilities();
 
@@ -159,8 +243,79 @@ public class DataProcessingRunType implements RunType {
             String rawGestureString = dataDir + "/processed/gesture_type_data.raw_sequence";
 
             FileHandler.writeToFile(new File(rawGestureString), gestureString);
+
+
+            String rawStatesFile = dataDir + "/processed/raw_states";
+
+            FileHandler.writeToFile(new File(rawStatesFile), gson.toJson(rawStates));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        try {
+            String[] lines = FileHandler.readFile(new File(dataDir + "/dct_gestures_pool")).split("\n");
+            HashMap<Integer, String> stateGestures = new HashMap<Integer, String>();
+
+            for (String s : lines){
+                if (s.trim().length() == 0 || !s.contains(":")){
+                    continue;
+                }
+                String[] elements = s.split(":");
+
+                String state = elements[0];
+                String candidates = elements[1];
+
+                String[] stateElements = state.split(",");
+
+                Integer[] stateHist = new Integer[stateElements.length];
+
+                try {
+                    for (int i = 0; i < stateHist.length; i++) {
+                        stateHist[i] = Integer.parseInt(stateElements[i]);
+                    }
+                } catch (NumberFormatException e){
+                    App.out.println(e);
+                    continue;
+                }
+
+                Integer currentState = StateComparator.addState(stateHist);
+                if (!stateGestures.containsKey(currentState)){
+                    stateGestures.put(currentState, candidates);
+                } else {
+                    stateGestures.put(currentState, stateGestures.get(currentState) + " " + candidates);
+                }
+
+            }
+
+            HashMap<Integer, NGram> stateNgrams = new HashMap<Integer, NGram>();
+
+            for (Integer state : stateGestures.keySet()){
+                String sequence = stateGestures.get(state).replace(",", " ");
+
+                NGram stateGram = NGramModel.getNGram(n, sequence);
+
+                stateGram.calculateProbabilities();
+
+                stateNgrams.put(state, stateGram);
+            }
+
+            File ngramOutput = new File(dataDir + "/processed/gesture_type_stategram");
+
+            if (!ngramOutput.exists()){
+                if (ngramOutput.getParentFile() != null && !ngramOutput.getParentFile().exists()){
+                    ngramOutput.getParentFile().mkdirs();
+                }
+                ngramOutput.createNewFile();
+            }
+
+            stateNgrams.put(-1, gestureNgram);
+
+            FileHandler.writeToFile(ngramOutput, gson.toJson(stateNgrams));
+
+
+        } catch (IOException e) {
+            e.printStackTrace(App.out);
+            System.exit(-1);
         }
 
         return 0;
