@@ -20,17 +20,16 @@ public class NGramModel implements Serializable {
 
     public static NGram getNGram(int n, String text){
 
-
-        n++;
-
         NGram root = new NGram("");
 
         String[] words = text.split(DELIMITER);
 
         for (int i = 0; i < words.length - n + 1; i++){
             String t = "";
+
             for (int j = 0; j < n; j++){
-                t += DELIMITER + words[i+j];
+                String word = words[i+j];
+                t += DELIMITER + word;
             }
             t = t.substring(t.indexOf(DELIMITER)+1);
             root.add(t);

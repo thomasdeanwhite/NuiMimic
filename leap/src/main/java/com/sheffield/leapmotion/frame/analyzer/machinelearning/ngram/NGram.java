@@ -42,7 +42,9 @@ public class NGram implements Serializable {
 
             String childText = text.substring(text.indexOf(NGramModel.DELIMITER)+1);
 
-            child.add(childText);
+            if (childText.length() > 0) {
+                child.add(childText);
+            }
         }
 
         child.increment();
@@ -168,7 +170,7 @@ public class NGram implements Serializable {
             for (NGram c : children){
                 probability -= c.getProbability();
 
-                if (probability <= 0){
+                if (probability <= 0.0000001){
                     return NGramModel.DELIMITER + c.element;
                 }
             }
