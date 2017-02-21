@@ -17,4 +17,4 @@ before_install:
   - mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dversion=1.0 -Dpackaging=jar
   - popd
 script:
-  - mvn test
+  - mvn clean test jacoco:report coveralls:report
