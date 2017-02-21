@@ -8,6 +8,7 @@ import java.util.ArrayList;
 public class NGram {
 
     protected String element;
+    
 
     protected int count = 0;
     protected float probability = 0f;
