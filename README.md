@@ -6,7 +6,7 @@ Repository for the NuiMimic automated software testing tool.
 # Installation #
 
 To install:
-- clone repo: 'git clone' 
+- clone repo: 'git clone git@github.com:thomasdeanwhite/NuiMimic.git' 
 - install LeapJava.jar as local maven dependancy: 'mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk' [in LeapJava.jar folder]
 - mvn clean install
 
@@ -14,6 +14,9 @@ To install:
 
 There are various steps to using NuiMimic:
 1. Recording serialised Leap Motion frame data
+
 2. Breaking the serialised frame data into raw NuiMimic data
+
 3. Recording Screen State information
+
 4. Processing NuiMimic data into final models.
