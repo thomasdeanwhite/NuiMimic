@@ -290,6 +290,10 @@ public class App implements ThrowableListener, Tickable {
     private static boolean outputSet = false;
 
     public static void setOutput(){
+        if (out != null){
+            return;
+        }
+
         if (!ENABLE_APPLICATION_OUTPUT && !outputSet) {
             PrintStream dummyStream = new PrintStream(new OutputStream() {
 

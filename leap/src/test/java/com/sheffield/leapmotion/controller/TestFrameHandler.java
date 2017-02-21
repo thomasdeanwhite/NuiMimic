@@ -1,7 +1,13 @@
 package com.sheffield.leapmotion.controller;
 
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,8 +16,24 @@ import static org.junit.Assert.assertEquals;
  */
 public class TestFrameHandler {
 
+    @Before
+    public void test(){
+        PrintStream dummyStream = new PrintStream(new OutputStream() {
+
+            @Override
+            public void write(int b) throws IOException {
+                // TODO Auto-generated method stub
+                //App.out.write(b);
+            }
+
+        }, true);
+
+        App.out = dummyStream;
+    }
+
     @Test
     public void testEmptyGen(){
+
         Properties.FRAME_SELECTION_STRATEGY = Properties
                 .FrameSelectionStrategy.EMPTY;
 
