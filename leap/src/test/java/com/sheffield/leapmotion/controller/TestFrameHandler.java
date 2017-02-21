@@ -29,6 +29,8 @@ public class TestFrameHandler {
         }, true);
 
         App.out = dummyStream;
+
+        App.CLOSING = true;
     }
 
     @Test
