@@ -437,7 +437,7 @@ public class SeededHand extends Hand implements Serializable {
     public PointableList pointables() {
         // TODO Auto-generated method stub
         SeededPointableList pl = new SeededPointableList();
-        for (Finger f : fingerList.extended()) {
+        for (Finger f : fingerList){//.extended()) {
             pl.addPointable(f);
         }
         return pl;

@@ -51,7 +51,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
         return gl;
     }
 
-    private Gesture.Type nextGesture = Gesture.Type.TYPE_INVALID;
+    private Gesture.Type nextGesture = null;
 
     public Gesture setupGesture(Gesture.Type gestureType, Frame frame,
                                 int gestureId) {
@@ -66,7 +66,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
                         .stabilizedTipPosition();
             }
             cumalitiveGesturePositions = cumalitiveGesturePositions
-                    .plus(g.pointables().frontmost().stabilizedTipPosition());
+                    .plus(frame.pointables().frontmost().stabilizedTipPosition
+                            ());
             Vector center = cumalitiveGesturePositions.divide(gestureCount + 1);
 
 
@@ -108,6 +109,10 @@ public class RandomGestureHandler extends NoneGestureHandler {
     @Override
     public void advanceGestures(long time) {
         //super.advanceGestures(time);
+        if (nextGesture == null){
+            nextGesture = Gesture.Type.valueOf(getNextGesture());
+        }
+
         if (gestureState == null || gestureType == null ||
                 gestureState
                         == Gesture.State.STATE_STOP || nextGesture != null) {
