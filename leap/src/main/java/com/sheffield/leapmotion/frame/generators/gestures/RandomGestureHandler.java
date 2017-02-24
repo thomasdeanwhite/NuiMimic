@@ -70,6 +70,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
             Vector center = cumalitiveGesturePositions.divide(gestureCount + 1);
 
 
+            //Vector diff = center.minus(g.pointables().frontmost().stabilizedTipPosition());
+
             scg.setCenter(center);
 
             Vector gradient = (center.minus(
@@ -139,7 +141,8 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
                 if (newType.equals(gestureType)) {
                     int newDuration = (int) (time - gestureStart);
-                    gestureTimeLimit = gestureDuration + Properties.GESTURE_TIME_LIMIT;
+                    gestureTimeLimit = newDuration + Properties.GESTURE_TIME_LIMIT;
+                    gestureDuration = newDuration;
                 } else if (gestureType.equals(Gesture.Type.TYPE_INVALID)
                         || !newType.equals(Gesture.Type.TYPE_INVALID)) {
 

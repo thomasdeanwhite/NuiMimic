@@ -26,9 +26,9 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 
 	private String currentGesture;
 
-    private HashMap<String, FrameGenerator> frameSelectors;
+    private FrameGenerator frameSelector;
 
-    private HashMap<String, GestureHandler> gestureHandlers;
+    private GestureHandler gestureHandler;
 
     private boolean changeGestures = false;
 
@@ -41,46 +41,35 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     }
 
 	public SingleModelFrameGenerator() {
-		String[] gestures = Properties.INPUT;
-
-        if (gestures.length > 1){
-            changeGestures = true;
-            currentGesture = gestures[r.nextInt(gestures.length)];
-        } else {
-            currentGesture = gestures[0];
-        }
-        frameSelectors = new HashMap<String, FrameGenerator>();
-        gestureHandlers = new HashMap<String, GestureHandler>();
+		String gesture = Properties.INPUT[0];
 
         long testIndex = Properties.CURRENT_RUN;
 
-		for (String s : gestures){
-            try {
-                File pFile = generateFile("hand_positions-" + testIndex);
-                pFile.createNewFile();
-                File rFile = generateFile("hand_rotations-" + testIndex);
-                rFile.createNewFile();
-                NGramFrameGenerator ngfs = new NGramFrameGenerator(s);
-                ngfs.setOutputFiles(pFile, rFile);
-                File jFile = generateFile("joint_positions-" + testIndex);
-                jFile.createNewFile();
-                ngfs.setOutputFile(jFile);
-                frameSelectors.put(s, ngfs);
-                File gFile = generateFile("gestures-" + testIndex);
-                gFile.createNewFile();
+        try {
+            File pFile = generateFile("hand_positions-" + testIndex);
+            pFile.createNewFile();
+            File rFile = generateFile("hand_rotations-" + testIndex);
+            rFile.createNewFile();
+            NGramFrameGenerator ngfs = new NGramFrameGenerator(gesture);
+            ngfs.setOutputFiles(pFile, rFile);
+            File jFile = generateFile("joint_positions-" + testIndex);
+            jFile.createNewFile();
+            ngfs.setOutputFile(jFile);
+            frameSelector = ngfs;
+            File gFile = generateFile("gestures-" + testIndex);
+            gFile.createNewFile();
 
-                ngfs.setGestureOutputFile(gFile);
-                gestureHandlers.put(s, ngfs);
-            } catch (Exception e){
-                e.printStackTrace(App.out);
-            }
-		}
+            ngfs.setGestureOutputFile(gFile);
+            gestureHandler = ngfs;
+        } catch (Exception e){
+            e.printStackTrace(App.out);
+        }
 
 	}
 
 	@Override
 	public Frame newFrame() {
-        return frameSelectors.get(currentGesture).newFrame();
+        return frameSelector.newFrame();
 
 	}
 
@@ -90,7 +79,7 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     }
 
     public void modifyFrame(SeededFrame frame) {
-		frameSelectors.get(currentGesture).modifyFrame(frame);
+		frameSelector.modifyFrame(frame);
 	}
 
     @Override
@@ -100,7 +89,7 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 
     @Override
     public GestureList handleFrame(Frame frame) {
-        return gestureHandlers.get(currentGesture).handleFrame(frame);
+        return gestureHandler.handleFrame(frame);
     }
 
     private long lastUpdate = 0;
@@ -117,8 +106,8 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
                 lastGestureChange = time;
             }
 
-            if (frameSelectors.get(currentGesture).lastTick() < time) {
-                frameSelectors.get(currentGesture).tick(time);
+            if (frameSelector.lastTick() < time) {
+                frameSelector.tick(time);
             }
         } catch (Throwable t){
             t.printStackTrace(App.out);

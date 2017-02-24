@@ -19,7 +19,7 @@ public class NGramModelTest {
     public void createNGram(){
         String sentence = "That that is is that that is not is not Is that it It is".toLowerCase();
 
-        ng = NGramModel.getNGram(2, sentence);
+        ng = NGramModel.getNGram(3, sentence);
 
         assertEquals("that that is\n" +
                 "that is is\n" +
@@ -39,7 +39,7 @@ public class NGramModelTest {
     public void checkProbabilities(){
         String sentence = "That that is is that that is not is not Is that it It is".toLowerCase();
 
-        ng = NGramModel.getNGram(1, sentence);
+        ng = NGramModel.getNGram(2, sentence);
 
         ng.calculateProbabilities();
 
@@ -51,7 +51,7 @@ public class NGramModelTest {
     public void checkMergeAddition(){
         String sentence = "That that is is that that is not is not Is that it It is".toLowerCase();
 
-        ng = NGramModel.getNGram(1, sentence);
+        ng = NGramModel.getNGram(2, sentence);
 
         ng.calculateProbabilities();
 
@@ -70,7 +70,7 @@ public class NGramModelTest {
     public void checkMergeAdditionOther(){
         String sentence = "George whilst Harry had had had had had had had had had had had a better effect on the teacher".toLowerCase();
 
-        ng = NGramModel.getNGram(1, sentence);
+        ng = NGramModel.getNGram(2, sentence);
 
         ng.calculateProbabilities();
 
@@ -81,7 +81,7 @@ public class NGramModelTest {
 
         sentence = "had Harry had what george had had this all time".toLowerCase();
 
-        NGram ng2 = NGramModel.getNGram(1, sentence);
+        NGram ng2 = NGramModel.getNGram(2, sentence);
 
         ng2.calculateProbabilities();
 
@@ -96,8 +96,8 @@ public class NGramModelTest {
     public void checkMergeProbability(){
         String sentence = "That that is is that that is not is not Is that it It is".toLowerCase();
 
-        ng = NGramModel.getNGram(1, sentence);
-        NGram ng2 = NGramModel.getNGram(1, sentence);
+        ng = NGramModel.getNGram(2, sentence);
+        NGram ng2 = NGramModel.getNGram(2, sentence);
 
         ng.calculateProbabilities();
         ng2.calculateProbabilities();

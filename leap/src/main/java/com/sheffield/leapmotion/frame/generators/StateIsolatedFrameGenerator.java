@@ -193,7 +193,6 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public GestureList handleFrame(Frame frame) {
-
 		return currentGenerator.handleFrame(frame);
 	}
 

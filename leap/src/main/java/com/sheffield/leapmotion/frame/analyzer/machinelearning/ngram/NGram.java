@@ -156,6 +156,19 @@ public class NGram implements Serializable {
             returnString = NGramModel.DELIMITER + elements[i] + returnString;
         }
 
+        if (returnString.length() == 0){
+            float probability = (float)Math.random();
+
+            for (NGram n : children){
+                probability -= n.getProbability();
+
+                if (probability <= 0){
+                    return n.element;
+                }
+            }
+            return "";
+        }
+
         while(returnString.charAt(0) == NGramModel.DELIMITER.charAt(0)){
             returnString = returnString.substring(1);
         }
@@ -165,7 +178,7 @@ public class NGram implements Serializable {
 
     private String babbleRecursive(String text){
         if (text.length() == 0){
-            float probability = (float) MockRandom.random("NGram");
+            float probability = (float) Math.random();
 
             for (NGram c : children){
                 probability -= c.getProbability();
@@ -174,7 +187,7 @@ public class NGram implements Serializable {
                     return NGramModel.DELIMITER + c.element;
                 }
             }
-            return NGramModel.DELIMITER + element;
+            return null;
         }
         String childText = text;
         String recurringText = "";
@@ -189,7 +202,13 @@ public class NGram implements Serializable {
         }
         NGram child = restore(childText);
 
-        return NGramModel.DELIMITER + child.element + child.babbleRecursive(recurringText);
+        String childBabble = child.babbleRecursive(recurringText);
+
+        if (childBabble == null){
+            childBabble = babbleRecursive("");
+        }
+
+        return NGramModel.DELIMITER + child.element + childBabble;
     }
 
     public String toString(){

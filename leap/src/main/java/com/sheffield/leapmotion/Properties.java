@@ -68,7 +68,7 @@ public class Properties extends InstrumentationProperties {
     public static long CURRENT_RUN = -1;
 
     @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Testing")
-    public static int GESTURE_CIRCLE_RADIUS = 5;
+    public static int GESTURE_CIRCLE_RADIUS = 15;
 
     @Parameter(key = "untrackedPackages", description = "Packages to not be tracked when outputting lines and branches (comma separated)", hasArgs = true, category = "Instrumentation")
     public static String UNTRACKED_PACKAGES = null;
