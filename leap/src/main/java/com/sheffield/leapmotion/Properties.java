@@ -457,10 +457,12 @@ public class Properties extends InstrumentationProperties {
     public Csv toCsv() {
         Csv csv = new Csv();
         for (String s : annotationMap.keySet()) {
-            if (OUTPUT_EXCLUDES_ARRAY.size() > 0 &&
+            if (OUTPUT_EXCLUDES_ARRAY != null && OUTPUT_EXCLUDES_ARRAY.size() >
+                    0 &&
                     OUTPUT_EXCLUDES_ARRAY.contains(s)) continue;
 
-            if (OUTPUT_INCLUDES_ARRAY.size() > 0 &&
+            if (OUTPUT_INCLUDES_ARRAY != null && OUTPUT_INCLUDES_ARRAY.size() >
+                    0 &&
                     !OUTPUT_INCLUDES_ARRAY.contains(s)) continue;
 
 

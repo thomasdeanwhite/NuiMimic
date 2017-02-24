@@ -295,6 +295,10 @@ public class App implements ThrowableListener, Tickable {
     private static boolean outputSet = false;
 
     public static void setOutput(){
+        if (out != null){
+            return;
+        }
+
         if (!ENABLE_APPLICATION_OUTPUT && !outputSet) {
             PrintStream dummyStream = new PrintStream(new OutputStream() {
 
@@ -810,7 +814,12 @@ public class App implements ThrowableListener, Tickable {
         File outFldr = new File(Properties.TESTING_OUTPUT + "/result_states");
         outFldr.mkdirs();
 
-        File output = new File(outFldr, Properties.FRAME_SELECTION_STRATEGY + "-RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + Properties.INPUT[0] + "-" + Properties.RUNTIME + "ms.png");
+        String input = "";
+
+        if (Properties.INPUT != null && Properties.INPUT.length > 0)
+            input = Properties.INPUT[0];
+
+        File output = new File(outFldr, Properties.FRAME_SELECTION_STRATEGY + "-RUN-" + Properties.CURRENT_RUN + "-" + System.currentTimeMillis() + "-" + input + "-" + Properties.RUNTIME + "ms.png");
         try {
             ImageIO.write(bi, "png", output);
         } catch (IOException e) {

@@ -45,7 +45,7 @@ public class SamplerApp extends Listener {
     private DisplayWindow display;
     private boolean startedRecording = false;
 
-    private String filenameStart = "gorogoa";
+    private String filenameStart = "data-file";
 
     private static boolean REQUEST_NAME = true;
 

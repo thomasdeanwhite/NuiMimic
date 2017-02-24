@@ -88,8 +88,12 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public static Controller getController() {
-		calledAsSuperclass = false;
+		disableSuperclass();
 		return getSeededController();
+	}
+
+	public static void disableSuperclass(){
+		calledAsSuperclass = false;
 	}
 
 	public static Frame newFrame() {
