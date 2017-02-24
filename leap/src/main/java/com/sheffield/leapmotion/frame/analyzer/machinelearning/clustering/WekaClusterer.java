@@ -27,7 +27,7 @@ public class WekaClusterer {
 
     public ClusterResult cluster() throws Exception {
 
-        int clusters = 100;
+        int clusters = 200;
         int iterations = 100;
 
         File f = new File(filename);

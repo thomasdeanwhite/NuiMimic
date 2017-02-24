@@ -73,7 +73,12 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			stateAssignment.put(state, newState);
 		}
 
-		Map<Integer, NGram> jointNgrams = loadStateNgram(fileStart + "joint_position_stategram", stateAssignment);
+		Map<Integer, NGram> jointNgrams = null;
+		if (!Properties.SINGLE_DATA_POOL){
+			jointNgrams = loadStateNgram(fileStart + "joint_position_stategram", stateAssignment);
+		} else {
+			jointNgrams = loadStateNgram(fileStart + "hand_joints_stategram", stateAssignment);
+		}
 		Map<Integer, NGram> positionNgrams = loadStateNgram(fileStart + "hand_position_stategram", stateAssignment);
 		Map<Integer, NGram> rotationNgrams = loadStateNgram(fileStart + "hand_rotation_stategram", stateAssignment);
 		Map<Integer, NGram> gestureNgrams = loadStateNgram(fileStart + "gesture_type_stategram", stateAssignment);
@@ -81,14 +86,16 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		generators = new HashMap<Integer, NGramFrameGenerator>();
 
 		for (Integer i : stateAssignment.keySet()){
-			Integer newState = stateAssignment.get(i);
-			NGramFrameGenerator newFs = new NGramFrameGenerator(jointNgrams.get(i), positionNgrams.get(i), rotationNgrams.get(i),
-					gestureNgrams.get(i),
-					joints, positions, rotations);
-			if (generators.containsKey(newState)){
-				generators.get(newState).merge(newFs);
-			} else {
-				generators.put(newState, newFs);
+			if (jointNgrams.containsKey(i) && positionNgrams.containsKey(i) && rotationNgrams.containsKey(i)) {
+				Integer newState = stateAssignment.get(i);
+				NGramFrameGenerator newFs = new NGramFrameGenerator(jointNgrams.get(i), positionNgrams.get(i), rotationNgrams.get(i),
+						gestureNgrams.get(i),
+						joints, positions, rotations);
+				if (generators.containsKey(newState)) {
+					generators.get(newState).merge(newFs);
+				} else {
+					generators.put(newState, newFs);
+				}
 			}
 		}
 
