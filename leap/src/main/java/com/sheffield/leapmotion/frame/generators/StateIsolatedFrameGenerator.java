@@ -4,23 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
-import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
-import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
-import com.sheffield.leapmotion.frame.playback.NGramLog;
-import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.frame.util.Quaternion;
-import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.output.Csv;
@@ -28,7 +18,6 @@ import java.lang.reflect.Type;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,7 +137,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public String status() {
-		return "ss|" + StateComparator.getStates().size() + "|:" + StateComparator.getCurrentState() + " hr: " + StateIsolatedAnalyzerApp.hitRatio();
+		return "ss|" + StateComparator.getStates().size() + "|:" + StateComparator.getCurrentState();
 	}
 
 	@Override

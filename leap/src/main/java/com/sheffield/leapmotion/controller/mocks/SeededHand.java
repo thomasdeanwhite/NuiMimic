@@ -273,11 +273,13 @@ public class SeededHand extends Hand implements Serializable {
         basis.setOrigin(Vector.zero());
         palmPosition = origin;
 
-        for (Finger f : fingers()){
-            if (f instanceof SeededFinger){
-                SeededFinger sf = (SeededFinger) f;
-                sf.offset = palmPosition;
-                sf.normalize();
+        if (!Properties.SINGLE_DATA_POOL) {
+            for (Finger f : fingers()) {
+                if (f instanceof SeededFinger) {
+                    SeededFinger sf = (SeededFinger) f;
+                    sf.offset = palmPosition;
+                    sf.normalize();
+                }
             }
         }
     }

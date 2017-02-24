@@ -11,8 +11,6 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.frame.analyzer.StateIsolatedAnalyzerApp;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
@@ -747,9 +745,9 @@ public class App implements ThrowableListener, Tickable {
             csv.add("runtime", "" + MockSystem.MILLIS);
 
             if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)){
-                csv.add("dataHitRatio", "" + StateIsolatedAnalyzerApp.hitRatio());
+                csv.add("dataHitRatio", "" + 0);
             } else {
-                csv.add("dataHitRatio", "" + AnalyzerApp.hitRatio());
+                csv.add("dataHitRatio", "" + 0);
             }
 
 

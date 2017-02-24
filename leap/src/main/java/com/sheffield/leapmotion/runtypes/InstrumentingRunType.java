@@ -77,10 +77,10 @@ public class InstrumentingRunType implements RunType {
 
                 classes.addAll(Arrays.asList(clazzes));
 
-//                String[] link = cn.toNomnoml().split("\n");
-//                for (String n : link) {
-//                    if (!lines.contains(n)) {
-//                        lines.add(n);
+//                String[] link = cn.toNomnoml().split("\N");
+//                for (String N : link) {
+//                    if (!lines.contains(N)) {
+//                        lines.add(N);
 //                    }
 //                }
 

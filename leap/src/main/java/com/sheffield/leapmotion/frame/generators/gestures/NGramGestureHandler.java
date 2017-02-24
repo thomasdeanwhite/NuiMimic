@@ -1,18 +1,13 @@
 package com.sheffield.leapmotion.frame.generators.gestures;
 
 import com.google.gson.Gson;
-import com.leapmotion.leap.Gesture;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.analyzer.AnalyzerApp;
-import com.sheffield.leapmotion.frame.analyzer.ProbabilityListener;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
-import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.NGramFrameGenerator;
 import com.sheffield.leapmotion.util.FileHandler;
 
 import java.io.File;
-import java.util.ArrayList;
 
 public class NGramGestureHandler extends RandomGestureHandler {
 

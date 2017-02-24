@@ -129,6 +129,7 @@ public class Properties extends InstrumentationProperties {
 
 
 
+
     @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
     public static float LERP_RATE = 1f;//0.8f;
 
@@ -222,6 +223,10 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "processScreenshots", description = "Should screenshots be taken during playback?",
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean PROCESS_SCREENSHOTS = false;
+
+    @Parameter(key = "singleDataPool", description = "Should a single data pool be used to reconstruct hands?",
+            hasArgs = false, category = "Leap Motion Sampling")
+    public static boolean SINGLE_DATA_POOL = false;
 
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {

@@ -272,6 +272,7 @@ public class SamplerApp extends Listener {
                                     Properties.FRAMES_PER_SECOND = 1000;
 
                                     frameDeconstructor.outputJointPositionModel(frameAsString);
+                                    frameDeconstructor.outputHandJointModel(h);
                                     frameDeconstructor.outputSequence();
                                     frameDeconstructor.outputHandPositionModel(h);
                                     frameDeconstructor.outputHandRotationModel(h);

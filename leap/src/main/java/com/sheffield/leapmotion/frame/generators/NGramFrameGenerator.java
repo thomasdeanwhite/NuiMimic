@@ -88,7 +88,13 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
 	public static HashMap<String, SeededHand> getJoints(String filename) throws IOException {
 		HashMap<String, SeededHand> joints = new HashMap<String, SeededHand>();
-		String clusterFile = filename + "/joint_position_data";
+		String clusterFile = filename;
+		if (!Properties.SINGLE_DATA_POOL) {
+			clusterFile += "/joint_position_data";
+		} else {
+			clusterFile += "/hand_joints_data";
+		}
+
 		String contents = FileHandler.readFile(new File(clusterFile));
 		String[] lines = contents.split("\n");
 		for (String line : lines) {
@@ -156,6 +162,12 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 			HashMap<String, Quaternion> rotations = getRotations(rawFile);
 
 			String sequenceFile = rawFile + "/joint_position_ngram";
+
+			if (!Properties.SINGLE_DATA_POOL) {
+				sequenceFile += "/joint_position_ngram";
+			} else {
+				sequenceFile += "/hand_joints_ngram";
+			}
 
 			String ngString = FileHandler.readFile(new File(sequenceFile));
 

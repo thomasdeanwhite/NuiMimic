@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.frame.util;
 
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 
 /**
@@ -42,7 +43,9 @@ public class Quaternion {
         Vector[] vs = toMatrix(true);
         h.setBasis(vs[0], vs[1], vs[2]);
 
-        h.setRotation(this);
+        if (!Properties.SINGLE_DATA_POOL){
+            h.setRotation(this);
+        }
 
     }
 

@@ -21,24 +21,17 @@ import weka.core.Instance;
 /**
  * Created by thomas on 08/02/17.
  */
-public class DataProcessingRunType implements RunType {
-
-    public static final int N = 3;
-
+public class DataRawProcessingRunType implements RunType {
     @Override
     public int run() {
 
-        DataRawProcessingRunType drpr = new DataRawProcessingRunType();
-
-        drpr.run();
+        int n = DataProcessingRunType.N;
 
         Gson gson = new Gson();
 
         HashMap<String, String> files = new HashMap<String, String>();
 
-        files.put("joint_positions_pool.ARFF", "joint_position");
-        files.put("hand_positions_pool.ARFF", "hand_position");
-        files.put("hand_rotations_pool.ARFF", "hand_rotation");
+        files.put("hand_joints_pool.ARFF", "hand_joints");
 
         HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>(3);
 
@@ -163,7 +156,7 @@ public class DataProcessingRunType implements RunType {
                         }
                     }
 
-                    NGram stateGram = NGramModel.getNGram(N, replacedSequence);
+                    NGram stateGram = NGramModel.getNGram(n, replacedSequence);
 
                     stateGram.calculateProbabilities();
 
@@ -200,7 +193,7 @@ public class DataProcessingRunType implements RunType {
                 }
 
 
-                NGram ng = NGramModel.getNGram(N, sb.toString());
+                NGram ng = NGramModel.getNGram(n, sb.toString());
 
                 ng.calculateProbabilities();
 
@@ -229,7 +222,7 @@ public class DataProcessingRunType implements RunType {
         try {
             String gestureString = FileHandler.readFile(new File(dataDir + "/sequence_gesture_data.csv"));
 
-            gestureNgram = NGramModel.getNGram(N, gestureString);
+            gestureNgram = NGramModel.getNGram(n, gestureString);
 
             gestureNgram.calculateProbabilities();
 
@@ -290,31 +283,6 @@ public class DataProcessingRunType implements RunType {
                 }
 
             }
-
-            HashMap<Integer, NGram> stateNgrams = new HashMap<Integer, NGram>();
-
-            for (Integer state : stateGestures.keySet()){
-                String sequence = stateGestures.get(state).replace(",", " ");
-
-                NGram stateGram = NGramModel.getNGram(N, sequence);
-
-                stateGram.calculateProbabilities();
-
-                stateNgrams.put(state, stateGram);
-            }
-
-            File ngramOutput = new File(dataDir + "/processed/gesture_type_stategram");
-
-            if (!ngramOutput.exists()){
-                if (ngramOutput.getParentFile() != null && !ngramOutput.getParentFile().exists()){
-                    ngramOutput.getParentFile().mkdirs();
-                }
-                ngramOutput.createNewFile();
-            }
-
-            stateNgrams.put(-1, gestureNgram);
-
-            FileHandler.writeToFile(ngramOutput, gson.toJson(stateNgrams));
 
 
         } catch (IOException e) {

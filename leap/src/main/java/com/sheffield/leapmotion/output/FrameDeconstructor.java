@@ -9,6 +9,7 @@ import com.leapmotion.leap.ScreenTapGesture;
 import com.leapmotion.leap.SwipeGesture;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.Serializer;
@@ -36,6 +37,7 @@ public class FrameDeconstructor {
     private File currentDctGestures;
     private File currentSequence;
     private File currentHands;
+    private File currentHandJoints;
     private File currentPosition;
     private File currentRotation;
     private File currentGestures;
@@ -98,26 +100,26 @@ public class FrameDeconstructor {
     }
 
     public void outputRawFrameData(Frame frame) {
-            String dir = "/sequences";
-            try {
-                boolean start = false;
+        String dir = "/sequences";
+        try {
+            boolean start = false;
 
-                if (sequenceFile == null) {
-                    sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + "/raw_frame_data.bin");
-                    sequenceFile.getParentFile().mkdirs();
-                    sequenceFile.createNewFile();
-                    //com.sheffield.leapmotion.util.FileHandler.appendToFile(sequenceFile, "[");
-                    start = true;
-                }
-                String content = Serializer.sequenceToJson(frame);
-                if (!start) {
-                    content = "\n" + content;
-                }
-                FileHandler.appendToFile(sequenceFile, content);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            if (sequenceFile == null) {
+                sequenceFile = new File(FileHandler.generateFileWithName(filenameStart) + "/raw_frame_data.bin");
+                sequenceFile.getParentFile().mkdirs();
+                sequenceFile.createNewFile();
+                //com.sheffield.leapmotion.util.FileHandler.appendToFile(sequenceFile, "[");
+                start = true;
             }
+            String content = Serializer.sequenceToJson(frame);
+            if (!start) {
+                content = "\n" + content;
+            }
+            FileHandler.appendToFile(sequenceFile, content);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
     }
 
@@ -139,6 +141,20 @@ public class FrameDeconstructor {
             FileHandler.writeToFile(currentHands, getHeaders(frameAsString, "jointposition"));
         }
         FileHandler.appendToFile(currentHands, frameAsString + "\n");
+    }
+
+    public void outputHandJointModel(Hand h) throws IOException {
+
+        String frameAsString = HandFactory.handToHandJoint(uniqueId, h);
+
+        if (currentHandJoints == null) {
+            currentHandJoints = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/hand_joints_pool.ARFF");
+            currentHandJoints.getParentFile().mkdirs();
+            currentHandJoints.createNewFile();
+
+            FileHandler.writeToFile(currentHandJoints, getHeaders(frameAsString, "handjoint"));
+        }
+        FileHandler.appendToFile(currentHandJoints, frameAsString + "\n");
     }
 
     public void outputHandPositionModel(Hand h) throws IOException {
