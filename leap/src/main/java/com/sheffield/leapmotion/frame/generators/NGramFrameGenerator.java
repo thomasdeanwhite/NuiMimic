@@ -161,7 +161,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 			HashMap<String, Vector> positions = getPositions(rawFile);
 			HashMap<String, Quaternion> rotations = getRotations(rawFile);
 
-			String sequenceFile = rawFile + "/joint_position_ngram";
+			String sequenceFile = rawFile;
 
 			if (!Properties.SINGLE_DATA_POOL) {
 				sequenceFile += "/joint_position_ngram";
