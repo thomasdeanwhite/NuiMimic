@@ -79,7 +79,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             positionLabelStack.add(0, null);
             rotationLabelStack.add(0, null);
 
-            String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/joint_position_data";
+            String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/" +
+                    (Properties.SINGLE_DATA_POOL ? "hand_joints_data" : "joint_position_data");
             hands = new HashMap<String, SeededHand>();
 
             currentLabel = 0;
@@ -96,7 +97,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             }
 
-            String sequenceFile = Properties.DIRECTORY + "/" + filename + "/processed/joint_position.raw_sequence";
+            String sequenceFile = Properties.DIRECTORY + "/" + filename + "/processed/" +
+                    (Properties.SINGLE_DATA_POOL ? "hand_joints.raw_sequence" : "joint_position.raw_sequence");
             String sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             String[] seqData = sequenceInfo.split("\n")[0].split(",");
 

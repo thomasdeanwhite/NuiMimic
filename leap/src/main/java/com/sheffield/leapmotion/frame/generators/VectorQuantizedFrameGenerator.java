@@ -78,7 +78,8 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 			App.out.println("* Setting up VQ Frame Selector");
 			lastSwitchTime = System.currentTimeMillis();
 			currentAnimationTime = Properties.SWITCH_TIME;
-			String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/joint_position_data";
+			String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/" +
+					(Properties.SINGLE_DATA_POOL ? "hand_joints_data" : "joint_position_data");
 			hands = new HashMap<String, SeededHand>();
 
 			String contents = FileHandler.readFile(new File(clusterFile));
