@@ -93,6 +93,7 @@ public class FrameHandler implements Tickable {
                 case RAW_RECONSTRUCTION:
                     frameGenerator = new RawReconstructiveFrameGenerator(Properties.INPUT[0]);
                     break;
+                    
                 case REGRESSION:
                     Properties.TESTING_OUTPUT = "testing_regression";
                     ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
