@@ -346,18 +346,18 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
             gestureHandIndex = currentHandIndex;
 
 
-//            int skippedHands = 0;
-//            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
-//
-//            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
-//                newFrameTime = timings.get(currentHandIndex+skippedHands) -
-//                        Properties.SWITCH_TIME;
-//                skippedHands++;
-//            }
-//
-//            if (skippedHands != 0){
-//                currentHandIndex += (skippedHands-1);
-//            }
+            int skippedHands = 0;
+            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+
+            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
+                newFrameTime = timings.get(currentHandIndex+skippedHands) -
+                        Properties.SWITCH_TIME;
+                skippedHands++;
+            }
+
+            if (skippedHands != 0){
+                currentHandIndex += (skippedHands-1);
+            }
 
             frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
