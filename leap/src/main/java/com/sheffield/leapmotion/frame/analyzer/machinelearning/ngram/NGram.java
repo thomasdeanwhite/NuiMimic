@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram;
 
+import com.sheffield.leapmotion.frame.generators.DataSparsityException;
 import com.sheffield.leapmotion.instrumentation.MockRandom;
 
 import java.io.Serializable;
@@ -153,6 +154,9 @@ public class NGram implements Serializable {
         String returnString = null;
 
         if (babble == null || babble.length() == 0){
+            if (!text.contains(NGramModel.DELIMITER)){
+                throw new DataSparsityException("Data is too sparse!");
+            }
             String newText = text.substring(text.indexOf(NGramModel.DELIMITER)+1);
             babble = babbleRecursive(newText);
             if (babble == null || babble.length() == 0){

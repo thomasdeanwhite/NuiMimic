@@ -2,9 +2,11 @@ package com.sheffield.leapmotion.frame.analyzer;
 
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
+import com.sheffield.leapmotion.frame.generators.DataSparsityException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Created by Thomas on 06-02-2017.
@@ -105,6 +107,40 @@ public class NGramModelTest {
         ng.merge(ng2);
 
         assertEquals(ng2.getProbability("that that"), ng.getProbability("that that"), 0.0000001f);
+    }
+
+
+
+    @Test
+    public void checkDataSparsity(){
+        String sentence = "hello world".toLowerCase();
+
+        ng = NGramModel.getNGram(2, sentence);
+
+        ng.babbleNext("hello");
+        try {
+            ng.babbleNext("world");
+            fail("Data is sparse and should throw exception");
+        } catch (DataSparsityException dse){
+            // pass
+        }
+
+    }
+
+    @Test
+    public void checkDataSparsityChild(){
+        String sentence = "hello world hello".toLowerCase();
+
+        ng = NGramModel.getNGram(3, sentence);
+
+        ng.babbleNext("hello world");
+        try {
+            ng.babbleNext("world hello");
+            fail("Data is sparse and should throw exception");
+        } catch (DataSparsityException dse){
+            // pass
+        }
+
     }
 
 }

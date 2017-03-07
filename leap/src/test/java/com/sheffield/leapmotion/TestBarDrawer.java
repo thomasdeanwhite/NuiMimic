@@ -16,10 +16,11 @@ public class TestBarDrawer {
 
         int bars = 21;
 
-        assertEquals("|0 ----- 50 ----- 100%|", bd
+        assertEquals("|0 ------ 50 ------ 100%|", bd
                 .getBarHeader(bars));
 
-        assertEquals("===========            50.0%", bd.drawBar(bars, 0.5f));
+        assertEquals("|∎∎∎∎∎∎∎∎∎∎           | 50.0%", bd.drawBar(bars,
+                0.5f));
     }
 
 }

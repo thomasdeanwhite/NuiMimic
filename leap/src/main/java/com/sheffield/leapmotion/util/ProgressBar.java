@@ -57,7 +57,7 @@ public class ProgressBar {
 
         @Override
         public String drawBar(int width, float percent) {
-            String progChar = "=";
+            String progChar = String.valueOf((char)0x220E);
 
             percent = Math.min(1f, percent);
 
@@ -79,7 +79,7 @@ public class ProgressBar {
         @Override
         public String getBarHeader(int width) {
             String head = "|0 ";
-            width -= 10;
+            width -= 8;
 
             width /= 2;
 
