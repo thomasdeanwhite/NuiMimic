@@ -149,28 +149,32 @@ public class NGram implements Serializable {
 
         String babble = babbleRecursive(text);
 
-        String[] elements = babble.split(NGramModel.DELIMITER);
-        String returnString = "";
+        String[] elements = null;
+        String returnString = null;
 
-        for (int i = elements.length-1; i >= 0 && i > elements.length-n; i--){
-            returnString = NGramModel.DELIMITER + elements[i] + returnString;
-        }
-
-        if (returnString.length() == 0){
-            float probability = (float)Math.random();
-
-            for (NGram n : children){
-                probability -= n.getProbability();
-
-                if (probability <= 0){
-                    return n.element;
+        if (babble == null || babble.length() == 0){
+            String newText = text.substring(text.indexOf(NGramModel.DELIMITER)+1);
+            babble = babbleRecursive(newText);
+            if (babble == null || babble.length() == 0){
+                returnString = null;
+            } else {
+                elements = babble.split(NGramModel.DELIMITER);
+                for (int i = elements.length - 1; i >= 0 && i > elements.length - n; i--) {
+                    returnString = NGramModel.DELIMITER + elements[i] + returnString;
                 }
             }
-            return "";
-        }
+        } else {
 
-        while(returnString.charAt(0) == NGramModel.DELIMITER.charAt(0)){
-            returnString = returnString.substring(1);
+            elements = babble.split(NGramModel.DELIMITER);
+            returnString = "";
+
+            for (int i = elements.length - 1; i >= 0 && i > elements.length - n; i--) {
+                returnString = NGramModel.DELIMITER + elements[i] + returnString;
+            }
+
+            while (returnString.charAt(0) == NGramModel.DELIMITER.charAt(0)) {
+                returnString = returnString.substring(1);
+            }
         }
 
         return returnString;
@@ -205,7 +209,7 @@ public class NGram implements Serializable {
         String childBabble = child.babbleRecursive(recurringText);
 
         if (childBabble == null){
-            childBabble = babbleRecursive("");
+            return null;
         }
 
         return NGramModel.DELIMITER + child.element + childBabble;

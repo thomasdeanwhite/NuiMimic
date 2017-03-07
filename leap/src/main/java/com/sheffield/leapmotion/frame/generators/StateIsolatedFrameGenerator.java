@@ -139,7 +139,13 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public Frame newFrame() {
-		return currentGenerator.newFrame();
+
+		try {
+			return currentGenerator.newFrame();
+		} catch (DataSparsityException e){
+			return generators.get(-1).newFrame();
+		}
+
 	}
 
 	@Override
@@ -149,7 +155,12 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public void modifyFrame(SeededFrame frame) {
-		currentGenerator.modifyFrame(frame);
+
+		try {
+			currentGenerator.modifyFrame(frame);
+		} catch (DataSparsityException e){
+			generators.get(-1).modifyFrame(frame);
+		}
 
 	}
 
@@ -163,16 +174,22 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 	public void tick(long time) {
 		lastUpdate = time;
 
-		currentState = StateComparator.getCurrentState();
+		try {
 
-		if (generators.containsKey(currentState)){
-			currentGenerator = generators.get(currentState);
-		} else {
-			//-1 contains single model NGram
-			currentGenerator = generators.get(-1);
+			currentState = StateComparator.getCurrentState();
+
+			if (generators.containsKey(currentState)) {
+				currentGenerator = generators.get(currentState);
+			} else {
+				//-1 contains single model NGram
+				currentGenerator = generators.get(-1);
+			}
+
+			currentGenerator.tick(time);
+
+		} catch (DataSparsityException e){
+			generators.get(-1).tick(time);
 		}
-
-		currentGenerator.tick(time);
 
 	}
 
@@ -189,7 +206,11 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public GestureList handleFrame(Frame frame) {
-		return currentGenerator.handleFrame(frame);
+		try {
+			return currentGenerator.handleFrame(frame);
+		} catch (DataSparsityException e){
+			return generators.get(-1).handleFrame(frame);
+		}
 	}
 
 

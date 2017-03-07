@@ -393,7 +393,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
 	public void fillLists(){
 		while (lastHand == null){
-			currentSequence = jointNgram.babbleNext(currentSequence);
+			nextSequenceJoints();
 			lastLabel = getLastLabel(currentSequence);
 			lastHand = joints.get(lastLabel);
 
@@ -406,7 +406,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 				seededLabels.add(lastLabel);
 			} else {
 
-				currentSequence = jointNgram.babbleNext(currentSequence);
+				nextSequenceJoints();
 				String label = getLastLabel(currentSequence);
 
 				Hand h = joints.get(label);
@@ -422,7 +422,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
 		while (lastPosition == null){
 
-			currentSequencePosition = positionNgram.babbleNext(currentSequencePosition);
+			nextSequencePosition();
 			lastPositionLabel = getLastLabel(currentSequencePosition);
 
 			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
@@ -433,7 +433,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 		while (lastRotation== null){
 
 
-			currentSequenceRotation = rotationNgram.babbleNext(currentSequenceRotation);
+			nextSequenceRotation();
 			lastRotationLabel = getLastLabel(currentSequenceRotation);
 
 			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
@@ -448,7 +448,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 				String pLabel = null;
 				while (position == null){
 
-					currentSequencePosition = positionNgram.babbleNext(currentSequencePosition);
+					nextSequencePosition();
 					pLabel = getLastLabel(currentSequencePosition);
 
 					if (pLabel != null){
@@ -470,7 +470,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 				Quaternion rotation = null;
 				String rLabel = null;
 				while (rotation == null){
-					currentSequenceRotation = rotationNgram.babbleNext(currentSequenceRotation);
+					nextSequenceRotation();
 					rLabel = getLastLabel(currentSequenceRotation);
 
 					if (rLabel != null){
@@ -485,6 +485,30 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 				seededRotations.add(0, lastRotation);
 				rotationLabels.add(0, lastRotationLabel);
 			}
+		}
+	}
+
+	public void nextSequenceJoints(){
+		currentSequence = jointNgram.babbleNext(currentSequence);
+
+		if (currentSequence == null){
+			throw new DataSparsityException("Data is too sparse for input");
+		}
+	}
+
+	public void nextSequencePosition(){
+		currentSequencePosition = jointNgram.babbleNext(currentSequencePosition);
+
+		if (currentSequencePosition == null){
+			throw new DataSparsityException("Data is too sparse for input");
+		}
+	}
+
+	public void nextSequenceRotation(){
+		currentSequenceRotation = jointNgram.babbleNext(currentSequenceRotation);
+
+		if (currentSequenceRotation == null){
+			throw new DataSparsityException("Data is too sparse for input");
 		}
 	}
 

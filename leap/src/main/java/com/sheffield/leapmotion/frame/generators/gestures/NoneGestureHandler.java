@@ -8,6 +8,7 @@ import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Properties;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class NoneGestureHandler implements GestureHandler {
@@ -17,11 +18,11 @@ public class NoneGestureHandler implements GestureHandler {
 
 
 	protected State gestureState;
-	protected Type gestureType;
+	protected Type[] gestureTypes;
 	protected long gestureStart;
 	protected int gestureDuration;
 	protected int gestureId = 0;
-	protected Vector cumalitiveGesturePositions = Vector.zero();
+	protected ArrayList<Vector> cumalitiveGesturePositions = new ArrayList<Vector>();
 	protected int gestureCount = 0;
 	
 	@Override
@@ -52,15 +53,15 @@ public class NoneGestureHandler implements GestureHandler {
 	}
 	
 	public void advanceGestures(long time){
-		if (gestureState == null || gestureType == null || gestureState == State.STATE_STOP){
+		if (gestureState == null || gestureTypes == null || gestureState == State.STATE_STOP){
 			gestureState = State.STATE_START;
 			//TODO: Implement GestureSelector here!
-			gestureType = Gesture.Type.valueOf(getNextGesture());
+			gestureTypes = new Gesture.Type[]{Gesture.Type.valueOf(getNextGesture())};
 			gestureStart = System.currentTimeMillis()-3;
 			//default duration should be > 0 according to docs
 			gestureDuration = 3;
 			gestureId++;
-			cumalitiveGesturePositions = Vector.zero();
+			cumalitiveGesturePositions.clear();
 			gestureCount = 0;
 		} else {
 			if (gestureState == State.STATE_UPDATE){

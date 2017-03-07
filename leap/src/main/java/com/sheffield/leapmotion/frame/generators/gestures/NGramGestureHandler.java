@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
+import com.sheffield.leapmotion.frame.generators.DataSparsityException;
 import com.sheffield.leapmotion.frame.generators.NGramFrameGenerator;
 import com.sheffield.leapmotion.util.FileHandler;
 
@@ -51,6 +52,9 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	@Override
 	public String getNextGesture() {
 		currentGesture = ngram.babbleNext(currentGesture);
+		if (currentGesture == null){
+			throw new DataSparsityException("Gesture data too sparse!");
+		}
 		return NGramFrameGenerator.getLastLabel(currentGesture);
 	}
 }

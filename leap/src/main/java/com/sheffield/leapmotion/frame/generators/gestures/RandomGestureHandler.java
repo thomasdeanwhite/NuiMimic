@@ -42,33 +42,43 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
         SeededGestureList gl = new SeededGestureList();
 
-        if (gestureType == Gesture.Type.TYPE_INVALID)
-            return gl;
+        int counter = 0;
+        for (Gesture.Type gestureType : gestureTypes) {
+            if (gestureType == Gesture.Type.TYPE_INVALID)
+                return gl;
 
-        gestureCount++;
+            gestureCount++;
 
-        gl.addGesture(setupGesture(gestureType, frame, gestureId));
+            gl.addGesture(setupGesture(gestureType, frame, gestureId, counter++));
+        }
         return gl;
     }
 
-    private Gesture.Type nextGesture = null;
+    private Gesture.Type[] nextGestures = null;
 
     public Gesture setupGesture(Gesture.Type gestureType, Frame frame,
-                                int gestureId) {
+                                int gestureId, int count) {
         Gesture g = new SeededGesture(gestureType, gestureState, frame,
                 gestureDuration, gestureId);
+
+        Pointable frontMost = g.pointables().frontmost();
+        Pointable lastFrontMost = lastFrame.pointables().frontmost();
+
+        if (count > 0){
+            frontMost = g.pointables().get(count);
+            lastFrontMost = lastFrame.pointables().get(count);                gestureCount = 0;
+        }
 
 
         if (gestureType == Gesture.Type.TYPE_CIRCLE) {
             scg = new SeededCircleGesture(g);
-            if (cumalitiveGesturePositions.equals(Vector.zero())) {
-                cumalitiveGesturePositions = lastFrame.pointables().frontmost()
-                        .stabilizedTipPosition();
+            if (cumalitiveGesturePositions.size() < count) {
+                cumalitiveGesturePositions.add(lastFrontMost.stabilizedTipPosition());
             }
-            cumalitiveGesturePositions = cumalitiveGesturePositions
-                    .plus(frame.pointables().frontmost().stabilizedTipPosition
-                            ());
-            Vector center = cumalitiveGesturePositions.divide(gestureCount + 1);
+            cumalitiveGesturePositions.add(count+1, cumalitiveGesturePositions.get(count).plus(frontMost.stabilizedTipPosition
+                            ()));
+            cumalitiveGesturePositions.remove(count);
+            Vector center = cumalitiveGesturePositions.get(count).divide(gestureCount + 1);
 
 
             //Vector diff = center.minus(g.pointables().frontmost().stabilizedTipPosition());
@@ -76,19 +86,19 @@ public class RandomGestureHandler extends NoneGestureHandler {
             scg.setCenter(center);
 
             Vector gradient = (center.minus(
-                    g.pointables().frontmost().stabilizedTipPosition()));
+                    frontMost.stabilizedTipPosition()));
             scg.setRadius(
                     gradient.magnitude() + Properties.GESTURE_CIRCLE_RADIUS);
             gradient = gradient.normalized();
             scg.setNormal(new Vector(gradient.getY(), -gradient.getX(),
                     gradient.getZ()));
             scg.setProgress(gestureDuration / 1000f);
-            scg.setPointable(g.pointables().frontmost());
+            scg.setPointable(frontMost);
 
             ((SeededGesture) g).setCircleGesture(scg);
 
         } else if (gestureType == Gesture.Type.TYPE_SWIPE) {
-            Pointable p = g.pointables().frontmost();
+            Pointable p = frontMost;
             Vector position = p.hand().palmPosition();
             Vector startPosition;
             if (ssg != null) {
@@ -111,87 +121,116 @@ public class RandomGestureHandler extends NoneGestureHandler {
     @Override
     public void advanceGestures(long time) {
         //super.advanceGestures(time);
-        if (nextGesture == null){
-            nextGesture = Gesture.Type.valueOf(getNextGesture());
+        if (nextGestures == null){
+            String[] stringNext = nextGestures();
+            nextGestures = new Gesture.Type[stringNext.length];
+
+            for (int i = 0; i < stringNext.length; i++){
+                nextGestures[i] = Gesture.Type.valueOf(stringNext[i]);
+            }
         }
 
-        if (gestureState == null || gestureType == null ||
-                gestureState
-                        == Gesture.State.STATE_STOP || nextGesture != null) {
-            gestureState = Gesture.State.STATE_START;
-            //currentGesture = analyzer.getDataAnalyzer().next();
+            if (gestureState == null || gestureTypes == null ||
+                    gestureState
+                            == Gesture.State.STATE_STOP || nextGestures != null) {
+                gestureState = Gesture.State.STATE_START;
+                //currentGesture = analyzer.getDataAnalyzer().next();
 
-            gestureType = nextGesture;
-            nextGesture = null;
-            gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
-        } else {
-            if (gestureState == Gesture.State.STATE_UPDATE) {
-
-                String[] nextSet = getNextGesture().split("\\+");
-                Gesture.Type newType = Gesture.Type.TYPE_INVALID;
-
-                for (String s : nextSet) {
-                    Gesture.Type newGesture;
-                    try {
-                        newGesture = Gesture.Type.valueOf(s);
-
-                        if (newGesture != Gesture.Type.TYPE_INVALID) {
-                            newType = newGesture;
-                            break;
-                        }
-                    } catch (Exception e) {
-
-                    }
-                }
-
-                if (newType.equals(gestureType)) {
-                    int newDuration = (int) (time - gestureStart);
-                    gestureTimeLimit = newDuration + Properties.GESTURE_TIME_LIMIT;
-                    gestureDuration = newDuration;
-                } else if (gestureType.equals(Gesture.Type.TYPE_INVALID)
-                        || !newType.equals(Gesture.Type.TYPE_INVALID)) {
-
-                        cumalitiveGesturePositions = Vector.zero();
-                        gestureCount = 0;
-                        gestureDuration = 3;
-                        gestureStart = time - gestureDuration;
-                        nextGesture = newType;
-                        gestureState = Gesture.State.STATE_STOP;
-                        gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
-                } else if (gestureDuration > gestureTimeLimit){
-                    nextGesture = newType;
-                    gestureState = Gesture.State.STATE_STOP;
-                    gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
-                } else {
-                    nextGesture = null;
-                }
-
+                gestureTypes = nextGestures;
+                nextGestures = null;
+                gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
+                gestureCount = 0;
+                cumalitiveGesturePositions.clear();
             } else {
-                gestureState = Gesture.State.STATE_UPDATE;
-            }
+                    if (gestureState == Gesture.State.STATE_UPDATE) {
 
-//            if (gestureType == Gesture.Type.TYPE_INVALID){
-//                return;
-//            }
-            //update times
-            int newDuration = (int) (time - gestureStart);
-            gestureDuration = newDuration;
+                        String[] stringNext = nextGestures();
 
-            if (gestureState == Gesture.State.STATE_STOP) {
-                NGramLog ngLog = new NGramLog();
-                ngLog.element = gestureType.toString() + ",";
-                ngLog.timeSeeded = (int) (gestureDuration);
-                logs.add(ngLog);
-                if (outputFile != null) {
-                    try {
-                        FileHandler.appendToFile(outputFile, ngLog.toString());
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace(App.out);
+                        boolean continueGesture = true;
+
+                        for (String s : stringNext) {
+                            Gesture.Type newGesture;
+                            try {
+                                newGesture = Gesture.Type.valueOf(s);
+
+                                boolean found = false;
+
+                                for (Gesture.Type currentGestures : gestureTypes) {
+                                    if (currentGestures.equals(newGesture)) {
+                                        found = true;
+                                    }
+                                }
+
+                                if (!found) {
+                                    continueGesture = false;
+                                }
+                            } catch (Exception e) {
+
+                            }
+
+                        }
+
+                        if (continueGesture) {
+                            int newDuration = (int) (time - gestureStart);
+                            gestureTimeLimit = newDuration + Properties.GESTURE_TIME_LIMIT;
+                            gestureDuration = newDuration;
+//                        } else if (gestureType.equals(Gesture.Type.TYPE_INVALID)
+//                                || !newType.equals(Gesture.Type.TYPE_INVALID)) {
+//
+//                            cumalitiveGesturePositions = Vector.zero();
+//                            gestureCount = 0;
+//                            gestureDuration = 3;
+//                            gestureStart = time - gestureDuration;
+//                            nextGestures = new Gesture.Type[stringNext.length];
+//
+//                            for (int i = 0; i < stringNext.length; i++){
+//                                nextGestures[i] = Gesture.Type.valueOf(stringNext[i]);
+//                            }
+//                            gestureState = Gesture.State.STATE_STOP;
+//                            gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
+                        } else if (gestureDuration > gestureTimeLimit) {
+                            nextGestures = new Gesture.Type[stringNext.length];
+
+                            for (int i = 0; i < stringNext.length; i++){
+                                nextGestures[i] = Gesture.Type.valueOf(stringNext[i]);
+                            }
+                            gestureState = Gesture.State.STATE_STOP;
+                            gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
+                        } else {
+                            nextGestures = null;
+                        }
+
+                    } else {
+                        gestureState = Gesture.State.STATE_UPDATE;
                     }
-                }
+
+                    //            if (gestureType == Gesture.Type.TYPE_INVALID){
+                    //                return;
+                    //            }
+                    //update times
+                    int newDuration = (int) (time - gestureStart);
+                    gestureDuration = newDuration;
+
+                    if (gestureState == Gesture.State.STATE_STOP) {
+                        NGramLog ngLog = new NGramLog();
+                        ngLog.element = "";
+                        for (Gesture.Type gt : gestureTypes) {
+                            ngLog.element += gt.toString() + ",";
+                        }
+                        ngLog.timeSeeded = (int) (gestureDuration);
+                        logs.add(ngLog);
+                        if (outputFile != null) {
+                            try {
+                                FileHandler.appendToFile(outputFile, ngLog.toString());
+                            } catch (IOException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace(App.out);
+                            }
+                        }
+                    }
+
             }
-        }
+
     }
 
     private long lastUpdate = 0;
@@ -212,5 +251,9 @@ public class RandomGestureHandler extends NoneGestureHandler {
     @Override
     public String getNextGesture() {
         return super.getNextGesture();
+    }
+
+    private String[] nextGestures(){
+        return getNextGesture().split("\\+");
     }
 }
