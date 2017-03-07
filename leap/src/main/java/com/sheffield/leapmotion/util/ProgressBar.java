@@ -61,7 +61,7 @@ public class ProgressBar {
 
             percent = Math.min(1f, percent);
 
-            String progress = progChar;
+            String progress = "|";
             int b1 = (int) (percent * width);
             for (int i = 0; i < b1; i++) {
                 progress += progChar;
@@ -71,7 +71,7 @@ public class ProgressBar {
             for (int i = 0; i < b2; i++) {
                 progress += " ";
             }
-            progress += " " + ((int) (percent * 1000)) / 10f + "%";
+            progress += "| " + ((int) (percent * 1000)) / 10f + "%";
 
             return progress;
         }

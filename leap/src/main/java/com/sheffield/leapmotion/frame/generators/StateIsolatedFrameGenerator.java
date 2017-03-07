@@ -176,7 +176,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 		try {
 
-			currentState = StateComparator.getCurrentState();
+			currentState = updateState();
 
 			if (generators.containsKey(currentState)) {
 				currentGenerator = generators.get(currentState);
@@ -191,6 +191,10 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			generators.get(-1).tick(time);
 		}
 
+	}
+
+	private int updateState() {
+		return StateComparator.getCurrentState();
 	}
 
 	public long lastTick(){

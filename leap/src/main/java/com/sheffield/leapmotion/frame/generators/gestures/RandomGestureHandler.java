@@ -72,11 +72,10 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
         if (gestureType == Gesture.Type.TYPE_CIRCLE) {
             scg = new SeededCircleGesture(g);
-            if (cumalitiveGesturePositions.size() < count) {
+            if (cumalitiveGesturePositions.size() <= count) {
                 cumalitiveGesturePositions.add(lastFrontMost.stabilizedTipPosition());
             }
-            cumalitiveGesturePositions.add(count+1, cumalitiveGesturePositions.get(count).plus(frontMost.stabilizedTipPosition
-                            ()));
+            cumalitiveGesturePositions.add(count+1, cumalitiveGesturePositions.get(count).plus      (frontMost.stabilizedTipPosition()));
             cumalitiveGesturePositions.remove(count);
             Vector center = cumalitiveGesturePositions.get(count).divide(gestureCount + 1);
 
