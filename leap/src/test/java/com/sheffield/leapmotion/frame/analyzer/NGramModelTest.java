@@ -129,13 +129,13 @@ public class NGramModelTest {
 
     @Test
     public void checkDataSparsityChild(){
-        String sentence = "hello world hello".toLowerCase();
+        String sentence = "hello world hi".toLowerCase();
 
         ng = NGramModel.getNGram(3, sentence);
 
         ng.babbleNext("hello world");
         try {
-            ng.babbleNext("world hello");
+            ng.babbleNext("hello hi");
             fail("Data is sparse and should throw exception");
         } catch (DataSparsityException dse){
             // pass

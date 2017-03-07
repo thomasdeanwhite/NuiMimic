@@ -181,6 +181,10 @@ public class NGram implements Serializable {
             }
         }
 
+        if (returnString == null){
+            throw new DataSparsityException("Data is too sparse!");
+        }
+
         return returnString;
     }
 
