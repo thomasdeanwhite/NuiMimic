@@ -79,7 +79,7 @@ public class ProgressBar {
         @Override
         public String getBarHeader(int width) {
             String head = "|0 ";
-            width -= 8;
+            width -= 10;
 
             width /= 2;
 

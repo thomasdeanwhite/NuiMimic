@@ -188,9 +188,9 @@ public class InstantiationVisitor extends MethodVisitor {
             super.visitInsn(Opcodes.POP);
             shouldCall = false;
             super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_GD_CLASS, name, desc, itf);
-            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
-            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
+//            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+//            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
+//            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);
 //        } else if (owner.equalsIgnoreCase(GD_CLASS)){
 //            shouldCall = false;
 //            super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);

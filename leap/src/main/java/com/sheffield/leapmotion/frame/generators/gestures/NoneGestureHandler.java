@@ -57,7 +57,7 @@ public class NoneGestureHandler implements GestureHandler {
 			gestureState = State.STATE_START;
 			//TODO: Implement GestureSelector here!
 			gestureTypes = new Gesture.Type[]{Gesture.Type.valueOf(getNextGesture())};
-			gestureStart = System.currentTimeMillis()-3;
+			gestureStart = time-3;
 			//default duration should be > 0 according to docs
 			gestureDuration = 3;
 			gestureId++;

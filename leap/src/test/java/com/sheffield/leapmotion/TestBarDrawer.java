@@ -16,11 +16,40 @@ public class TestBarDrawer {
 
         int bars = 21;
 
-        assertEquals("|0 ------ 50 ------ 100%|", bd
+        assertEquals("|0 ----- 50 ----- 100%|", bd
                 .getBarHeader(bars));
 
         assertEquals("|∎∎∎∎∎∎∎∎∎∎           | 50.0%", bd.drawBar(bars,
                 0.5f));
+
+        assertEquals(bd.getBarHeader(bars).length(), bd.drawBar(bars, 0.5f).lastIndexOf("|")+1);
+    }
+
+
+    @Test
+    public void testHeaderedBarDrawerEmpty(){
+        ProgressBar.BarDrawer bd = new ProgressBar.HeaderedBarDrawer();
+
+        int bars = 21;
+
+        assertEquals("|0 ----- 50 ----- 100%|", bd
+                .getBarHeader(bars));
+
+        assertEquals("|                     | 0.0%", bd.drawBar(bars,
+                0.0f));
+    }
+
+    @Test
+    public void testHeaderedBarDrawerFull(){
+        ProgressBar.BarDrawer bd = new ProgressBar.HeaderedBarDrawer();
+
+        int bars = 21;
+
+        assertEquals("|0 ----- 50 ----- 100%|", bd
+                .getBarHeader(bars));
+
+        assertEquals("|∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎| 100.0%", bd.drawBar(bars,
+                1f));
     }
 
 }

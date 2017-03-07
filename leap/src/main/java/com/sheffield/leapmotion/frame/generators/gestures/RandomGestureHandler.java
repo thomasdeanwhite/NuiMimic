@@ -75,9 +75,9 @@ public class RandomGestureHandler extends NoneGestureHandler {
             if (cumalitiveGesturePositions.size() <= count) {
                 cumalitiveGesturePositions.add(lastFrontMost.stabilizedTipPosition());
             }
-            cumalitiveGesturePositions.add(count+1, cumalitiveGesturePositions.get(count).plus      (frontMost.stabilizedTipPosition()));
-            cumalitiveGesturePositions.remove(count);
-            Vector center = cumalitiveGesturePositions.get(count).divide(gestureCount + 1);
+            //cumalitiveGesturePositions.add(count+1, cumalitiveGesturePositions.get(count).plus      (frontMost.stabilizedTipPosition()));
+            //cumalitiveGesturePositions.remove(count);
+            Vector center = cumalitiveGesturePositions.get(count);//.divide(gestureCount + 1);
 
 
             //Vector diff = center.minus(g.pointables().frontmost().stabilizedTipPosition());
@@ -120,7 +120,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
     @Override
     public void advanceGestures(long time) {
         //super.advanceGestures(time);
-        if (nextGestures == null){
+        if (gestureTypes == null){
             String[] stringNext = nextGestures();
             nextGestures = new Gesture.Type[stringNext.length];
 
@@ -131,10 +131,10 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
             if (gestureState == null || gestureTypes == null ||
                     gestureState
-                            == Gesture.State.STATE_STOP || nextGestures != null) {
+                            == Gesture.State.STATE_STOP) {
                 gestureState = Gesture.State.STATE_START;
                 //currentGesture = analyzer.getDataAnalyzer().next();
-
+                gestureStart = time-3;
                 gestureTypes = nextGestures;
                 nextGestures = null;
                 gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
@@ -173,20 +173,6 @@ public class RandomGestureHandler extends NoneGestureHandler {
                             int newDuration = (int) (time - gestureStart);
                             gestureTimeLimit = newDuration + Properties.GESTURE_TIME_LIMIT;
                             gestureDuration = newDuration;
-//                        } else if (gestureType.equals(Gesture.Type.TYPE_INVALID)
-//                                || !newType.equals(Gesture.Type.TYPE_INVALID)) {
-//
-//                            cumalitiveGesturePositions = Vector.zero();
-//                            gestureCount = 0;
-//                            gestureDuration = 3;
-//                            gestureStart = time - gestureDuration;
-//                            nextGestures = new Gesture.Type[stringNext.length];
-//
-//                            for (int i = 0; i < stringNext.length; i++){
-//                                nextGestures[i] = Gesture.Type.valueOf(stringNext[i]);
-//                            }
-//                            gestureState = Gesture.State.STATE_STOP;
-//                            gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
                         } else if (gestureDuration > gestureTimeLimit) {
                             nextGestures = new Gesture.Type[stringNext.length];
 

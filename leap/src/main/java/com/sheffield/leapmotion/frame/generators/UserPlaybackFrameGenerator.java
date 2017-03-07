@@ -44,7 +44,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		if (recFrameGen != null){
 			csv.add("rms", "" + rms);
-			csv.add("clusters", "" + recFrameGen.clusters());
+			csv.add("clusters", "" + ((Reconstruction)recFrameGen).getClusters());
 		}
 
 		csv.finalize();
@@ -82,14 +82,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 	private DisplayWindow dw;
 
-	private ReconstructiveFrameGenerator
+	private FrameGenerator
 			recFrameGen = null;
 	
 	public UserPlaybackFrameGenerator(FrameGenerator frameGenerator,
                                       Controller controller) {
-
-		Properties.FRAME_SELECTION_STRATEGY = Properties
-				.FrameSelectionStrategy.USER_PLAYBACK;
 
 		if (Properties.PROCESS_PLAYBACK || Properties.PROCESS_SCREENSHOTS){
 			// This happens when we want to split frames into separate models
@@ -134,17 +131,12 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				}
 			});
 
-			if (frameGenerator instanceof ReconstructiveFrameGenerator){
+			if (frameGenerator instanceof Reconstruction){
 				Properties.PLAYBACK_FILE = null;
 				boolean vis = Properties.VISUALISE_DATA;
 				Properties.VISUALISE_DATA = false;
-				Properties.FRAME_SELECTION_STRATEGY = Properties
-						.FrameSelectionStrategy.RECONSTRUCTION;
 				fh = new FrameHandler();
 				fh.init(controller);
-
-				Properties.FRAME_SELECTION_STRATEGY = Properties
-						.FrameSelectionStrategy.USER_PLAYBACK;
 
 				Properties.VISUALISE_DATA = vis;
 				if (Properties.VISUALISE_DATA) {
@@ -162,7 +154,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				Properties.PLAYBACK_FILE = playback;
 
 
-				recFrameGen = (ReconstructiveFrameGenerator) frameGenerator;
+				recFrameGen = frameGenerator;
 
 //				if (tdps.size() != maxFrames){
 //					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
@@ -171,6 +163,10 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 
 			}
+
+
+			Properties.FRAME_SELECTION_STRATEGY = Properties
+					.FrameSelectionStrategy.USER_PLAYBACK;
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -314,6 +310,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
         // differences
 		if (fh != null){
 			fh.tick(time);
+
+			((Reconstruction)recFrameGen).setFrame(currentFrame);
+
 			if (fhFrame != null && fhFrame.isValid() && fhFrame.hands().count() > 0){
 				if (totalDifferences == null){
 					totalDifferences = new HashMap<Finger.Type, HashMap<Bone.Type, Float>>();

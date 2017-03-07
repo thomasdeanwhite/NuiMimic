@@ -297,35 +297,24 @@ public class App implements ThrowableListener, Tickable {
             return;
         }
 
-        if (!ENABLE_APPLICATION_OUTPUT && !outputSet) {
-            PrintStream dummyStream = new PrintStream(new OutputStream() {
-
-                @Override
-                public void write(int b) throws IOException {
-                    // TODO Auto-generated method stub
-                    //App.out.write(b);
-                }
-
-            }, true);
-
+        if (!ENABLE_APPLICATION_OUTPUT && (!outputSet || out == null)) {
             out = System.out;
-
-            System.setOut(dummyStream);
-
-//            System.setErr(new PrintStream(new OutputStream() {
-//                @Override
-//                public void write(int b) throws IOException {
-//
-//                    FileOutputStream fos = new FileOutputStream(new File(Properties.TESTING_OUTPUT +
-//                            "/err/" + Properties.CURRENT_RUN + "error.log"
-//                    ));
-//
-//                    fos.write(b);
-//                }
-//            }));
 
             outputSet = true;
         }
+
+        PrintStream dummyStream = new PrintStream(new OutputStream() {
+
+            @Override
+            public void write(int b) throws IOException {
+                // TODO Auto-generated method stub
+                //App.out.write(b);
+            }
+
+        }, true);
+
+
+        System.setOut(dummyStream);
     }
 
     public static App getApp() {

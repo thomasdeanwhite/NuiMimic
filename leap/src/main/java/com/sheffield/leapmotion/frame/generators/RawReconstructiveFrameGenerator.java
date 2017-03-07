@@ -28,7 +28,7 @@ import java.util.HashMap;
 /**
  * Created by thoma on 11/05/2016.
  */
-public class RawReconstructiveFrameGenerator extends FrameGenerator implements GestureHandler {
+public class RawReconstructiveFrameGenerator extends FrameGenerator implements GestureHandler, Reconstruction {
 
     @Override
     public Csv getCsv() {
@@ -419,7 +419,13 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
     }
 
-    public int clusters(){
+    @Override
+    public int getClusters(){
         return hands.size();
+    }
+
+    @Override
+    public void setFrame(int index) {
+        currentHandIndex = index;
     }
 }
