@@ -168,6 +168,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             String positionFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_position_data";
             contents = FileHandler.readFile(new File(positionFile));
             lines = contents.split("\n");
+
             vectors = new HashMap<String, Vector>();
             for (String line : lines) {
                 Vector v = new Vector();
@@ -348,18 +349,18 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             gestureHandIndex = currentHandIndex;
 
 
-//            int skippedHands = 0;
-//            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
-//
-//            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
-//                newFrameTime = timings.get(currentHandIndex+skippedHands) -
-//                        Properties.SWITCH_TIME;
-//                skippedHands++;
-//            }
-//
-//            if (skippedHands != 0){
-//                currentHandIndex += (skippedHands-1);
-//            }
+            int skippedHands = 0;
+            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+
+            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
+                newFrameTime = timings.get(currentHandIndex+skippedHands) -
+                        Properties.SWITCH_TIME;
+                skippedHands++;
+            }
+
+            if (skippedHands != 0){
+                currentHandIndex += (skippedHands-1);
+            }
 
             frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
