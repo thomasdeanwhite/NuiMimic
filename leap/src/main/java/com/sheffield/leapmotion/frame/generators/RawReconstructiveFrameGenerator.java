@@ -273,7 +273,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
         }
         Frame f = SeededController.newFrame();
 
-        modifier = Math.min(1f, currentAnimationTime / Properties.SWITCH_TIME);
+         modifier = Math.min(1f, currentAnimationTime / Properties.SWITCH_TIME);
 
         if (currentHands.size() > 0){
             Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
