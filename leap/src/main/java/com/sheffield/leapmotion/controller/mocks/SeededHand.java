@@ -35,7 +35,7 @@ public class SeededHand extends Hand implements Serializable {
     protected float pinchStrength;
     protected float grabStrength;
 
-    protected Quaternion rotation;
+    protected Quaternion rotation = Quaternion.IDENTITY;
 
     protected PointableList pointables;
     protected ToolList tools;

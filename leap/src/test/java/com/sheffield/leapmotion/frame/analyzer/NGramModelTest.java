@@ -1,8 +1,10 @@
 package com.sheffield.leapmotion.frame.analyzer;
 
+import com.leapmotion.leap.Controller;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.DataSparsityException;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -140,6 +142,19 @@ public class NGramModelTest {
         } catch (DataSparsityException dse){
             // pass
         }
+
+    }
+
+
+    @Ignore
+    public void checkDataSmoothing(){
+        String sentence = "hello world hi there".toLowerCase();
+
+        ng = NGramModel.getNGram(3, sentence);
+
+        String babble = ng.babbleNext("hi world");
+
+        assertEquals("there", babble);
 
     }
 

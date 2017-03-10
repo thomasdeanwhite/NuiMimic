@@ -157,10 +157,16 @@ public class FrameDeconstructor {
         FileHandler.appendToFile(currentHandJoints, frameAsString + "\n");
     }
 
-    public void outputHandPositionModel(Hand h) throws IOException {
-
+    public String getHandPosition(Hand h){
         String position = uniqueId + "," + h.palmPosition().getX() + ","
                 + h.palmPosition().getY() + "," + h.palmPosition().getZ() + "\n";
+
+        return position;
+    }
+
+    public void outputHandPositionModel(Hand h) throws IOException {
+
+        String position = getHandPosition(h);
 
         if (currentPosition == null) {
             currentPosition = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/hand_positions_pool.ARFF");

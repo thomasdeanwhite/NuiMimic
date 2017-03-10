@@ -36,6 +36,14 @@ public class InstrumentingRunType implements RunType {
             Properties.WRITE_CLASS = true;
             Properties.BYTECODE_DIR = dir + "classes";
 
+            String related = dir + "related_classes.csv";
+
+            File relatedFile = new File(related);
+
+            if (relatedFile.exists() && !Properties.DEPENDENCY_TREE_OVERRIDE) {
+                Properties.SKIP_DEPENDENCY_TREE = true;
+            }
+
             LeapMotionApplicationHandler.instrumentJar(Properties.JAR_UNDER_TEST);
 
             String output = dir + "branches.csv";
@@ -109,13 +117,11 @@ public class InstrumentingRunType implements RunType {
 //                App.out.println(s);
 //            }
 
-            String related = dir + "related_classes.csv";
-
-            File relatedFile = new File(related);
-
-            if (!relatedFile.exists()) {
-                relatedFile.createNewFile();
+            if (Properties.SKIP_DEPENDENCY_TREE && !Properties.DEPENDENCY_TREE_OVERRIDE){
+                return 0;
             }
+
+            relatedFile.createNewFile();
 
             String classes = "";
 

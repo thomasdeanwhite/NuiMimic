@@ -74,7 +74,7 @@ public class SeededFingerList extends FingerList implements Serializable {
 	public FingerList extended() {
 		SeededFingerList ext = new SeededFingerList();
 		for (Finger f : fingers) {
-			if (f.isExtended() && f.type() != Finger.Type.TYPE_THUMB) {
+			if (f.isExtended()) {
 				ext.addFinger(f);
 			}
 		}
@@ -92,7 +92,15 @@ public class SeededFingerList extends FingerList implements Serializable {
 
 	@Override
 	public FingerList fingerType(Type arg0) {
-		return this;
+		SeededFingerList sfl = new SeededFingerList();
+
+		for (Finger f : fingers){
+			if (f.type().equals(arg0)){
+				sfl.addFinger(f);
+			}
+		}
+
+		return sfl;
 	}
 
 	@Override

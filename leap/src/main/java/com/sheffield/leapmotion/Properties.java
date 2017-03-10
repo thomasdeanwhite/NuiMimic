@@ -27,10 +27,9 @@ import java.util.Map;
  * Created by thomas on 04/05/2016.
  */
 public class Properties extends InstrumentationProperties {
-
     /*
-            Properties for Leap Motion Testing
-     */
+                Properties for Leap Motion Testing
+         */
     @Parameter(key = "dataPoolDirectory", description = "Directory containing data pool", hasArgs = true, category = "Leap Motion Testing")
     public static String DIRECTORY = System.getProperty("user.home") + "/data/leap-motion";
 
@@ -100,7 +99,7 @@ public class Properties extends InstrumentationProperties {
     String[]{"com/sheffield/leapmotion/",
             "com/google/",
             "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
-            "org/junit/", /*"Launcher",*/ "org/apache", "com/garg", "net/sourceforge",
+            "org/junit/", "org/apache", "com/garg", "net/sourceforge",
             "com/steady", "com/thought", "com/jogamp", "com/bulletphysics", "com/jme3",
             "com/oracle", "org/objectweb", "javax", "jogamp", "jme3", "org/lwjgl", "net/java"};
 
@@ -227,6 +226,12 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "singleDataPool", description = "Should a single data pool be used to reconstruct hands?",
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean SINGLE_DATA_POOL = false;
+
+    @Parameter(key = "skipDependencyTree", description = "Skip building dependency tree", hasArgs = false, category = "Leap Motion Testing")
+    public static boolean SKIP_DEPENDENCY_TREE = false;
+
+    @Parameter(key = "dependencyTreeOverride", description = "Use to always build a fresh dependency tree", hasArgs = false, category = "Leap Motion Testing")
+    public static boolean DEPENDENCY_TREE_OVERRIDE = false;
 
 
     public void setOptions(CommandLine cmd) throws IllegalAccessException {

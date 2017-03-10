@@ -9,6 +9,8 @@ import com.sheffield.leapmotion.controller.mocks.SeededHand;
  */
 public class Quaternion {
 
+    public static final Quaternion IDENTITY = new Quaternion(1, 0, 0, 0);
+
     public float w, x, y, z;
 
     private Quaternion inverse;

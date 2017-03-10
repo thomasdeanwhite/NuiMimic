@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.controller;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class TestFrameHandler {
         App.CLOSING = true;
     }
 
-    @Test
+    @Ignore
     public void testEmptyGen(){
 
         Properties.FRAME_SELECTION_STRATEGY = Properties

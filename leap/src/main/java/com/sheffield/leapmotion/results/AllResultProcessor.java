@@ -33,7 +33,7 @@ public class AllResultProcessor {
 
     private static int LINES_UNCOVERED = 0;
 
-    private static String[] colors = {"#880000", "#008888", "#888800", "#008800", "#000088", "#888888", "#000000"};
+    private static String[] colors = {"#880000", "#008888", "#888800", "#008800", "#000088", "#888888", "#000000", "#FF0000", "#00FF00", "#0000FF"};
 
     private static ArrayList<ClassTracker> relatedClassMethods = new ArrayList<ClassTracker>();
 
@@ -83,7 +83,7 @@ public class AllResultProcessor {
                     }
                     relatedClassMethods = clas;
 
-                    App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
+                    App.out.println("- Found related classes file at: " + relatedFile.getAbsolutePath());
                     App.out.println("[" + relatedLines + " related lines, " + relatedBranches + " related branches, " + relatedClassMethods.size() + " related classes]");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -98,7 +98,10 @@ public class AllResultProcessor {
 
             HashMap<String, HashMap<String, HashMap<Integer, Integer>>> methodLinesCovered = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
 
-            String[] methodsUsed = {"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDENT", "STATE_ISOLATED", "RECONSTRUCTION", "EMPTY", "USER_PLAYBACK", "UNKNOWN"};
+            String[] methodsUsed = {
+                    //"VQ", "RANDOM", "SINGLE_MODEL", "STATE_DEPENDENT", "EMPTY",
+                    "RECONSTRUCTION", "RAW_RECONSTRUCTION",  "USER_PLAYBACK", "OTHER"
+            };
 
             ArrayList<String> seenMethods = new ArrayList<String>();
 
@@ -129,7 +132,7 @@ public class AllResultProcessor {
                 int relatedLineIndex = 0;
 
                 for (int i = 0; i < header.length; i++) {
-                    if (header[i].contains("relatedLineCoverage")) {
+                    if (header[i].contains("lineCoverage")) {
                         relatedLineIndex = i;
                         break;
                     }
@@ -138,14 +141,14 @@ public class AllResultProcessor {
                 String method = "";
 
                 for (String s : methodsUsed) {
-                    if (resultsString.contains(s)) {
+                    if (resultsString.contains("," + s + ",")) {
                         method = s;
                         break;
                     }
                 }
 
                 if (method.length() == 0) {
-                    method = "UNKNOWN";
+                    method = "OTHER";
                 }
 
                 for (int i = resultsLines.length - 1; i > 0; i--) {
