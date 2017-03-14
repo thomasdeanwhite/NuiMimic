@@ -71,6 +71,7 @@ public class HandFactory {
 		thumb.type = Finger.Type.TYPE_THUMB;
 		thumb.hand = hand;
 		thumb.rotation = hand.rotation;
+		thumb.tipPosition = vectorFromStrings(offset++, info);
 		thumb.normalize();
 		fingers[0] = thumb;
 
@@ -89,6 +90,7 @@ public class HandFactory {
 			finger.hand = hand;
 			finger.type = fingerTypes[j];
 			finger.rotation = hand.rotation;
+			finger.tipPosition = vectorFromStrings(offset++, info);
 			fingers[j + 1] = finger;
 			finger.normalize();
 		}
@@ -202,6 +204,11 @@ public class HandFactory {
 			output += next.getY() + ",";
 			output += next.getZ() + ",";
 		}
+		Vector thumbTip = handTransform.transformPoint(thumb.tipPosition());
+
+		output += thumbTip.getX() + ",";
+		output += thumbTip.getY() + ",";
+		output += thumbTip.getZ() + ",";
 		for (int j = 0; j < fingerTypes.length; j++) {
 			Finger finger = fl.fingerType(fingerTypes[j]).get(0);
 			for (int i = 0; i < fingerBoneTypes.length; i++) {
@@ -215,6 +222,13 @@ public class HandFactory {
 				output += next.getY() + ",";
 				output += next.getZ() + ",";
 			}
+
+			Vector fingerTip = handTransform.transformPoint(finger
+					.tipPosition());
+
+			output += fingerTip.getX() + ",";
+			output += fingerTip.getY() + ",";
+			output += fingerTip.getZ() + ",";
 		}
 
 		output += h.pinchStrength() + ",";
@@ -242,6 +256,13 @@ public class HandFactory {
 			output += next.getY() + ",";
 			output += next.getZ() + ",";
 		}
+
+		Vector thumbTip = thumb.tipPosition();
+
+		output += thumbTip.getX() + ",";
+		output += thumbTip.getY() + ",";
+		output += thumbTip.getZ() + ",";
+
 		for (int j = 0; j < fingerTypes.length; j++) {
 			Finger finger = fl.fingerType(fingerTypes[j]).get(0);
 			for (int i = 0; i < fingerBoneTypes.length; i++) {
@@ -255,6 +276,12 @@ public class HandFactory {
 				output += next.getY() + ",";
 				output += next.getZ() + ",";
 			}
+
+			Vector fingerTip = finger.tipPosition();
+
+			output += fingerTip.getX() + ",";
+			output += fingerTip.getY() + ",";
+			output += fingerTip.getZ() + ",";
 		}
 
 		output += h.pinchStrength() + ",";

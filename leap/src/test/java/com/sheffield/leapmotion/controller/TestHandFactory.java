@@ -83,6 +83,13 @@ public class TestHandFactory {
                 counter += 6;
 
             }
+            // finger tip position
+            Vector origTip = original.fingers().fingerType(ft).get(0).tipPosition();
+            Vector newTip = new Vector(joints[counter], joints[counter+1],
+                    joints[counter+2]);
+            assertVectorEquals("Tip position does not match.", origTip,
+                    newTip);
+            counter += 3;
         }
     }
 
@@ -128,6 +135,19 @@ public class TestHandFactory {
                         restored.fingers().fingerType(ft).get(0).bone(bt).center());
 
             }
+
+            Vector tip1 = original.fingers().fingerType(ft)
+                    .get(0).tipPosition();
+
+            Vector lastJointPosDir = original.fingers().fingerType(ft)
+                    .get(0).bone(Bone.Type.TYPE_DISTAL).direction();
+
+            Vector tip2 = restored.fingers().fingerType(ft).get(0)
+                    .tipPosition();
+
+            assertVectorEquals("Finger Tip Position reconstruction error: " +
+                            tip1 + tip2 + lastJointPosDir + tip2.minus(tip1),
+                    tip1, tip2);
         }
 
     }

@@ -43,7 +43,7 @@ public class SeededFinger extends Finger implements Serializable {
 		basis = Matrix.identity();
 		extended = true;
 		direction = bone(Bone.Type.TYPE_DISTAL).prevJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).normalized();
-		touchDistance = tipPosition().getZ() / 400;
+		touchDistance = 0f;
 		width = 50f;
 		tipPosition = Vector.forward();
 		length = bone(Bone.Type.TYPE_DISTAL).nextJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).magnitude();
@@ -88,14 +88,6 @@ public class SeededFinger extends Finger implements Serializable {
 				Bone.Type.TYPE_INTERMEDIATE,
 				Bone.Type.TYPE_DISTAL
 		};
-
-		Vector prevJoint = ((SeededBone)bone(bts[0])).prevJoint;
-
-
-		//basis = basis.times(Matrix.identity());
-		//basis.setOrigin(prevJoint);
-
-		//prevJoint = rotation.rotateVector(prevJoint);
 
 		for (Bone.Type bt : bts) {
 			Bone b = bone(bt);
@@ -221,7 +213,7 @@ public class SeededFinger extends Finger implements Serializable {
 	@Override
 	public Vector tipPosition() {
 		// TODO Auto-generated method stub
-		return bone(Bone.Type.TYPE_DISTAL).nextJoint();
+		return tipPosition;
 	}
 
 	@Override
