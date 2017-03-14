@@ -10,6 +10,9 @@ target/*
 *.log
 *.*~
 */*.*~
+NuiMimic
 NuiMimic/*
 *.csv
 */*.csv
+leap/NuiMimic
+leap/NuiMimic/*
