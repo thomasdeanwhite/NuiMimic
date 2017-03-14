@@ -117,38 +117,12 @@ public class TestHandFactory {
         Hand restored = HandFactory.createHand(serializedHand, f);
 
         for (Finger.Type ft : fingerTypes){
-            for (Bone.Type bt : fingerBoneTypes){
-
-                String error = ft + ":" + bt + " is incorrectly reconstructed!";
-
-                assertVectorEquals(error, original.fingers().fingerType(ft).get(0).bone(bt).nextJoint(),
-                        restored.fingers().fingerType(ft).get(0).bone(bt).nextJoint());
-
-                assertVectorEquals(error, original.fingers().fingerType(ft).get(0).bone(bt).prevJoint(),
-                        restored.fingers().fingerType(ft).get(0).bone(bt).prevJoint());
-
-                assertVectorEquals(error, original.fingers().fingerType(ft).get(0).bone(bt).direction(),
-                        restored.fingers().fingerType(ft).get(0).bone(bt).direction());
-
-
-                assertVectorEquals(error, original.fingers().fingerType(ft).get(0).bone(bt).center(),
-                        restored.fingers().fingerType(ft).get(0).bone(bt).center());
-
-            }
-
-            Vector tip1 = original.fingers().fingerType(ft)
-                    .get(0).tipPosition();
-
-            Vector lastJointPosDir = original.fingers().fingerType(ft)
-                    .get(0).bone(Bone.Type.TYPE_DISTAL).direction();
-
-            Vector tip2 = restored.fingers().fingerType(ft).get(0)
-                    .tipPosition();
-
-            assertVectorEquals("Finger Tip Position reconstruction error: " +
-                            tip1 + tip2 + lastJointPosDir + tip2.minus(tip1),
-                    tip1, tip2);
+            assertFingerEquals(original.fingers().fingerType(ft).get(0),
+                    restored.fingers().fingerType(ft).get(0));
         }
+
+        assertFingerEquals(original.fingers().frontmost(),
+                restored.fingers().frontmost());
 
     }
 
@@ -190,6 +164,37 @@ public class TestHandFactory {
         assertEquals(error, v1.getX(), v2.getX(), 0.000001f);
         assertEquals(error, v1.getY(), v2.getY(), 0.000001f);
         assertEquals(error, v1.getZ(), v2.getZ(), 0.000001f);
+    }
+
+    public void assertFingerEquals(Finger f1, Finger f2){
+        for (Bone.Type bt : fingerBoneTypes){
+
+            String error = f1.type() + ":" + bt + " is incorrectly reconstructed!";
+
+            assertVectorEquals(error, f1.bone(bt).nextJoint(),
+                    f2.bone(bt).nextJoint());
+
+            assertVectorEquals(error, f1.bone(bt).prevJoint(),
+                    f2.bone(bt).prevJoint());
+
+            assertVectorEquals(error, f1.bone(bt).direction(),
+                    f2.bone(bt).direction());
+
+
+            assertVectorEquals(error, f1.bone(bt).center(),
+                    f2.bone(bt).center());
+
+        }
+
+        Vector tip1 = f1.tipPosition();
+
+        Vector lastJointPosDir = f1.bone(Bone.Type.TYPE_DISTAL).direction();
+
+        Vector tip2 = f2.tipPosition();
+
+        assertVectorEquals("Finger Tip Position reconstruction error: " +
+                        tip1 + tip2 + lastJointPosDir + tip2.minus(tip1),
+                tip1, tip2);
     }
 
 }

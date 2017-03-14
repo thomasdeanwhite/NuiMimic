@@ -47,8 +47,9 @@ public class SeededFinger extends Finger implements Serializable {
 		width = 50f;
 		tipPosition = Vector.forward();
 		length = bone(Bone.Type.TYPE_DISTAL).nextJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).magnitude();
-		touchZone = touchDistance > 0 ? Zone.ZONE_TOUCHING
-				: touchDistance > 50 / MAX_Z_POSITION ? Zone.ZONE_HOVERING : Zone.ZONE_NONE;
+		touchZone = touchDistance == 0 ? Zone.ZONE_HOVERING
+				: touchDistance < 0 ? Zone.ZONE_TOUCHING :
+				Zone.ZONE_NONE;
 
 	}
 
@@ -112,9 +113,11 @@ public class SeededFinger extends Finger implements Serializable {
 		}
 
 		tipPosition = tipPosition();
-		touchDistance = tipPosition().getZ() / 30f;
+		touchDistance = tipPosition().getZ() / 175.9227638355454f;
 		length = bone(Bone.Type.TYPE_DISTAL).nextJoint().minus(bone(Bone.Type.TYPE_METACARPAL).prevJoint()).magnitude();
-		touchZone = touchDistance <= 0 ? Zone.ZONE_TOUCHING : touchDistance > 1f? Zone.ZONE_NONE : Zone.ZONE_HOVERING;
+		touchZone = touchDistance == 0 ? Zone.ZONE_HOVERING
+				: touchDistance < 0 ? Zone.ZONE_TOUCHING :
+				Zone.ZONE_NONE;
 	}
 
 	@Override
