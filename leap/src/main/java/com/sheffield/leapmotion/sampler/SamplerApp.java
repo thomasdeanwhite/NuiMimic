@@ -10,8 +10,10 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
+import com.sheffield.leapmotion.util.ProgressBar;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -30,8 +32,6 @@ public class SamplerApp extends Listener {
 
     private float FRAMES_PER_SECOND = 0;
     private long FRAMES = 0;
-
-    public static final long[] BREAK_TIMES = FrameDeconstructor.BREAK_TIMES;
 
     public static boolean USE_CONTROLLER = true;
     public static PrintStream out = System.out;
@@ -71,6 +71,8 @@ public class SamplerApp extends Listener {
 
         if (REQUEST_NAME) {
             filenameStart = JOptionPane.showInputDialog(null, "Please enter your identifier", "Leap Motion Sampler", JOptionPane.INFORMATION_MESSAGE);
+
+            FrameDeconstructor.BREAK_TIMES = new long[]{300000};
         }
 
         if (SHOW_GUI) {
@@ -119,7 +121,7 @@ public class SamplerApp extends Listener {
         while (LOOP && app.status() != AppStatus.FINISHED) {
             try {
                 app.tick();
-                Thread.sleep(5);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -137,7 +139,7 @@ public class SamplerApp extends Listener {
 
     }
 
-    private final ArrayList<Frame> frames = new ArrayList();
+    //private final ArrayList<Frame> frames = new ArrayList();
 
     @Override
     public void onConnect(Controller controller) {
@@ -160,7 +162,7 @@ public class SamplerApp extends Listener {
     public void onFrame(Controller arg0) {
         final Frame frame = arg0.frame();
         if (frame.isValid()) {
-            frames.add(frame);
+            //frames.add(frame);
             frame(frame);
 
         }
@@ -183,6 +185,8 @@ public class SamplerApp extends Listener {
     private long lastTimeSeen = 0;
 
     private long lastFrame = 0;
+
+    private boolean printHeader = true;
 
     public synchronized void frame(Frame f) {
 
@@ -230,10 +234,14 @@ public class SamplerApp extends Listener {
                 if (RECORDING_USERS) {
                     frameDeconstructor.outputRawFrameData(frame);
                 } else {
-                    if (breakIndex >= 0 && breakIndex < BREAK_TIMES.length) {
-                        if (time - startTime > BREAK_TIMES[breakIndex]) {
+                    if (breakIndex >= 0 && breakIndex < FrameDeconstructor
+                            .BREAK_TIMES
+                            .length) {
+                        if (time - startTime > FrameDeconstructor
+                                .BREAK_TIMES[breakIndex]) {
                             breakIndex++;
-                            if (breakIndex >= BREAK_TIMES.length) {
+                            if (breakIndex >= FrameDeconstructor.BREAK_TIMES
+                                    .length) {
                                 status = AppStatus.FINISHED;
                                 return;
                             }
@@ -297,31 +305,28 @@ public class SamplerApp extends Listener {
                     }
                 }
             }
+            final int bars = 60;
+            if (printHeader) {
+                out.println(ProgressBar.getHeaderBar(bars));
+                printHeader = false;
+            }
             if (LOOP) {
                 long done = time - startTime;
                 FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
 
-                final int bars = 60;
-                long total = BREAK_TIMES[BREAK_TIMES.length - 1];
+                long total = FrameDeconstructor
+                        .BREAK_TIMES[FrameDeconstructor.BREAK_TIMES
+                        .length - 1];
 
-                String progress = "[";
                 float percent = done / (float) total;
-                int b1 = (int) (percent * bars);
-                for (int j = 0; j < b1; j++) {
-                    progress += "-";
-                }
-                progress += ">";
-                int b2 = bars - b1;
-                for (int j = 0; j < b2; j++) {
-                    progress += " ";
-                }
-                progress += "] " + (int) (percent * 100) + "% (" +
-                        (int) FRAMES_PER_SECOND + ")";
+
+                String progress = ProgressBar.getProgressBar(bars, percent);
 
                 out.print("\r" + progress);
 
                 if (percent >= 1) {
                     status = AppStatus.FINISHED;
+                    Toolkit.getDefaultToolkit().beep();
                 }
             }
         } catch (Exception e) {
