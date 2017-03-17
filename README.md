@@ -8,11 +8,17 @@ Repository for the NuiMimic automated software testing tool.
 To install:
 - clone repo: 'git clone git@github.com:thomasdeanwhite/NuiMimic.git' 
 - install LeapJava.jar as local maven dependancy:
-  * cd [path to LeapJava.jar]
-  * mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dpackaging=jar -Dversion=1.0
+  * *cd [path to LeapJava.jar]*
+  * *mvn install:install-file -Dfile=LeapJava.jar -DgroupId=com.leapmotion -DartifactId=leapmotion.sdk -Dpackaging=jar -Dversion=1.0*
 - install dependencies
-  * cd [path to NuiMimic]
-  * mvn clean install
+  * *cd [path to NuiMimic]*
+  * *mvn clean install*
+  
+# Building #
+To build, we use Maven Package:
+- *cd [path to NuiMimic]*
+- *mvn package*
+- packaged jar is now in leap/target
 
 # User Guide #
 
