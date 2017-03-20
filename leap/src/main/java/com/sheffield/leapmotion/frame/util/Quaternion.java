@@ -161,11 +161,16 @@ public class Quaternion {
         return q;
     }
 
+    private static final float THRESHOLD = 0.000001f;
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof Quaternion) {
             Quaternion q = (Quaternion) o;
-            return w == q.w && x == q.x && y == q.y && z == q.z;
+            return Math.abs(w - q.w) < THRESHOLD &&
+                    Math.abs(x - q.x) < THRESHOLD &&
+                    Math.abs(y - q.y) < THRESHOLD &&
+                    Math.abs(z - q.z) < THRESHOLD;
         }
         return false;
     }

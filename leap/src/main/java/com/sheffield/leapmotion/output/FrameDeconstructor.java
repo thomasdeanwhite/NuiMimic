@@ -178,18 +178,31 @@ public class FrameDeconstructor {
         FileHandler.appendToFile(currentPosition, position);
     }
 
-    public void outputHandRotationModel(Hand h) throws IOException {
+    public String getHandRotationModel(Hand h) {
         String rotation = uniqueId + ",";
         Vector[] vectors = new Vector[3];
 
         //h.basis().r
 
-        vectors[0] = h.basis().getXBasis();
-        vectors[1] = h.basis().getYBasis();
-        vectors[2] = h.basis().getZBasis();
+//        vectors[0] = h.basis().getXBasis();
+//        vectors[1] = h.basis().getYBasis();
+//        vectors[2] = h.basis().getZBasis();
 
-        rotation += QuaternionHelper.toQuaternion(vectors).toCsv();
+        vectors[0] = h.palmNormal().cross(h.direction()).normalized();
+        vectors[1]  = h.palmNormal().opposite();
+        vectors[2]  = h.direction().opposite();
+
+
+
+        rotation += QuaternionHelper.toQuaternion(vectors).inverse().toCsv();
         rotation += "\n";
+
+
+        return rotation;
+    }
+
+    public void outputHandRotationModel(Hand h) throws IOException {
+        String rotation = getHandRotationModel(h);
 
         if (currentRotation == null) {
             currentRotation = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/hand_rotations_pool.ARFF");
