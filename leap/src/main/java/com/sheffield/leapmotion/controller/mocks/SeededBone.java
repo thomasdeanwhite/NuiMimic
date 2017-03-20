@@ -92,6 +92,11 @@ public class SeededBone extends Bone implements Serializable {
 
 	protected Vector translatePoint (Vector v){
 		//basis.setOrigin(offset.minus(new Vector(0f, 0f, 50f)));
+
+		if (Properties.SINGLE_DATA_POOL){
+			return v;
+		}
+
 		v = rotatePoint(v);
 		v = offset.plus(v);
 

@@ -7,6 +7,7 @@ import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 
 import java.io.Serializable;
@@ -215,7 +216,7 @@ public class SeededFinger extends Finger implements Serializable {
 	@Override
 	public Vector tipPosition() {
 		// TODO Auto-generated method stub
-		return offset.plus(rotation.rotateVector(tipPosition));
+		return Properties.SINGLE_DATA_POOL ? tipPosition : offset.plus(rotation.rotateVector(tipPosition));
 	}
 
 	@Override

@@ -195,6 +195,59 @@ public class TestHandFactoryMultipleModels {
 
 
     @Test
+    public void testReconstructionSetBasis(){
+
+
+        Frame frame = Serializer.sequenceFromJson(serialized);
+
+        Hand original = frame.hand(0);
+
+        if (!original.isValid()){
+            for (Hand h : frame.hands()){
+                if (h.isValid()){
+                    original = h;
+                }
+            }
+        }
+
+        String serializedHand = HandFactory.handToString("h1", original);
+
+        Frame f = new Frame();
+
+        SeededHand restored = HandFactory.createHand(serializedHand, f);
+
+        FrameDeconstructor fd = new FrameDeconstructor();
+
+        String[] rotation = fd.getHandRotationModel(original).split(",");
+
+        Quaternion rot = new Quaternion(Float.parseFloat(rotation[1]),
+                Float.parseFloat(rotation[2]),
+                Float.parseFloat(rotation[3]),
+                Float.parseFloat(rotation[4]));
+
+        String[] vect = fd.getHandPosition(original).trim().split(",");
+
+        Vector pos = new Vector(Float.parseFloat(vect[1]), Float.parseFloat(vect[2]), Float.parseFloat(vect[3]));
+
+        rot.setBasis(restored);
+
+        restored.setOrigin(pos);
+
+
+        for (Finger.Type ft : fingerTypes){
+            assertFingerEquals(original.fingers().fingerType(ft).get(0),
+                    restored.fingers().fingerType(ft).get(0));
+        }
+
+        assertFingerEquals(original.fingers().frontmost(),
+                restored.fingers().frontmost());
+
+
+
+    }
+
+
+    @Test
     public void testPosition(){
 
 
@@ -218,13 +271,6 @@ public class TestHandFactoryMultipleModels {
 
         assertVectorEquals("Position is incorrect.", original.palmPosition(), pos);
 
-    }
-
-
-    public void assertVectorEquals(Vector v1, Vector v2){
-        assertEquals(v1.getX(), v2.getX(), 0.0001f);
-        assertEquals(v1.getY(), v2.getY(), 0.0001f);
-        assertEquals(v1.getZ(), v2.getZ(), 0.0001f);
     }
 
     public void assertVectorEquals(String error, Vector v1, Vector v2){
