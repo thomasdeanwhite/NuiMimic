@@ -51,6 +51,8 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
         InstrumentationProperties.BYTECODE_DIR = Properties
                 .TESTING_OUTPUT + "/instrumented_classes/";
 
+        InstrumentationProperties.WRITE_CLASS = true;
+
 
     }
 
@@ -66,7 +68,7 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
 
 
         String fileName = InstrumentationProperties.BYTECODE_DIR +
-                ClassNameUtils.replaceDots(className);
+                ClassNameUtils.replaceDots(className) + ".class";
 
         File classFile = new File(fileName);
 
