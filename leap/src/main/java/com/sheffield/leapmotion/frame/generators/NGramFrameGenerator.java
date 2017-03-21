@@ -1,10 +1,7 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.google.gson.Gson;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
@@ -522,7 +519,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 	}
 
     @Override
-    public GestureList handleFrame(Frame frame) {
-        return nggh.handleFrame(frame);
+    public GestureList handleFrame(Frame frame, Controller controller) {
+        return nggh.handleFrame(frame, controller);
     }
 }

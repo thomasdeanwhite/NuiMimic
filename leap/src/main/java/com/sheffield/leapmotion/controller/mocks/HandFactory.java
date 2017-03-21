@@ -149,6 +149,7 @@ public class HandFactory {
 		thumb.hand = hand;
 		thumb.basis = hand.basis;
 		thumb.rotation = hand.rotation;
+		thumb.tipPosition = randomVector(200, -100);
 		thumb.normalize();
 		fingers[0] = thumb;
 
@@ -167,6 +168,7 @@ public class HandFactory {
 			finger.type = fingerTypes[j];
 			finger.basis = hand.basis;
 			finger.rotation = hand.rotation;
+			finger.tipPosition = randomVector(200, -100);
 			fingers[j + 1] = finger;
 			finger.normalize();
 		}

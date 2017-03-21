@@ -1,9 +1,6 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
@@ -297,8 +294,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     }
 
     @Override
-    public GestureList handleFrame(Frame frame) {
-        return tpgh.handleFrame(frame);
+    public GestureList handleFrame(Frame frame, Controller controller) {
+        return tpgh.handleFrame(frame, controller);
     }
 
     public int size(){

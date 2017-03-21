@@ -1,8 +1,10 @@
 package com.sheffield.leapmotion.frame.generators;
 
+import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
@@ -88,8 +90,8 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     }
 
     @Override
-    public GestureList handleFrame(Frame frame) {
-        return gestureHandler.handleFrame(frame);
+    public GestureList handleFrame(Frame frame, Controller controller) {
+        return gestureHandler.handleFrame(frame, controller);
     }
 
     private long lastUpdate = 0;

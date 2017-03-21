@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.controller.mocks;
 
 import com.leapmotion.leap.*;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.util.Serializer;
@@ -77,7 +78,9 @@ public class TestSeededHand {
 
         circleGesture.tick(0);
 
-        GestureList gl = circleGesture.handleFrame(f);
+        Properties.FRAME_SELECTION_STRATEGY = Properties.FrameSelectionStrategy.EMPTY;
+
+        GestureList gl = circleGesture.handleFrame(f, new Controller());
 
         assertEquals(Gesture.Type.TYPE_CIRCLE, gl.get(0).type());
     }
@@ -93,7 +96,7 @@ public class TestSeededHand {
         sh.setOrigin(new Vector(10, 10, 10));
 
         Vector newCentre = ((SeededFinger)sh.pointables()
-                .frontmost()).stabilizedTipPosition();
+                .frontmost()).tipPosition();
 
 //        ((SeededBone)((SeededFinger)sh.pointables().frontmost()).bone(Bone.Type
 //                .TYPE_DISTAL)).nextJoint = newCentre;
@@ -107,7 +110,7 @@ public class TestSeededHand {
 
         circleGesture.tick(0);
 
-        GestureList gl = circleGesture.handleFrame(f);
+        GestureList gl = circleGesture.handleFrame(f, new Controller());
 
         Vector actualCentre = ((SeededGesture)gl.get(0)).circleGesture.center();
 
