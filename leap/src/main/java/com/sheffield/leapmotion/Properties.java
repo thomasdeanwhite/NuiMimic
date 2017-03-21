@@ -41,8 +41,6 @@ public class Properties extends InstrumentationProperties {
 
 
 
-    @Parameter(key = "gestureTimeLimit", description = "Duration to seed gestures for", hasArgs = true, category = "Leap Motion Testing")
-    public static int GESTURE_TIME_LIMIT = 300;
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
     public static String PLAYBACK_FILE = null;
@@ -63,7 +61,7 @@ public class Properties extends InstrumentationProperties {
     public static long DELAY_TIME = 1;
 
     @Parameter(key = "maxLoadedFrames", description = "Frames to retain for com.leap.leapmotion.Frame.frame(int [0->maxLoadedFrames]) method", hasArgs = true, category = "Leap Motion Testing")
-    public static int MAX_LOADED_FRAMES = 50;
+    public static int MAX_LOADED_FRAMES = 10;
 
     @Parameter(key = "runtime", description = "Time for testing application before exiting", hasArgs = true, category = "Leap Motion Testing")
     public static long RUNTIME = 600000;
@@ -71,11 +69,15 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "currentRun", description = "Can be used for experiments to output the current run (-1 will set to system runtime)", hasArgs = true, category = "Experiments")
     public static long CURRENT_RUN = -1;
 
-    @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Testing")
-    public static int GESTURE_CIRCLE_RADIUS = 40;
+    @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Gestures")
+    public static int GESTURE_CIRCLE_RADIUS = 10;
 
-    @Parameter(key = "gestureCircleCentreFrames", description = "Number of previous frames used to calculated a circle gesture.", hasArgs = true, category = "Leap Motion Testing")
-    public static int GESTURE_CIRCLE_FRAMES = 5;
+    @Parameter(key = "gestureCircleCentreFrames", description = "Number of previous frames used to calculated a circle gesture.", hasArgs = true, category = "Leap Motion Gestures")
+    public static int GESTURE_CIRCLE_FRAMES = 20;
+
+    @Parameter(key = "gestureTimeLimit", description = "Duration to seed gestures for", hasArgs = true, category = "Leap Motion Gestures")
+    public static int GESTURE_TIME_LIMIT = 700;
+
 
     @Parameter(key = "untrackedPackages", description = "Packages to not be tracked when outputting lines and branches (comma separated)", hasArgs = true, category = "Instrumentation")
     public static String UNTRACKED_PACKAGES = null;

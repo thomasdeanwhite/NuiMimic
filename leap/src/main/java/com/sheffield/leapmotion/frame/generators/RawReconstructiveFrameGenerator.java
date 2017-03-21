@@ -332,14 +332,14 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
         long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
-        if (gestureHandIndex > timings.size() || currentHandIndex > timings.size()){
+        if (currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES > timings.size() || currentHandIndex > timings.size()){
             App.getApp().setStatus(AppStatus.FINISHED);
             return;
         }
 
-        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
-            tpgh.changeGesture(gestureHandIndex++);
-        }
+//        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
+//            tpgh.changeGesture(currentHandIndex++);
+//        }
 
         if (seededTime > frameTime) {
 
@@ -389,6 +389,8 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
                     }
                 }
                 while (currentHand == null || currentPosition == null || currentRotation == null);
+
+                tpgh.changeGesture(currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES);
 
                 if (currentHands.size() == 0 || !currentHands.get(currentHands.size()-1).equals(hands.get(currentHand))) {
                     currentHands.add(hands.get(currentHand));

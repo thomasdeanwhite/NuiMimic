@@ -10,6 +10,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.controller.mocks.SeededBone;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
@@ -572,6 +573,8 @@ public class App implements ThrowableListener, Tickable {
                 app.start();
                 App.out.println("- Starting Frame Seeding");
                 int delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
+
+                SeededController.getController();
 
                 try {
                     Thread.sleep(Properties.DELAY_TIME);
