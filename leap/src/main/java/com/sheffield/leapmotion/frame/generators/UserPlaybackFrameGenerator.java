@@ -100,7 +100,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		}
 
 		lastSwitchRate = Properties.FRAMES_PER_SECOND;
-		Properties.FRAMES_PER_SECOND = 120;
+		//Properties.FRAMES_PER_SECOND = 120;
 		backupFrameGenerator = frameGenerator;
 		String playback = Properties.PLAYBACK_FILE;
 		try {

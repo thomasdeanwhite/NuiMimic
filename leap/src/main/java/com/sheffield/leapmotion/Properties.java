@@ -36,6 +36,11 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "remainingBudget", description = "Remaining Budget after resuming from system halt", hasArgs = true, category = "Leap Motion Testing")
     public static long REMAINING_BUDGET = -1;
 
+    @Parameter(key = "singleThread", description = "Should frames be seeded on same thread as generation occurs?", hasArgs = false, category = "Leap Motion Testing")
+    public static boolean SINGLE_THREAD = false;
+
+
+
     @Parameter(key = "gestureTimeLimit", description = "Duration to seed gestures for", hasArgs = true, category = "Leap Motion Testing")
     public static int GESTURE_TIME_LIMIT = 100;
 

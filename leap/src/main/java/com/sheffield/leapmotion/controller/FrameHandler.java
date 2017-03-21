@@ -283,8 +283,18 @@ public class FrameHandler implements Tickable {
 
             for (int i = 0; i < frameSwitchListeners.size(); i++) {
                 final FrameSwitchListener fl = frameSwitchListeners.get(i);
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        fl.onFrameSwitch(last, next);
+                    }
+                };
 
-                fl.onFrameSwitch(last, next);
+                if (Properties.SINGLE_THREAD){
+                    r.run();
+                } else {
+                    new Thread(r).start();
+                }
             }
         }
     }
