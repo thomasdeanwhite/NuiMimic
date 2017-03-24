@@ -414,6 +414,9 @@ public class App implements ThrowableListener, Tickable {
                 case PROCESS_DATA:
                     run = new DataProcessingRunType();
                     break;
+                case SAMPLE:
+                    run = new SamplingRunType();
+                    break;
                 default:
                     App.out.println("Unimplemented MILLIS");
                     return;
@@ -653,6 +656,9 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public void output(boolean finished) {
+        if (!SeededController.initialized()){
+            return;
+        }
         if (finished) {
             cleanUp();
         }

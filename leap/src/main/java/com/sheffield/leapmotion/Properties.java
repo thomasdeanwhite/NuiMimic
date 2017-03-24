@@ -222,7 +222,10 @@ public class Properties extends InstrumentationProperties {
 
 
     public enum RunType {
-        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN, HELP, PROCESS_DATA
+        INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN, HELP,
+
+        SAMPLE,
+        PROCESS_DATA
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
