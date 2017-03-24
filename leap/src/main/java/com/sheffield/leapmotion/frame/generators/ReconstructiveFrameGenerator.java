@@ -1,9 +1,6 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
@@ -297,8 +294,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     }
 
     @Override
-    public GestureList handleFrame(Frame frame) {
-        return tpgh.handleFrame(frame);
+    public GestureList handleFrame(Frame frame, Controller controller) {
+        return tpgh.handleFrame(frame, controller);
     }
 
     public int size(){
@@ -331,9 +328,9 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
-        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
-            tpgh.changeGesture(gestureHandIndex++);
-        }
+//        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
+//            tpgh.changeGesture(gestureHandIndex++);
+//        }
 
         if (seededTime > frameTime) {
 
@@ -383,6 +380,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
                     }
                 }
                 while (currentHand == null || currentPosition == null || currentRotation == null);
+
+                tpgh.changeGesture(currentHandIndex);
 
                 if (currentHands.size() == 0 || !currentHands.get(currentHands.size()-1).equals(hands.get(currentHand))) {
                     currentHands.add(hands.get(currentHand));

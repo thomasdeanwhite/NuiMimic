@@ -1,11 +1,6 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Pointable;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
@@ -497,7 +492,7 @@ public class RegressionFrameGenerator extends FrameGenerator implements
     private NGramLog lastGesture = null;
 
     @Override
-    public GestureList handleFrame(Frame frame) {
+    public GestureList handleFrame(Frame frame, Controller controller) {
         SeededGestureList gl = new SeededGestureList();
 
         if (lastGestureSwitch == 0) {

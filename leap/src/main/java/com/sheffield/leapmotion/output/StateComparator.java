@@ -24,7 +24,7 @@ public class StateComparator {
 
     private static ArrayList<Integer[]> states;
 
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
+    private static final boolean WRITE_SCREENSHOTS_TO_FILE = false;
 
     private static int currentState;
 

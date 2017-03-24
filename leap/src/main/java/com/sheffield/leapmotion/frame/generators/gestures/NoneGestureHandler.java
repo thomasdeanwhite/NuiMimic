@@ -1,11 +1,8 @@
 package com.sheffield.leapmotion.frame.generators.gestures;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.*;
 import com.leapmotion.leap.Gesture.State;
 import com.leapmotion.leap.Gesture.Type;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Properties;
 
 import java.util.ArrayList;
@@ -26,7 +23,7 @@ public class NoneGestureHandler implements GestureHandler {
 	protected int gestureCount = 0;
 	
 	@Override
-	public GestureList handleFrame(Frame frame) {
+	public GestureList handleFrame(Frame frame, Controller controller) {
 		return new GestureList();
 	}
 

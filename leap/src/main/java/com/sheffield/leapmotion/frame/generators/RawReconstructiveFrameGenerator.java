@@ -1,9 +1,6 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
@@ -16,6 +13,7 @@ import com.sheffield.leapmotion.frame.generators.gestures
 import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
+import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.output.Csv;
 
@@ -268,6 +266,12 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
     @Override
     public Frame newFrame() {
+
+        if (gestureHandIndex > timings.size() || currentHandIndex > timings.size()){
+            App.getApp().setStatus(AppStatus.FINISHED);
+            return Frame.invalid();
+        }
+
         if (handLabelStack.size() == 0){
             return Frame.invalid();
         }
@@ -294,8 +298,8 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
     }
 
     @Override
-    public GestureList handleFrame(Frame frame) {
-        return tpgh.handleFrame(frame);
+    public GestureList handleFrame(Frame frame, Controller controller) {
+        return tpgh.handleFrame(frame, controller);
     }
 
     public int size(){
@@ -328,9 +332,14 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
         long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
-        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
-            tpgh.changeGesture(gestureHandIndex++);
+        if (currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES > timings.size() || currentHandIndex > timings.size()){
+            App.getApp().setStatus(AppStatus.FINISHED);
+            return;
         }
+
+//        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
+//            tpgh.changeGesture(currentHandIndex++);
+//        }
 
         if (seededTime > frameTime) {
 
@@ -380,6 +389,8 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
                     }
                 }
                 while (currentHand == null || currentPosition == null || currentRotation == null);
+
+                tpgh.changeGesture(currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES);
 
                 if (currentHands.size() == 0 || !currentHands.get(currentHands.size()-1).equals(hands.get(currentHand))) {
                     currentHands.add(hands.get(currentHand));

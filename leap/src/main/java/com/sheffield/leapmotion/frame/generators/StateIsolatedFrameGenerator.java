@@ -2,6 +2,7 @@ package com.sheffield.leapmotion.frame.generators;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Vector;
@@ -209,11 +210,11 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 	}
 
 	@Override
-	public GestureList handleFrame(Frame frame) {
+	public GestureList handleFrame(Frame frame, Controller controller) {
 		try {
-			return currentGenerator.handleFrame(frame);
+			return currentGenerator.handleFrame(frame, controller);
 		} catch (DataSparsityException e){
-			return generators.get(-1).handleFrame(frame);
+			return generators.get(-1).handleFrame(frame, controller);
 		}
 	}
 

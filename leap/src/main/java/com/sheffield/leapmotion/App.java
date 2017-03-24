@@ -10,6 +10,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.controller.mocks.SeededBone;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
@@ -72,7 +73,7 @@ public class App implements ThrowableListener, Tickable {
     private int iterationTimes = 0;
     private int iterations = 0;
 
-    ArrayList<String> classSeen = new ArrayList<String>();
+    HashMap<String, ArrayList<String>> classSeen = new HashMap<String, ArrayList<String>>();
 
     private static Thread mainThread = null;
 
@@ -576,6 +577,8 @@ public class App implements ThrowableListener, Tickable {
                 App.out.println("- Starting Frame Seeding");
                 int delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
 
+                SeededController.getController();
+
                 try {
                     Thread.sleep(Properties.DELAY_TIME);
                 } catch (InterruptedException e) {
@@ -587,20 +590,12 @@ public class App implements ThrowableListener, Tickable {
                 long lastTimeRecorded = 0;
 
                 while (app.status() != AppStatus.FINISHED) {
-                    delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
+                    //delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
                     long time = System.nanoTime();
                     int timePassed = (int) ((time - lastTime)/ 1000000);
                     App.getApp().increaseIterationTime(timePassed);
                     App.getApp().increaseFps(time/1000000);
-                    app.tick(time/1000000);
-                    try {
-                        int d = delay - timePassed;
-                        if (d >= 0) {
-                            Thread.sleep(d);
-                        }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
                     if ((lastTime - lastTimeRecorded)/1000000 >=
                             RECORDING_INTERVAL &&
                             SeededController.getSeededController()
@@ -616,6 +611,17 @@ public class App implements ThrowableListener, Tickable {
 
                     TIME_HANDLER.setMillis(timePassedNanos / 1000000);
                     TIME_HANDLER.setNanos(timePassedNanos);
+
+                    app.tick(time/1000000);
+//                    try {
+//                        int d = delay - timePassed;
+//                        if (d >= 0) {
+//                            Thread.sleep(d);
+//                        }
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+
 
                     lastTime = time;
                 }
@@ -826,13 +832,25 @@ public class App implements ThrowableListener, Tickable {
     public void outputLineAndBranchHits() throws IOException {
         StringBuilder linesHit = new StringBuilder();
         ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
-        for (LineHit lh : ClassAnalyzer.getTotalLines()) {
+        //List<LineHit> totalLines = ClassAnalyzer.getTotalLines();
+        for (LineHit lh : linesCovered) {
+            String fullName = lh.getLine().getClassName();
+            String packageName = DependencyTree.getPackageName(fullName);
+            String className = DependencyTree.getClassName(fullName);
 
-            String className = lh.getLine().getClassName();
+            boolean found = false;
 
-            if (classSeen.contains(className)) {
-                className = "" + classSeen.indexOf(className);
-            } else {
+
+            if (classSeen.containsKey(packageName)) {
+
+                if (classSeen.get(packageName).contains(className)){
+                    found = true;
+                    className = "" + classSeen.get(packageName).indexOf(className);
+                }
+
+            }
+
+            if (!found) {
                 File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.classes");
 
                 if (classes.getParentFile() != null) {
@@ -841,35 +859,55 @@ public class App implements ThrowableListener, Tickable {
                 if (!classes.exists()) {
                     classes.createNewFile();
                 }
-                classSeen.add(className);
-                FileHandler.appendToFile(classes, className + ":");
-                className = "" + classSeen.indexOf(className);
+                if (!classSeen.containsKey(packageName)){
+                    classSeen.put(packageName, new ArrayList<String>());
+                }
+                FileHandler.appendToFile(classes, fullName + ":");
+
+                classSeen.get(packageName).add(className);
+
+                className = "" + classSeen.get(packageName).indexOf(className);
                 FileHandler.appendToFile(classes, className + "\n");
             }
 
-            if (linesCovered.contains(lh)) {
+            // (linesCovered.contains(lh)) {
                 linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
-            }
+            //}
         }
 
         StringBuilder branchesHit = new StringBuilder();
         List<BranchHit> branchesCovered = ClassAnalyzer.getBranchesExecuted();
         for (BranchHit lh : branchesCovered) {
-            String className = lh.getBranch().getClassName();
+            String fullName = lh.getBranch().getClassName();
+            String packageName = DependencyTree.getPackageName(fullName);
+            String className = DependencyTree.getClassName(fullName);
 
-            if (classSeen.contains(className)) {
-                className = "" + classSeen.indexOf(className);
-            } else {
+            boolean found = false;
+
+
+            if (classSeen.containsKey(packageName)) {
+                if (classSeen.get(packageName).contains(className)){
+                    found = true;
+                    className = "" + classSeen.get(packageName).indexOf(className);
+                }
+            }
+            if (!found) {
                 File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.classes");
+
                 if (classes.getParentFile() != null) {
                     classes.getParentFile().mkdirs();
                 }
                 if (!classes.exists()) {
                     classes.createNewFile();
                 }
-                classSeen.add(className);
-                FileHandler.appendToFile(classes, className + ":");
-                className = "" + classSeen.indexOf(className);
+                if (!classSeen.containsKey(packageName)){
+                    classSeen.put(packageName, new ArrayList<String>());
+                }
+                FileHandler.appendToFile(classes, fullName + ":");
+
+                classSeen.get(packageName).add(className);
+
+                className = "" + classSeen.get(packageName).indexOf(className);
                 FileHandler.appendToFile(classes, className + "\n");
             }
             branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");

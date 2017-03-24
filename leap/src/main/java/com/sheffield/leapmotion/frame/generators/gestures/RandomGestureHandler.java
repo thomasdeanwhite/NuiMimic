@@ -1,10 +1,6 @@
 package com.sheffield.leapmotion.frame.generators.gestures;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.GestureList;
-import com.leapmotion.leap.Pointable;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
@@ -36,7 +32,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
 
     @Override
-    public GestureList handleFrame(Frame frame) {
+    public GestureList handleFrame(Frame frame, Controller controller) {
         lastFrame = frame;
         frame = clearFrame(frame);
 
@@ -49,7 +45,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
             gestureCount++;
 
-            gl.addGesture(setupGesture(gestureType, frame, gestureId, counter++));
+            gl.addGesture(setupGesture(gestureType, frame, gestureId, counter++, controller));
         }
         return gl;
     }
@@ -57,7 +53,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
     private Gesture.Type[] nextGestures = null;
 
     public Gesture setupGesture(Gesture.Type gestureType, Frame frame,
-                                int gestureId, int count) {
+                                int gestureId, int count, Controller controller) {
         Gesture g = new SeededGesture(gestureType, gestureState, frame,
                 gestureDuration, gestureId);
 
@@ -66,14 +62,36 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
         if (count > 0){
             frontMost = g.pointables().get(count);
-            lastFrontMost = lastFrame.pointables().get(count);                gestureCount = 0;
+            gestureCount = 0;
         }
 
 
         if (gestureType == Gesture.Type.TYPE_CIRCLE) {
             scg = new SeededCircleGesture(g);
             if (cumalitiveGesturePositions.size() <= count) {
-                cumalitiveGesturePositions.add(lastFrontMost.stabilizedTipPosition());
+                Vector center = Vector.zero();
+                int counter = 0;
+                for (int i = 1; i < Properties.GESTURE_CIRCLE_FRAMES; i++){
+                    Frame f = controller.frame(i);
+
+                    if (!f.isValid()){
+                        break;
+                    }
+
+                    if (count > 0){
+                        frontMost = g.pointables().get(count);
+                        center = center.plus(f.pointables().get(count).tipPosition());
+                    } else {
+                        center = center.plus(f.pointables().frontmost().tipPosition());
+                    }
+                    counter++;
+                }
+
+                center = center.plus(frontMost.tipPosition());
+                counter++;
+
+                center = center.divide(counter);
+                cumalitiveGesturePositions.add(center);
             }
             //cumalitiveGesturePositions.add(count+1, cumalitiveGesturePositions.get(count).plus      (frontMost.stabilizedTipPosition()));
             //cumalitiveGesturePositions.remove(count);
