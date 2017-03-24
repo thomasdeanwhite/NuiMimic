@@ -26,6 +26,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	private static boolean initializing = false;
 	private static boolean calledAsSuperclass = true;
 
+	public static boolean initialized(){
+		return CONTROLLER != null;
+	}
+
 	public String status(){
 
 		String status = App.getApp().getFps() + " fps ";
