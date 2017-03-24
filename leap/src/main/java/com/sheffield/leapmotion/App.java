@@ -10,7 +10,6 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.mocks.SeededBone;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.StateComparator;
@@ -24,6 +23,7 @@ import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.output.Csv;
+
 
 import javax.imageio.ImageIO;
 import java.awt.event.WindowEvent;
@@ -65,7 +65,7 @@ public class App implements ThrowableListener, Tickable {
     public static long timePassed = 0;
 
     //check states every x-ms
-    public static final long STATE_CHECK_TIME = 10000;
+    public static final long STATE_CHECK_TIME = 20000;
     public long lastStateCheck = 0;
     private int framesSeeded = 0;
     private int fps = 0;
@@ -291,9 +291,26 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
+    private static PrintStream dummyStream = new PrintStream(new OutputStream() {
+
+        @Override
+        public void write(int b) throws IOException {
+            // TODO Auto-generated method stub
+            //App.out.write(b);
+        }
+
+    }, true);
+
     private static boolean outputSet = false;
 
     public static void setOutput(){
+
+        if (!Properties.SHOW_OUTPUT){
+            App.out = dummyStream;
+            System.setOut(dummyStream);
+            return;
+        }
+
         if (out != null){
             return;
         }
@@ -304,15 +321,7 @@ public class App implements ThrowableListener, Tickable {
             outputSet = true;
         }
 
-        PrintStream dummyStream = new PrintStream(new OutputStream() {
 
-            @Override
-            public void write(int b) throws IOException {
-                // TODO Auto-generated method stub
-                //App.out.write(b);
-            }
-
-        }, true);
 
 
         System.setOut(dummyStream);
@@ -610,14 +619,14 @@ public class App implements ThrowableListener, Tickable {
                     TIME_HANDLER.setNanos(timePassedNanos);
 
                     app.tick(time/1000000);
-//                    try {
-//                        int d = delay - timePassed;
-//                        if (d >= 0) {
-//                            Thread.sleep(d);
-//                        }
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
+                    try {
+                        int d = delay - timePassed;
+                        if (d >= 0) {
+                            Thread.sleep(d);
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
 
                     lastTime = time;
@@ -661,7 +670,7 @@ public class App implements ThrowableListener, Tickable {
                 gestureFiles.substring(0, gestureFiles.length() - 1);
 
             LAST_LINE_COVERAGE = Math.round((ClassAnalyzer.getLineCoverage() * 100f)) / 100f;
-            int states = StateComparator.statesVisited.size();
+            int states = StateComparator.statesVisits.size();
 
 
             Csv testingValues = ClassAnalyzer.toCsv();
@@ -673,9 +682,9 @@ public class App implements ThrowableListener, Tickable {
             csv.merge(testingValues);
             csv.merge(propertyValues);
 
-            csv.add("statesStarting", "" + (StateComparator.statesVisited.size() - StateComparator.statesFound));
+            csv.add("statesStarting", "" + (StateComparator.statesVisits.size() - StateComparator.statesFound));
             csv.add("statesFound", "" + StateComparator.statesFound);
-            csv.add("statesVisited", "" + StateComparator.getStatesVisited().size());
+            csv.add("statesVisits", "" + StateComparator.getStatesVisits().size());
             csv.add("currentState", "" + StateComparator.getCurrentState());
 
             csv.add("fps", "" + getFps());
@@ -955,15 +964,15 @@ public class App implements ThrowableListener, Tickable {
         if (time - lastStateCheck > STATE_CHECK_TIME &&
         SeededController.getSeededController().allowProcessing()) {
             try {
-                StateComparator.captureState();
                 lastStateCheck = time;
+                StateComparator.captureState();
             } catch (Exception e) {
                 e.printStackTrace(App.out);
             }
 
         }
 
-        if (printHeaders){
+        if (printHeaders && Properties.SHOW_PROGRESS){
             App.out.println(ProgressBar.getHeaderBar(21));
             printHeaders = false;
         }
@@ -974,9 +983,11 @@ public class App implements ThrowableListener, Tickable {
 
         this.timePassed = timePassed;
 
-        String progress = ProgressBar.getProgressBar(21, getProgress());
+        if (Properties.SHOW_PROGRESS) {
+            String progress = ProgressBar.getProgressBar(21, getProgress());
 
-        out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
+            out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
+        }
 
         if (timePassed > Properties.RUNTIME) {
             App.out.println(time + " - " + start + " = " + timePassed + "\n"

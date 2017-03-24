@@ -41,8 +41,9 @@ public class ModelGeneratingRunType implements RunType {
             }
 
             SamplerApp.getApp().frame(f);
-
-            App.out.print("\r" + ProgressBar.getProgressBar(21, SeededController.getSeededController().getProgress()) + SeededController.getSeededController().status());
+            if (Properties.SHOW_PROGRESS) {
+                App.out.print("\r" + ProgressBar.getProgressBar(21, SeededController.getSeededController().getProgress()) + SeededController.getSeededController().status());
+            }
         }
 
         App.out.println("- Finished Model Generation");

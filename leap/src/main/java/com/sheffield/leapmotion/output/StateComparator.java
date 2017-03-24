@@ -24,16 +24,16 @@ public class StateComparator {
 
     private static ArrayList<Integer[]> states;
 
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = false;
+    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
 
     private static int currentState;
 
     public static String SCREENSHOT_DIRECTORY;
 
-    public static HashMap<Integer, Integer> statesVisited;
+    public static HashMap<Integer, Integer> statesVisits;
 
 
-    private static ArrayList<Integer> statesActuallyVisited;
+    private static ArrayList<Integer> statesVisitedThisRun;
 
     static {
         cleanUp();
@@ -56,9 +56,9 @@ public class StateComparator {
         states = new ArrayList<Integer[]>();
         currentState = -1;
         SCREENSHOT_DIRECTORY = Properties.TESTING_OUTPUT + "/screenshots";
-        statesVisited =
+        statesVisits =
                 new HashMap<Integer, Integer>();
-        statesActuallyVisited =
+        statesVisitedThisRun =
                 new ArrayList<Integer>();
     }
 
@@ -165,7 +165,7 @@ public class StateComparator {
         int stateNumber = states.size();
 
         if (!isSameState(maxDifference, totalValues) || states.size() == 0) {
-            statesVisited.put(stateNumber, 0);
+            statesVisits.put(stateNumber, 0);
             states.add(state);
         } else {
             stateNumber = closestState;
@@ -405,7 +405,7 @@ public class StateComparator {
                         .getCurrentState();
                 File f = new File(
                         SCREENSHOT_DIRECTORY + "/" + Properties.FRAME_SELECTION_STRATEGY + "/" + CURRENT_RUN + "/" +
-                                "STATE" + stateNumber + "-" + statesVisited
+                                "STATE" + stateNumber + "-" + statesVisits
                                 .get(currentState) + "-" +
                                  + currentTestingState + "-" +
                                 TestingStateComparator.getStatesVisited().get
@@ -425,21 +425,21 @@ public class StateComparator {
         //new state found?
         if (currentState == totalStates) {
 
-            statesVisited.put(currentState, 1);
-            statesActuallyVisited.add(currentState);
+            statesVisits.put(currentState, 1);
+            statesVisitedThisRun.add(currentState);
             statesFound++;
 
         } else {
             currentState = closestState;
 
-            if (!statesVisited.containsKey(currentState)){
-                statesVisited.put(currentState, 0);
+            if (!statesVisits.containsKey(currentState)){
+                statesVisits.put(currentState, 0);
             }
 
-            statesVisited
-                    .put(currentState, statesVisited.get(currentState) + 1);
-            if (!statesActuallyVisited.contains(currentState)) {
-                statesActuallyVisited.add(currentState);
+            statesVisits
+                    .put(currentState, statesVisits.get(currentState) + 1);
+            if (!statesVisitedThisRun.contains(currentState)) {
+                statesVisitedThisRun.add(currentState);
             }
         }
 
@@ -452,8 +452,8 @@ public class StateComparator {
         return output.substring(0, output.length() - 1);
     }
 
-    public static ArrayList<Integer> getStatesVisited() {
-        return statesActuallyVisited;
+    public static ArrayList<Integer> getStatesVisits() {
+        return statesVisitedThisRun;
     }
 
 }

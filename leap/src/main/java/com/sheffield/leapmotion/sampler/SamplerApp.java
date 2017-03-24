@@ -188,7 +188,7 @@ public class SamplerApp extends Listener {
 
     private boolean printHeader = true;
 
-    public synchronized void frame(Frame f) {
+    public void frame(Frame f) {
 
         Properties.HISTOGRAM_THRESHOLD = 0;
         Properties.HISTOGRAM_BINS = 256;
@@ -319,10 +319,11 @@ public class SamplerApp extends Listener {
                         .length - 1];
 
                 float percent = done / (float) total;
+                if (Properties.SHOW_PROGRESS) {
+                    String progress = ProgressBar.getProgressBar(bars, percent);
 
-                String progress = ProgressBar.getProgressBar(bars, percent);
-
-                out.print("\r" + progress);
+                    out.print("\r" + progress);
+                }
 
                 if (percent >= 1) {
                     status = AppStatus.FINISHED;

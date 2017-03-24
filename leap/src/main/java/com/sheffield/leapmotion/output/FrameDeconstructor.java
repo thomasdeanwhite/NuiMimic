@@ -9,6 +9,7 @@ import com.leapmotion.leap.ScreenTapGesture;
 import com.leapmotion.leap.SwipeGesture;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.util.FileHandler;
@@ -54,7 +55,7 @@ public class FrameDeconstructor {
 
 
     //1 state capture/second
-    private static final int STATE_CAPTURE_TIME = 300;
+    //private static final int STATE_CAPTURE_TIME = 300;
     private long lastStateCapture = 0;
 
     public FrameDeconstructor() {
@@ -67,7 +68,9 @@ public class FrameDeconstructor {
     }
 
     public void addGesture(String gesture){
-        gestures.add(gesture);
+        if (gesture != null) {
+            gestures.add(gesture);
+        }
     }
 
     public void setUniqueId(String uId) {
@@ -257,8 +260,11 @@ public class FrameDeconstructor {
             currentDctGestures.getParentFile().mkdirs();
             currentDctGestures.createNewFile();
         }
-        if (lastStateCapture + STATE_CAPTURE_TIME < System.currentTimeMillis()) {
-            App.out.print(" Capturing State");
+        if (lastStateCapture + App.STATE_CHECK_TIME < System.currentTimeMillis()) {
+
+            if (Properties.SHOW_PROGRESS) {
+                App.out.print(" Capturing State");
+            }
             lastStateCapture = System.currentTimeMillis();
 
             try {
@@ -276,7 +282,9 @@ public class FrameDeconstructor {
 
         }
         handIds.add(uniqueId);
-        gestures.add(currentGesture);
+//        if (currentGesture != null) {
+//            gestures.add(currentGesture);
+//        }
         calculatingScreenshot = false;
         if (handIds.size() > 0) {
             String hands = "";
@@ -290,7 +298,7 @@ public class FrameDeconstructor {
         if (gestures.size() > 0) {
             String gests= "";
             for (int i = 0; i < gestures.size(); i++) {
-                if (gestures.get(i).length() > 1) {
+                if (gestures.get(i) != null && gestures.get(i).length() > 1) {
                     gests += gestures.get(i) + ",";
                 } else {
                     gests += Gesture.Type.TYPE_INVALID + ",";

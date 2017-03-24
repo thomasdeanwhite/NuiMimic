@@ -119,8 +119,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				} catch (JsonSyntaxException e){
 					// some bad JSON data;
 				}
-
-				App.out.print("\r" + ProgressBar.getProgressBar(21, counter++/(float)maxFrames));
+				if (Properties.SHOW_PROGRESS) {
+					App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) maxFrames));
+				}
 				//counter--;
 			}
 
@@ -285,9 +286,15 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		Frame f = frameStack.get(currentFrame);
 
-		while ((currentTimePassed > seededTimePassed && currentFrame <
+		boolean shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
 				frameStack.size()) || firstFrameTimeStamp == 0 || Properties
-				.PROCESS_PLAYBACK) {
+				.PROCESS_PLAYBACK;
+
+		if (shouldSeed){
+			handsSeeded++;
+		}
+
+		while (shouldSeed) {
 			if (Properties.PROCESS_SCREENSHOTS) {
 				SamplerApp.getApp().peekFrame(f);
 			}
@@ -302,9 +309,10 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			if (Properties.PROCESS_PLAYBACK){
 				break;
 			}
-		}
 
-		handsSeeded++;
+			shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
+					frameStack.size());
+		}
 
 		// This compares RECONSTRUCTION to USER_PLAYBACK and calculates
         // differences

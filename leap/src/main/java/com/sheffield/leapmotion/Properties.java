@@ -39,7 +39,11 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "singleThread", description = "Should frames be seeded on same thread as generation occurs?", hasArgs = false, category = "Leap Motion Testing")
     public static boolean SINGLE_THREAD = false;
 
+    @Parameter(key = "showOutput", description = "Should output be shown?", hasArgs = false, category = "Leap Motion Testing")
+    public static boolean SHOW_OUTPUT = true;
 
+    @Parameter(key = "progress", description = "Should progress be shown?", hasArgs = false, category = "Leap Motion Testing")
+    public static boolean SHOW_PROGRESS = false;
 
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
