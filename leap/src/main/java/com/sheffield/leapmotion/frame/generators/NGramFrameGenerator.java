@@ -286,6 +286,11 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "NGram Frame Generation";
+	}
+
 	protected long lastUpdate = 0;
 	@Override
 	public void tick(long time) {

@@ -90,6 +90,11 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     }
 
     @Override
+    public String getName() {
+        return "NGram Model Generation";
+    }
+
+    @Override
     public GestureList handleFrame(Frame frame, Controller controller) {
         return gestureHandler.handleFrame(frame, controller);
     }

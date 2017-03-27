@@ -689,6 +689,14 @@ public class App implements ThrowableListener, Tickable {
             csv.merge(propertyValues);
 
             csv.add("statesStarting", "" + (StateComparator.statesVisits.size() - StateComparator.statesFound));
+
+            csv.add("technique",
+                    SeededController.getSeededController().getTechnique() + " "
+                            +
+                            (Properties.SINGLE_DATA_POOL ?
+                            "(single model)" :
+                            "(multiple models)"));
+
             csv.add("statesFound", "" + StateComparator.statesFound);
             csv.add("statesVisits", "" + StateComparator.getStatesVisits().size());
             csv.add("currentState", "" + StateComparator.getCurrentState());

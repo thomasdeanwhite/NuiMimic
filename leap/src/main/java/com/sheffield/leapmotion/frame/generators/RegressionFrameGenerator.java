@@ -487,6 +487,11 @@ public class RegressionFrameGenerator extends FrameGenerator implements
         return true;
     }
 
+    @Override
+    public String getName() {
+        return "Regression Test";
+    }
+
     private long lastGestureSwitch = 0;
 
     private NGramLog lastGesture = null;

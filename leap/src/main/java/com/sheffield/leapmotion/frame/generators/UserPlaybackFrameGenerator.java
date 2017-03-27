@@ -411,4 +411,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		}
 		return currentFrame / (float)frameStack.size();
 	}
+
+	@Override
+	public String getName() {
+		return "User Playback";
+	}
 }

@@ -64,6 +64,21 @@
             <artifactId>weka-dev</artifactId>
             <version>3.9.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.sheffield</groupId>
+            <artifactId>instrumentation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sheffield</groupId>
+            <artifactId>instrumentation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sheffield</groupId>
+            <artifactId>instrumentation</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

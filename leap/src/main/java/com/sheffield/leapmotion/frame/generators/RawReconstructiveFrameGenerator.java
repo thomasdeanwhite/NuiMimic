@@ -421,6 +421,11 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
         return currentHandIndex < handLabelStack.size();
     }
 
+    @Override
+    public String getName() {
+        return "Raw Reconstruction";
+    }
+
     public long lastTick(){
         return lastUpdate;
     }

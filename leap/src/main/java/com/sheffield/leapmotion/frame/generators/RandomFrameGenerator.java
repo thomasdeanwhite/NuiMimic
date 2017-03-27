@@ -114,6 +114,11 @@ public class RandomFrameGenerator extends FrameGenerator {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "Purely Random Generation";
+	}
+
 	public Vector fadeVector(Vector prev, Vector next, float modifier){
 		return prev.plus(next.minus(prev).times(modifier));
 	}

@@ -412,6 +412,11 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         return currentHandIndex < handLabelStack.size();
     }
 
+    @Override
+    public String getName() {
+        return "Clustered Reconstruction";
+    }
+
     public long lastTick(){
         return lastUpdate;
     }

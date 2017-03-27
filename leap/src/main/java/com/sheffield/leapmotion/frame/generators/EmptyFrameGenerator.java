@@ -31,6 +31,11 @@ public class EmptyFrameGenerator extends FrameGenerator {
 		return true;
 	}
 
+	@Override
+	public String getName() {
+		return "Empty Frames";
+	}
+
 	private long lastUpdate = 0;
 	@Override
 	public void tick(long time) {

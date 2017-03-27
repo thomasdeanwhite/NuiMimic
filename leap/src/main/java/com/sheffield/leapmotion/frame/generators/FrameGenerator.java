@@ -26,4 +26,6 @@ public abstract class FrameGenerator implements Tickable {
 	public float getProgress(){
 		return App.getApp().getProgress();
 	}
+
+	public abstract String getName();
 }

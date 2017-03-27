@@ -339,4 +339,8 @@ public class FrameHandler implements Tickable {
         }
         return frameGenerator.getProgress();
     }
+
+    public String getTechnique() {
+        return frameGenerator.getName();
+    }
 }
