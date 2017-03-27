@@ -17,7 +17,9 @@ public abstract class FrameGenerator implements Tickable {
 
 	public abstract void modifyFrame(SeededFrame frame);
 
-	public abstract boolean allowProcessing();
+	public boolean allowProcessing() {
+		return true;
+	}
 
 	public boolean hasNextFrame(){
 		return true;

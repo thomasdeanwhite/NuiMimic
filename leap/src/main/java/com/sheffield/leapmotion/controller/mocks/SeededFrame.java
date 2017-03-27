@@ -151,9 +151,19 @@ public class SeededFrame extends Frame implements Serializable {
 
 	@Override
 	public boolean equals(Frame arg0) {
-		// TODO Auto-generated method stub
+
 		if (arg0 instanceof SeededFrame) {
-			return arg0.id() == id;
+			if (arg0.id() == id){
+				boolean equals = true;
+				for (int i = 0;
+					 i < Math.max(
+						handList.count(),
+						arg0.hands().count());
+					 i++){
+					equals &= handList.get(i).equals(arg0.hands().get(i));
+				}
+				return equals;
+			}
 		}
 		return arg0.equals(frame);
 	}

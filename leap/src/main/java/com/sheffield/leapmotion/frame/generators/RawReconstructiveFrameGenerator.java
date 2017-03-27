@@ -58,6 +58,10 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
     private int animationTime = 0;
 
+    private long lastUpdate = 0;
+
+    private int currentHandIndex = 0;
+
 
     public RawReconstructiveFrameGenerator(String filename){
         try {
@@ -275,7 +279,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
         if (handLabelStack.size() == 0){
             return Frame.invalid();
         }
-        Frame f = SeededController.newFrame();
+        SeededFrame f = null;
 
          modifier = Math.min(1f, currentAnimationTime / Properties.SWITCH_TIME);
 
@@ -283,7 +287,8 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
             Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
 
             if (hand != null) {
-                f = HandFactory.injectHandIntoFrame(f, hand);
+                f = (SeededFrame) hand.frame();
+                f.setId(hand.id());
             }
         } else {
             return null;
@@ -306,10 +311,6 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
         return handLabelStack.size();
     }
 
-
-    private long lastUpdate = 0;
-
-    int currentHandIndex = 0;
 
     @Override
     public void tick(long time) {
@@ -356,11 +357,10 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
 
             int skippedHands = 0;
-            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+            long newFrameTime = timings.get(currentHandIndex);
 
             while(newFrameTime < seededTime - Properties.SWITCH_TIME){
-                newFrameTime = timings.get(currentHandIndex+skippedHands) -
-                        Properties.SWITCH_TIME;
+                newFrameTime = timings.get(currentHandIndex+skippedHands);
                 skippedHands++;
             }
 
@@ -368,7 +368,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
                 currentHandIndex += (skippedHands-1);
             }
 
-            frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+            frameTime = timings.get(currentHandIndex);
 
             while (frameTime < seededTime) {
 
@@ -384,13 +384,19 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
                         currentRotation = handLabelStack.get
                                 (currentHandIndex);
 
-                        frameTime = timings.get(currentHandIndex++) -
-                                Properties.SWITCH_TIME;
+                        frameTime = timings.get(++currentHandIndex);
                     }
                 }
                 while (currentHand == null || currentPosition == null || currentRotation == null);
 
                 tpgh.changeGesture(currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES);
+
+
+                if (hands.get(currentHand) == null ||
+                vectors.get(currentPosition) == null ||
+                rotations.get(currentRotation) == null){
+                    return;
+                }
 
                 if (currentHands.size() == 0 || !currentHands.get(currentHands.size()-1).equals(hands.get(currentHand))) {
                     currentHands.add(hands.get(currentHand));

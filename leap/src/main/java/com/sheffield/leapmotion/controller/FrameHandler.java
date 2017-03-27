@@ -277,7 +277,7 @@ public class FrameHandler implements Tickable {
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-        if (next != null) {
+        if (next != null && !next.equals(last)) {
 
             framesGenerated++;
 
@@ -320,7 +320,9 @@ public class FrameHandler implements Tickable {
     }
 
     public Csv getCsv(){
-        return frameGenerator.getCsv();
+        Csv csv = frameGenerator.getCsv();
+        csv.add("framesGenerated", framesGenerated + "");
+        return csv;
     }
 
     public boolean allowProcessing(){

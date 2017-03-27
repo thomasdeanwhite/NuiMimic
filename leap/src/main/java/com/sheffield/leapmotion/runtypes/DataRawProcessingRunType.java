@@ -259,6 +259,10 @@ public class DataRawProcessingRunType implements RunType {
                 }
                 String[] elements = s.split(":");
 
+                if (elements.length < 2){
+                    continue;
+                }
+
                 String state = elements[0];
                 String candidates = elements[1];
 

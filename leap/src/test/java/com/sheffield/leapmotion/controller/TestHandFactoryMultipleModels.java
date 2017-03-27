@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.*;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.util.Quaternion;
@@ -28,6 +29,8 @@ public class TestHandFactoryMultipleModels {
 
     @Before
     public void setup(){
+
+        Properties.SINGLE_DATA_POOL = false;
 
         Controller ctrl = new Controller();
 

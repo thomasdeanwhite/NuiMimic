@@ -8,13 +8,16 @@ public class EmptyFrameGenerator extends FrameGenerator {
 	public Csv getCsv() {
 		return new Csv();
 	}
+
+	private Frame currentFrame;
+
 	public EmptyFrameGenerator() {
+		currentFrame = null;
 	}
 
 	@Override
 	public Frame newFrame() {
-        return new SeededFrame(Frame.invalid());
-
+        return currentFrame;
 	}
 
 	@Override
@@ -40,6 +43,11 @@ public class EmptyFrameGenerator extends FrameGenerator {
 	@Override
 	public void tick(long time) {
 		lastUpdate = time;
+
+		SeededFrame sf = new SeededFrame(Frame.invalid());
+		sf.setId(time);
+
+		currentFrame = sf;
 	}
 
 	public long lastTick(){

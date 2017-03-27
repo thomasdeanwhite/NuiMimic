@@ -267,6 +267,11 @@ public class DataProcessingRunType implements RunType {
                 String[] elements = s.split(":");
 
                 String state = elements[0];
+
+                if (elements.length < 2){
+                    continue;
+                }
+
                 String candidates = elements[1];
 
                 String[] stateElements = state.split(",");
