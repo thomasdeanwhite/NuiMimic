@@ -296,6 +296,10 @@ public class SeededFrame extends Frame implements Serializable {
 		return id;
 	}
 
+	public void setTimestamp(long id){
+		this.id = id;
+	}
+
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub

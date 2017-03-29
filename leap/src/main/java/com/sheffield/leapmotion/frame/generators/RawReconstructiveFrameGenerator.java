@@ -131,6 +131,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
             final ArrayList<Long> tims = timings;
 
+            //This will sort the indices array so other lists can be reordered using the indices
             indices.sort(new Comparator<Integer>() {
                 @Override
                 public int compare(Integer o1, Integer o2) {
@@ -139,15 +140,6 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
             });
 
             timings.sort(new ListComparator<Long>(indices));
-
-//            //remove repeated times
-//            for (int i = 0; i < timings.size(); i++){
-//                long time = timings.remove(i);
-//
-//                if (!timings.contains(time)){
-//                    timings.add(i, time);
-//                }
-//            }
 
             handLabelStack.sort(new ListComparator<String>(indices));
 
@@ -248,7 +240,10 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
 
         Hand h = Hand.invalid();
         for (Hand hand : frame.hands()) {
-            h = hand;
+            if (hand.isValid() && h.isRight()) {
+                h = hand;
+                break;
+            }
         }
         if (h instanceof SeededHand) {
             SeededHand sh = (SeededHand) h;
@@ -284,7 +279,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
          modifier = Math.min(1f, currentAnimationTime / Properties.SWITCH_TIME);
 
         if (currentHands.size() > 0){
-            Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
+            Hand hand = currentHands.get(0);//.fadeHand(currentHands, modifier);
 
             if (hand != null) {
                 f = (SeededFrame) hand.frame();
@@ -338,22 +333,14 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
             return;
         }
 
-//        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
-//            tpgh.changeGesture(currentHandIndex++);
-//        }
 
         if (seededTime > frameTime) {
-
-//            App.out.println((seededTime - timings.get(currentHandIndex)) + " "
-//                    + seededTime + " " + timings.get(currentHandIndex));
 
             lastSwitchTime = seededTime - Properties.SWITCH_TIME;
 
             currentHands.clear();
             currentPositions.clear();
             currentRotations.clear();
-
-            gestureHandIndex = currentHandIndex;
 
 
             int skippedHands = 0;
@@ -388,7 +375,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator implements G
                     }
                 }
                 while (currentHand == null || currentPosition == null || currentRotation == null);
-
+                gestureHandIndex = currentHandIndex;
                 tpgh.changeGesture(currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES);
 
 

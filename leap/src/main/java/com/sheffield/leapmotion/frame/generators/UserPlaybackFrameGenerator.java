@@ -202,7 +202,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 
 		if (fh != null){
-			fh.loadNewFrame();
+			fh.loadNewFrame(seededTime);
 			fhFrame = fh.getFrame();
 		}
 

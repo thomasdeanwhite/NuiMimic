@@ -1,9 +1,8 @@
 package com.sheffield.leapmotion.controller;
 
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.GestureList;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.mocks.SeededFinger;
 import com.sheffield.leapmotion.frame.generators.*;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
@@ -236,7 +235,7 @@ public class FrameHandler implements Tickable {
         return frame;
     }
 
-    public void loadNewFrame() {
+    public void loadNewFrame(long time) {
         Frame frame = frameGenerator.newFrame();
         if (frame == null){
             return;
@@ -255,6 +254,8 @@ public class FrameHandler implements Tickable {
             }
             SeededFrame sf = (SeededFrame) frame;
 
+            frame = finalizeFrame(sf, time);
+
             GestureList gl = null;
             frameGenerator.modifyFrame(sf);
             if (gestureHandler == null) {
@@ -271,6 +272,7 @@ public class FrameHandler implements Tickable {
         if (frames.contains(frame)){
             return;
         }
+
         frames.add(0, frame);
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {
             frames.remove(frames.size() - 1);
@@ -299,6 +301,51 @@ public class FrameHandler implements Tickable {
         }
     }
 
+    private Frame finalizeFrame(SeededFrame frame, long time){
+
+        if (frame.timestamp() == 0){
+            frame.setTimestamp(time);
+        }
+
+        long timeStamp = frame.timestamp();
+        long timeElapsed = 0;
+        int count = 0;
+
+        // get frames seeded in last second:
+        //     1000000 -> 1 second in microseconds
+        while (timeElapsed < 1000000 && frames.size() > count){
+            if (frames.get(count).isValid() && frames.get(count).hands().count() > 0) {
+                timeElapsed = timeStamp - frames.get(count++).timestamp();
+            } else {
+                frames.remove(count);
+            }
+        }
+
+        count -= 2; //take 2 for the comparison betweeen current and main frame
+
+        if (count < 0){
+            return frame;
+        }
+
+        FingerList fl = frame.hands().get(0).fingers();
+
+        for (Finger f : fl) {
+            Frame firstFrame = frames.get(0);
+            Vector tipMovement = f.tipPosition().minus(firstFrame.fingers().fingerType(f.type()).get(0).tipPosition());
+
+            for (int i = 0; i < count-1; i++) {
+                Finger f1 = frames.get(count).fingers().fingerType(f.type()).get(0);
+
+                Finger f2 = frames.get(count+1).fingers().fingerType(f.type()).get(0);
+                tipMovement = tipMovement.plus(f1.tipPosition().minus(f2.tipPosition()));
+
+            }
+            ((SeededFinger)f).setTipVelocity(tipMovement);
+        }
+
+        return frame;
+    }
+
     private long lastUpdate = 0;
     @Override
     public void tick(long time) {
@@ -306,6 +353,8 @@ public class FrameHandler implements Tickable {
         if (gestureHandler.lastTick() < time) {
             gestureHandler.tick(time);
         }
+
+
         if (frameGenerator.lastTick() < time) {
             frameGenerator.tick(time);
         }
@@ -321,8 +370,11 @@ public class FrameHandler implements Tickable {
 
     public Csv getCsv(){
         Csv csv = frameGenerator.getCsv();
-        csv.add("framesGenerated", framesGenerated + "");
-        return csv;
+        Csv newCsv = new Csv();
+        newCsv.add("framesGenerated", framesGenerated + "");
+        newCsv.merge(csv);
+        newCsv.finalize();
+        return newCsv;
     }
 
     public boolean allowProcessing(){

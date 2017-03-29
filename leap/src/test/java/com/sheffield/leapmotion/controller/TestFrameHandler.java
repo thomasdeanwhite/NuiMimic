@@ -46,7 +46,7 @@ public class TestFrameHandler {
 
         fh.init(SeededController.getSeededController(false));
 
-        fh.loadNewFrame();
+        fh.loadNewFrame(0);
 
         assertEquals(0, fh.getFrame().hands().count());
         assertEquals(0, fh.getFrame().gestures().count());

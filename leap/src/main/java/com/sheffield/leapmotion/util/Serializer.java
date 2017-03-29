@@ -35,7 +35,7 @@ public class Serializer {
         Hand hand = HandFactory.createHand(frame, currentFrame);
         shl.addHand(hand);
         sf.setHandList(shl);
-        sf.setId(System.currentTimeMillis());
+        sf.setId(System.currentTimeMillis()*1000);
         return sf;
     }
 }

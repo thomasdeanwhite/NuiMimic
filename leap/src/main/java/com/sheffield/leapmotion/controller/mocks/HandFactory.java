@@ -35,7 +35,7 @@ public class HandFactory {
 			((SeededHand) hand).frame = sf;
 		}
 		sf.setHandList(shl);
-		sf.setId(System.currentTimeMillis());
+		sf.setId(System.currentTimeMillis()*1000);
 		return sf;
 	}
 
