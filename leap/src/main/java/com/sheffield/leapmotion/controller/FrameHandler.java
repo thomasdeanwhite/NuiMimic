@@ -22,14 +22,20 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class FrameHandler implements Tickable {
     private FrameGenerator frameGenerator;
     private ArrayList<FrameSwitchListener> frameSwitchListeners;
-    private ArrayList<Frame> frames;
+    private LinkedList<Frame> frames;
     private GestureHandler gestureHandler;
 
     private boolean initialised = false;
+
+    private long firstFrameTimestamp = Long.MIN_VALUE;
+
+    private FrameSeedingRunnableQueue
+            frameSeedingQueue = new FrameSeedingRunnableQueue();
 
     private int framesGenerated = 0;
 
@@ -42,12 +48,10 @@ public class FrameHandler implements Tickable {
     }
 
     public void init (Controller seededController){
-        if (initialised){
-            new Exception("init is being called again!").printStackTrace(App.out);
-            return;
-        }
+        assert(!initialised);
+
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
-        frames = new ArrayList<Frame>();
+        frames = new LinkedList<Frame>();
         try {
             switch (Properties.FRAME_SELECTION_STRATEGY) {
                 case RANDOM:
@@ -271,32 +275,37 @@ public class FrameHandler implements Tickable {
         if (frames.contains(frame)){
             return;
         }
+
+        if (firstFrameTimestamp == Long.MIN_VALUE){
+            firstFrameTimestamp = frame.timestamp();
+        }
+
         frames.add(0, frame);
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {
             frames.remove(frames.size() - 1);
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-        if (next != null && !next.equals(last)) {
+
+        assert (next != null && !next.equals(last));
 
             framesGenerated++;
 
             for (int i = 0; i < frameSwitchListeners.size(); i++) {
                 final FrameSwitchListener fl = frameSwitchListeners.get(i);
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        fl.onFrameSwitch(last, next);
-                    }
-                };
+                FrameSeedingRunnable r = new FrameSeedingRunnable(fl, next, last,
+                        frame.timestamp() - firstFrameTimestamp);
+
+                // TODO: SINGLE_THREAD should use a single thread to seed
+                // data instead of seeding in current thread
 
                 if (Properties.SINGLE_THREAD){
-                    r.run();
+                    frameSeedingQueue.addFrameSeedTask(r);
                 } else {
                     new Thread(r).start();
                 }
             }
-        }
+
     }
 
     private long lastUpdate = 0;
@@ -321,8 +330,13 @@ public class FrameHandler implements Tickable {
 
     public Csv getCsv(){
         Csv csv = frameGenerator.getCsv();
-        csv.add("framesGenerated", framesGenerated + "");
-        return csv;
+        Csv newCsv = new Csv();
+
+        newCsv.add("framesGenerated", framesGenerated +
+                "");
+
+        newCsv.merge(csv);
+        return newCsv;
     }
 
     public boolean allowProcessing(){

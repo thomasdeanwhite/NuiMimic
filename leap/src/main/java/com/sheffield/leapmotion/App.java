@@ -440,7 +440,7 @@ public class App implements ThrowableListener, Tickable {
     public static void premain (String arg, Instrumentation instr){
         LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
 
-        App.out.println("- Instrumenting JAR");
+        App.out.println("- Instrumenting AUT");
 
         try {
             loadOptions(arg);

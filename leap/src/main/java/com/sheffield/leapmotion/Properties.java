@@ -43,7 +43,7 @@ public class Properties extends InstrumentationProperties {
     public static boolean SHOW_OUTPUT = true;
 
     @Parameter(key = "progress", description = "Should progress be shown?", hasArgs = false, category = "Leap Motion Testing")
-    public static boolean SHOW_PROGRESS = false;
+    public static boolean SHOW_PROGRESS = true;
 
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
