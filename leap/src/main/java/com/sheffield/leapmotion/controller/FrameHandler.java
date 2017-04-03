@@ -277,13 +277,10 @@ public class FrameHandler implements Tickable {
             return;
         }
 
-<<<<<<< HEAD
         if (firstFrameTimestamp == Long.MIN_VALUE){
             firstFrameTimestamp = frame.timestamp();
         }
 
-=======
->>>>>>> 040a62a1a711be27236414cc4d8252645d95f2aa
         frames.add(0, frame);
         while (frames.size() > Properties.MAX_LOADED_FRAMES) {
             frames.remove(frames.size() - 1);
