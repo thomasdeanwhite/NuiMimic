@@ -15,6 +15,7 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
+import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -45,6 +46,10 @@ public class SeededHand extends Hand implements Serializable {
 
     public void setRotation(Quaternion q){
         rotation = q;
+
+        Vector[] vs = q.toMatrix(true);
+        setBasis(vs[0], vs[1], vs[2]);
+
         for (Finger f : fingerList) {
             if (f instanceof SeededFinger) {
                 SeededFinger sf = (SeededFinger) f;
@@ -149,6 +154,10 @@ public class SeededHand extends Hand implements Serializable {
             return this;
         }
 
+        if (hands.contains(this)){
+            hands.remove(this);
+        }
+
         SeededHand h = new SeededHand();
         h.basis = basis;
         h.direction = direction;
@@ -161,13 +170,14 @@ public class SeededHand extends Hand implements Serializable {
         h.isLeft = isLeft;
         h.id = id;
         h.uniqueId = uniqueId;
-//        ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
-//
-//        for (SeededHand hs : hands){
-//            qs.add(hs.rotation);
-//        }
+        ArrayList<Quaternion> qs = new ArrayList<Quaternion>();
 
-//        h.rotation = QuaternionHelper.fadeQuaternions(qs, modifier);
+        for (SeededHand hs : hands){
+            qs.add(hs.rotation);
+        }
+
+        h.rotation = QuaternionHelper.fadeQuaternions(qs, modifier);
+
         SeededFingerList sfl = new SeededFingerList();
         for (Finger f : fingerList) {
             SeededFinger sf = new SeededFinger();
@@ -204,9 +214,10 @@ public class SeededHand extends Hand implements Serializable {
             sf.rotation = h.rotation;
             sf.normalize();
             sf.tipPosition = BezierHelper.bezier(createTipPositionVector(fingers), modifier);
-            final float lastTipNumber = 0.01f;
-            Vector lastTip = BezierHelper.bezier(createTipPositionVector(fingers), modifier-lastTipNumber);
-            sf.tipVelocity = fadeVector(lastTip, sf.tipPosition(), 1f-lastTipNumber);
+            final float lastTipNumber = (fingers.size()-1) * Properties.SWITCH_TIME;
+            Vector lastTip = BezierHelper.bezier(createTipPositionVector(fingers), 0f);
+            sf.tipVelocity = lastTip.divide(lastTipNumber);
+            sf.stabilizedTipPosition = sf.tipPosition;
             sf.hand = h;
             sf.type = f.type();
             sfl.addFinger(sf);

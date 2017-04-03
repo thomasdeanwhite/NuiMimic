@@ -80,14 +80,14 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
                     if (count > 0){
                         frontMost = g.pointables().get(count);
-                        center = center.plus(f.pointables().get(count).tipPosition());
+                        center = center.plus(f.pointables().get(count).stabilizedTipPosition());
                     } else {
-                        center = center.plus(f.pointables().frontmost().tipPosition());
+                        center = center.plus(f.pointables().frontmost().stabilizedTipPosition());
                     }
                     counter++;
                 }
 
-                center = center.plus(frontMost.tipPosition());
+                center = center.plus(frontMost.stabilizedTipPosition());
                 counter++;
 
                 center = center.divide(counter);

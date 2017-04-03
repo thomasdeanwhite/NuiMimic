@@ -27,8 +27,9 @@ public class SeededFinger extends Finger implements Serializable {
 	protected HashMap<Joint, Vector> jointPositions;
 	protected float length;
 	protected int timeVisible;
-	protected Vector tipVelocity;
+	protected Vector tipVelocity = Vector.zero();
 	protected Vector tipPosition;
+	protected Vector stabilizedTipPosition = Vector.zero();
 	protected float touchDistance;
 	protected Zone touchZone;
 	protected float width;
@@ -204,7 +205,12 @@ public class SeededFinger extends Finger implements Serializable {
 	public Vector stabilizedTipPosition() {
 		// TODO Auto-generated method stub
 		//App.out.println("tip: " + tipPosition);
-		return tipPosition();
+		Vector v =  tipPosition();//Properties.SINGLE_DATA_POOL ? stabilizedTipPosition : offset.plus(rotation.rotateVector(stabilizedTipPosition));
+		return v.minus(tipVelocity.divide((float)Math.sqrt(tipVelocity.magnitude())));
+	}
+
+	public void setTipVelocity(Vector v){
+		tipVelocity = v;
 	}
 
 	@Override

@@ -74,13 +74,13 @@ public class Properties extends InstrumentationProperties {
     public static long CURRENT_RUN = -1;
 
     @Parameter(key = "gestureCircleMinRadius", description = "Minimum radius a circle gesture can be", hasArgs = true, category = "Leap Motion Gestures")
-    public static int GESTURE_CIRCLE_RADIUS = 10;
+    public static int GESTURE_CIRCLE_RADIUS = 5;
 
     @Parameter(key = "gestureCircleCentreFrames", description = "Number of previous frames used to calculated a circle gesture.", hasArgs = true, category = "Leap Motion Gestures")
-    public static int GESTURE_CIRCLE_FRAMES = 20;
+    public static int GESTURE_CIRCLE_FRAMES = 0;
 
     @Parameter(key = "gestureTimeLimit", description = "Duration to seed gestures for", hasArgs = true, category = "Leap Motion Gestures")
-    public static int GESTURE_TIME_LIMIT = 700;
+    public static int GESTURE_TIME_LIMIT = 500;
 
 
     @Parameter(key = "untrackedPackages", description = "Packages to not be tracked when outputting lines and branches (comma separated)", hasArgs = true, category = "Instrumentation")

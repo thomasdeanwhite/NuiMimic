@@ -188,7 +188,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			//if (frameRequested) {
 			try {
 				frameHandler.tick(time);
-				frameHandler.loadNewFrame();
+				frameHandler.loadNewFrame(time);
 			} catch (Exception e){
 				e.printStackTrace(App.out);
 			}

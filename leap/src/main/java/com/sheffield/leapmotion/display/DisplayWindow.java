@@ -280,11 +280,18 @@ public class DisplayWindow extends JFrame {
 					int scale = (400 - (int)h.palmPosition().getZ()) / 30;
 					float scaleWindowX = (getWidth()/2) / 400f;
 					float scaleWindowY = (getHeight()/2) / 400f;
+
+
+					Finger frontMostTip = h.fingers().frontmost();
+
+					float tipScale = 1f + (frontMostTip.stabilizedTipPosition().getZ()/400);
+
+					g2d.fillRect((3*(getWidth() / 4)) + ((int)(h.fingers().frontmost().stabilizedTipPosition().getX()*scaleWindowX)), getHeight() - ((int)(h.fingers().frontmost().stabilizedTipPosition().getY()*scaleWindowY)), (int)(scale * tipScale), (int)tipScale);
 					g2d.fillOval((3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)), getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)), scale, scale);
 					g2d.drawString("(" + (Math.round(10*h.palmPosition().getX())/10f) + ", " + (Math.round(10*h.palmPosition().getY())/10f) + ")",
 							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + scale);
 
-					g2d.drawString(h.fingers().frontmost().tipPosition().toString(),
+					g2d.drawString(h.fingers().frontmost().stabilizedTipPosition().toString(),
 							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (2 * scale));
 
 
