@@ -101,6 +101,8 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
             e.printStackTrace(App.out);
         } catch (IOException e) {
             e.printStackTrace(App.out);
+        } catch (Throwable t){
+            t.printStackTrace(App.out);
         }
 
         return classfileBuffer;

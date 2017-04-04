@@ -438,8 +438,6 @@ public class App implements ThrowableListener, Tickable {
      * @param instr Instrumentation instance to attach a ClassFileTransformer
      */
     public static void premain (String arg, Instrumentation instr){
-        LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
-
         App.out.println("- Instrumenting AUT");
 
         try {
@@ -451,6 +449,8 @@ public class App implements ThrowableListener, Tickable {
         for (String s : Properties.FORBIDDEN_PACKAGES) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
+
+        LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
 
         instr.addTransformer(lat);
     }

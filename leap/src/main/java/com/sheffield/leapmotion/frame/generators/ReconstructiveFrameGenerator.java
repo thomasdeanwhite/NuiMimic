@@ -9,7 +9,8 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
-import com.sheffield.leapmotion.frame.generators.gestures.ReconstructiveGestureHandler;
+import com.sheffield.leapmotion.frame.generators.gestures
+        .ReconstructiveGestureHandler;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
@@ -24,7 +25,8 @@ import java.util.HashMap;
 /**
  * Created by thoma on 11/05/2016.
  */
-public class ReconstructiveFrameGenerator extends FrameGenerator implements GestureHandler, Reconstruction {
+public class ReconstructiveFrameGenerator extends FrameGenerator implements
+                                                                 GestureHandler, Reconstruction {
 
     @Override
     public Csv getCsv() {
@@ -42,9 +44,9 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     private ArrayList<String> positionLabelStack;
     private ArrayList<String> rotationLabelStack;
 
-    private ArrayList<SeededHand> currentHands;
-    private ArrayList<Vector> currentPositions;
-    private ArrayList<Quaternion> currentRotations;
+    private SeededHand currentHand;
+    private Vector currentPosition;
+    private Quaternion currentRotation;
     private ArrayList<Long> timings;
 
     private long lastSwitchTime = 0;
@@ -59,11 +61,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     private int animationTime = 0;
 
 
-    public ReconstructiveFrameGenerator(String filename){
+    public ReconstructiveFrameGenerator(String filename) {
         try {
-            currentRotations = new ArrayList<Quaternion>();
-            currentPositions = new ArrayList<Vector>();
-            currentHands = new ArrayList<SeededHand>();
             tpgh = new ReconstructiveGestureHandler(filename);
             App.out.println("* Setting up Reconstruction");
             lastSwitchTime = 0;
@@ -76,8 +75,10 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             positionLabelStack.add(0, null);
             rotationLabelStack.add(0, null);
 
-            String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/" +
-                    (Properties.SINGLE_DATA_POOL ? "hand_joints_data" : "joint_position_data");
+            String clusterFile =
+                    Properties.DIRECTORY + "/" + filename + "/processed/" +
+                            (Properties.SINGLE_DATA_POOL ? "hand_joints_data" :
+                                    "joint_position_data");
             hands = new HashMap<String, SeededHand>();
 
             currentLabel = 0;
@@ -94,12 +95,15 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             }
 
-            String sequenceFile = Properties.DIRECTORY + "/" + filename + "/processed/" +
-                    (Properties.SINGLE_DATA_POOL ? "hand_joints.raw_sequence" : "joint_position.raw_sequence");
+            String sequenceFile =
+                    Properties.DIRECTORY + "/" + filename + "/processed/" +
+                            (Properties.SINGLE_DATA_POOL ?
+                                    "hand_joints.raw_sequence" :
+                                    "joint_position.raw_sequence");
             String sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             String[] seqData = sequenceInfo.split("\n")[0].split(",");
 
-            for (String s : seqData){
+            for (String s : seqData) {
                 if (s.length() > 0)
                     handLabelStack.add(s);
             }
@@ -110,8 +114,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             String[] tim = sequenceInfo.split("\n")[1].split(",");
 
 
-
-            for (String s : tim){
+            for (String s : tim) {
                 if (s.length() > 0)
                     // x / 1000 microsec to millisec
                     timings.add(Long.parseLong(s.split("@")[0]));
@@ -119,7 +122,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             final ArrayList<Integer> indices = new ArrayList<Integer>();
 
-            for (int i = 0; i < timings.size(); i++){
+            for (int i = 0; i < timings.size(); i++) {
                 indices.add(i);
             }
 
@@ -128,7 +131,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             indices.sort(new Comparator<Integer>() {
                 @Override
                 public int compare(Integer o1, Integer o2) {
-                    return (int)(tims.get(o1) - tims.get(o2));
+                    return (int) (tims.get(o1) - tims.get(o2));
                 }
             });
 
@@ -147,14 +150,15 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             long first = tims.get(indices.get(0));
 
-            for (int i = timings.size()-2; i >= 0; i--){
+            for (int i = timings.size() - 2; i >= 0; i--) {
                 long l = timings.get(i);
-                long l1 = timings.get(i+1);
+                long l1 = timings.get(i + 1);
                 if (l > l1) {
-                    throw new IllegalArgumentException("Timings must increase chronologically");
+                    throw new IllegalArgumentException(
+                            "Timings must increase chronologically");
                 } else {
-                    long m = timings.remove(i+1);
-                    timings.add(i+1, (m-first)/1000);
+                    long m = timings.remove(i + 1);
+                    timings.add(i + 1, (m - first) / 1000);
                 }
             }
 
@@ -162,7 +166,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
             timings.remove(0);
             timings.add(0, 0L);
 
-            String positionFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_position_data";
+            String positionFile = Properties.DIRECTORY + "/" + filename +
+                    "/processed/hand_position_data";
             contents = FileHandler.readFile(new File(positionFile));
             lines = contents.split("\n");
 
@@ -178,18 +183,20 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             }
 
-            sequenceFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_position.raw_sequence";
+            sequenceFile = Properties.DIRECTORY + "/" + filename +
+                    "/processed/hand_position.raw_sequence";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             seqData = sequenceInfo.split("\n")[0].split(",");
 
-            for (String s : seqData){
+            for (String s : seqData) {
                 if (s.length() > 0)
                     positionLabelStack.add(s);
             }
 
             positionLabelStack.sort(new ListComparator<String>(indices));
 
-            String rotationFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_rotation_data";
+            String rotationFile = Properties.DIRECTORY + "/" + filename +
+                    "/processed/hand_rotation_data";
             contents = FileHandler.readFile(new File(rotationFile));
             lines = contents.split("\n");
             rotations = new HashMap<String, Quaternion>();
@@ -204,18 +211,19 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             }
 
-            sequenceFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_rotation.raw_sequence";
+            sequenceFile = Properties.DIRECTORY + "/" + filename +
+                    "/processed/hand_rotation.raw_sequence";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             seqData = sequenceInfo.split("\n")[0].split(",");
 
-            for (String s : seqData){
+            for (String s : seqData) {
                 if (s.length() > 0)
                     rotationLabelStack.add(s);
             }
 
             rotationLabelStack.sort(new ListComparator<String>(indices));
 
-        } catch (IOException e){
+        } catch (IOException e) {
             //e.printStackTrace(App.out);
         }
     }
@@ -224,7 +232,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         private ArrayList<Integer> indices;
 
-        public ListComparator(ArrayList<Integer> indices){
+        public ListComparator(ArrayList<Integer> indices) {
             this.indices = indices;
         }
 
@@ -239,8 +247,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     @Override
     public void modifyFrame(SeededFrame frame) {
-        if (handLabelStack.size() == 0 || currentPositions == null
-                || currentRotations == null || currentPositions.size() == 0 || currentRotations.size() == 0){
+        if (handLabelStack.size() == 0 || currentPosition == null
+                || currentRotation == null) {
             return;
         }
 
@@ -251,10 +259,9 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         if (h instanceof SeededHand) {
             SeededHand sh = (SeededHand) h;
 
-            Quaternion q = QuaternionHelper.fadeQuaternions(currentRotations, modifier);
-            q.setBasis(sh);
+            currentRotation.setBasis(sh);
 
-            sh.setOrigin(BezierHelper.bezier(currentPositions, modifier));
+            sh.setOrigin(currentPosition);
         }
     }
 
@@ -268,24 +275,19 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     @Override
     public Frame newFrame() {
-        if (handLabelStack.size() == 0){
+        if (handLabelStack.size() == 0) {
             return Frame.invalid();
         }
-        Frame f = SeededController.newFrame();
 
-        modifier = Math.min(1f, currentAnimationTime / Properties.SWITCH_TIME);
+        if (currentHand != null) {
+            SeededFrame f = (SeededFrame) currentHand.frame();
 
-        if (currentHands.size() > 0){
-            Hand hand = currentHands.get(0).fadeHand(currentHands, modifier);
+            f.setTimestamp(timings.get(currentHandIndex));
 
-            if (hand != null) {
-                f = HandFactory.injectHandIntoFrame(f, hand);
-            }
-        } else {
-            return null;
+            return f;
+
         }
-
-        return f;
+        return null;
     }
 
     @Override
@@ -298,7 +300,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         return tpgh.handleFrame(frame, controller);
     }
 
-    public int size(){
+    public int size() {
         return handLabelStack.size();
     }
 
@@ -309,18 +311,18 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     @Override
     public void tick(long time) {
-        if (handLabelStack.size() == 0){
+        if (handLabelStack.size() == 0) {
             return;
         }
-        if (lastSwitchTime == 0){
+        if (lastSwitchTime == 0) {
             lastSwitchTime = time;
         }
 
-        if (currentHandIndex >= timings.size()){
+        if (currentHandIndex >= timings.size()) {
             return;
         }
 
-        if (startSeededTime == 0){
+        if (startSeededTime == 0) {
             startSeededTime = time;
         }
 
@@ -328,7 +330,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
         long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
-//        while (seededTime  > timings.get(gestureHandIndex) - Properties.SWITCH_TIME){
+//        while (seededTime  > timings.get(gestureHandIndex) - Properties
+// .SWITCH_TIME){
 //            tpgh.changeGesture(gestureHandIndex++);
 //        }
 
@@ -339,67 +342,51 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
             lastSwitchTime = seededTime - Properties.SWITCH_TIME;
 
-            currentHands.clear();
-            currentPositions.clear();
-            currentRotations.clear();
+            currentHand = null;
+            currentPosition = null;
+            currentRotation = null;
 
             gestureHandIndex = currentHandIndex;
 
 
             int skippedHands = 0;
-            long newFrameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+            long newFrameTime =
+                    timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
-            while(newFrameTime < seededTime - Properties.SWITCH_TIME){
-                newFrameTime = timings.get(currentHandIndex+skippedHands) -
+            while (newFrameTime < seededTime - Properties.SWITCH_TIME) {
+                newFrameTime = timings.get(currentHandIndex + skippedHands) -
                         Properties.SWITCH_TIME;
                 skippedHands++;
             }
 
-            if (skippedHands != 0){
-                currentHandIndex += (skippedHands-1);
+            if (skippedHands != 0) {
+                currentHandIndex += (skippedHands - 1);
             }
 
             frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
 
             while (frameTime < seededTime) {
 
-                String currentHand = null;
-                String currentPosition = null;
-                String currentRotation = null;
+                assert (handLabelStack.size() > 0);
 
-                do {
-                    if (handLabelStack.size() > 0) {
-                        currentHand = handLabelStack.get(currentHandIndex);
-                        currentPosition = positionLabelStack.get
-                                (currentHandIndex);
-                        currentRotation = rotationLabelStack.get
-                                (currentHandIndex);
+                String currentHand = handLabelStack.get(currentHandIndex);
+                String currentPosition = positionLabelStack.get
+                        (currentHandIndex);
+                String currentRotation = rotationLabelStack.get
+                        (currentHandIndex);
 
-                        frameTime = timings.get(currentHandIndex++) -
-                                Properties.SWITCH_TIME;
-                    }
-                }
-                while (currentHand == null || currentPosition == null || currentRotation == null);
+                frameTime = timings.get(currentHandIndex++) -
+                        Properties.SWITCH_TIME;
 
                 tpgh.changeGesture(currentHandIndex);
 
-                if (currentHands.size() == 0 || !currentHands.get(currentHands.size()-1).equals(hands.get(currentHand))) {
-                    currentHands.add(hands.get(currentHand));
-                }
+                this.currentHand = hands.get(currentHand);
 
-                if (currentPositions.size() == 0 || !currentPositions.get(currentPositions.size()-1).equals(vectors.get(currentPosition))) {
-                    currentPositions.add(vectors.get(currentPosition));
-                }
+                this.currentPosition = vectors.get(currentPosition);
 
-                if (currentRotations.size() == 0 ||!currentRotations.get(currentRotations.size()-1).equals(rotations.get(currentRotation))){
-                    currentRotations.add(rotations.get(currentRotation));
-                }
+                this.currentRotation = rotations.get(currentRotation);
+
             }
-        }
-
-        currentAnimationTime = (int) (seededTime - lastSwitchTime);
-        if (animationTime <= 0){
-            animationTime = 1;
         }
 
         tpgh.tick(time);
@@ -408,7 +395,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
     }
 
     @Override
-    public boolean hasNextFrame (){
+    public boolean hasNextFrame() {
         return currentHandIndex < handLabelStack.size();
     }
 
@@ -417,7 +404,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
         return "Clustered Reconstruction";
     }
 
-    public long lastTick(){
+    public long lastTick() {
         return lastUpdate;
     }
 
@@ -426,7 +413,7 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements Gest
 
     }
 
-    public int getClusters(){
+    public int getClusters() {
         return hands.size();
     }
 
