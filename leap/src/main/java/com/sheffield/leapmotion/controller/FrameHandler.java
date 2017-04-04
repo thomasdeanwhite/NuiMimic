@@ -21,32 +21,55 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 
 public class FrameHandler implements Tickable {
     private FrameGenerator frameGenerator;
     private ArrayList<FrameSwitchListener> frameSwitchListeners;
-    private ArrayList<Frame> frames;
+    private LinkedList<Frame> frames;
     private GestureHandler gestureHandler;
 
     private boolean initialised = false;
 
+    private long firstFrameTimestamp = Long.MIN_VALUE;
+
+    private FrameSeedingRunnableQueue
+            frameSeedingQueue = new FrameSeedingRunnableQueue();
+
     private int framesGenerated = 0;
 
-    public String status(){
+    public String status() {
         return frameGenerator.status();
+    }
+
+    public FrameHandler copy(){
+        FrameHandler fh = new FrameHandler();
+
+        //fh.frameGenerator = frameGenerator;
+        fh.frameSwitchListeners = new ArrayList<>();
+
+        for (FrameSwitchListener fsl : frameSwitchListeners){
+            fh.frameSwitchListeners.add(fsl);
+        }
+
+        fh.frames = new LinkedList<Frame>();
+
+        for (Frame f : frames){
+            fh.frames.add(f);
+        }
+
+        return fh;
     }
 
     public FrameHandler() {
 
     }
 
-    public void init (Controller seededController){
-        if (initialised){
-            new Exception("init is being called again!").printStackTrace(App.out);
-            return;
-        }
+    public void init(Controller seededController) {
+        assert (!initialised);
+
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
-        frames = new ArrayList<Frame>();
+        frames = new LinkedList<Frame>();
         try {
             switch (Properties.FRAME_SELECTION_STRATEGY) {
                 case RANDOM:
@@ -59,44 +82,55 @@ public class FrameHandler implements Tickable {
                     frameGenerator = new EmptyFrameGenerator();
                     break;
                 case VQ:
-                    frameGenerator = new VectorQuantizedFrameGenerator(Properties.INPUT[0]);
+                    frameGenerator = new VectorQuantizedFrameGenerator(
+                            Properties.INPUT[0]);
                     break;
                 case STATE_ISOLATED:
-                    App.out.println("- Redirecting to StateDependent Frame Generation");
+                    App.out.println(
+                            "- Redirecting to StateDependent Frame Generation");
                     Properties.FRAME_SELECTION_STRATEGY = Properties
                             .FrameSelectionStrategy.STATE_DEPENDENT;
                 case STATE_DEPENDENT:
                     StateIsolatedFrameGenerator
-                            sifs = new StateIsolatedFrameGenerator(Properties.INPUT[0]);
+                            sifs = new StateIsolatedFrameGenerator(
+                            Properties.INPUT[0]);
                     long testIndex = Properties.CURRENT_RUN;
-                    File g = FileHandler.generateTestingOutputFile("gestures-" + testIndex);
+                    File g = FileHandler
+                            .generateTestingOutputFile("gestures-" + testIndex);
                     g.createNewFile();
                     sifs.setGestureOutputFile(g);
 
-                    File p = FileHandler.generateTestingOutputFile("joint_positions-" + testIndex);
+                    File p = FileHandler.generateTestingOutputFile(
+                            "joint_positions-" + testIndex);
                     p.createNewFile();
                     sifs.setOutputFile(p);
 
-                    File hp = FileHandler.generateTestingOutputFile("hand_positions-" + testIndex);
+                    File hp = FileHandler.generateTestingOutputFile(
+                            "hand_positions-" + testIndex);
                     hp.createNewFile();
 
-                    File hr = FileHandler.generateTestingOutputFile("hand_rotations-" + testIndex);
+                    File hr = FileHandler.generateTestingOutputFile(
+                            "hand_rotations-" + testIndex);
                     hr.createNewFile();
                     sifs.setOutputFiles(hp, hr);
 
                     frameGenerator = sifs;
                     break;
                 case RECONSTRUCTION:
-                    frameGenerator = new ReconstructiveFrameGenerator(Properties.INPUT[0]);
+                    frameGenerator = new ReconstructiveFrameGenerator(
+                            Properties.INPUT[0]);
                     break;
                 case RAW_RECONSTRUCTION:
-                    frameGenerator = new RawReconstructiveFrameGenerator(Properties.INPUT[0]);
+                    frameGenerator = new RawReconstructiveFrameGenerator(
+                            Properties.INPUT[0]);
                     break;
-                    
+
                 case REGRESSION:
                     Properties.TESTING_OUTPUT = "testing_regression";
-                    ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[])Array.newInstance(ArrayList.class, 4);
-                    String[] files = {Properties.INPUT[1], Properties.INPUT[2], Properties.INPUT[3], Properties.INPUT[4]};
+                    ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[]) Array
+                            .newInstance(ArrayList.class, 4);
+                    String[] files = {Properties.INPUT[1], Properties.INPUT[2],
+                            Properties.INPUT[3], Properties.INPUT[4]};
 
                     HashMap<NGramLog, String> handStateMap = new HashMap
                             <NGramLog, String>();
@@ -104,14 +138,15 @@ public class FrameHandler implements Tickable {
                     int lastState = -1;
                     HashMap<Integer, ArrayList<Integer>> stateMapping = new
                             HashMap
-                            <Integer, ArrayList<Integer>>();
+                                    <Integer, ArrayList<Integer>>();
 
-                    for (int i = 0; i < files.length; i++){
+                    for (int i = 0; i < files.length; i++) {
                         logs[i] = new ArrayList<NGramLog>();
-                        String[] data = FileHandler.readFile(new File(files[i])).split("\n");
-                        for (String s : data){
+                        String[] data = FileHandler.readFile(new File(files[i]))
+                                .split("\n");
+                        for (String s : data) {
                             s = s.trim();
-                            if (s.length() <= 0){
+                            if (s.length() <= 0) {
                                 continue;
                             }
 
@@ -120,27 +155,32 @@ public class FrameHandler implements Tickable {
                             //trailing ,
                             log.element = d[0];
                             if (d[0].contains(",")) {
-                                log.element = log.element.substring(0, d[0].length() - 1);
+                                log.element = log.element
+                                        .substring(0, d[0].length() - 1);
                             }
                             log.timeSeeded = Integer.parseInt(d[1]);
                             String currentState = d[2];
-                            currentState = currentState.substring(1, d[2].length()-1);
+                            currentState = currentState
+                                    .substring(1, d[2].length() - 1);
 
                             handStateMap.put(log, currentState.replace(",",
                                     ";"));
 
-                            if (currentState.trim().length() == 0){
+                            if (currentState.trim().length() == 0) {
                                 continue;
                             }
 
                             String[] stateArr = currentState.split(",");
                             Integer[] cState = new Integer[stateArr.length];
 
-                            for (int z = 0; z < stateArr.length; z++){
+                            for (int z = 0; z < stateArr.length; z++) {
                                 try {
                                     cState[z] = Integer.parseInt(stateArr[z]);
-                                } catch (NumberFormatException e){
-                                    App.out.println(files[i] + ": State[" + z + "/" + stateArr.length + "]: " + stateArr[z]);
+                                } catch (NumberFormatException e) {
+                                    App.out.println(
+                                            files[i] + ": State[" + z + "/" +
+                                                    stateArr.length + "]: " +
+                                                    stateArr[z]);
                                 }
                             }
 
@@ -173,17 +213,19 @@ public class FrameHandler implements Tickable {
                     frameGenerator = new EmptyFrameGenerator();
                     break;
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace(App.out);
             //TODO: Alert user an error has occurred
             System.exit(-1);
         }
 
-        if (frameGenerator instanceof GestureHandler){ //frameGenerator instanceof ReconstructiveFrameGenerator || frameGenerator instanceof RegressionFrameGenerator){ //
+        if (frameGenerator instanceof GestureHandler) { //frameGenerator
+            // instanceof ReconstructiveFrameGenerator || frameGenerator
+            // instanceof RegressionFrameGenerator){ //
             setGestureHandler((GestureHandler) frameGenerator);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();
-            File f = FileHandler.generateTestingOutputFile( "gestures-" +
+            File f = FileHandler.generateTestingOutputFile("gestures-" +
                     Properties.CURRENT_RUN);
             try {
                 f.createNewFile();
@@ -199,7 +241,8 @@ public class FrameHandler implements Tickable {
 
         if (Properties.PLAYBACK_FILE != null) {
             FrameGenerator backupFs = frameGenerator;
-            frameGenerator = new UserPlaybackFrameGenerator(backupFs, seededController);
+            frameGenerator =
+                    new UserPlaybackFrameGenerator(backupFs, seededController);
             output = "USER_PLAYBACK_FRAME_SELECTOR(" + output + ")";
         }
 
@@ -228,7 +271,7 @@ public class FrameHandler implements Tickable {
             frame = frames.get(i);
         }
 
-        if (frame == null){
+        if (frame == null) {
             frame = Frame.invalid();
         }
 
@@ -237,10 +280,10 @@ public class FrameHandler implements Tickable {
 
     public void loadNewFrame(long time) {
         Frame frame = frameGenerator.newFrame();
-        if (frame == null){
+        if (frame == null) {
             return;
         }
-        if (frameGenerator instanceof EmptyFrameGenerator){
+        if (frameGenerator instanceof EmptyFrameGenerator) {
             final Frame last = getFrame(1);
             final Frame next = frame;
             for (FrameSwitchListener fsl : frameSwitchListeners) {
@@ -249,7 +292,7 @@ public class FrameHandler implements Tickable {
             }
             return;
         } else if (!(frameGenerator instanceof UserPlaybackFrameGenerator)) {
-            if (!(frame instanceof  SeededFrame)) {
+            if (!(frame instanceof SeededFrame)) {
                 frame = new SeededFrame(frame);
             }
             SeededFrame sf = (SeededFrame) frame;
@@ -261,7 +304,8 @@ public class FrameHandler implements Tickable {
             if (gestureHandler == null) {
                 gestureHandler = new RandomGestureHandler();
             }
-            gl = gestureHandler.handleFrame(frame, SeededController.getController());
+            gl = gestureHandler
+                    .handleFrame(frame, SeededController.getController());
             if (gl == null) {
                 gl = frame.gestures();
             }
@@ -269,8 +313,12 @@ public class FrameHandler implements Tickable {
 
             sf.setGestures(gl);
         }
-        if (frames.contains(frame)){
+        if (frames.contains(frame)) {
             return;
+        }
+
+        if (firstFrameTimestamp == Long.MIN_VALUE) {
+            firstFrameTimestamp = frame.timestamp();
         }
 
         frames.add(0, frame);
@@ -279,31 +327,32 @@ public class FrameHandler implements Tickable {
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-        if (next != null && !next.equals(last)) {
 
-            framesGenerated++;
+        assert (next != null && !next.equals(last));
 
-            for (int i = 0; i < frameSwitchListeners.size(); i++) {
-                final FrameSwitchListener fl = frameSwitchListeners.get(i);
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        fl.onFrameSwitch(last, next);
-                    }
-                };
+        framesGenerated++;
 
-                if (Properties.SINGLE_THREAD){
-                    r.run();
-                } else {
-                    new Thread(r).start();
-                }
+        for (int i = 0; i < frameSwitchListeners.size(); i++) {
+            FrameSwitchListener fl = frameSwitchListeners.get(i);
+            FrameSeedingRunnable r = new FrameSeedingRunnable(fl, next, last,
+                    frame.timestamp() - firstFrameTimestamp);
+
+            if (fl.equals(SeededController.CONTROLLER)){
+                fl = ((SeededController)fl).copy();
+            }
+
+            if (Properties.SINGLE_THREAD) {
+                frameSeedingQueue.addFrameSeedTask(r);
+            } else {
+                new Thread(r).start();
             }
         }
+
     }
 
-    private Frame finalizeFrame(SeededFrame frame, long time){
+    private Frame finalizeFrame(SeededFrame frame, long time) {
 
-        if (frame.timestamp() == 0){
+        if (frame.timestamp() == 0) {
             frame.setTimestamp(time);
         }
 
@@ -313,8 +362,9 @@ public class FrameHandler implements Tickable {
 
         // get frames seeded in last second:
         //     1000000 -> 1 second in microseconds
-        while (timeElapsed < 1000000 && frames.size() > count){
-            if (frames.get(count).isValid() && frames.get(count).hands().count() > 0) {
+        while (timeElapsed < 1000000 && frames.size() > count) {
+            if (frames.get(count).isValid() &&
+                    frames.get(count).hands().count() > 0) {
                 timeElapsed = timeStamp - frames.get(count++).timestamp();
             } else {
                 frames.remove(count);
@@ -323,7 +373,7 @@ public class FrameHandler implements Tickable {
 
         count -= 2; //take 2 for the comparison betweeen current and main frame
 
-        if (count < 0){
+        if (count < 0) {
             return frame;
         }
 
@@ -331,22 +381,28 @@ public class FrameHandler implements Tickable {
 
         for (Finger f : fl) {
             Frame firstFrame = frames.get(0);
-            Vector tipMovement = f.tipPosition().minus(firstFrame.fingers().fingerType(f.type()).get(0).tipPosition());
+            Vector tipMovement = f.tipPosition()
+                    .minus(firstFrame.fingers().fingerType(f.type()).get(0)
+                            .tipPosition());
 
-            for (int i = 0; i < count-1; i++) {
-                Finger f1 = frames.get(count).fingers().fingerType(f.type()).get(0);
+            for (int i = 0; i < count - 1; i++) {
+                Finger f1 =
+                        frames.get(count).fingers().fingerType(f.type()).get(0);
 
-                Finger f2 = frames.get(count+1).fingers().fingerType(f.type()).get(0);
-                tipMovement = tipMovement.plus(f1.tipPosition().minus(f2.tipPosition()));
+                Finger f2 = frames.get(count + 1).fingers().fingerType(f.type())
+                        .get(0);
+                tipMovement = tipMovement
+                        .plus(f1.tipPosition().minus(f2.tipPosition()));
 
             }
-            ((SeededFinger)f).setTipVelocity(tipMovement);
+            ((SeededFinger) f).setTipVelocity(tipMovement);
         }
 
         return frame;
     }
 
     private long lastUpdate = 0;
+
     @Override
     public void tick(long time) {
         lastUpdate = time;
@@ -360,27 +416,29 @@ public class FrameHandler implements Tickable {
         }
     }
 
-    public long lastTick(){
+    public long lastTick() {
         return lastUpdate;
     }
 
-    public void cleanUp(){
+    public void cleanUp() {
         frameGenerator.cleanUp();
     }
 
-    public Csv getCsv(){
+    public Csv getCsv() {
         Csv csv = frameGenerator.getCsv();
         Csv newCsv = new Csv();
+
         newCsv.add("framesGenerated", framesGenerated + "");
         newCsv.merge(csv);
         newCsv.finalize();
+
         return newCsv;
     }
 
-    public boolean allowProcessing(){
+    public boolean allowProcessing() {
         return framesGenerated % Properties.SEEDED_BEFORE_PROCESSING == 0 &&
-        frameGenerator
-                .allowProcessing();
+                frameGenerator
+                        .allowProcessing();
     }
 
     public boolean hasNextFrame() {
@@ -388,7 +446,7 @@ public class FrameHandler implements Tickable {
     }
 
     public float getProgress() {
-        if (!initialised){
+        if (!initialised) {
             return 0f;
         }
         return frameGenerator.getProgress();

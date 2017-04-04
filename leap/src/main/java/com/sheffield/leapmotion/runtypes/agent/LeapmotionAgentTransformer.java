@@ -32,9 +32,12 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
 
         instrumentingClassLoader.setShouldInstrument(true);
 
-        instrumentingClassLoader.addSuperClassReplacement
-                (Controller.class.getCanonicalName(), SeededController.class.getCanonicalName
-                        ());
+        if (Properties.CONTROLLER_SUPER_CLASS) {
+            instrumentingClassLoader.addSuperClassReplacement
+                    (Controller.class.getCanonicalName(),
+                            SeededController.class.getCanonicalName
+                                    ());
+        }
 
         App.ENABLE_APPLICATION_OUTPUT = true;
         App.IS_INSTRUMENTING = true;
@@ -98,6 +101,8 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
             e.printStackTrace(App.out);
         } catch (IOException e) {
             e.printStackTrace(App.out);
+        } catch (Throwable t){
+            t.printStackTrace(App.out);
         }
 
         return classfileBuffer;

@@ -51,7 +51,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		@Override
 		public void onFrame(Controller controller) {
 			for (int i = 0; i < listeners.size(); i++) {
-				listeners.get(i).onFrame(CONTROLLER);
+				listeners.get(i).onFrame(controller);
 			}
 		}
 	};
@@ -117,18 +117,38 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		enableGesture(Gesture.Type.TYPE_KEY_TAP);
 		enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
 		enableGesture(Gesture.Type.TYPE_CIRCLE);
-        App.getApp().setStatus(AppStatus.TESTING);
+		App.getApp().setStatus(AppStatus.TESTING);
 		CONTROLLER = this;
 
-        if (calledAsSuperclass){
-            initializing = true;
-            App.setTesting();
+		if (calledAsSuperclass){
+			initializing = true;
+			App.setTesting();
 
-            //App.startTesting();
-            App.getApp().setup(true);
-            CONTROLLER.setup();
-            initializing = false;
+			//App.startTesting();
+			App.getApp().setup(true);
+			CONTROLLER.setup();
+			initializing = false;
+		}
+
+	}
+
+	public SeededController(FrameHandler fh) {
+		frameHandler = fh;
+
+		//setup();
+
+	}
+
+	public SeededController copy(){
+		SeededController sc = new SeededController(frameHandler.copy());
+
+		sc.listeners = new ArrayList<Listener>();
+
+		for (Listener l : listeners){
+		    sc.listeners.add(l);
         }
+
+        return sc;
 
 	}
 
@@ -175,8 +195,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
 		for (int i = 0; i < listeners.size(); i++) {
 			final Listener l = listeners.get(i);
-			final Controller controller = this;
-			l.onFrame(controller);
+			l.onFrame(this.copy());
 		}
 	}
 
