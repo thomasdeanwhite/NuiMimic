@@ -5,6 +5,8 @@
 .idea/*
 **.idea/**
 .idea
+*.iml
+**/*.iml
 target/*
 */target/*
 *.log
