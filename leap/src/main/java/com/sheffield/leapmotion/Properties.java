@@ -43,7 +43,7 @@ public class Properties extends InstrumentationProperties {
     public static boolean SHOW_OUTPUT = true;
 
     @Parameter(key = "progress", description = "Should progress be shown?", hasArgs = false, category = "Leap Motion Testing")
-    public static boolean SHOW_PROGRESS = true;
+    public static boolean SHOW_PROGRESS = false;
 
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
@@ -65,7 +65,7 @@ public class Properties extends InstrumentationProperties {
     public static long DELAY_TIME = 1;
 
     @Parameter(key = "maxLoadedFrames", description = "Frames to retain for com.leap.leapmotion.Frame.frame(int [0->maxLoadedFrames]) method", hasArgs = true, category = "Leap Motion Testing")
-    public static int MAX_LOADED_FRAMES = 10;
+    public static int MAX_LOADED_FRAMES = 200;
 
     @Parameter(key = "runtime", description = "Time for testing application before exiting", hasArgs = true, category = "Leap Motion Testing")
     public static long RUNTIME = 600000;
@@ -110,8 +110,8 @@ public class Properties extends InstrumentationProperties {
     public static String FORBIDDEN_PACKAGES_STRING = null;
 
     public static String[] FORBIDDEN_PACKAGES = new
-    String[]{"com/sheffield/leapmotion/",
-            "com/google/",
+            String[]{"com/sheffield/leapmotion/",
+            "com/google/", "org/xml",
             "com/leapmotion/", "java/", "org/json/", "org/apache/commons/cli/",
             "org/junit/", "org/apache", "com/garg", "net/sourceforge",
             "com/steady", "com/thought", "com/jogamp", "com/bulletphysics", "com/jme3",
@@ -123,7 +123,7 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "replace_fingers_method", description = "Replaces com.leap.leapmotion.FingerList.fingers() method with com.leap.leapmotion.FingerList.extended() [for older API versions]", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean REPLACE_FINGERS_METHOD = false;
 
-    @Parameter(key = "leave_leapmotion_alone", description = "Leave the Leap Motion API original", hasArgs = false, category = "Leap Motion Instrumentation")
+    @Parameter(key = "leaveLeapmotionAlone", description = "Leave the Leap Motion API original", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean LEAVE_LEAPMOTION_ALONE = false;
 
     @Parameter(key = "controllerSuperClass", description = "The Controller class is extended instead of instantiated", hasArgs = false, category = "Leap Motion Instrumentation")
@@ -139,8 +139,6 @@ public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
     public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
-
-
 
 
     @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
@@ -274,52 +272,51 @@ public class Properties extends InstrumentationProperties {
                     //App.out.println("- Found sequence file at: " + Properties.PLAYBACK_FILE);
                 }
             }
-            if (!App.IS_INSTRUMENTING) {
-                Gson g = new Gson();
-                File branches = new File("branches.csv");
-                if (branches.getAbsoluteFile().exists()) {
-                    String branchesString = FileHandler.readFile(branches);
-                    Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
+
+            Gson g = new Gson();
+            File branches = new File(Properties.TESTING_OUTPUT + "/branches.csv");
+            if (branches.getAbsoluteFile().exists()) {
+                String branchesString = FileHandler.readFile(branches);
+                Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
+                }.getType();
+                ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
+
+                // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
+            }
+
+            File linesFile = new File(Properties.TESTING_OUTPUT + "/lines.csv");
+            if (linesFile.getAbsoluteFile().exists()) {
+                try {
+                    String linesString = FileHandler.readFile(linesFile);
+
+                    Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
                     }.getType();
-                    ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
+                    ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
 
-                    // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
+                    //App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
 
-                File linesFile = new File("lines.csv");
-                if (linesFile.getAbsoluteFile().exists()) {
-                    try {
-                        String linesString = FileHandler.readFile(linesFile);
-
-                        Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
-                        }.getType();
-                        ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
-
-                        //App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
-                    } catch (IOException e) {
-                        e.printStackTrace();
+            File relatedFile = new File(Properties.TESTING_OUTPUT + "/related_classes.csv");
+            if (relatedFile.getAbsoluteFile().exists()) {
+                String[] classes = FileHandler.readFile(relatedFile).split("\n");
+                ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length - 1);
+                for (int i = 1; i < classes.length; i++) {
+                    if (classes[i].length() > 0) {
+                        String[] clInfo = classes[i].split(",");
+                        int lines = Integer.parseInt(clInfo[1]);
+                        App.relatedLines += lines;
+                        int brans = Integer.parseInt(clInfo[2]);
+                        App.relatedBranches += (brans * 2);
+                        clas.add(new ClassTracker(clInfo[0], lines, brans));
                     }
                 }
+                App.relatedClasses = clas;
 
-                File relatedFile = new File("related_classes.csv");
-                if (relatedFile.getAbsoluteFile().exists()) {
-                    String[] classes = FileHandler.readFile(relatedFile).split("\n");
-                    ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length - 1);
-                    for (int i = 1; i < classes.length; i++) {
-                        if (classes[i].length() > 0) {
-                            String[] clInfo = classes[i].split(",");
-                            int lines = Integer.parseInt(clInfo[1]);
-                            App.relatedLines += lines;
-                            int brans = Integer.parseInt(clInfo[2]);
-                            App.relatedBranches += (brans * 2);
-                            clas.add(new ClassTracker(clInfo[0], lines, brans));
-                        }
-                    }
-                    App.relatedClasses = clas;
-
-                    //App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
-                    //App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
-                }
+                //App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
+                //App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
             }
             if (Properties.INPUT_STRING != null) {
                 Properties.INPUT = Properties.INPUT_STRING.split(";");
@@ -344,28 +341,28 @@ public class Properties extends InstrumentationProperties {
             }
 
             OUTPUT_EXCLUDES_ARRAY = new ArrayList<String>();
-            if (OUTPUT_EXCLUDES != null && OUTPUT_EXCLUDES.length() > 0){
+            if (OUTPUT_EXCLUDES != null && OUTPUT_EXCLUDES.length() > 0) {
                 OUTPUT_EXCLUDES_ARRAY.addAll(Arrays.asList(OUTPUT_EXCLUDES.split(",")));
             }
 
             OUTPUT_INCLUDES_ARRAY = new ArrayList<String>();
-            if (OUTPUT_INCLUDES != null && OUTPUT_INCLUDES.length() > 0){
+            if (OUTPUT_INCLUDES != null && OUTPUT_INCLUDES.length() > 0) {
                 OUTPUT_INCLUDES_ARRAY.addAll(Arrays.asList(OUTPUT_INCLUDES.split(",")));
             }
 
-            if (FORBIDDEN_PACKAGES_STRING != null){
+            if (FORBIDDEN_PACKAGES_STRING != null) {
                 FORBIDDEN_PACKAGES = FORBIDDEN_PACKAGES_STRING.split(";");
             }
 
-            if (EXCLUDED_PACKAGES_STRING != null){
+            if (EXCLUDED_PACKAGES_STRING != null) {
                 ArrayList<String> forbidden = new ArrayList<String>();
                 String[] excluded = EXCLUDED_PACKAGES_STRING.split(";");
 
-                for (String s : excluded){
+                for (String s : excluded) {
                     forbidden.add(s);
                 }
 
-                for (String s : FORBIDDEN_PACKAGES){
+                for (String s : FORBIDDEN_PACKAGES) {
                     forbidden.add(s);
                 }
 
@@ -388,11 +385,9 @@ public class Properties extends InstrumentationProperties {
 
                 String[] lines = linesString.split("\n");
 
-                Gson g = new Gson();
-
                 boolean acceptRestoration = false;
 
-                for (String l : lines){
+                for (String l : lines) {
                     l = l.trim();
 
                     if (l.startsWith("#")) {
@@ -401,11 +396,11 @@ public class Properties extends InstrumentationProperties {
 
                     String opt = l.substring(0, l.indexOf(":"));
 
-                    String val = l.substring(l.indexOf(":")+1);
+                    String val = l.substring(l.indexOf(":") + 1);
                     if (opt.equalsIgnoreCase("frameGenerator"))
                         try {
                             acceptRestoration = FRAME_SELECTION_STRATEGY.equals(FrameSelectionStrategy.valueOf(val));
-                        } catch (Exception e){
+                        } catch (Exception e) {
                             acceptRestoration = false;
                         }
                 }
@@ -470,7 +465,7 @@ public class Properties extends InstrumentationProperties {
                 }
             }
 
-            if (RESUME_RUN >= 0){
+            if (RESUME_RUN >= 0) {
                 CURRENT_RUN = RESUME_RUN;
 
 
@@ -591,7 +586,7 @@ public class Properties extends InstrumentationProperties {
         }
     }
 
-    public void printOptions(){
+    public void printOptions() {
         for (String s : categoryMap.keySet()) {
             App.out.println(s);
             for (String opt : categoryMap.get(s)) {

@@ -103,7 +103,6 @@ public class FrameDeconstructor {
     }
 
     public void outputRawFrameData(Frame frame) {
-        String dir = "/sequences";
         try {
             boolean start = false;
 
@@ -115,10 +114,12 @@ public class FrameDeconstructor {
                 start = true;
             }
             String content = Serializer.sequenceToJson(frame);
-            if (!start) {
-                content = "\n" + content;
+            if (start) {
+                FileHandler.writeToFile(sequenceFile, content);
+            } else {
+                FileHandler.appendToFile(sequenceFile, "\n" + content);
             }
-            FileHandler.appendToFile(sequenceFile, content);
+
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

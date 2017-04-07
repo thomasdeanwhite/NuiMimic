@@ -39,7 +39,7 @@ public class FrameHandler implements Tickable {
     private int framesGenerated = 0;
 
     public String status() {
-        return frameGenerator.status();
+        return frameGenerator == null ? "Initialising" : frameGenerator.status();
     }
 
     public FrameHandler copy(){
@@ -209,6 +209,9 @@ public class FrameHandler implements Tickable {
                 case MANUAL:
                     frameGenerator = null;
                     return;
+                case USER_PLAYBACK:
+                    frameGenerator = new UserPlaybackFrameGenerator(new EmptyFrameGenerator(), seededController);
+                    break;
                 default:
                     frameGenerator = new EmptyFrameGenerator();
                     break;
@@ -239,7 +242,7 @@ public class FrameHandler implements Tickable {
 
         String output = Properties.FRAME_SELECTION_STRATEGY.toString();
 
-        if (Properties.PLAYBACK_FILE != null) {
+        if (Properties.PLAYBACK_FILE != null && !(frameGenerator instanceof UserPlaybackFrameGenerator)) {
             FrameGenerator backupFs = frameGenerator;
             frameGenerator =
                     new UserPlaybackFrameGenerator(backupFs, seededController);
@@ -279,6 +282,11 @@ public class FrameHandler implements Tickable {
     }
 
     public void loadNewFrame(long time) {
+
+        if (frameGenerator == null || frameSeedingQueue.size() > Properties.MAX_LOADED_FRAMES){
+            return;
+        }
+
         Frame frame = frameGenerator.newFrame();
         if (frame == null) {
             return;
@@ -317,6 +325,11 @@ public class FrameHandler implements Tickable {
             return;
         }
 
+
+        if (frame.timestamp() == -1 && frame instanceof SeededFrame){
+            ((SeededFrame)frame).setTimestamp(time*1000);
+        }
+
         if (firstFrameTimestamp == Long.MIN_VALUE) {
             firstFrameTimestamp = frame.timestamp();
         }
@@ -334,12 +347,13 @@ public class FrameHandler implements Tickable {
 
         for (int i = 0; i < frameSwitchListeners.size(); i++) {
             FrameSwitchListener fl = frameSwitchListeners.get(i);
-            FrameSeedingRunnable r = new FrameSeedingRunnable(fl, next, last,
-                    frame.timestamp() - firstFrameTimestamp);
 
-            if (fl.equals(SeededController.CONTROLLER)){
-                fl = ((SeededController)fl).copy();
-            }
+//            if (fl.equals(SeededController.CONTROLLER)){
+//                fl = ((SeededController)fl).copy();
+//            }
+
+            FrameSeedingRunnable r = new FrameSeedingRunnable(fl, next, last,
+                    (frame.timestamp() - firstFrameTimestamp)/1000);
 
             if (Properties.SINGLE_THREAD) {
                 frameSeedingQueue.addFrameSeedTask(r);
@@ -406,6 +420,11 @@ public class FrameHandler implements Tickable {
     @Override
     public void tick(long time) {
         lastUpdate = time;
+
+        if (gestureHandler == null || frameGenerator == null){
+            return;
+        }
+
         if (gestureHandler.lastTick() < time) {
             gestureHandler.tick(time);
         }
@@ -429,6 +448,7 @@ public class FrameHandler implements Tickable {
         Csv newCsv = new Csv();
 
         newCsv.add("framesGenerated", framesGenerated + "");
+        newCsv.add("discardedFrames", frameSeedingQueue.discardedFrames() + "");
         newCsv.merge(csv);
         newCsv.finalize();
 
@@ -436,9 +456,13 @@ public class FrameHandler implements Tickable {
     }
 
     public boolean allowProcessing() {
-        return framesGenerated % Properties.SEEDED_BEFORE_PROCESSING == 0 &&
-                frameGenerator
-                        .allowProcessing();
+        if (frameGenerator != null) {
+            return //framesGenerated % Properties.SEEDED_BEFORE_PROCESSING == 0 &&
+                    frameGenerator
+                            .allowProcessing();
+        }
+
+        return false;
     }
 
     public boolean hasNextFrame() {

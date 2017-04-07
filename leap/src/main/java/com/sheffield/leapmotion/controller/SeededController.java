@@ -11,6 +11,8 @@ import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.ScreenList;
 import com.leapmotion.leap.TrackedQuad;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.util.Tickable;
@@ -19,12 +21,14 @@ import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.output.Csv;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class SeededController extends Controller implements FrameSwitchListener, Tickable {
 
 	public static SeededController CONTROLLER;
 	private static boolean initializing = false;
 	private static boolean calledAsSuperclass = true;
+	private static LinkedList<Frame> framesForSeeding = new LinkedList<>();
 
 	public static boolean initialized(){
 		return CONTROLLER != null;
@@ -42,16 +46,25 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		return status;
 	}
 
+	private static boolean CONNECTED_TO_API = false;
+
 	private Listener leapmotionListener = new Listener(){
 		@Override
 		public void onConnect(Controller controller) {
-
+			for (int i = 0; i < listeners.size(); i++){
+				listeners.get(i).onConnect(controller);
+			}
+			CONNECTED_TO_API = true;
 		}
 
 		@Override
 		public void onFrame(Controller controller) {
 			for (int i = 0; i < listeners.size(); i++) {
 				listeners.get(i).onFrame(controller);
+			}
+
+			if (App.DISPLAY_WINDOW != null){
+				App.DISPLAY_WINDOW.setFrame(controller.frame());
 			}
 		}
 	};
@@ -69,6 +82,11 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public static SeededController getSeededController(boolean setupForTesting) {
+
+		if (!Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.EMPTY)){
+			Properties.LEAVE_LEAPMOTION_ALONE = false;
+		}
+
 		while (initializing){
 			try {
 				Thread.sleep(200);
@@ -118,7 +136,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
 		enableGesture(Gesture.Type.TYPE_CIRCLE);
 		App.getApp().setStatus(AppStatus.TESTING);
-		CONTROLLER = this;
+
+		if (CONTROLLER == null) {
+			CONTROLLER = this;
+		}
 
 		if (calledAsSuperclass){
 			initializing = true;
@@ -133,6 +154,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public SeededController(FrameHandler fh) {
+		super();
 		frameHandler = fh;
 
 		//setup();
@@ -142,11 +164,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	public SeededController copy(){
 		SeededController sc = new SeededController(frameHandler.copy());
 
-		sc.listeners = new ArrayList<Listener>();
-
-		for (Listener l : listeners){
-		    sc.listeners.add(l);
-        }
+		sc.listeners = new ArrayList<Listener>(listeners);
 
         return sc;
 
@@ -162,7 +180,9 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 		setup = true;
 		listeners = new ArrayList<Listener>();
-		CONTROLLER = this;
+		if (CONTROLLER == null) {
+			CONTROLLER = this;
+		}
 
 		if (Properties.LEAVE_LEAPMOTION_ALONE){
 			super.addListener(leapmotionListener);
@@ -176,7 +196,18 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			enableGesture(Gesture.Type.TYPE_SCREEN_TAP);
 			enableGesture(Gesture.Type.TYPE_KEY_TAP);
 
+			SamplerApp.USE_CONTROLLER = false;
+			SamplerApp.LOOP = false;
+			SamplerApp.RECORDING_USERS = true;
+			SamplerApp.main(Properties.INPUT);
+			listeners.add(SamplerApp.getApp());
+
+
 			App.out.println("- Only recording testing information!");
+
+			frameHandler = new EmptyFrameHandler();
+
+
 		} else {
 			frameHandler = new FrameHandler();
 			frameHandler.init(this);
@@ -193,9 +224,16 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	@Override
 	public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
+
+		framesForSeeding.addFirst(nextFrame);
+
+		while (framesForSeeding.size() > Properties.MAX_LOADED_FRAMES){
+			framesForSeeding.removeLast();
+		}
+
 		for (int i = 0; i < listeners.size(); i++) {
 			final Listener l = listeners.get(i);
-			l.onFrame(this.copy());
+			l.onFrame(this);
 		}
 	}
 
@@ -229,7 +267,11 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		}
 		if (!listeners.contains(arg0)) {
 			listeners.add(arg0);
-			arg0.onConnect(this);
+
+			boolean connected = !Properties.LEAVE_LEAPMOTION_ALONE || CONNECTED_TO_API;
+			if (connected) {
+				arg0.onConnect(this);
+			}
 			return true;
 		} else {
 			return false;
@@ -267,7 +309,12 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
 		}
-		Frame f = frameHandler.getFrame(arg0);
+
+		Frame f = Frame.invalid();
+
+		if (framesForSeeding.size() > arg0) {
+			f = framesForSeeding.getFirst();
+		}
 		return f;
 	}
 

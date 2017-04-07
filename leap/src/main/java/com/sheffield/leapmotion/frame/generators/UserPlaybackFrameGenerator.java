@@ -40,7 +40,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	public Csv getCsv() {
 		Csv csv = new Csv();
 
-		csv.add("discardedFrames", (currentFrame - handsSeeded) + "");
+//		csv.add("discardedFrames", (currentFrame - handsSeeded) + "");
 
 		if (recFrameGen != null){
 			csv.add("rms", "" + rms);
@@ -91,8 +91,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		if (Properties.PROCESS_PLAYBACK || Properties.PROCESS_SCREENSHOTS){
 			// This happens when we want to split frames into separate models
 			SamplerApp.LOOP = false;
-			SamplerApp.main(new String[]{Properties.PLAYBACK_FILE.substring
-					(Properties.PLAYBACK_FILE.replace("\\", "/").lastIndexOf("/")+1, Properties.PLAYBACK_FILE.indexOf("."))});
+			SamplerApp.main(new String[]{Properties.INPUT[0]});
 
 			SamplerApp.RECORDING_USERS = false;
 
@@ -103,6 +102,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		//Properties.FRAMES_PER_SECOND = 120;
 		backupFrameGenerator = frameGenerator;
 		String playback = Properties.PLAYBACK_FILE;
+
+		if (playback == null){
+			playback = Properties.DIRECTORY + "/" + Properties.INPUT[0] + "/raw_frame_data.bin";
+		}
+
 		try {
 			maxFrames = Files.lines(Paths.get(playback)).count() - 1;
 			lineIterator = FileUtils.lineIterator(new File(playback));
@@ -116,8 +120,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				try {
 					frameStack.add(Serializer
 							.sequenceFromJson(lineIterator.nextLine()));
-				} catch (JsonSyntaxException e){
-					// some bad JSON data;
+				} catch (JsonSyntaxException | IllegalArgumentException e){
+
 				}
 				if (Properties.SHOW_PROGRESS) {
 					App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) maxFrames));
@@ -189,13 +193,17 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	public Frame newFrame() {
 
 		if (seeded) {
-			App.getApp().setStatus(AppStatus.FINISHED);
-			return backupFrameGenerator.newFrame();
+			//App.getApp().setStatus(AppStatus.FINISHED);
+			return null;
 		}
 
 		if (frameStack.size() == 0){
 			App.getApp().setStatus(AppStatus.FINISHED);
 			return Frame.invalid();
+		}
+
+		if (currentFrame >= frameStack.size()){
+			return null;
 		}
 
 		Frame f = null;
@@ -210,6 +218,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		
 		f =  frameStack.get(currentFrame);
 
+		currentFrame++;
 
 		return f;
 	}
@@ -242,8 +251,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			rms = Math.sqrt(differences / counter);
 			ret += "rms: " + (Math.round(rms*100f)/1000f) + " ";
 		}
-		ret += (frameStack.size() - currentFrame) + "s, " + (currentFrame -
-				handsSeeded) + "d";
+		ret += (frameStack.size() - currentFrame) + " left";
 
 		return ret;
 	}
@@ -264,9 +272,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
         if (currentFrame >= frameStack.size()-1){ // last frame!
             seeded = true;
-            Properties.FRAMES_PER_SECOND = lastSwitchRate;
-            App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
-            App.getApp().setStatus(AppStatus.FINISHED);
+//            Properties.FRAMES_PER_SECOND = lastSwitchRate;
+//            App.out.println("- Finished seeding after " + (seededTime-startSeedingTime) + "ms. " +  + SeededController.getSeededController().now());
+//            App.getApp().setStatus(AppStatus.FINISHED);
 			if (Properties.PROCESS_PLAYBACK){
 				System.exit(0);
 			}
@@ -286,33 +294,33 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		Frame f = frameStack.get(currentFrame);
 
-		boolean shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
-				frameStack.size()) || firstFrameTimeStamp == 0 || Properties
-				.PROCESS_PLAYBACK;
+//		boolean shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
+//				frameStack.size()) || firstFrameTimeStamp == 0 || Properties
+//				.PROCESS_PLAYBACK;
+//
+//		if (shouldSeed){
+//			handsSeeded++;
+//		}
+//
+//		while (shouldSeed) {
+//			if (Properties.PROCESS_SCREENSHOTS) {
+//				SamplerApp.getApp().peekFrame(f);
+//			}
+//			f = frameStack.get(currentFrame++);
+//
+//			if (firstFrameTimeStamp == 0) {
+//				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
+//			}
+//
+//			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
 
-		if (shouldSeed){
-			handsSeeded++;
-		}
-
-		while (shouldSeed) {
-			if (Properties.PROCESS_SCREENSHOTS) {
-				SamplerApp.getApp().peekFrame(f);
-			}
-			f = frameStack.get(currentFrame++);
-
-			if (firstFrameTimeStamp == 0) {
-				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
-			}
-
-			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
-
-			if (Properties.PROCESS_PLAYBACK){
-				break;
-			}
-
-			shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
-					frameStack.size());
-		}
+//			if (Properties.PROCESS_PLAYBACK){
+//				break;
+//			}
+//
+//			shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
+//					frameStack.size());
+//		}
 
 		// This compares RECONSTRUCTION to USER_PLAYBACK and calculates
         // differences

@@ -15,6 +15,7 @@ import java.io.*;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
+import java.util.ArrayList;
 
 /**
  * Created by thomas on 18/11/2016.
@@ -26,7 +27,7 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
     public LeapmotionAgentTransformer (){
         instrumentingClassLoader = InstrumentingClassLoader.getInstance();
 
-        instrumentingClassLoader.setBuildDependencyTree(true);
+        //instrumentingClassLoader.setBuildDependencyTree(true);
 
         instrumentingClassLoader.getClassReplacementTransformer().setWriteClasses(true);
 
@@ -59,6 +60,8 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
 
     }
 
+    private ArrayList<String> instrumentedClasses = new ArrayList<>();
+
     @Override
     public byte[] transform(ClassLoader loader, String className,
                             Class<?> classBeingRedefined,
@@ -73,28 +76,32 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
         String fileName = InstrumentationProperties.BYTECODE_DIR +
                 ClassNameUtils.replaceDots(className) + ".class";
 
-        File classFile = new File(fileName);
-
-        if (classFile.exists()){
-            try {
-                FileInputStream fis = new FileInputStream(classFile);
-
-                byte[] oldClass = new byte[fis.available()];
-
-                fis.read(oldClass);
-
-                return oldClass;
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+//        File classFile = new File(fileName);
+//
+//        if (classFile.exists()){
+//            try {
+//                FileInputStream fis = new FileInputStream(classFile);
+//
+//                byte[] oldClass = new byte[fis.available()];
+//
+//                fis.read(oldClass);
+//
+//                return oldClass;
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
 
         try {
             if (instrumentingClassLoader.shouldInstrumentClass(className)) {
-                return instrumentingClassLoader.modifyBytes(ClassNameUtils
+                byte[] cla = instrumentingClassLoader.modifyBytes(ClassNameUtils
                         .replaceSlashes(className), classfileBuffer);
+
+                instrumentedClasses.add(className);
+
+                return cla;
             }
             
         } catch (ClassNotFoundException e) {
@@ -106,5 +113,9 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
         }
 
         return classfileBuffer;
+    }
+
+    public static ArrayList<String> registeredClasses(){
+        return registeredClasses();
     }
 }

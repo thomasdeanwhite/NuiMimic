@@ -132,59 +132,60 @@ public class InstantiationVisitor extends MethodVisitor {
     public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
         boolean shouldCall = true;
 
-        if (owner.startsWith(API_NAME_CLASS)){
+        if (owner.startsWith(API_NAME_CLASS)) {
             DependencyTree.getDependencyTree().addDependency("com.leapmotion.leap.Controller::<init>", DependencyTree.getClassMethodId(className, methodName));
         }
 
-        if (!Properties.LEAVE_LEAPMOTION_ALONE) {
-            if (owner.equals(CONTROLLER_CLASS)) {
-                if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
-                    try {
-                        if (!Properties.CONTROLLER_SUPER_CLASS) {
-                            super.visitMethodInsn(opcode, owner, name, desc, itf);
-                            super.visitInsn(Opcodes.POP);
 
-                            super.visitMethodInsn(Opcodes.INVOKESTATIC,
-                                    NEW_CONTROLLER, "getController",
-                                    Type.getMethodDescriptor(
-                                            CONTROLLER_METHOD_TO_CALL),
-                                    itf);
-                            super.visitMethodInsn(Opcodes.INVOKESTATIC,
-                                    APP_CLASS, "setTesting",
-                                    Type.getMethodDescriptor(
-                                            APP_METHOD_TO_CALL), itf);
-                        } else {
-                            super.visitMethodInsn(opcode, NEW_CONTROLLER, name,
-                                    desc, itf);
+        if (owner.equals(CONTROLLER_CLASS)) {
+            if (opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
+                try {
+                    if (!Properties.CONTROLLER_SUPER_CLASS) {
+                        super.visitMethodInsn(opcode, owner, name, desc, itf);
+                        super.visitInsn(Opcodes.POP);
+
+                        super.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                NEW_CONTROLLER, "getController",
+                                Type.getMethodDescriptor(
+                                        CONTROLLER_METHOD_TO_CALL),
+                                itf);
+                        super.visitMethodInsn(Opcodes.INVOKESTATIC,
+                                APP_CLASS, "setTesting",
+                                Type.getMethodDescriptor(
+                                        APP_METHOD_TO_CALL), itf);
+                    } else {
+                        super.visitMethodInsn(opcode, NEW_CONTROLLER, name,
+                                desc, itf);
 
 
-                        }
-
-                    } catch (SecurityException e) {
-                        e.printStackTrace();
                     }
-                    shouldCall = false;
+
+                } catch (SecurityException e) {
+                    e.printStackTrace(App.out);
                 }
-            } else if (EMPTY_REPLACE_CLASSES.contains(owner) && name.equals("empty")) {
-                // Convert from old API version to new one.
-                super.visitMethodInsn(opcode, owner, "isEmpty", desc, false);
                 shouldCall = false;
-            } else if (owner.equals(CIRCLE_GESTURE_CLASS) && name.contains("<init>")) {
-                super.visitInsn(Opcodes.DUP_X2);
-                super.visitMethodInsn(opcode, owner, name, desc, itf);
-                super.visitInsn(Opcodes.POP);
-                super.visitMethodInsn(Opcodes.INVOKESTATIC, GESTURE_CLASS, "getCircleGesture",
-                        Type.getMethodDescriptor(CIRCLE_METHOD_TO_CALL), false);
-                shouldCall = false;
-            } else if (Properties.REPLACE_FINGERS_METHOD && owner.equals(HAND_CLASS) && name.equals("fingers")) {
-                super.visitMethodInsn(opcode, owner, name, desc, false);
-                owner = FINGER_LIST_CLASS;
-                name = "extended";
             }
-        } if (owner.equalsIgnoreCase(JOPTIONS_CLASS)){
+        } else if (EMPTY_REPLACE_CLASSES.contains(owner) && name.equals("empty")) {
+            // Convert from old API version to new one.
+            super.visitMethodInsn(opcode, owner, "isEmpty", desc, false);
+            shouldCall = false;
+        } else if (owner.equals(CIRCLE_GESTURE_CLASS) && name.contains("<init>")) {
+            super.visitInsn(Opcodes.DUP_X2);
+            super.visitMethodInsn(opcode, owner, name, desc, itf);
+            super.visitInsn(Opcodes.POP);
+            super.visitMethodInsn(Opcodes.INVOKESTATIC, GESTURE_CLASS, "getCircleGesture",
+                    Type.getMethodDescriptor(CIRCLE_METHOD_TO_CALL), false);
+            shouldCall = false;
+        } else if (Properties.REPLACE_FINGERS_METHOD && owner.equals(HAND_CLASS) && name.equals("fingers")) {
+            super.visitMethodInsn(opcode, owner, name, desc, false);
+            owner = FINGER_LIST_CLASS;
+            name = "extended";
+        }
+
+        if (owner.equalsIgnoreCase(JOPTIONS_CLASS)) {
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_JOPTIONS_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(GE_CLASS)  && name.equals("getDefaultScreenDevice") ){
+        } else if (owner.equalsIgnoreCase(GE_CLASS) && name.equals("getDefaultScreenDevice")) {
             super.visitInsn(Opcodes.POP);
             shouldCall = false;
             super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_GD_CLASS, name, desc, itf);
@@ -194,27 +195,30 @@ public class InstantiationVisitor extends MethodVisitor {
 //        } else if (owner.equalsIgnoreCase(GD_CLASS)){
 //            shouldCall = false;
 //            super.visitMethodInsn(opcode, MOCK_GD_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(RANDOM_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")){
+        } else if (owner.equalsIgnoreCase(RANDOM_CLASS) && opcode == Opcodes.INVOKESPECIAL && name.equals("<init>")) {
             shouldCall = false;
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             super.visitInsn(Opcodes.POP);
             methodVisitor.visitLdcInsn(className);
             super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_RANDOM_CLASS, "getRandom", Type.getMethodDescriptor(RANDOM_CONSTRUCTOR_METHOD_TO_CALL), itf);
-        } else if (owner.equalsIgnoreCase(MATH_CLASS) && name.equals("random")){
+        } else if (owner.equalsIgnoreCase(MATH_CLASS) && name.equals("random")) {
             shouldCall = false;
             methodVisitor.visitLdcInsn(className);
             super.visitMethodInsn(opcode, MOCK_RANDOM_CLASS, name, Type.getMethodDescriptor(RANDOM_METHOD_TO_CALL), itf);
-        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("currentTimeMillis")){
+        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("currentTimeMillis")) {
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("nanoTime")){
+        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("nanoTime")) {
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("setProperty")){
+        } else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("setProperty")) {
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(DESKTOP_CLASS)){
-            if (opcode != Opcodes.INVOKESTATIC){
+        }  else if (owner.equalsIgnoreCase(SYSTEM_CLASS) && name.equals("getProperty")) {
+            shouldCall = false;
+            super.visitMethodInsn(opcode, MOCK_SYSTEM_CLASS, name, desc, itf);
+        } else if (owner.equalsIgnoreCase(DESKTOP_CLASS)) {
+            if (opcode != Opcodes.INVOKESTATIC) {
                 super.visitInsn(Opcodes.DUP_X1);
                 super.visitInsn(Opcodes.POP2);
             }
@@ -227,7 +231,7 @@ public class InstantiationVisitor extends MethodVisitor {
             super.visitMethodInsn(opcode, owner, name, desc, itf);
         }
 
-        if (DEBUG_MODE){
+        if (DEBUG_MODE) {
             methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
             methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
             methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);

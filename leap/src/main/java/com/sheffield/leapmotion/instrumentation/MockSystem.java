@@ -20,6 +20,21 @@ public class MockSystem {
         if (p.equals("org.lwjgl.opengl.Window.undecorated")) {
             v = "false";
         }
+
         return System.setProperty(p, v);
+    }
+
+    public static String getProperty(String s){
+        if (s.equals("os.name")){
+            return "mac";
+        }
+        return System.getProperty(s);
+    }
+
+    public static String getProperty(String s, String d){
+        if (s.equals("os.name")){
+            return "Windows 8.1";
+        }
+        return System.getProperty(s, d);
     }
 }

@@ -46,8 +46,8 @@ public class InstrumentingRunType implements RunType {
 
             LeapMotionApplicationHandler.instrumentJar(Properties.JAR_UNDER_TEST);
 
-            String output = dir + "branches.csv";
-            String output2 = dir + "lines.csv";
+            String output = Properties.TESTING_OUTPUT + "/NuiMimic/branches.csv";
+            String output2 = Properties.TESTING_OUTPUT + "/NuiMimic/lines.csv";
             App.out.print("+ Writing output to: " + dir + " {branches.csv, lines.csv}");
             ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
             App.out.println("\r+ Written output to: " + dir + " {branches.csv, lines.csv}");

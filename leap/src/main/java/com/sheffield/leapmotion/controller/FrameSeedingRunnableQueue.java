@@ -4,6 +4,7 @@ import com.sheffield.leapmotion.instrumentation.MockSystem;
 
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Created by thomas on 29/03/2017.
@@ -11,18 +12,24 @@ import java.util.Queue;
 public class FrameSeedingRunnableQueue implements Runnable {
 
     private Queue<FrameSeedingRunnable> frameSeeding = new
-            PriorityQueue<FrameSeedingRunnable>();
+            ConcurrentLinkedQueue<FrameSeedingRunnable>();
     private boolean running;
-    private long startTime = 0;
+    private long startTime = -1;
+
+    private int discardedFrames = 0;
 
     private Thread currentThread;
 
     public FrameSeedingRunnableQueue(){
         running = false;
-        startTime = MockSystem.currentTimeMillis();
     }
 
     public void start(){
+
+        if (startTime == -1){
+            startTime = MockSystem.currentTimeMillis();
+        }
+
         if (!running){
             currentThread = new Thread(this);
             currentThread.start();
@@ -33,9 +40,28 @@ public class FrameSeedingRunnableQueue implements Runnable {
     public void run() {
         running = true;
         while (frameSeeding.size() > 0){
-            if (frameSeeding.peek().getSeedTime() < (startTime - MockSystem
-                    .currentTimeMillis())) {
-                frameSeeding.poll().run();
+
+            //1 second backlog
+            long currentTime = (MockSystem.currentTimeMillis() - startTime) - 1000;
+
+            FrameSeedingRunnable fsr = frameSeeding.peek();
+
+            long seedTime = fsr.getSeedTime();
+
+            while (seedTime <= currentTime && frameSeeding.size() > 0) {
+
+                fsr = frameSeeding.poll();
+                if (fsr != null){
+                    seedTime = fsr.getSeedTime();
+                    discardedFrames++;
+                }
+
+            }
+
+            discardedFrames--;
+
+            if (fsr != null) {
+                fsr.run();
             }
         }
         running = false;
@@ -43,10 +69,21 @@ public class FrameSeedingRunnableQueue implements Runnable {
     }
 
     public void addFrameSeedTask(FrameSeedingRunnable r){
+
+        assert r != null;
+
         frameSeeding.offer(r);
 
         if (!running){
             start();
         }
+    }
+
+    public int size(){
+        return frameSeeding.size();
+    }
+
+    public int discardedFrames(){
+        return discardedFrames;
     }
 }

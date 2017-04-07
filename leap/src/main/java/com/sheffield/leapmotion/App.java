@@ -48,7 +48,7 @@ public class App implements ThrowableListener, Tickable {
     public static App APP;
     public static boolean CLOSING = false;
     public static boolean RECORDING_STARTED = false;
-    public static boolean ENABLE_APPLICATION_OUTPUT = false;
+    public static boolean ENABLE_APPLICATION_OUTPUT = true;
     public static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
 
@@ -626,6 +626,8 @@ public class App implements ThrowableListener, Tickable {
                         int d = delay - timePassed;
                         if (d >= 0) {
                             Thread.sleep(d);
+
+                            time += d * 1000000;
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -651,6 +653,11 @@ public class App implements ThrowableListener, Tickable {
         TIME_HANDLER.setMillis(timePassedNanos / 1000000);
         TIME_HANDLER.setNanos(timePassedNanos);
         App.getApp().output(true);
+
+        String output = Properties.TESTING_OUTPUT + "/branches.csv";
+        String output2 = Properties.TESTING_OUTPUT + "/lines.csv";
+        ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
+
         CLOSING = true;
         System.exit(exitCode);
     }
@@ -821,6 +828,7 @@ public class App implements ThrowableListener, Tickable {
     public void cleanUp(){
         App.out.println("- Finished testing: ");
         App.out.println("@ Coverage Report: ");
+        ClassAnalyzer.collectHitCounters(false);
         App.out.println(ClassAnalyzer.getReport());
         if (Properties.VISUALISE_DATA)
             App.DISPLAY_WINDOW.setVisible(false);
@@ -965,7 +973,6 @@ public class App implements ThrowableListener, Tickable {
     private boolean printHeaders = true;
 
     public void tick(long time) {
-        timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
         SeededController sc = SeededController.getSeededController();
         //if (time - lastSwitchTime > timeBetweenSwitch) {
 

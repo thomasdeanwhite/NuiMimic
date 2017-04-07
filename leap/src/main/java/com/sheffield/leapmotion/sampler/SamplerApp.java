@@ -9,6 +9,8 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.display.DisplayWindow;
+import com.sheffield.leapmotion.instrumentation.MockSourceDataLine;
+import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
 import com.sheffield.leapmotion.util.ProgressBar;
 
@@ -172,7 +174,7 @@ public class SamplerApp extends Listener {
 
     private final String UNIQUE_MACHINE_NAME = "pepper";
 
-    public void peekFrame(Frame frame){
+    public void peekFrame(Frame frame) {
         String uniqueId = frame.timestamp() + "@"
                 + UNIQUE_MACHINE_NAME;
 
@@ -190,10 +192,14 @@ public class SamplerApp extends Listener {
 
     public void frame(Frame f) {
 
+        if (App.getApp().status().equals(com.sheffield.leapmotion.util.AppStatus.FINISHED)) {
+            return;
+        }
+
         Properties.HISTOGRAM_THRESHOLD = 0;
         Properties.HISTOGRAM_BINS = 256;
 
-        if (lastFrame == f.id()){
+        if (lastFrame == f.id()) {
             return;
         }
 
@@ -202,7 +208,7 @@ public class SamplerApp extends Listener {
         Frame frame = f;
         FRAMES++;
 
-        if(f.timestamp() < lastTimeSeen){
+        if (f.timestamp() < lastTimeSeen) {
             throw new InvalidFrameException("This frame was seen after it's following frame!");
         }
 
@@ -210,103 +216,91 @@ public class SamplerApp extends Listener {
 
 
         try {
-            final long time = System.currentTimeMillis();
+            final long time = MockSystem.currentTimeMillis();
 
-            if (!startedRecording) {
-                boolean validHand = false;
+            if (startTime == 0) {
+                startTime = time;
+            }
 
-                for (Hand h : frame.hands()) {
-                    if (h.isValid()) {
-                        validHand = true;
-                    }
-                }
 
-                if (validHand) {
-                    startedRecording = true;
-                    startTime = System.currentTimeMillis();
-                }
-                if (SHOW_GUI) {
-                    display.setFrame(frame);
-                }
+            frameDeconstructor.setFilenameStart(filenameStart);
+            frameDeconstructor.setAddition("");
+            if (RECORDING_USERS) {
+                frameDeconstructor.outputRawFrameData(frame);
             } else {
-                frameDeconstructor.setFilenameStart(filenameStart);
-                frameDeconstructor.setAddition("");
-                if (RECORDING_USERS) {
-                    frameDeconstructor.outputRawFrameData(frame);
-                } else {
-                    if (breakIndex >= 0 && breakIndex < FrameDeconstructor
-                            .BREAK_TIMES
-                            .length) {
-                        if (time - startTime > FrameDeconstructor
-                                .BREAK_TIMES[breakIndex]) {
-                            breakIndex++;
-                            if (breakIndex >= FrameDeconstructor.BREAK_TIMES
-                                    .length) {
-                                status = AppStatus.FINISHED;
-                                return;
-                            }
-                            frameDeconstructor.resetFiles(breakIndex);
+                if (breakIndex >= 0 && breakIndex < FrameDeconstructor
+                        .BREAK_TIMES
+                        .length) {
+                    if (time - startTime > FrameDeconstructor
+                            .BREAK_TIMES[breakIndex]) {
+                        breakIndex++;
+                        if (breakIndex >= FrameDeconstructor.BREAK_TIMES
+                                .length) {
+                            status = AppStatus.FINISHED;
+                            return;
                         }
-                    } else {
-                        status = AppStatus.FINISHED;
-                        return;
+                        frameDeconstructor.resetFiles(breakIndex);
                     }
+                } else {
+                    status = AppStatus.FINISHED;
+                    return;
+                }
 
 //                    String addition = "-" + BREAK_TIMES[breakIndex];
 //
 //                    frameDeconstructor.setAddition(addition);
 
-                    for (Hand h : frame.hands()) {
-                        //write hands out to file
-                        if (h.isValid() && h.isRight()) {
+                for (Hand h : frame.hands()) {
+                    //write hands out to file
+                    if (h.isValid() && h.isRight()) {
 
-                            String uniqueId = frame.timestamp() + "@"
-                                    + UNIQUE_MACHINE_NAME;
+                        String uniqueId = frame.timestamp() + "@"
+                                + UNIQUE_MACHINE_NAME;
 
-                            frameDeconstructor.setUniqueId(uniqueId);
+                        frameDeconstructor.setUniqueId(uniqueId);
 
-                            if (frame.gestures().count() > 0) {
-                                for (Gesture g : frame.gestures()) {
-                                    frameDeconstructor.setCurrentGesture(g.type().name());
-                                }
+                        if (frame.gestures().count() > 0) {
+                            for (Gesture g : frame.gestures()) {
+                                frameDeconstructor.setCurrentGesture(g.type().name());
                             }
-                            try {
-
-                                if (Properties.PROCESS_PLAYBACK) {
-
-
-                                    String frameAsString = HandFactory.handToString(uniqueId, h);
-
-                                    Properties.FRAMES_PER_SECOND = 1000;
-
-                                    frameDeconstructor.outputJointPositionModel(frameAsString);
-                                    frameDeconstructor.outputHandJointModel(h);
-                                    frameDeconstructor.outputSequence();
-                                    frameDeconstructor.outputHandPositionModel(h);
-                                    frameDeconstructor.outputHandRotationModel(h);
-
-                                    try {
-                                        frameDeconstructor.outputGestureModel(frame);
-                                    } catch (IOException e) {
-                                        e.printStackTrace(App.out);
-                                    }
-                                }
-
-                                if (Properties.PROCESS_SCREENSHOTS) {
-                                    frameDeconstructor.outputCurrentState();
-                                }
-
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-
-
                         }
+                        try {
+
+                            if (Properties.PROCESS_PLAYBACK) {
+
+
+                                String frameAsString = HandFactory.handToString(uniqueId, h);
+
+                                Properties.FRAMES_PER_SECOND = 1000;
+
+                                frameDeconstructor.outputJointPositionModel(frameAsString);
+                                frameDeconstructor.outputHandJointModel(h);
+                                frameDeconstructor.outputSequence();
+                                frameDeconstructor.outputHandPositionModel(h);
+                                frameDeconstructor.outputHandRotationModel(h);
+
+                                try {
+                                    frameDeconstructor.outputGestureModel(frame);
+                                } catch (IOException e) {
+                                    e.printStackTrace(App.out);
+                                }
+                            }
+
+                            if (Properties.PROCESS_SCREENSHOTS) {
+                                frameDeconstructor.outputCurrentState();
+                            }
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
                     }
                 }
             }
+
             final int bars = 60;
-            if (printHeader) {
+            if (printHeader && Properties.SHOW_PROGRESS) {
                 out.println(ProgressBar.getHeaderBar(bars));
                 printHeader = false;
             }

@@ -15,6 +15,7 @@ import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.util.FileHandler;
+import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.output.Csv;
 
 import java.io.File;
@@ -67,7 +68,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
     public RawReconstructiveFrameGenerator(String filename) {
         try {
             tpgh = new ReconstructiveGestureHandler(filename);
-            App.out.println("* Setting up Reconstruction");
+            App.out.println("* Setting up Raw Reconstruction");
             lastSwitchTime = 0;
             currentAnimationTime = 0;
             handLabelStack = new ArrayList<String>();
@@ -86,7 +87,14 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
             boolean data = false;
 
+            App.out.println(ProgressBar.getHeaderBar(21));
+
+            int counter = 0;
+
             for (String line : lines) {
+
+                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)lines.length) + "[1 of 4]");
+
                 if (data && line.trim().length() > 0) {
                     Frame f = SeededController.newFrame();
                     SeededHand hand = HandFactory.createHand(line, f);
@@ -114,8 +122,10 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
             String[] tim = sequenceInfo.split("\n")[1].split(",");
 
+            counter = 0;
 
             for (String s : tim) {
+                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)tim.length) + "[2 of 4]");
                 if (s.length() > 0) {
                     // x / 1000 microsec to millisec
                     timings.add(Long.parseLong(s.split("@")[0]));
@@ -170,7 +180,11 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
             data = false;
 
+            counter = 0;
+
             for (String line : lines) {
+
+                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)lines.length) + "[3 of 4]");
                 if (data && line.trim().length() > 0) {
                     Vector v = new Vector();
                     String[] vect = line.split(",");
@@ -195,7 +209,12 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
             data = false;
 
+            counter = 0;
+
             for (String line : lines) {
+
+                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)lines.length) + "[4 of 4]");
+
                 if (data && line.trim().length() > 0) {
                     String[] vect = line.split(",");
                     Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
@@ -211,6 +230,8 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
                 }
 
             }
+
+            App.out.println(" done!");
         } catch (IOException e) {
             e.printStackTrace(App.out);
         }
@@ -265,23 +286,27 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
     @Override
     public Frame newFrame() {
 
-        if (currentHandIndex > timings.size()) {
-            App.getApp().setStatus(AppStatus.FINISHED);
-            return Frame.invalid();
+        if (currentHandIndex >= timings.size()) {
+            //App.getApp().setStatus(AppStatus.FINISHED);
+            return null;
         }
 
         if (handLabelStack.size() == 0) {
             return Frame.invalid();
         }
 
+        SeededFrame f = null;
+
         if (currentHand != null) {
-            SeededFrame f = (SeededFrame) currentHand.frame();
+            f = (SeededFrame) currentHand.frame();
             f.setId(currentHand.id());
 
-            f.setTimestamp(timings.get(currentHandIndex));
-            return f;
+            f.setTimestamp(timings.get(currentHandIndex)*1000);
         }
-        return null;
+
+        currentHandIndex++;
+
+        return f;
     }
 
     @Override
@@ -319,16 +344,16 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
         seededTime = time - startSeededTime;
 
-        long frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+        long frameTime = timings.get(currentHandIndex);
 
-        if (currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES >
-                timings.size() || currentHandIndex > timings.size()) {
+        if (currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES >=
+                timings.size() || currentHandIndex >= timings.size()) {
             App.getApp().setStatus(AppStatus.FINISHED);
             return;
         }
 
-
-        if (seededTime > frameTime) {
+//
+//        if (seededTime > frameTime) {
 
             lastSwitchTime = seededTime - Properties.SWITCH_TIME;
 
@@ -340,18 +365,18 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             int skippedHands = 0;
             long newFrameTime = timings.get(currentHandIndex);
 
-            while (newFrameTime <= seededTime) {
-                newFrameTime = timings.get(currentHandIndex + skippedHands);
-                skippedHands++;
-            }
-
-            if (skippedHands != 0) {
-                currentHandIndex += (skippedHands - 1);
-            }
-
-            discardedHands += skippedHands;
-
-            frameTime = timings.get(currentHandIndex);
+//            while (newFrameTime <= seededTime) {
+//                newFrameTime = timings.get(currentHandIndex + skippedHands);
+//                skippedHands++;
+//            }
+//
+//            if (skippedHands != 0) {
+//                currentHandIndex += (skippedHands - 1);
+//            }
+//
+//            discardedHands += skippedHands;
+//
+//            frameTime = timings.get(currentHandIndex);
 
             String currentHand = null;
             String currentPosition = null;
@@ -364,7 +389,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
                 currentRotation = handLabelStack.get
                         (currentHandIndex);
 
-                frameTime = timings.get(++currentHandIndex);
+                frameTime = timings.get(currentHandIndex);
             }
 
             tpgh.changeGesture(
@@ -379,7 +404,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             this.currentPosition = vectors.get(currentPosition);
 
             this.currentRotation = rotations.get(currentRotation);
-        }
+//        }
 
 
         tpgh.tick(time);
