@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
@@ -265,21 +266,16 @@ public class Properties extends InstrumentationProperties {
                 }
             }
 
-            if (Properties.PLAYBACK_FILE == null) {
-                File playback = new File("playback.sequence");
-                if (playback.exists()) {
-                    Properties.PLAYBACK_FILE = playback.getAbsolutePath();
-                    //App.out.println("- Found sequence file at: " + Properties.PLAYBACK_FILE);
-                }
-            }
-
             Gson g = new Gson();
             File branches = new File(Properties.TESTING_OUTPUT + "/branches.csv");
             if (branches.getAbsoluteFile().exists()) {
                 String branchesString = FileHandler.readFile(branches);
                 Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
                 }.getType();
+
+                try {
                 ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
+                } catch (JsonSyntaxException e){}
 
                 // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
             }
@@ -291,7 +287,10 @@ public class Properties extends InstrumentationProperties {
 
                     Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
                     }.getType();
-                    ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
+
+                    try {
+                        ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
+                    } catch (JsonSyntaxException e){}
 
                     //App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
                 } catch (IOException e) {

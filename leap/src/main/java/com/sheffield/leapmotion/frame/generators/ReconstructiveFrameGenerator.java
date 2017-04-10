@@ -275,14 +275,14 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
 
     @Override
     public Frame newFrame() {
-        if (handLabelStack.size() == 0) {
+        if (handLabelStack.size() == 0 || currentHandIndex >= handLabelStack.size()) {
             return Frame.invalid();
         }
 
         if (currentHand != null) {
             SeededFrame f = (SeededFrame) currentHand.frame();
 
-            f.setTimestamp(timings.get(currentHandIndex));
+            f.setTimestamp(timings.get(++currentHandIndex));
 
             return f;
 
@@ -334,9 +334,9 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
 // .SWITCH_TIME){
 //            tpgh.changeGesture(gestureHandIndex++);
 //        }
-
-        if (seededTime > frameTime) {
-
+//
+//        if (seededTime > frameTime) {
+//
 //            App.out.println((seededTime - timings.get(currentHandIndex)) + " "
 //                    + seededTime + " " + timings.get(currentHandIndex));
 
@@ -349,25 +349,25 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
             gestureHandIndex = currentHandIndex;
 
 
-            int skippedHands = 0;
-            long newFrameTime =
-                    timings.get(currentHandIndex) - Properties.SWITCH_TIME;
-
-            while (newFrameTime < seededTime - Properties.SWITCH_TIME) {
-                newFrameTime = timings.get(currentHandIndex + skippedHands) -
-                        Properties.SWITCH_TIME;
-                skippedHands++;
-            }
-
-            if (skippedHands != 0) {
-                currentHandIndex += (skippedHands - 1);
-            }
-
-            frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
-
-            while (frameTime < seededTime) {
-
-                assert (handLabelStack.size() > 0);
+//            int skippedHands = 0;
+//            long newFrameTime =
+//                    timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+//
+//            while (newFrameTime < seededTime - Properties.SWITCH_TIME) {
+//                newFrameTime = timings.get(currentHandIndex + skippedHands) -
+//                        Properties.SWITCH_TIME;
+//                skippedHands++;
+//            }
+//
+//            if (skippedHands != 0) {
+//                currentHandIndex += (skippedHands - 1);
+//            }
+//
+//            frameTime = timings.get(currentHandIndex) - Properties.SWITCH_TIME;
+//
+//            while (frameTime < seededTime) {
+//
+//                assert (handLabelStack.size() > 0);
 
                 String currentHand = handLabelStack.get(currentHandIndex);
                 String currentPosition = positionLabelStack.get
@@ -375,8 +375,8 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
                 String currentRotation = rotationLabelStack.get
                         (currentHandIndex);
 
-                frameTime = timings.get(currentHandIndex++) -
-                        Properties.SWITCH_TIME;
+//                frameTime = timings.get(currentHandIndex++) -
+//                        Properties.SWITCH_TIME;
 
                 tpgh.changeGesture(currentHandIndex);
 
@@ -385,9 +385,9 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
                 this.currentPosition = vectors.get(currentPosition);
 
                 this.currentRotation = rotations.get(currentRotation);
-
-            }
-        }
+//
+//            }
+//        }
 
         tpgh.tick(time);
 

@@ -34,15 +34,19 @@ public class ModelGeneratingRunType implements RunType {
             if (sc.lastTick() < time) {
                 sc.tick(time);
             }
-            Frame f = sc.frame();
+//            Frame f = sc.frame();
+//
+//            if (App.DISPLAY_WINDOW != null) {
+//                App.DISPLAY_WINDOW.setFrame(f);
+//            }
+//
+//            SamplerApp.getApp().frame(f);
 
-            if (App.DISPLAY_WINDOW != null) {
-                App.DISPLAY_WINDOW.setFrame(f);
-            }
+            float prog = SeededController.getSeededController().getProgress();
 
-            SamplerApp.getApp().frame(f);
-            if (Properties.SHOW_PROGRESS) {
-                App.out.print("\r" + ProgressBar.getProgressBar(21, SeededController.getSeededController().getProgress()) + SeededController.getSeededController().status());
+            if (Properties.SHOW_PROGRESS  || (int)(prog*100000f)%25000 == 0) {
+                App.out.print("\r" + ProgressBar.getProgressBar(21, prog) +
+                        SeededController.getSeededController().status());
             }
         }
 

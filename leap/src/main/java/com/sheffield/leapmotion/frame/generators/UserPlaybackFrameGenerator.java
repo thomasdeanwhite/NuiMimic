@@ -107,10 +107,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			playback = Properties.DIRECTORY + "/" + Properties.INPUT[0] + "/raw_frame_data.bin";
 		}
 
+		frameStack = new ArrayList<Frame>();
+
 		try {
 			maxFrames = Files.lines(Paths.get(playback)).count() - 1;
 			lineIterator = FileUtils.lineIterator(new File(playback));
-			frameStack = new ArrayList<Frame>();
 			//int counter = Properties.MAX_LOADED_FRAMES;
 			int counter = 0;
 
@@ -123,8 +124,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				} catch (JsonSyntaxException | IllegalArgumentException e){
 
 				}
-				if (Properties.SHOW_PROGRESS) {
-					App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) maxFrames));
+
+				float prog = counter++ / (float) maxFrames;
+
+				if (Properties.SHOW_PROGRESS || (int)(prog*100000f)%25000 == 0) {
+					App.out.print("\r" + ProgressBar.getProgressBar(21, prog));
 				}
 				//counter--;
 			}
@@ -160,11 +164,6 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 
 				recFrameGen = frameGenerator;
-
-//				if (tdps.size() != maxFrames){
-//					new IllegalArgumentException("Frame stack: " + maxFrames+ ", Training Stack: " + tdps.size() + ". Should be equal.").printStackTrace(App.out);
-//				}
-
 
 
 			}
@@ -290,40 +289,6 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		seededTime = time;
 
-		long currentTimePassed = seededTime - startSeedingTime;
-
-		Frame f = frameStack.get(currentFrame);
-
-//		boolean shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
-//				frameStack.size()) || firstFrameTimeStamp == 0 || Properties
-//				.PROCESS_PLAYBACK;
-//
-//		if (shouldSeed){
-//			handsSeeded++;
-//		}
-//
-//		while (shouldSeed) {
-//			if (Properties.PROCESS_SCREENSHOTS) {
-//				SamplerApp.getApp().peekFrame(f);
-//			}
-//			f = frameStack.get(currentFrame++);
-//
-//			if (firstFrameTimeStamp == 0) {
-//				firstFrameTimeStamp = frameStack.get(0).timestamp()/1000;
-//			}
-//
-//			seededTimePassed = (((f.timestamp()/1000) - firstFrameTimeStamp));
-
-//			if (Properties.PROCESS_PLAYBACK){
-//				break;
-//			}
-//
-//			shouldSeed = (currentTimePassed > seededTimePassed && currentFrame <
-//					frameStack.size());
-//		}
-
-		// This compares RECONSTRUCTION to USER_PLAYBACK and calculates
-        // differences
 		if (fh != null){
 			fh.tick(time);
 

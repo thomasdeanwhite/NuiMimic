@@ -223,7 +223,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	@Override
-	public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
+	public synchronized void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
 
 		framesForSeeding.addFirst(nextFrame);
 
@@ -313,7 +313,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		Frame f = Frame.invalid();
 
 		if (framesForSeeding.size() > arg0) {
-			f = framesForSeeding.getFirst();
+			f = framesForSeeding.get(arg0);
 		}
 		return f;
 	}

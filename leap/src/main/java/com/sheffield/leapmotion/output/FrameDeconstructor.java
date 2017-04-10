@@ -262,10 +262,6 @@ public class FrameDeconstructor {
             currentDctGestures.createNewFile();
         }
         if (lastStateCapture + App.STATE_CHECK_TIME < System.currentTimeMillis()) {
-
-            if (Properties.SHOW_PROGRESS) {
-                App.out.print(" Capturing State");
-            }
             lastStateCapture = System.currentTimeMillis();
 
             try {

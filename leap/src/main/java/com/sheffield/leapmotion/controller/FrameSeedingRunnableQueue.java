@@ -1,5 +1,7 @@
 package com.sheffield.leapmotion.controller;
 
+import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 
 import java.util.PriorityQueue;
@@ -46,22 +48,51 @@ public class FrameSeedingRunnableQueue implements Runnable {
 
             FrameSeedingRunnable fsr = frameSeeding.peek();
 
+            if (fsr == null){
+                frameSeeding.poll();
+                break;
+            }
+
             long seedTime = fsr.getSeedTime();
 
-            while (seedTime <= currentTime && frameSeeding.size() > 0) {
+            int discFrames = -1;
+
+            while ((seedTime <= currentTime || Properties.PROCESS_PLAYBACK) && frameSeeding.size() > 0) {
 
                 fsr = frameSeeding.poll();
                 if (fsr != null){
                     seedTime = fsr.getSeedTime();
-                    discardedFrames++;
+                    discFrames++;
+                }
+
+                if (Properties.PROCESS_PLAYBACK){
+                    break;
                 }
 
             }
 
-            discardedFrames--;
+            //if loop wasn't entered
+            if (discFrames == 0 && !Properties.PROCESS_PLAYBACK) {
+                try {
+                    //sleep for a while
+                    Thread.sleep((seedTime - currentTime)/2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (discFrames > 0){
+                discFrames--;
+            }
+
+            discardedFrames += discFrames;
 
             if (fsr != null) {
-                fsr.run();
+                try {
+                    fsr.run();
+                } catch (Throwable t){
+                    App.getApp().throwableThrown(t);
+                }
             }
         }
         running = false;

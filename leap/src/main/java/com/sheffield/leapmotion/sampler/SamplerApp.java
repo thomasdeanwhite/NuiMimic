@@ -196,6 +196,10 @@ public class SamplerApp extends Listener {
             return;
         }
 
+        if (f == null || !f.isValid()) {
+            return;
+        }
+
         Properties.HISTOGRAM_THRESHOLD = 0;
         Properties.HISTOGRAM_BINS = 256;
 
@@ -208,125 +212,122 @@ public class SamplerApp extends Listener {
         Frame frame = f;
         FRAMES++;
 
-        if (f.timestamp() < lastTimeSeen) {
-            throw new InvalidFrameException("This frame was seen after it's following frame!");
+        long newTime = f.timestamp();
+
+        assert newTime > lastTimeSeen;
+
+        lastTimeSeen = newTime;
+
+
+        final long time = MockSystem.currentTimeMillis();
+
+        if (startTime == 0) {
+            startTime = time;
         }
 
-        lastTimeSeen = f.timestamp();
 
-
-        try {
-            final long time = MockSystem.currentTimeMillis();
-
-            if (startTime == 0) {
-                startTime = time;
-            }
-
-
-            frameDeconstructor.setFilenameStart(filenameStart);
-            frameDeconstructor.setAddition("");
-            if (RECORDING_USERS) {
-                frameDeconstructor.outputRawFrameData(frame);
-            } else {
-                if (breakIndex >= 0 && breakIndex < FrameDeconstructor
-                        .BREAK_TIMES
-                        .length) {
-                    if (time - startTime > FrameDeconstructor
-                            .BREAK_TIMES[breakIndex]) {
-                        breakIndex++;
-                        if (breakIndex >= FrameDeconstructor.BREAK_TIMES
-                                .length) {
-                            status = AppStatus.FINISHED;
-                            return;
-                        }
-                        frameDeconstructor.resetFiles(breakIndex);
+        frameDeconstructor.setFilenameStart(filenameStart);
+        frameDeconstructor.setAddition("");
+        if (RECORDING_USERS) {
+            frameDeconstructor.outputRawFrameData(frame);
+        } else {
+            if (breakIndex >= 0 && breakIndex < FrameDeconstructor
+                    .BREAK_TIMES
+                    .length) {
+                if (time - startTime > FrameDeconstructor
+                        .BREAK_TIMES[breakIndex]) {
+                    breakIndex++;
+                    if (breakIndex >= FrameDeconstructor.BREAK_TIMES
+                            .length) {
+                        status = AppStatus.FINISHED;
+                        return;
                     }
-                } else {
-                    status = AppStatus.FINISHED;
-                    return;
+                    frameDeconstructor.resetFiles(breakIndex);
                 }
+            } else {
+                status = AppStatus.FINISHED;
+                return;
+            }
 
 //                    String addition = "-" + BREAK_TIMES[breakIndex];
 //
 //                    frameDeconstructor.setAddition(addition);
 
-                for (Hand h : frame.hands()) {
-                    //write hands out to file
-                    if (h.isValid() && h.isRight()) {
+            for (Hand h : frame.hands()) {
+                //write hands out to file
+                if (h.isValid() && h.isRight()) {
 
-                        String uniqueId = frame.timestamp() + "@"
-                                + UNIQUE_MACHINE_NAME;
+                    String uniqueId = frame.timestamp() + "@"
+                            + UNIQUE_MACHINE_NAME;
 
-                        frameDeconstructor.setUniqueId(uniqueId);
+                    frameDeconstructor.setUniqueId(uniqueId);
 
-                        if (frame.gestures().count() > 0) {
-                            for (Gesture g : frame.gestures()) {
-                                frameDeconstructor.setCurrentGesture(g.type().name());
-                            }
+                    if (frame.gestures().count() > 0) {
+                        for (Gesture g : frame.gestures()) {
+                            frameDeconstructor.setCurrentGesture(g.type().name());
                         }
-                        try {
-
-                            if (Properties.PROCESS_PLAYBACK) {
-
-
-                                String frameAsString = HandFactory.handToString(uniqueId, h);
-
-                                Properties.FRAMES_PER_SECOND = 1000;
-
-                                frameDeconstructor.outputJointPositionModel(frameAsString);
-                                frameDeconstructor.outputHandJointModel(h);
-                                frameDeconstructor.outputSequence();
-                                frameDeconstructor.outputHandPositionModel(h);
-                                frameDeconstructor.outputHandRotationModel(h);
-
-                                try {
-                                    frameDeconstructor.outputGestureModel(frame);
-                                } catch (IOException e) {
-                                    e.printStackTrace(App.out);
-                                }
-                            }
-
-                            if (Properties.PROCESS_SCREENSHOTS) {
-                                frameDeconstructor.outputCurrentState();
-                            }
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
                     }
+                    try {
+
+                        if (Properties.PROCESS_PLAYBACK) {
+
+
+                            String frameAsString = HandFactory.handToString(uniqueId, h);
+
+                            Properties.FRAMES_PER_SECOND = 1000;
+
+                            frameDeconstructor.outputJointPositionModel(frameAsString);
+                            frameDeconstructor.outputHandJointModel(h);
+                            frameDeconstructor.outputSequence();
+                            frameDeconstructor.outputHandPositionModel(h);
+                            frameDeconstructor.outputHandRotationModel(h);
+
+                            try {
+                                frameDeconstructor.outputGestureModel(frame);
+                            } catch (IOException e) {
+                                e.printStackTrace(App.out);
+                            }
+                        }
+
+                        if (Properties.PROCESS_SCREENSHOTS) {
+                            frameDeconstructor.outputCurrentState();
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
                 }
             }
-
-            final int bars = 60;
-            if (printHeader && Properties.SHOW_PROGRESS) {
-                out.println(ProgressBar.getHeaderBar(bars));
-                printHeader = false;
-            }
-            if (LOOP) {
-                long done = time - startTime;
-                FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
-
-                long total = FrameDeconstructor
-                        .BREAK_TIMES[FrameDeconstructor.BREAK_TIMES
-                        .length - 1];
-
-                float percent = done / (float) total;
-                if (Properties.SHOW_PROGRESS) {
-                    String progress = ProgressBar.getProgressBar(bars, percent);
-
-                    out.print("\r" + progress);
-                }
-
-                if (percent >= 1) {
-                    status = AppStatus.FINISHED;
-                    Toolkit.getDefaultToolkit().beep();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace(App.out);
         }
+
+        final int bars = 21;
+        if (printHeader) {
+            out.println(ProgressBar.getHeaderBar(bars));
+            printHeader = false;
+        }
+        if (LOOP) {
+            long done = time - startTime;
+            FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
+
+            long total = FrameDeconstructor
+                    .BREAK_TIMES[FrameDeconstructor.BREAK_TIMES
+                    .length - 1];
+
+            float percent = done / (float) total;
+            if (Properties.SHOW_PROGRESS || (int) (percent * 100000f) % 25000 == 0) {
+                String progress = ProgressBar.getProgressBar(bars, percent);
+
+                out.print("\r" + progress);
+            }
+
+            if (percent >= 1) {
+                status = AppStatus.FINISHED;
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+
 
     }
 

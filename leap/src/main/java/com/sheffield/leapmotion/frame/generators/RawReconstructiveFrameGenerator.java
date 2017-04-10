@@ -300,8 +300,8 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
         if (currentHand != null) {
             f = (SeededFrame) currentHand.frame();
             f.setId(currentHand.id());
-
-            f.setTimestamp(timings.get(currentHandIndex)*1000);
+            long seedTime = timings.get(currentHandIndex)*1000;
+            f.setTimestamp(seedTime);
         }
 
         currentHandIndex++;
@@ -316,6 +316,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
     @Override
     public GestureList handleFrame(Frame frame, Controller controller) {
+
         return tpgh.handleFrame(frame, controller);
     }
 
@@ -327,6 +328,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
     @Override
     public void tick(long time) {
+        lastUpdate = time;
         if (handLabelStack.size() == 0) {
             return;
         }
@@ -348,7 +350,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
         if (currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES >=
                 timings.size() || currentHandIndex >= timings.size()) {
-            App.getApp().setStatus(AppStatus.FINISHED);
+//            App.getApp().setStatus(AppStatus.FINISHED);
             return;
         }
 
@@ -408,8 +410,6 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
 
         tpgh.tick(time);
-
-        lastUpdate = time;
     }
 
     @Override

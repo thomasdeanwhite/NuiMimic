@@ -34,8 +34,7 @@ public class FrameSeedingRunnable implements Runnable, Comparable {
     public int compareTo(Object o) {
         if (o instanceof  FrameSeedingRunnable){
 
-                return (int)(next.timestamp() -
-                        ((FrameSeedingRunnable)o).next.timestamp());
+                return (int)(next.timestamp() - ((FrameSeedingRunnable)o).next.timestamp());
         }
 
         return 1;

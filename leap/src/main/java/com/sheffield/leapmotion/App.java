@@ -47,7 +47,6 @@ public class App implements ThrowableListener, Tickable {
     public static Random random = new Random();
     public static App APP;
     public static boolean CLOSING = false;
-    public static boolean RECORDING_STARTED = false;
     public static boolean ENABLE_APPLICATION_OUTPUT = true;
     public static boolean IS_INSTRUMENTING = false;
     public static int RECORDING_INTERVAL = 60000;
@@ -82,6 +81,7 @@ public class App implements ThrowableListener, Tickable {
 
     public interface TimeHandler {
         void setMillis(long executionTimeMillis);
+
         void setNanos(long executionTimeNanos);
     }
 
@@ -127,7 +127,9 @@ public class App implements ThrowableListener, Tickable {
 
     @Override
     public void throwableThrown(Throwable t) {
-        App.out.println("Throwable thrown! " + t.getLocalizedMessage());
+
+        t.printStackTrace(App.out);
+
         File classes = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results.errors");
         if (classes.getParentFile() != null) {
             classes.getParentFile().mkdirs();
@@ -149,6 +151,8 @@ public class App implements ThrowableListener, Tickable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        dump(-1);
         //output(true);
     }
 
@@ -201,9 +205,9 @@ public class App implements ThrowableListener, Tickable {
 
                 StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
 
-                if (stackTraceElements.length > 2){
+                if (stackTraceElements.length > 2) {
                     String className = stackTraceElements[2].getClassName();
-                    if (className.contains("javax.swing.JFrame") && stackTraceElements[2].getMethodName().contains("setDefaultCloseOperation")){
+                    if (className.contains("javax.swing.JFrame") && stackTraceElements[2].getMethodName().contains("setDefaultCloseOperation")) {
                         super.checkExit(status);
                         return;
                     }
@@ -303,15 +307,15 @@ public class App implements ThrowableListener, Tickable {
 
     private static boolean outputSet = false;
 
-    public static void setOutput(){
+    public static void setOutput() {
 
-        if (!Properties.SHOW_OUTPUT){
+        if (!Properties.SHOW_OUTPUT) {
             App.out = dummyStream;
             System.setOut(dummyStream);
             return;
         }
 
-        if (out != null){
+        if (out != null) {
             return;
         }
 
@@ -320,8 +324,6 @@ public class App implements ThrowableListener, Tickable {
 
             outputSet = true;
         }
-
-
 
 
         System.setOut(dummyStream);
@@ -339,8 +341,8 @@ public class App implements ThrowableListener, Tickable {
             App.out.print(s + " ");
         }
 
-        if (args != null && args.length > 0){
-            if (args[0].trim().toLowerCase().equals("help")){
+        if (args != null && args.length > 0) {
+            if (args[0].trim().toLowerCase().equals("help")) {
                 Properties.instance().printOptions();
                 return;
             }
@@ -424,7 +426,7 @@ public class App implements ThrowableListener, Tickable {
             run.run();
             CLOSING = true;
             System.exit(0);
-        } catch (Throwable t){
+        } catch (Throwable t) {
             t.printStackTrace(App.out);
             Properties.instance().printOptions();
             return;
@@ -434,10 +436,11 @@ public class App implements ThrowableListener, Tickable {
     /**
      * Premain that will be triggered when application runs with this
      * attached as a Java agent.
-     * @param arg runtime properties to change
+     *
+     * @param arg   runtime properties to change
      * @param instr Instrumentation instance to attach a ClassFileTransformer
      */
-    public static void premain (String arg, Instrumentation instr){
+    public static void premain(String arg, Instrumentation instr) {
         App.out.println("- Instrumenting AUT");
 
         try {
@@ -520,7 +523,7 @@ public class App implements ThrowableListener, Tickable {
         Properties.USE_CHANGED_FLAG = true;
         Properties.LOG = false;
 
-        if (DISABLE_BACKGROUND_THREAD){
+        if (DISABLE_BACKGROUND_THREAD) {
             return;
         }
 
@@ -529,7 +532,7 @@ public class App implements ThrowableListener, Tickable {
             return;
         }
 
-        if (args == null){
+        if (args == null) {
             args = new String[]{};
         }
 
@@ -537,7 +540,7 @@ public class App implements ThrowableListener, Tickable {
 
             String ags = "";
 
-            for (String s : args){
+            for (String s : args) {
                 ags += " " + s;
             }
 
@@ -552,17 +555,17 @@ public class App implements ThrowableListener, Tickable {
 
     }
 
-    public void increaseIterationTime(int t){
+    public void increaseIterationTime(int t) {
         iterationTimes += t;
         iterations++;
     }
 
-    public float getAverageIterationTime(){
+    public float getAverageIterationTime() {
         return iterationTimes / (float) iterations;
     }
 
-    public void increaseFps(long time){
-        if (1000 < time - lastFrameSeededCheck){ // 1 second has passed?
+    public void increaseFps(long time) {
+        if (1000 < time - lastFrameSeededCheck) { // 1 second has passed?
             lastFrameSeededCheck = time;
             fps = framesSeeded;
             framesSeeded = 0;
@@ -570,11 +573,11 @@ public class App implements ThrowableListener, Tickable {
         framesSeeded++;
     }
 
-    public float getFps(){
+    public float getFps() {
         return fps;
     }
 
-    public static Thread getMainThread(){
+    public static Thread getMainThread() {
         return new Thread(new Runnable() {
 
             @Override
@@ -601,11 +604,11 @@ public class App implements ThrowableListener, Tickable {
                 while (app.status() != AppStatus.FINISHED) {
                     //delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
                     long time = System.nanoTime();
-                    int timePassed = (int) ((time - lastTime)/ 1000000);
+                    int timePassed = (int) ((time - lastTime) / 1000000);
                     App.getApp().increaseIterationTime(timePassed);
-                    App.getApp().increaseFps(time/1000000);
+                    App.getApp().increaseFps(time / 1000000);
 
-                    if ((lastTime - lastTimeRecorded)/1000000 >=
+                    if ((lastTime - lastTimeRecorded) / 1000000 >=
                             RECORDING_INTERVAL &&
                             SeededController.getSeededController()
                                     .allowProcessing() && !Properties
@@ -621,7 +624,7 @@ public class App implements ThrowableListener, Tickable {
                     TIME_HANDLER.setMillis(timePassedNanos / 1000000);
                     TIME_HANDLER.setNanos(timePassedNanos);
 
-                    app.tick(time/1000000);
+                    app.tick(time / 1000000);
                     try {
                         int d = delay - timePassed;
                         if (d >= 0) {
@@ -645,7 +648,7 @@ public class App implements ThrowableListener, Tickable {
         });
     }
 
-    public void dump(int exitCode){
+    public void dump(int exitCode) {
         App.out.println("- Gathering Testing Information...");
         ClassAnalyzer.collectHitCounters(false);
         long timePassedNanos = System.nanoTime() - START_TIME;
@@ -659,11 +662,15 @@ public class App implements ThrowableListener, Tickable {
         ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
 
         CLOSING = true;
+
+        App.out.println("Closing: ");
+        new Exception().printStackTrace(App.out);
+
         System.exit(exitCode);
     }
 
     public void output(boolean finished) {
-        if (!SeededController.initialized()){
+        if (!SeededController.initialized()) {
             return;
         }
         if (finished) {
@@ -701,8 +708,8 @@ public class App implements ThrowableListener, Tickable {
                     SeededController.getSeededController().getTechnique() + " "
                             +
                             (Properties.SINGLE_DATA_POOL ?
-                            "(single model)" :
-                            "(multiple models)"));
+                                    "(single model)" :
+                                    "(multiple models)"));
 
             csv.add("statesFound", "" + StateComparator.statesFound);
             csv.add("statesVisits", "" + StateComparator.getStatesVisits().size());
@@ -732,14 +739,14 @@ public class App implements ThrowableListener, Tickable {
                     String className = DependencyTree.getClassName(ct.getClassName());
                     String methodName = DependencyTree.getMethodName(ct.getClassName());
 
-                    if (!relClas.containsKey(className)){
+                    if (!relClas.containsKey(className)) {
                         relClas.put(className, new ArrayList<String>());
                     }
 
                     relClas.get(className).add(methodName);
                 }
 
-                for (String ct : relClas.keySet()){
+                for (String ct : relClas.keySet()) {
                     List<Line> lines = ClassAnalyzer.
                             getCoverableLines(ct, relClas.get(ct));
                     for (Line l : lines) {
@@ -769,12 +776,11 @@ public class App implements ThrowableListener, Tickable {
             csv.add("relatedBranchCoverage", "" + (branchHits / (float) relatedBranches));
             csv.add("runtime", "" + MockSystem.MILLIS);
 
-            if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)){
+            if (Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.STATE_ISOLATED)) {
                 csv.add("dataHitRatio", "" + 0);
             } else {
                 csv.add("dataHitRatio", "" + 0);
             }
-
 
 
             File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
@@ -825,7 +831,7 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
-    public void cleanUp(){
+    public void cleanUp() {
         App.out.println("- Finished testing: ");
         App.out.println("@ Coverage Report: ");
         ClassAnalyzer.collectHitCounters(false);
@@ -868,7 +874,7 @@ public class App implements ThrowableListener, Tickable {
 
             if (classSeen.containsKey(packageName)) {
 
-                if (classSeen.get(packageName).contains(className)){
+                if (classSeen.get(packageName).contains(className)) {
                     found = true;
                     className = "" + classSeen.get(packageName).indexOf(className);
                 }
@@ -884,7 +890,7 @@ public class App implements ThrowableListener, Tickable {
                 if (!classes.exists()) {
                     classes.createNewFile();
                 }
-                if (!classSeen.containsKey(packageName)){
+                if (!classSeen.containsKey(packageName)) {
                     classSeen.put(packageName, new ArrayList<String>());
                 }
                 FileHandler.appendToFile(classes, fullName + ":");
@@ -896,7 +902,7 @@ public class App implements ThrowableListener, Tickable {
             }
 
             // (linesCovered.contains(lh)) {
-                linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
+            linesHit.append(className + "#" + lh.getLine().getLineNumber() + ";");
             //}
         }
 
@@ -911,7 +917,7 @@ public class App implements ThrowableListener, Tickable {
 
 
             if (classSeen.containsKey(packageName)) {
-                if (classSeen.get(packageName).contains(className)){
+                if (classSeen.get(packageName).contains(className)) {
                     found = true;
                     className = "" + classSeen.get(packageName).indexOf(className);
                 }
@@ -925,7 +931,7 @@ public class App implements ThrowableListener, Tickable {
                 if (!classes.exists()) {
                     classes.createNewFile();
                 }
-                if (!classSeen.containsKey(packageName)){
+                if (!classSeen.containsKey(packageName)) {
                     classSeen.put(packageName, new ArrayList<String>());
                 }
                 FileHandler.appendToFile(classes, fullName + ":");
@@ -983,29 +989,29 @@ public class App implements ThrowableListener, Tickable {
         //}
 
         if (time - lastStateCheck > STATE_CHECK_TIME &&
-        SeededController.getSeededController().allowProcessing()) {
-            try {
-                lastStateCheck = time;
-                StateComparator.captureState();
-            } catch (Exception e) {
-                e.printStackTrace(App.out);
-            }
+                SeededController.getSeededController().allowProcessing()) {
+
+            lastStateCheck = time;
+            StateComparator.captureState();
+
 
         }
 
-        if (printHeaders && Properties.SHOW_PROGRESS){
+        if (printHeaders) {
             App.out.println(ProgressBar.getHeaderBar(21));
             printHeaders = false;
         }
 
 
-        long start = (startTime/1000000);
+        long start = (startTime / 1000000);
         long timePassed = time - start;
 
         this.timePassed = timePassed;
 
-        if (Properties.SHOW_PROGRESS) {
-            String progress = ProgressBar.getProgressBar(21, getProgress());
+        float prog = getProgress();
+
+        if (Properties.SHOW_PROGRESS || (int) (prog * 100000f) % 25000 == 0) {
+            String progress = ProgressBar.getProgressBar(21, prog);
 
             out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
         }
@@ -1021,7 +1027,7 @@ public class App implements ThrowableListener, Tickable {
         }
     }
 
-    public float getProgress(){
+    public float getProgress() {
         return timePassed / (float) Properties.RUNTIME;
     }
 
