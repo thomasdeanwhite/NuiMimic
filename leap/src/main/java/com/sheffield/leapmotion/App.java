@@ -345,13 +345,11 @@ public class App implements ThrowableListener, Tickable {
             if (args[0].trim().toLowerCase().equals("help")) {
                 Properties.instance().printOptions();
                 return;
-            }
-        }
-
-        if (args != null && args.length > 0) {
-            if (args[0].trim().toLowerCase().equals("helpMd")) {
-                Properties.instance().printOptionsMd();
-                return;
+            } else {
+                if (args[0].trim().toLowerCase().equals("helpmd")) {
+                    Properties.instance().printOptionsMd();
+                    return;
+                }
             }
         }
 

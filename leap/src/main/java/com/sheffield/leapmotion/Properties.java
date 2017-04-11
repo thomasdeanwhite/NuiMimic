@@ -608,11 +608,11 @@ public class Properties extends InstrumentationProperties {
             App.out.println("## " + s);
             for (String opt : categoryMap.get(s)) {
                 Parameter p = annotationMap.get(opt);
-                String opts = "- ";
+                String opts = " ";
                 if (p.hasArgs()) {
                     opts = ":[arg] ";
                 }
-                App.out.println(" _" + p.key() + opts + " #" + p.description()
+                App.out.println("- " + p.key() + opts + " _" + p.description()
                         + "_");
             }
             App.out.println();
