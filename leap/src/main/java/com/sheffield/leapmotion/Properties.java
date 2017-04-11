@@ -124,8 +124,8 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "replace_fingers_method", description = "Replaces com.leap.leapmotion.FingerList.fingers() method with com.leap.leapmotion.FingerList.extended() [for older API versions]", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean REPLACE_FINGERS_METHOD = false;
 
-    @Parameter(key = "leaveLeapmotionAlone", description = "Leave the Leap Motion API original", hasArgs = false, category = "Leap Motion Instrumentation")
-    public static boolean LEAVE_LEAPMOTION_ALONE = false;
+    @Parameter(key = "recording", description = "Records Leap Motion data to storage", hasArgs = false, category = "Leap Motion Instrumentation")
+    public static boolean RECORDING = false;
 
     @Parameter(key = "controllerSuperClass", description = "The Controller class is extended instead of instantiated", hasArgs = false, category = "Leap Motion Instrumentation")
     public static boolean CONTROLLER_SUPER_CLASS = false;
@@ -538,7 +538,7 @@ public class Properties extends InstrumentationProperties {
             csv.add(((Parameter) frameSelectionStrat.getAnnotations()[0]).key(), "USER_PLAYBACK");
         }
 
-        if (Properties.LEAVE_LEAPMOTION_ALONE) {
+        if (Properties.RECORDING) {
             csv.add(((Parameter) frameSelectionStrat.getAnnotations()[0]).key(), "MANUAL_TESTING");
         }
 

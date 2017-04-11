@@ -11,7 +11,6 @@ import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.ScreenList;
 import com.leapmotion.leap.TrackedQuad;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.Properties;
@@ -84,7 +83,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	public static SeededController getSeededController(boolean setupForTesting) {
 
 		if (!Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.EMPTY)){
-			Properties.LEAVE_LEAPMOTION_ALONE = false;
+			Properties.RECORDING = false;
 		}
 
 		while (initializing){
@@ -184,7 +183,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			CONTROLLER = this;
 		}
 
-		if (Properties.LEAVE_LEAPMOTION_ALONE){
+		if (Properties.RECORDING){
 			super.addListener(leapmotionListener);
 			// Policy hack so app always receives data
 			com.leapmotion.leap.LeapJNI.Controller_setPolicy(Controller.getCPtr(this), this, 1);
@@ -268,7 +267,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		if (!listeners.contains(arg0)) {
 			listeners.add(arg0);
 
-			boolean connected = !Properties.LEAVE_LEAPMOTION_ALONE || CONNECTED_TO_API;
+			boolean connected = !Properties.RECORDING || CONNECTED_TO_API;
 			if (connected) {
 				arg0.onConnect(this);
 			}
@@ -300,7 +299,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	public Frame frame(int arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
 
-		if (Properties.LEAVE_LEAPMOTION_ALONE){
+		if (Properties.RECORDING){
 			return super.frame();
 		}
 
