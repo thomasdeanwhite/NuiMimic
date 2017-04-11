@@ -599,6 +599,26 @@ public class Properties extends InstrumentationProperties {
         }
     }
 
+
+    public void printOptionsMd() {
+
+        App.out.println("# Runtime Options");
+
+        for (String s : categoryMap.keySet()) {
+            App.out.println("## " + s);
+            for (String opt : categoryMap.get(s)) {
+                Parameter p = annotationMap.get(opt);
+                String opts = "- ";
+                if (p.hasArgs()) {
+                    opts = ":[arg] ";
+                }
+                App.out.println(" _" + p.key() + opts + " #" + p.description()
+                        + "_");
+            }
+            App.out.println();
+        }
+    }
+
     private static Properties instance;
 
     public static Properties instance() {

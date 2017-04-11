@@ -348,6 +348,13 @@ public class App implements ThrowableListener, Tickable {
             }
         }
 
+        if (args != null && args.length > 0) {
+            if (args[0].trim().toLowerCase().equals("helpMd")) {
+                Properties.instance().printOptionsMd();
+                return;
+            }
+        }
+
         App.out.println(".");
         App.out.println("Java library path: " + System.getProperty("java.library.path"));
         Properties.instance().setOptions(args);
