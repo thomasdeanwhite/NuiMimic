@@ -71,11 +71,14 @@ public class FrameSeedingRunnableQueue implements Runnable {
 
             }
 
+            long timeDiff = seedTime - currentTime;
+
             //if loop wasn't entered
-            if (discFrames == 0 && !Properties.PROCESS_PLAYBACK) {
+            if (discFrames == 0 && timeDiff > 0 && !Properties
+                    .PROCESS_PLAYBACK) {
                 try {
                     //sleep for a while
-                    Thread.sleep((seedTime - currentTime)/2);
+                    Thread.sleep(timeDiff/2);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
