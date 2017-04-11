@@ -141,47 +141,29 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
     public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
 
-
-    @Parameter(key = "ngramSmoothing", description = "When smoothing N-Grams, weight of high order N-Grams", hasArgs = true, category = "Statistical Modelling")
-    public static float LERP_RATE = 1f;//0.8f;
-
-    @Parameter(key = "laplace", description = "Use Laplace smoothing on N-Gram", hasArgs = false, category = "Statistical Modelling")
-    public static boolean LAPLACE_SMOOTHING = false;
-
-    @Parameter(key = "stateWeight", description = "Increase to make state probabilities weigh more", hasArgs = true, category = "Leap Motion Testing")
-    public static float STATE_WEIGHT = 0.05f;
-
-    @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "State Recognition")
+    @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison during generation guidence", hasArgs = true,
+            category =
+            "State " +
+            "Recognition")
     public static int HISTOGRAM_BINS = 25;
 
-    @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "State Recognition")
+    @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states during generation guidence", hasArgs =
+            true,
+            category = "State Recognition")
     public static float HISTOGRAM_THRESHOLD = 0.1f;
 
-    @Parameter(key = "ThistogramThreshold", description = "Difference required for two histograms to be considered unique states", hasArgs = true, category = "Oracle")
+    @Parameter(key = "ThistogramThreshold", description = "Difference required for two histograms to be considered unique states for oracle", hasArgs = true, category =
+            "Oracle")
     public static float TESTING_HISTOGRAM_THRESHOLD = 0.003f;
 
-    @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison", hasArgs = true, category = "Oracle")
+    @Parameter(key = "ThistogramBins", description = "Amount of bins to sort pixels into for histogram comparison for oracle", hasArgs = true, category = "Oracle")
     public static int TESTING_HISTOGRAM_BINS = 25;
-
-    @Parameter(key = "ngramSkip", description = "Number of NGramModel elements to skip", hasArgs = true, category = "Statistical Modelling")
-    public static int NGRAM_SKIP = 0;
 
     @Parameter(key = "screenshotCompression", description = "Order of magnitude to compress screenshots", hasArgs = true, category = "State Recognition")
     public static int SCREENSHOT_COMPRESSION = 4;
 
-    @Parameter(key = "seededBeforeProcessing", description = "Number of hands to seed before background processing", hasArgs = true, category = "Leap Motion Testing")
-    public static int SEEDED_BEFORE_PROCESSING = 30;
-
-    @Parameter(key = "classDir", description = "Directory of Source Code", hasArgs = true, category = "Results Processing")
-    public static String classDirectory = "";
-
     @Parameter(key = "jitter", description = "Random amount to move all joints per frame", hasArgs = true, category = "Leap Motion Testing")
     public static float JITTER = 0f;
-
-    @Parameter(key = "mutation", description = "Mutation number of " +
-            "application (0 is original)", hasArgs = true, category =
-            "Mutation Testing")
-    public static int MUTATION = 0;
 
     /*
      * Output formatting properties
