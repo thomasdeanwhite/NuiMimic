@@ -17,6 +17,7 @@ import com.leapmotion.leap.Tool;
 import com.leapmotion.leap.ToolList;
 import com.leapmotion.leap.TrackedQuad;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 
 import java.io.Serializable;
@@ -99,8 +100,17 @@ public class SeededFrame extends Frame implements Serializable {
 		return gestureSet;
 	}
 
-	public String toJson(){
-		return gson.toJson(this);
+	public String toJavaScript(){
+		//TODO: Continue implementing this abiding by Leap Motion JS API.
+		// big long method to convert everything to JavaScript
+		String script = "function frame () {" +
+				"this.currentFrameRate=" + App.getApp().getFps() + ";" +
+				"this.id=" + id + ";" +
+				"this.valid=true;" +
+				"this.timestamp=" + timestamp() + ";" +
+				"};";
+
+		return script;
 	}
 
 

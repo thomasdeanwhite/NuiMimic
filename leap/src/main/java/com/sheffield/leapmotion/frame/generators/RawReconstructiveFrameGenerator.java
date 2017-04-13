@@ -93,7 +93,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
             for (String line : lines) {
 
-                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)lines.length) + "[1 of 4]");
+                if (Properties.SHOW_PROGRESS) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) lines.length) + "[1 of 4]");
+                }
 
                 if (data && line.trim().length() > 0) {
                     Frame f = SeededController.newFrame();
@@ -125,7 +127,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             counter = 0;
 
             for (String s : tim) {
-                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)tim.length) + "[2 of 4]");
+                if (Properties.SHOW_PROGRESS) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) tim.length) + "[2 of 4]");
+                }
                 if (s.length() > 0) {
                     // x / 1000 microsec to millisec
                     timings.add(Long.parseLong(s.split("@")[0]));
@@ -183,8 +187,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             counter = 0;
 
             for (String line : lines) {
-
-                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)lines.length) + "[3 of 4]");
+                if (Properties.SHOW_PROGRESS) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) lines.length) + "[3 of 4]");
+                }
                 if (data && line.trim().length() > 0) {
                     Vector v = new Vector();
                     String[] vect = line.split(",");
@@ -212,8 +217,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             counter = 0;
 
             for (String line : lines) {
-
-                App.out.print("\r"+ProgressBar.getProgressBar(21, counter++ / (float)lines.length) + "[4 of 4]");
+                if (Properties.SHOW_PROGRESS) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) lines.length) + "[4 of 4]");
+                }
 
                 if (data && line.trim().length() > 0) {
                     String[] vect = line.split(",");
