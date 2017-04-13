@@ -33,18 +33,26 @@ There are various steps to using NuiMimic:
 4. Processing NuiMimic data into final models.
 
 # Runtime Options
-## Results Processing
-- classDir:[arg]  _Directory of Source Code_
-
 ## Parameter Tuning
 - Tmin:[arg]  _Min value to tune (inclusive)_
 - Tmax:[arg]  _Max value to tune (exclusive)_
 - Tparameter:[arg]  _Parameter to tune_
 - Tcluster:[arg]  _Cluster to use (/5)_
 
+## State Recognition
+- histogramBins:[arg]  _Amount of bins to sort pixels into for histogram comparison during generation guidence_
+- histogramThreshold:[arg]  _Difference required for two histograms to be considered unique states during generation guidence_
+- screenshotCompression:[arg]  _Order of magnitude to compress screenshots_
+
 ## Data Interpolation
 - switchTime:[arg]  _Time for interpolation between frames_
 - bezierPoints:[arg]  _Amount of points to use for Bezier Interpolation_
+
+## Output
+- outputDir:[arg]  _Directory for Output (default NuiMimic)_
+- outputNullValue:[arg]  _Output Value of Null Values ("NONE" by default)_
+- outputExcludes:[arg]  _Output options to exclude when logging_
+- outputIncludes:[arg]  _Output options to include when logging_
 
 ## Leap Motion Sampling
 - processPlayback  _Should frames be processed during playback?_
@@ -65,31 +73,6 @@ There are various steps to using NuiMimic:
 - use_changed_flag:[arg]  _It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data_
 - track_active_testcase:[arg]  _When collecting coverage information, it is possible to include information about which test case covered each line. If this argument is true, use ClassAnalyzer.setActiveTest(TestCase), and then each line/branch object will have a list of test cases that cover it, accessed by CoverableGoal.getCoveringTests_
 
-## Statistical Modelling
-- ngramSmoothing:[arg]  _When smoothing N-Grams, weight of high order N-Grams_
-- laplace  _Use Laplace smoothing on N-Gram_
-- ngramSkip:[arg]  _Number of NGramModel elements to skip_
-
-## Experiments
-- currentRun:[arg]  _Can be used for experiments to output the current run (-1 will set to system runtime)_
-
-## Common
-- runtype:[arg]  _Type of run (default instrument)_
-
-## Mutation Testing
-- mutation:[arg]  _Mutation number of application (0 is original)_
-
-## State Recognition
-- histogramBins:[arg]  _Amount of bins to sort pixels into for histogram comparison_
-- histogramThreshold:[arg]  _Difference required for two histograms to be considered unique states_
-- screenshotCompression:[arg]  _Order of magnitude to compress screenshots_
-
-## Output
-- outputDir:[arg]  _Directory for Output (default NuiMimic)_
-- outputNullValue:[arg]  _Output Value of Null Values ("NONE" by default)_
-- outputExcludes:[arg]  _Output options to exclude when logging_
-- outputIncludes:[arg]  _Output options to include when logging_
-
 ## Leap Motion Testing
 - dataPoolDirectory:[arg]  _Directory containing data pool_
 - remainingBudget:[arg]  _Remaining Budget after resuming from system halt_
@@ -105,15 +88,16 @@ There are various steps to using NuiMimic:
 - input:[arg]  _semicolon (;) separated list of files for input_
 - visualiseData  _Displays the currently seeded data in a separate window._
 - invertZAxis  _Inverts the direction the hand is facing_
-- stateWeight:[arg]  _Increase to make state probabilities weigh more_
-- seededBeforeProcessing:[arg]  _Number of hands to seed before background processing_
 - jitter:[arg]  _Random amount to move all joints per frame_
 - skipDependencyTree  _Skip building dependency tree_
 - dependencyTreeOverride  _Use to always build a fresh dependency tree_
 
 ## Oracle
-- ThistogramThreshold:[arg]  _Difference required for two histograms to be considered unique states_
-- ThistogramBins:[arg]  _Amount of bins to sort pixels into for histogram comparison_
+- ThistogramThreshold:[arg]  _Difference required for two histograms to be considered unique states for oracle_
+- ThistogramBins:[arg]  _Amount of bins to sort pixels into for histogram comparison for oracle_
+
+## Experiments
+- currentRun:[arg]  _Can be used for experiments to output the current run (-1 will set to system runtime)_
 
 ## Leap Motion Gestures
 - gestureCircleMinRadius:[arg]  _Minimum radius a circle gesture can be_
@@ -129,4 +113,9 @@ There are various steps to using NuiMimic:
 - recording  _Records Leap Motion data to storage_
 - controllerSuperClass  _The Controller class is extended instead of instantiated_
 - frameSelectionStrategy:[arg]  _Strategy for Frame Selection_
+
+## Common
+- runtype:[arg]  _Type of run (default instrument)_
+
+
 
