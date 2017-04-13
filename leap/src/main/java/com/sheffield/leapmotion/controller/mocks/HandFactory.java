@@ -7,6 +7,7 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Vector;
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 
 import java.util.Random;
@@ -304,6 +305,19 @@ public class HandFactory {
 
 	public static Hand convertToLeft(Hand hand) {
 		return hand;
+	}
+
+	public static String toJavaScript(Frame f){
+		//TODO: Continue implementing this abiding by Leap Motion JS API.
+		// big long method to convert everything to JavaScript
+		String script = "function frame () {" +
+				"this.currentFrameRate=" + App.getApp().getFps() + ";" +
+				"this.id=" + f.id() + ";" +
+				"this.valid=" + f.isValid() + ";" +
+				"this.timestamp=" + f.timestamp() + ";" +
+				"};";
+
+		return script;
 	}
 
 	private HandFactory() {

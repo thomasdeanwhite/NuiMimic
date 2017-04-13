@@ -100,19 +100,6 @@ public class SeededFrame extends Frame implements Serializable {
 		return gestureSet;
 	}
 
-	public String toJavaScript(){
-		//TODO: Continue implementing this abiding by Leap Motion JS API.
-		// big long method to convert everything to JavaScript
-		String script = "function frame () {" +
-				"this.currentFrameRate=" + App.getApp().getFps() + ";" +
-				"this.id=" + id + ";" +
-				"this.valid=true;" +
-				"this.timestamp=" + timestamp() + ";" +
-				"};";
-
-		return script;
-	}
-
 
 	@Override
 	public Gesture gesture(int arg0) {
