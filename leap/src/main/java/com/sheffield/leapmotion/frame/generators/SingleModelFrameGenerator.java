@@ -91,7 +91,7 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 
     @Override
     public String getName() {
-        return "NGram Model Generation";
+        return "NGram Model";
     }
 
     @Override

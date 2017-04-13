@@ -123,7 +123,7 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 						Float.parseFloat(vect[3]),
 						Float.parseFloat(vect[4])).normalise();
 
-				rotations.put(vect[0], q.inverse());
+				rotations.put(vect[0], q);
 
 				//App.out.println(vect[0] + ": " + q);
 

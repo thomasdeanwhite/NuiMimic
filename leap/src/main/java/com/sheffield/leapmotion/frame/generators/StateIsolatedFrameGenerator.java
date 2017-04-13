@@ -172,7 +172,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public String getName() {
-		return "State Dependent NGram Model Generation";
+		return "State Dependent";
 	}
 
 	private long lastUpdate = 0;

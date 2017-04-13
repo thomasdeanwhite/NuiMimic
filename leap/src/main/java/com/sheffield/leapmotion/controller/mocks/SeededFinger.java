@@ -206,7 +206,7 @@ public class SeededFinger extends Finger implements Serializable {
 		// TODO Auto-generated method stub
 		//App.out.println("tip: " + tipPosition);
 		Vector v =  tipPosition();//Properties.SINGLE_DATA_POOL ? stabilizedTipPosition : offset.plus(rotation.rotateVector(stabilizedTipPosition));
-		return v.minus(tipVelocity.divide((float)Math.sqrt(tipVelocity.magnitude())));
+		return v.minus(tipVelocity);
 	}
 
 	public void setTipVelocity(Vector v){

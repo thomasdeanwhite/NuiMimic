@@ -607,42 +607,47 @@ public class App implements ThrowableListener, Tickable {
                 long lastTimeRecorded = 0;
 
                 while (app.status() != AppStatus.FINISHED) {
-                    //delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
-                    long time = System.nanoTime();
-                    int timePassed = (int) ((time - lastTime) / 1000000);
-                    App.getApp().increaseIterationTime(timePassed);
-                    App.getApp().increaseFps(time / 1000000);
-
-                    if ((lastTime - lastTimeRecorded) / 1000000 >=
-                            RECORDING_INTERVAL &&
-                            SeededController.getSeededController()
-                                    .allowProcessing() && !Properties
-                            .PROCESS_PLAYBACK && !Properties.PROCESS_SCREENSHOTS) {
-                        ClassAnalyzer.collectHitCounters(false);
-
-                        App.getApp().output(false);
-                        lastTimeRecorded = lastTime;
-                    }
-
-                    long timePassedNanos = time - START_TIME;
-
-                    TIME_HANDLER.setMillis(timePassedNanos / 1000000);
-                    TIME_HANDLER.setNanos(timePassedNanos);
-
-                    app.tick(time / 1000000);
                     try {
-                        int d = delay - timePassed;
-                        if (d >= 0) {
-                            Thread.sleep(d);
+                        //delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
+                        long time = System.nanoTime();
+                        int timePassed = (int) ((time - lastTime) / 1000000);
+                        App.getApp().increaseIterationTime(timePassed);
+                        App.getApp().increaseFps(time / 1000000);
 
-                            time += d * 1000000;
+                        if ((lastTime - lastTimeRecorded) / 1000000 >=
+                                RECORDING_INTERVAL &&
+                                SeededController.getSeededController()
+                                        .allowProcessing() && !Properties
+                                .PROCESS_PLAYBACK &&
+                                !Properties.PROCESS_SCREENSHOTS) {
+                            ClassAnalyzer.collectHitCounters(false);
+
+                            App.getApp().output(false);
+                            lastTimeRecorded = lastTime;
                         }
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+
+                        long timePassedNanos = time - START_TIME;
+
+                        TIME_HANDLER.setMillis(timePassedNanos / 1000000);
+                        TIME_HANDLER.setNanos(timePassedNanos);
+
+                        app.tick(time / 1000000);
+                        try {
+                            int d = delay - timePassed;
+                            if (d >= 0) {
+                                Thread.sleep(d);
+
+                                time += d * 1000000;
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        lastTime = time;
+                    } catch (Throwable t){
+                        App.getApp().throwableThrown(t);
                     }
-
-
-                    lastTime = time;
                 }
 
                 App.getApp().dump(0);

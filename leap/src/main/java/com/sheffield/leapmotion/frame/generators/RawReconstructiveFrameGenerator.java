@@ -222,7 +222,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
                             Float.parseFloat(vect[3]),
                             Float.parseFloat(vect[4])).normalise();
 
-                    rotations.put(vect[0], q.inverse());
+                    rotations.put(vect[0], q);
                 } else {
                     if (line.contains("@DATA")) {
                         data = true;
