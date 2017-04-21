@@ -1,11 +1,16 @@
 package com.sheffield.leapmotion.controller;
 
+import com.google.gson.JsonSyntaxException;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.mocks.SeededFinger;
+import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.generators.*;
+import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.util.ProgressBar;
+import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
@@ -15,10 +20,14 @@ import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.output.Csv;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.LineIterator;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -67,6 +76,36 @@ public class FrameHandler implements Tickable {
 
     public void init(Controller seededController) {
         assert (!initialised);
+
+        String playback = Properties.DIRECTORY + "/" + Properties.INPUT[0] + "/raw_frame_data.bin";
+
+        LineIterator lineIterator = null;
+        try {
+            lineIterator = FileUtils.lineIterator(new File(playback));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        while (lineIterator.hasNext() && SeededFrame.originalFrame == null){
+            try {
+                Frame f = Serializer
+                        .sequenceFromJson(lineIterator.nextLine());
+
+
+                for (Hand h : f.hands()){
+                    if (h.isValid() && h.isRight()){
+                        SeededFrame.originalFrame = f;
+                        break;
+                    }
+                }
+            } catch (JsonSyntaxException | IllegalArgumentException e){
+
+            }
+
+        }
+
+        lineIterator.close();
+
 
         frameSwitchListeners = new ArrayList<FrameSwitchListener>();
         frames = new LinkedList<Frame>();
@@ -219,6 +258,7 @@ public class FrameHandler implements Tickable {
         } catch (Exception e) {
             e.printStackTrace(App.out);
             //TODO: Alert user an error has occurred
+            App.getApp().throwableThrown(e);
             System.exit(-1);
         }
 
@@ -305,8 +345,6 @@ public class FrameHandler implements Tickable {
             }
             SeededFrame sf = (SeededFrame) frame;
 
-            frame = finalizeFrame(sf, time);
-
             GestureList gl = null;
             frameGenerator.modifyFrame(sf);
             if (gestureHandler == null) {
@@ -320,6 +358,10 @@ public class FrameHandler implements Tickable {
 
 
             sf.setGestures(gl);
+
+            //sf.interactionBox();
+
+            frame = finalizeFrame(sf, time);
         }
         if (frames.contains(frame)) {
             return;
@@ -364,7 +406,12 @@ public class FrameHandler implements Tickable {
 
     }
 
+    private static long minimumFrame = 0;
+
     private Frame finalizeFrame(SeededFrame frame, long time) {
+
+
+        minimumFrame++;
 
         if (frame.timestamp() == 0) {
             frame.setTimestamp(time);
@@ -393,24 +440,91 @@ public class FrameHandler implements Tickable {
 
         FingerList fl = frame.hands().get(0).fingers();
 
+        final int TIP_SAMPLES = 200;
+        int increment = count / TIP_SAMPLES;
+
+
+        // if increment == 0 less than TIP_SAMPLES frames has loaded. We can still use those loaded to calculate a stabilised tip position.
+        if (increment == 0){
+            increment = 1;
+        }
+
+        if (frames.size() <= increment){
+            return frame;
+        }
+
         for (Finger f : fl) {
-            Frame firstFrame = frames.get(0);
-            Vector tipMovement = f.tipPosition()
-                    .minus(firstFrame.fingers().fingerType(f.type()).get(0)
-                            .tipPosition());
+            Frame firstFrame = frames.get(increment);
 
-            for (int i = 0; i < count - 1; i++) {
+            Vector firstTip = f.tipPosition();
+            Vector secondTip = firstFrame.fingers().fingerType(f.type()).get(0)
+                    .tipPosition();
+
+            Vector tipMovement = firstTip.minus(secondTip);
+
+
+            ArrayList<Vector> tips = new ArrayList<>();
+            tips.add(firstTip);
+
+            Vector stabTipMovement = tipMovement.plus(
+                    frames.get(increment).fingers().fingerType(f.type()).get(0).tipVelocity()
+            );
+
+
+
+            int counter = 0;
+            for (int i = increment; i < count; i += increment) {
                 Finger f1 =
-                        frames.get(count).fingers().fingerType(f.type()).get(0);
+                        frames.get(i).fingers().fingerType(f.type()).get(0);
 
-                Finger f2 = frames.get(count + 1).fingers().fingerType(f.type())
+                tips.add(f1.tipPosition());
+
+                Finger f2 = frames.get(i + increment).fingers().fingerType(f.type())
                         .get(0);
                 tipMovement = tipMovement
                         .plus(f1.tipPosition().minus(f2.tipPosition()));
 
+                stabTipMovement = stabTipMovement.plus(f1.tipVelocity());
+
+                counter++;
+
             }
+
+            stabTipMovement = stabTipMovement.divide(counter);
+
             ((SeededFinger) f).setTipVelocity(tipMovement);
+
+
+
+            float mod = 1f;
+            float magSqr = stabTipMovement.magnitudeSquared();
+            float mag = (float) Math.pow(magSqr/2000f, 10);
+            if (mag > 0){
+                mod = Math.min(1f, Math.max(0, (512-mag)/1024));
+            }
+
+            int frameNum = (int)(mod * counter) + 1;
+
+            if (frameNum <= minimumFrame){
+                minimumFrame = frameNum;
+            } else {
+                mod = frameNum / (float)counter;
+            }
+
+            ((SeededFinger) f).setStabilizedTipPosition(BezierHelper.bezier(tips, mod));
         }
+
+        Vector palmVelocity = frame.hand(0).palmPosition().minus(frames.get(increment).hand(0).palmPosition());
+
+        for (int i = increment; i < count; i += increment) {
+            Hand h1 = frames.get(i).hand(0);
+            Hand h2 = frames.get(i + increment).hand(0);
+
+            palmVelocity = palmVelocity.plus(h1.palmPosition().minus(h2.palmPosition()));
+
+        }
+
+        ((SeededHand)frame.hand(0)).setPalmVelocity(palmVelocity);
 
         return frame;
     }

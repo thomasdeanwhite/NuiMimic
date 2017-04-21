@@ -8,6 +8,7 @@ import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 
 import java.io.Serializable;
@@ -205,8 +206,12 @@ public class SeededFinger extends Finger implements Serializable {
 	public Vector stabilizedTipPosition() {
 		// TODO Auto-generated method stub
 		//App.out.println("tip: " + tipPosition);
-		Vector v =  tipPosition();//Properties.SINGLE_DATA_POOL ? stabilizedTipPosition : offset.plus(rotation.rotateVector(stabilizedTipPosition));
-		return v.minus(tipVelocity);
+		//return BezierHelper.stabiliseVector(tipPosition(), tipVelocity());
+		return stabilizedTipPosition;
+	}
+
+	public void setStabilizedTipPosition(Vector v) {
+		stabilizedTipPosition = v;
 	}
 
 	public void setTipVelocity(Vector v){

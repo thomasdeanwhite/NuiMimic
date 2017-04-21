@@ -11,6 +11,7 @@ import com.leapmotion.leap.Listener;
 import com.leapmotion.leap.ScreenList;
 import com.leapmotion.leap.TrackedQuad;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.Properties;
@@ -26,7 +27,6 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	public static SeededController CONTROLLER;
 	private static boolean initializing = false;
-	private static boolean calledAsSuperclass = true;
 	private static LinkedList<Frame> framesForSeeding = new LinkedList<>();
 
 	public static boolean initialized(){
@@ -77,7 +77,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public static SeededController getSeededController() {
-		return getSeededController(true);
+		return getSeededController(false);
 	}
 
 	public static SeededController getSeededController(boolean setupForTesting) {
@@ -97,7 +97,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			initializing = true;
 			//App.startTesting();
 			CONTROLLER = new SeededController();
-			App.getApp().setup(setupForTesting);
+			//App.getApp().setup(setupForTesting);
 			CONTROLLER.setup();
 			initializing = false;
 		}
@@ -109,12 +109,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public static Controller getController() {
-		disableSuperclass();
 		return getSeededController();
-	}
-
-	public static void disableSuperclass(){
-		calledAsSuperclass = false;
 	}
 
 	public static Frame newFrame() {
@@ -140,7 +135,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			CONTROLLER = this;
 		}
 
-		if (calledAsSuperclass){
+		if (Properties.CONTROLLER_SUPER_CLASS){
 			initializing = true;
 			App.setTesting();
 
@@ -214,9 +209,9 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		}
 
 		setPolicyFlags(Controller.PolicyFlag.POLICY_BACKGROUND_FRAMES);
-		if (App.getApp() == null){
-			App.startTesting();
-		}
+//		if (App.getApp() == null){
+//			App.startTesting();
+//		}
 		//App.out.println("\r- Controller Initialized.");
 		// addListener(com.sheffield.leapmotion_sampler.App.getApp());
 	}
@@ -233,6 +228,10 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		for (int i = 0; i < listeners.size(); i++) {
 			final Listener l = listeners.get(i);
 			l.onFrame(this);
+		}
+
+		if (App.DISPLAY_WINDOW != null) {
+			App.DISPLAY_WINDOW.setFrame(nextFrame);
 		}
 	}
 
@@ -285,9 +284,6 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		}
 		Frame f = frame(0);
 		//ClassAnalyzer.newFrame();
-		if (App.DISPLAY_WINDOW != null) {
-			App.DISPLAY_WINDOW.setFrame(f);
-		}
 		return f;
 	}
 
@@ -314,6 +310,11 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		if (framesForSeeding.size() > arg0) {
 			f = framesForSeeding.get(arg0);
 		}
+
+		if (f == null){
+			f = SeededFrame.invalid();
+		}
+
 		return f;
 	}
 

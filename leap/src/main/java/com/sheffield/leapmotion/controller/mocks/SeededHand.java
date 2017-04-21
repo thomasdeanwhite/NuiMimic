@@ -295,6 +295,10 @@ public class SeededHand extends Hand implements Serializable {
         }
     }
 
+    public void setPalmVelocity (Vector v){
+        palmVelocity = v;
+    }
+
     public void setRotation(Vector axis, float rotation) {
         //basis = Matrix.identity();
         basis.setRotation(new Vector(axis.getX(), axis.getY(), axis.getZ()).normalized(), rotation);
@@ -425,7 +429,7 @@ public class SeededHand extends Hand implements Serializable {
     @Override
     public Vector palmVelocity() {
         // TODO Auto-generated method stub
-        return basis.transformDirection(palmVelocity);
+        return palmVelocity;
     }
 
     @Override
@@ -513,7 +517,7 @@ public class SeededHand extends Hand implements Serializable {
     @Override
     public Vector stabilizedPalmPosition() {
         // TODO Auto-generated method stub
-        return palmPosition;
+        return BezierHelper.stabiliseVector(palmPosition(), palmVelocity());
     }
 
     @Override

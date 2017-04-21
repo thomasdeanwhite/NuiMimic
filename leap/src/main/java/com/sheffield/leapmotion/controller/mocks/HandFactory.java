@@ -10,6 +10,7 @@ import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 
+import java.util.HashMap;
 import java.util.Random;
 
 public class HandFactory {
@@ -310,14 +311,111 @@ public class HandFactory {
 	public static String toJavaScript(Frame f){
 		//TODO: Continue implementing this abiding by Leap Motion JS API.
 		// big long method to convert everything to JavaScript
-		String script = "function frame () {" +
+
+		String fingers = "[";
+
+		for (Finger fi : f.fingers()){
+			fingers += "{";
+			String bones = "[";
+
+			HashMap<Bone.Type, String> boneMap = new HashMap<>();
+
+			for (Bone.Type bt : Bone.Type.values()){
+				String b = "{";
+
+				Bone bone = fi.bone(bt);
+
+				Matrix basis = bone.basis();
+
+				b += "this.basis=[[" + vectorToCsv(basis.getXBasis()) + "]," +
+						vectorToCsv(basis.getYBasis()) + "]," +
+						vectorToCsv(basis.getZBasis()) + "]];";
+				b += "this.length=" + bone.length() + ";";
+
+				b += "this.nextJoint=[" + vectorToCsv(bone.nextJoint()) + "];";
+				b += "this.prevJoint=[" + vectorToCsv(bone.prevJoint()) + "];";
+
+				b += "this.type=" + bt.swigValue() + ";";
+
+				b += "this.width=" + bone.width() + ";";
+
+				b += "this.center=function(){" +
+						"return [" + vectorToCsv(bone.center()) + "];" +
+						"}";
+
+				b += "this.direction=function(){return [" + vectorToCsv(bone.direction()) + "];}";
+
+				b += "this.left=function(){return" + fi.hand().isLeft() + ";}";
+
+				b += "this.lerp=function(out, t){ " +
+						"out[0] = (this.prevJoint[0] + this.nextJoint[0]) * t;" +
+						"out[1] = (this.prevJoint[1] + this.nextJoint[1]) * t;" +
+						"out[2] = (this.prevJoint[2] + this.nextJoint[2]) * t;" +
+						"return out;}";
+
+				float[] basisMatrix = bone.basis().toArray4x4();
+
+				b += "this.matrix=[";
+
+				for (int p = 0; p < basisMatrix.length; p++){
+					b += basisMatrix[p];
+					if (p < basisMatrix.length-1){
+						b += ",";
+					}
+				}
+
+				b += "];";
+
+
+
+
+				b += "}";
+
+				boneMap.put(bt, b);
+
+				bones += b + ",";
+			}
+			bones += "]";
+			fingers += "this.bones=" + bones + ";";
+
+			fingers += "this.carpPosition=[" + vectorToCsv(fi.bone(Bone.Type.TYPE_METACARPAL).prevJoint()) + "];";
+
+			fingers += "this.dipPosition=[" + vectorToCsv(fi.bone(Bone.Type.TYPE_DISTAL).prevJoint()) + "];";
+
+			fingers += "this.distal=" + boneMap.get(Bone.Type.TYPE_DISTAL) + ";";
+
+			fingers += "this.medial=" + boneMap.get(Bone.Type.TYPE_INTERMEDIATE) + ";";
+
+			fingers += "this.extended=" + fi.isExtended() + ";";
+
+			fingers += "this.mcpPosition=[" + vectorToCsv(fi.bone(Bone.Type.TYPE_METACARPAL).nextJoint()) + "];";
+
+			fingers += "this.metacarpel=" + boneMap.get(Bone.Type.TYPE_METACARPAL) + ";";
+
+			fingers += "this.pipPosition=[" + vectorToCsv(fi.bone(Bone.Type.TYPE_PROXIMAL).nextJoint()) + "];";
+
+			fingers += "this.proximal=" + boneMap.get(Bone.Type.TYPE_PROXIMAL) + ";";
+
+			fingers += "this.type=" + fi.type().swigValue() + ";";
+
+			fingers += "}";
+		}
+
+		fingers += "]";
+
+		String script = "function Frame () {" +
 				"this.currentFrameRate=" + App.getApp().getFps() + ";" +
 				"this.id=" + f.id() + ";" +
 				"this.valid=" + f.isValid() + ";" +
 				"this.timestamp=" + f.timestamp() + ";" +
+				"this.fingers=" + fingers + ";" +
 				"};";
 
 		return script;
+	}
+
+	private static String vectorToCsv(Vector v){
+		return v.getX() + "," + v.getY() + "," + v.getZ();
 	}
 
 	private HandFactory() {

@@ -88,4 +88,8 @@ public class BezierHelper {
         frame.setSize(1000, 1000);
         frame.paintComponents(null);
     }
+
+    public static Vector stabiliseVector(Vector position, Vector velocity){
+        return position.minus(velocity.divide(velocity.magnitude()/4));
+    }
 }

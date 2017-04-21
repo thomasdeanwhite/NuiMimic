@@ -65,8 +65,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
     private int currentHandIndex = 0;
 
 
-    public RawReconstructiveFrameGenerator(String filename) {
-        try {
+    public RawReconstructiveFrameGenerator(String filename) throws IOException {
             tpgh = new ReconstructiveGestureHandler(filename);
             App.out.println("* Setting up Raw Reconstruction");
             lastSwitchTime = 0;
@@ -92,9 +91,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             int counter = 0;
 
             for (String line : lines) {
-
-                if (Properties.SHOW_PROGRESS) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) lines.length) + "[1 of 4]");
+                float progress = counter++ / (float) (lines.length-1);
+                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[1 of 4]");
                 }
 
                 if (data && line.trim().length() > 0) {
@@ -127,8 +126,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             counter = 0;
 
             for (String s : tim) {
-                if (Properties.SHOW_PROGRESS) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) tim.length) + "[2 of 4]");
+                float progress = counter++ / (float) (tim.length-1);
+                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[2 of 4]");
                 }
                 if (s.length() > 0) {
                     // x / 1000 microsec to millisec
@@ -147,16 +147,16 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
             //This will sort the indices array so other lists can be
             // reordered using the indices
-            indices.sort(new Comparator<Integer>() {
-                @Override
-                public int compare(Integer o1, Integer o2) {
-                    return (int) (tims.get(o1) - tims.get(o2));
-                }
-            });
+//            indices.sort(new Comparator<Integer>() {
+//                @Override
+//                public int compare(Integer o1, Integer o2) {
+//                    return (int) (tims.get(o1) - tims.get(o2));
+//                }
+//            });
 
-            timings.sort(new ListComparator<Long>(indices));
-
-            handLabelStack.sort(new ListComparator<String>(indices));
+//            timings.sort(new ListComparator<Long>(indices));
+//
+//            handLabelStack.sort(new ListComparator<String>(indices));
 
             long first = tims.get(indices.get(0));
 
@@ -187,8 +187,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             counter = 0;
 
             for (String line : lines) {
-                if (Properties.SHOW_PROGRESS) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) lines.length) + "[3 of 4]");
+                float progress = counter++ / (float) (lines.length-1);
+                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[3 of 4]");
                 }
                 if (data && line.trim().length() > 0) {
                     Vector v = new Vector();
@@ -217,8 +218,9 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             counter = 0;
 
             for (String line : lines) {
-                if (Properties.SHOW_PROGRESS) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, counter++ / (float) lines.length) + "[4 of 4]");
+                float progress = counter++ / (float) (lines.length-1);
+                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[4 of 4]");
                 }
 
                 if (data && line.trim().length() > 0) {
@@ -238,9 +240,6 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
             }
 
             App.out.println(" done!");
-        } catch (IOException e) {
-            e.printStackTrace(App.out);
-        }
     }
 
     private class ListComparator<T> implements Comparator<T> {
@@ -285,9 +284,6 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
     public boolean allowProcessing() {
         return true;
     }
-
-    float modifier = 0f;
-
 
     @Override
     public Frame newFrame() {

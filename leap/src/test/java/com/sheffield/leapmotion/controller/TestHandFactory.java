@@ -133,7 +133,6 @@ public class TestHandFactory {
 
         assertFingerEquals(original.fingers().frontmost(),
                 restored.fingers().frontmost());
-
     }
 
 
@@ -254,6 +253,21 @@ public class TestHandFactory {
 
         assertFingerEquals(original.fingers().frontmost(),
                 restored.fingers().frontmost());
+
+        Vector pNorm = original.palmNormal();
+
+        Vector rNorm = restored.palmNormal();
+
+        assertVectorEquals(pNorm+ " and " + rNorm + "not equal!",
+                pNorm, rNorm);
+
+        float pRoll = pNorm.roll();
+
+        float rRoll = rNorm.roll();
+
+
+        assertEquals("Normal roll not equal!",
+                pRoll, rRoll, 0.000001);
 
 
 

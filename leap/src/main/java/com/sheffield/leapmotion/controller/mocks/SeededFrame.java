@@ -24,6 +24,8 @@ import java.io.Serializable;
 
 public class SeededFrame extends Frame implements Serializable {
 
+	public static Frame originalFrame = null;
+
 	protected Frame frame;
 	protected GestureList gestureList;
 	protected boolean gestureSet = false;
@@ -31,8 +33,8 @@ public class SeededFrame extends Frame implements Serializable {
 	protected SeededPointableList pointables;
 	protected SeededFingerList fingerList;
 	protected long id;
-	// TODO: SeededInteractionBox
-	protected InteractionBox interactionBox = InteractionBox.invalid();
+	protected boolean valid = true;
+
 
 	public static Gson gson = new Gson();
 
@@ -205,13 +207,17 @@ public class SeededFrame extends Frame implements Serializable {
 	public InteractionBox interactionBox() {
 		// TODO Auto-generated method stub
 
-		return interactionBox;
+		return originalFrame.interactionBox();
 	}
 
 	@Override
 	public boolean isValid() {
 		// TODO Auto-generated method stub
-		return true;
+		return valid;
+	}
+
+	public void invalidate(){
+		valid = false;
 	}
 
 	@Override
@@ -329,6 +335,16 @@ public class SeededFrame extends Frame implements Serializable {
 	public float translationProbability(Frame arg0) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	private static SeededFrame invalid;
+	static {
+		invalid = new SeededFrame(Frame.invalid());
+		invalid.invalidate();
+	}
+
+	public static Frame invalid(){
+		return invalid;
 	}
 
 }

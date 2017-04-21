@@ -60,10 +60,10 @@ public class Properties extends InstrumentationProperties {
     public static int SWITCH_TIME = 5;//20fps
 
     @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Data Interpolation")
-    public static int BEZIER_POINTS = 2;
+    public static int BEZIER_POINTS = 1;
 
     @Parameter(key = "startDelayTime", description = "Delay Time before frames are seeded", hasArgs = true, category = "Leap Motion Testing")
-    public static long DELAY_TIME = 1;
+    public static long DELAY_TIME = 15000;
 
     @Parameter(key = "maxLoadedFrames", description = "Frames to retain for com.leap.leapmotion.Frame.frame(int [0->maxLoadedFrames]) method", hasArgs = true, category = "Leap Motion Testing")
     public static int MAX_LOADED_FRAMES = 200;

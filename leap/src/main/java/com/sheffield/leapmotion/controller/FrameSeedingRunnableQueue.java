@@ -44,7 +44,7 @@ public class FrameSeedingRunnableQueue implements Runnable {
         while (frameSeeding.size() > 0){
 
             //1 second backlog
-            long currentTime = (MockSystem.currentTimeMillis() - startTime) - 1000;
+            long currentTime = (MockSystem.currentTimeMillis() - startTime) - Properties.DELAY_TIME;
 
             FrameSeedingRunnable fsr = frameSeeding.peek();
 

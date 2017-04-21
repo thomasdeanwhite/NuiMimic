@@ -42,8 +42,6 @@ public class TestFrameHandler {
 
         FrameHandler fh = new FrameHandler();
 
-        SeededController.disableSuperclass();
-
         fh.init(SeededController.getSeededController(false));
 
         fh.loadNewFrame(0);

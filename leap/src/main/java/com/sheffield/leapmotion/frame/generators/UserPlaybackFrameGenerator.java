@@ -1,12 +1,7 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.google.gson.JsonSyntaxException;
-import com.leapmotion.leap.Bone;
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Finger;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.FrameHandler;
@@ -73,10 +68,6 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	private LineIterator lineIterator;
 
 	private long seededTime = 0;
-	private long firstFrameTimeStamp = 0;
-
-	private long seededTimePassed = 0;
-	private FrameHandler fh = null;
 
 	private long maxFrames = 0;
 
@@ -115,7 +106,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			//int counter = Properties.MAX_LOADED_FRAMES;
 			int counter = 0;
 
-			App.out.println("- Loading Leap Motion Frames");
+			App.out.println("* User Playback: Loading Leap Motion Frames");
 			App.out.println(ProgressBar.getHeaderBar(21));
 			while (lineIterator.hasNext()){
 				try {
@@ -133,6 +124,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				//counter--;
 			}
 
+			lineIterator.close();
+
 			frameStack.sort(new Comparator<Frame>() {
 				@Override
 				public int compare(Frame o1, Frame o2) {
@@ -144,20 +137,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 				Properties.PLAYBACK_FILE = null;
 				boolean vis = Properties.VISUALISE_DATA;
 				Properties.VISUALISE_DATA = false;
-				fh = new FrameHandler();
-				fh.init(controller);
 
 				Properties.VISUALISE_DATA = vis;
 				if (Properties.VISUALISE_DATA) {
 					dw = new DisplayWindow();
-					fh.addFrameSwitchListener(new FrameSwitchListener() {
-						@Override
-						public void onFrameSwitch(Frame lastFrame, Frame nextFrame) {
-							if (nextFrame != null) {
-								dw.setFrame(nextFrame);
-							}
-						}
-					});
+
 					dw.setLocation(dw.getWidth(), 0);
 				}
 				Properties.PLAYBACK_FILE = playback;
@@ -208,9 +192,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		Frame f = null;
 
 
-		if (fh != null){
-			fh.loadNewFrame(seededTime);
-			fhFrame = fh.getFrame();
+		if (recFrameGen != null) {
+			fhFrame = recFrameGen.newFrame();
 		}
 
 
@@ -218,6 +201,16 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 		f =  frameStack.get(currentFrame);
 
 		currentFrame++;
+
+		if (recFrameGen != null && fhFrame != null){
+			recFrameGen.modifyFrame((SeededFrame) fhFrame);
+			GestureList gl = ((Reconstruction)recFrameGen).handleFrame(fhFrame, SeededController.getController());
+
+			((SeededFrame) fhFrame).setGestures(gl);
+			dw.setFrame(fhFrame);
+
+			App.out.println(f.hand(0).fingers().frontmost().stabilizedTipPosition() + " : " + fhFrame.hand(0).fingers().frontmost().stabilizedTipPosition());
+		}
 
 		return f;
 	}
@@ -289,8 +282,8 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 		seededTime = time;
 
-		if (fh != null){
-			fh.tick(time);
+		if (recFrameGen != null){
+			recFrameGen.tick(time);
 
 			((Reconstruction)recFrameGen).setFrame(currentFrame);
 

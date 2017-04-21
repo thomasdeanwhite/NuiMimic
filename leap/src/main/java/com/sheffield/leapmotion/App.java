@@ -244,7 +244,9 @@ public class App implements ThrowableListener, Tickable {
             background(null);
             App.getApp().setStatus(AppStatus.TESTING);
 
-
+            if (Properties.VISUALISE_DATA && DISPLAY_WINDOW == null) {
+                DISPLAY_WINDOW = new DisplayWindow();
+            }
         }
     }
 
@@ -258,9 +260,6 @@ public class App implements ThrowableListener, Tickable {
         testing = initialiseForTesting;
         if (testing) {
             App.getApp().setTesting();
-        }
-        if (Properties.VISUALISE_DATA && DISPLAY_WINDOW == null) {
-            DISPLAY_WINDOW = new DisplayWindow();
         }
         File f = null;
         int testIndex = 0;
@@ -282,7 +281,6 @@ public class App implements ThrowableListener, Tickable {
             }
         });
 
-        start();
         lastSwitchTime = startTime;
         timeBetweenSwitch = 1000 / Properties.FRAMES_PER_SECOND;
 
@@ -292,6 +290,7 @@ public class App implements ThrowableListener, Tickable {
 
         if (testing) {
             startTesting();
+            start();
         }
     }
 
@@ -457,10 +456,14 @@ public class App implements ThrowableListener, Tickable {
         for (String s : Properties.FORBIDDEN_PACKAGES) {
             ClassReplacementTransformer.addForbiddenPackage(s);
         }
+//
+//        SeededController.getController();
 
         LeapmotionAgentTransformer lat = new LeapmotionAgentTransformer();
 
         instr.addTransformer(lat);
+
+        SeededController.getController();
     }
 
     public static void loadOptions(String priorityOptions) throws IOException {
@@ -596,12 +599,6 @@ public class App implements ThrowableListener, Tickable {
 
                 SeededController.getController();
 
-                try {
-                    Thread.sleep(Properties.DELAY_TIME);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
                 long lastTime = System.nanoTime();
                 START_TIME = lastTime;
                 long lastTimeRecorded = 0;
@@ -674,7 +671,7 @@ public class App implements ThrowableListener, Tickable {
         CLOSING = true;
 
         App.out.println("Closing: ");
-        new Exception().printStackTrace(App.out);
+        new RuntimeFinishedException().printStackTrace(App.out);
 
         System.exit(exitCode);
     }
@@ -700,7 +697,6 @@ public class App implements ThrowableListener, Tickable {
                 gestureFiles.substring(0, gestureFiles.length() - 1);
 
             LAST_LINE_COVERAGE = Math.round((ClassAnalyzer.getLineCoverage() * 100f)) / 100f;
-            int states = StateComparator.statesVisits.size();
 
 
             Csv testingValues = ClassAnalyzer.toCsv();

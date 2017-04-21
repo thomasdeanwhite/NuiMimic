@@ -176,9 +176,10 @@ public class DisplayWindow extends JFrame {
 				g2d.setColor(Color.BLACK);
 				g2d.drawString("Status: " + SeededController.getSeededController().status(), 26, 26);
 
+
 				for (Hand h : currentFrame.hands()) {
-					// String data = HandFactory.handToString(h);
-					// h = HandFactory.createHand(data, currentFrame);
+					g2d.drawString("Stablised Tip: " + h.fingers().frontmost().stabilizedTipPosition().toString() +
+							h.fingers().frontmost().tipVelocity().toString(), 26, 56);
 
 					drawXYBasis(g2d, h, new Vector( getWidth() / 4 , 3 * getHeight() / 4 , 0f).plus(offset));
 
@@ -276,7 +277,7 @@ public class DisplayWindow extends JFrame {
 						}
 					}
 
-					g2d.setColor(Color.LIGHT_GRAY);
+
 					int scale = (400 - (int)h.palmPosition().getZ()) / 30;
 					float scaleWindowX = (getWidth()/2) / 400f;
 					float scaleWindowY = (getHeight()/2) / 400f;
@@ -284,15 +285,22 @@ public class DisplayWindow extends JFrame {
 
 					Finger frontMostTip = h.fingers().frontmost();
 
-					float tipScale = 1f + (frontMostTip.stabilizedTipPosition().getZ()/400);
-
-					g2d.fillRect((3*(getWidth() / 4)) + ((int)(h.fingers().frontmost().stabilizedTipPosition().getX()*scaleWindowX)), getHeight() - ((int)(h.fingers().frontmost().stabilizedTipPosition().getY()*scaleWindowY)), (int)(scale * tipScale), (int)tipScale);
+					g2d.setColor(Color.LIGHT_GRAY);
 					g2d.fillOval((3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)), getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)), scale, scale);
 					g2d.drawString("(" + (Math.round(10*h.palmPosition().getX())/10f) + ", " + (Math.round(10*h.palmPosition().getY())/10f) + ")",
 							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + scale);
 
 					g2d.drawString(h.fingers().frontmost().stabilizedTipPosition().toString(),
 							(3*(getWidth() / 4)) + ((int)(h.palmPosition().getX()*scaleWindowX)) + scale + 5, getHeight() - ((int)(h.palmPosition().getY()*scaleWindowY)) + (2 * scale));
+
+
+					g2d.setColor(Color.CYAN);
+					float tipScale = (400 - (int)frontMostTip.stabilizedTipPosition().getZ()) / 30;
+					g2d.fillRect((3*(getWidth() / 4)) + ((int)(frontMostTip.stabilizedTipPosition().getX()*scaleWindowX)), getHeight() - ((int)(frontMostTip.stabilizedTipPosition().getY()*scaleWindowY)), (int)tipScale, (int)tipScale);
+
+					g2d.setColor(Color.DARK_GRAY);
+					tipScale = (400 - (int)frontMostTip.tipPosition().getZ()) / 30;
+					g2d.drawRect((3*(getWidth() / 4)) + ((int)(frontMostTip.tipPosition().getX()*scaleWindowX)), getHeight() - ((int)(frontMostTip.tipPosition().getY()*scaleWindowY)), (int)tipScale, (int)tipScale);
 
 
 					g2d.setColor(Color.GREEN);
