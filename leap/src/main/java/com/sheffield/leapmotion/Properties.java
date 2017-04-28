@@ -46,6 +46,9 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "progress", description = "Should progress be shown?", hasArgs = false, category = "Leap Motion Testing")
     public static boolean SHOW_PROGRESS = false;
 
+    @Parameter(key = "webpage", description = "Webpage containing Leap Motion app to test", category = "Web Testing")
+    public static String WEBSITE = null;
+
 
     @Parameter(key = "playbackFile", description = "File to playback (containing serialized ArrayList<com.leap.leapmotion.Frame> objects)", hasArgs = true, category = "Leap Motion Testing")
     public static String PLAYBACK_FILE = null;
@@ -206,7 +209,7 @@ public class Properties extends InstrumentationProperties {
         INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN, HELP,
 
         SAMPLE,
-        PROCESS_DATA
+        WEB, PROCESS_DATA
     }
 
     @Parameter(key = "runtype", description = "Type of run (default instrument)", hasArgs = true, category = "Common")
@@ -353,7 +356,7 @@ public class Properties extends InstrumentationProperties {
             }
 
 
-            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
+            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run" + Properties.CURRENT_RUN + ".nmDump");
 
             if (lastRunDump.exists()) {
 

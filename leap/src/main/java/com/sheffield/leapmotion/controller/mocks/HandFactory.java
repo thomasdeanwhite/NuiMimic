@@ -74,6 +74,7 @@ public class HandFactory {
 		thumb.hand = hand;
 		thumb.rotation = hand.rotation;
 		thumb.tipPosition = vectorFromStrings(offset++, info);
+		thumb.stabilizedTipPosition = vectorFromStrings(offset++, info);
 		thumb.normalize();
 		fingers[0] = thumb;
 
@@ -93,6 +94,7 @@ public class HandFactory {
 			finger.type = fingerTypes[j];
 			finger.rotation = hand.rotation;
 			finger.tipPosition = vectorFromStrings(offset++, info);
+			finger.stabilizedTipPosition = vectorFromStrings(offset++, info);
 			fingers[j + 1] = finger;
 			finger.normalize();
 		}
@@ -101,6 +103,7 @@ public class HandFactory {
 		for (Finger f : fingers) {
 			fl.addFinger(f);
 		}
+
 		hand.setFingerList(fl);
 		hand.pinchStrength = Float.parseFloat(info[offset++]);
 		hand.grabStrength = Float.parseFloat(info[offset++]);
@@ -152,6 +155,7 @@ public class HandFactory {
 		thumb.basis = hand.basis;
 		thumb.rotation = hand.rotation;
 		thumb.tipPosition = randomVector(200, -100);
+		thumb.stabilizedTipPosition = randomVector(200, -100);
 		thumb.normalize();
 		fingers[0] = thumb;
 
@@ -171,6 +175,7 @@ public class HandFactory {
 			finger.basis = hand.basis;
 			finger.rotation = hand.rotation;
 			finger.tipPosition = randomVector(200, -100);
+			finger.stabilizedTipPosition = randomVector(200, -100);
 			fingers[j + 1] = finger;
 			finger.normalize();
 		}
@@ -179,6 +184,8 @@ public class HandFactory {
 		for (Finger f : fingers) {
 			fl.addFinger(f);
 		}
+
+		hand.stabilizedPalmPosition = randomVector(200, -100);
 		hand.setFingerList(fl);
 		hand.pinchStrength = random.nextFloat();
 		hand.grabStrength = random.nextFloat();
@@ -209,10 +216,17 @@ public class HandFactory {
 			output += next.getZ() + ",";
 		}
 		Vector thumbTip = handTransform.transformPoint(thumb.tipPosition());
+		Vector thumbStabilizedTip = handTransform.transformPoint(thumb.stabilizedTipPosition());
 
 		output += thumbTip.getX() + ",";
 		output += thumbTip.getY() + ",";
 		output += thumbTip.getZ() + ",";
+
+
+		output += thumbStabilizedTip.getX() + ",";
+		output += thumbStabilizedTip.getY() + ",";
+		output += thumbStabilizedTip.getZ() + ",";
+
 		for (int j = 0; j < fingerTypes.length; j++) {
 			Finger finger = fl.fingerType(fingerTypes[j]).get(0);
 			for (int i = 0; i < fingerBoneTypes.length; i++) {
@@ -230,9 +244,16 @@ public class HandFactory {
 			Vector fingerTip = handTransform.transformPoint(finger
 					.tipPosition());
 
+			Vector fingerStabilizedTip = handTransform.transformPoint(finger
+					.stabilizedTipPosition());
+
 			output += fingerTip.getX() + ",";
 			output += fingerTip.getY() + ",";
 			output += fingerTip.getZ() + ",";
+
+			output += fingerStabilizedTip.getX() + ",";
+			output += fingerStabilizedTip.getY() + ",";
+			output += fingerStabilizedTip.getZ() + ",";
 		}
 
 		output += h.pinchStrength() + ",";
@@ -263,9 +284,16 @@ public class HandFactory {
 
 		Vector thumbTip = thumb.tipPosition();
 
+		Vector thumbStabilizedTip = thumb.stabilizedTipPosition();
+
 		output += thumbTip.getX() + ",";
 		output += thumbTip.getY() + ",";
 		output += thumbTip.getZ() + ",";
+
+
+		output += thumbStabilizedTip.getX() + ",";
+		output += thumbStabilizedTip.getY() + ",";
+		output += thumbStabilizedTip.getZ() + ",";
 
 		for (int j = 0; j < fingerTypes.length; j++) {
 			Finger finger = fl.fingerType(fingerTypes[j]).get(0);
@@ -283,9 +311,16 @@ public class HandFactory {
 
 			Vector fingerTip = finger.tipPosition();
 
+			Vector fingerStabilizedTip = finger
+					.stabilizedTipPosition();
+
 			output += fingerTip.getX() + ",";
 			output += fingerTip.getY() + ",";
 			output += fingerTip.getZ() + ",";
+
+			output += fingerStabilizedTip.getX() + ",";
+			output += fingerStabilizedTip.getY() + ",";
+			output += fingerStabilizedTip.getZ() + ",";
 		}
 
 		output += h.pinchStrength() + ",";

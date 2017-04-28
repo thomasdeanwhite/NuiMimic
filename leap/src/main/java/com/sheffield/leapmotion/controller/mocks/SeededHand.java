@@ -43,6 +43,7 @@ public class SeededHand extends Hand implements Serializable {
 
     protected int id;
     protected String uniqueId;
+    protected Vector stabilizedPalmPosition;
 
     public void setRotation(Quaternion q){
         rotation = q;
@@ -140,6 +141,15 @@ public class SeededHand extends Hand implements Serializable {
         return center;
     }
 
+
+    public ArrayList<Vector> createStabilisedTipPositionVector(ArrayList<Finger> fingers){
+        ArrayList<Vector> center = new ArrayList<Vector>();
+        for (Finger fi : fingers){
+            center.add(fi.stabilizedTipPosition());
+        }
+        return center;
+    }
+
     public ArrayList<Vector> createPrevVector(ArrayList<Finger> fingers, Bone.Type bt){
         ArrayList<Vector> center = new ArrayList<Vector>();
         for (Finger fi : fingers){
@@ -217,8 +227,11 @@ public class SeededHand extends Hand implements Serializable {
             final float lastTipNumber = (fingers.size()-1) * Properties.SWITCH_TIME;
             Vector lastTip = BezierHelper.bezier(createTipPositionVector(fingers), 0f);
             sf.tipVelocity = lastTip.divide(lastTipNumber);
-            sf.stabilizedTipPosition = sf.tipPosition;
+            //sf.stabilizedTipPosition = sf.tipPosition;
             sf.hand = h;
+
+            sf.stabilizedTipPosition = BezierHelper.bezier(createStabilisedTipPositionVector(fingers), modifier);
+
             sf.type = f.type();
             sfl.addFinger(sf);
 
@@ -517,7 +530,8 @@ public class SeededHand extends Hand implements Serializable {
     @Override
     public Vector stabilizedPalmPosition() {
         // TODO Auto-generated method stub
-        return BezierHelper.stabiliseVector(palmPosition(), palmVelocity());
+
+        return stabilizedPalmPosition;
     }
 
     @Override

@@ -101,6 +101,14 @@ public class TestHandFactoryMultipleModels {
             assertVectorEquals("Tip position does not match.", origTip,
                     newTip);
             counter += 3;
+
+
+            origTip = handTransform.transformPoint(original.fingers().fingerType(ft).get(0).stabilizedTipPosition());
+            newTip = new Vector(joints[counter], joints[counter+1],
+                    joints[counter+2]);
+            assertVectorEquals("Stabilized Tip Position does not match.", origTip,
+                    newTip);
+            counter += 3;
         }
     }
 
@@ -179,9 +187,10 @@ public class TestHandFactoryMultipleModels {
 
         Vector pos = new Vector(Float.parseFloat(vect[1]), Float.parseFloat(vect[2]), Float.parseFloat(vect[3]));
 
-        restored.setRotation(rot);
-
         restored.setOrigin(pos);
+
+
+        restored.setRotation(rot);
 
 
         for (Finger.Type ft : fingerTypes){
@@ -310,6 +319,15 @@ public class TestHandFactoryMultipleModels {
 
         assertVectorEquals("Finger Tip Position reconstruction error: " +
                         tip1 + tip2 + lastJointPosDir + tip2.minus(tip1),
+                tip1, tip2);
+
+
+        tip1 = f1.stabilizedTipPosition();
+
+        tip2 = f2.stabilizedTipPosition();
+
+        assertVectorEquals("Finger Tip Position reconstruction error: " +
+                        tip1 + tip2,
                 tip1, tip2);
     }
 

@@ -100,6 +100,13 @@ public class TestHandFactory {
             assertVectorEquals("Tip position does not match.", origTip,
                     newTip);
             counter += 3;
+
+            origTip = original.fingers().fingerType(ft).get(0).stabilizedTipPosition();
+            newTip = new Vector(joints[counter], joints[counter+1],
+                    joints[counter+2]);
+            assertVectorEquals("Stabilised tip position does not match.", origTip,
+                    newTip);
+            counter += 3;
         }
     }
 
@@ -197,13 +204,19 @@ public class TestHandFactory {
 
         Vector tip1 = f1.tipPosition();
 
-        Vector lastJointPosDir = f1.bone(Bone.Type.TYPE_DISTAL).direction();
-
         Vector tip2 = f2.tipPosition();
 
-        assertVectorEquals("Finger Tip Position reconstruction error: " +
-                        tip1 + tip2 + lastJointPosDir + tip2.minus(tip1),
+        assertVectorEquals("Finger Tip Position reconstruction error",
                 tip1, tip2);
+
+        tip1 = f1.stabilizedTipPosition();
+
+        tip2 = f2.stabilizedTipPosition();
+
+
+        assertVectorEquals("Stabilised Tip Position Reconstruction Error",
+                tip1, tip2
+        );
     }
 
     @Test

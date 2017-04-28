@@ -350,6 +350,13 @@ public class FrameHandler implements Tickable {
             if (gestureHandler == null) {
                 gestureHandler = new RandomGestureHandler();
             }
+
+
+            if (!(frameGenerator instanceof Reconstruction)) {
+                sf = (SeededFrame) finalizeFrame(sf, time);
+            }
+
+
             gl = gestureHandler
                     .handleFrame(frame, SeededController.getController());
             if (gl == null) {
@@ -359,9 +366,10 @@ public class FrameHandler implements Tickable {
 
             sf.setGestures(gl);
 
-            //sf.interactionBox();
 
-            frame = finalizeFrame(sf, time);
+            frame = sf;
+
+            //sf.interactionBox();
         }
         if (frames.contains(frame)) {
             return;
@@ -456,9 +464,9 @@ public class FrameHandler implements Tickable {
         for (Finger f : fl) {
             Frame firstFrame = frames.get(increment);
 
-            Vector firstTip = f.tipPosition();
-            Vector secondTip = firstFrame.fingers().fingerType(f.type()).get(0)
-                    .tipPosition();
+            Vector firstTip = ((SeededFinger)f).rawTipPosition();
+            Vector secondTip = ((SeededFinger)firstFrame.fingers().fingerType(f.type()).get(0))
+                    .rawTipPosition();
 
             Vector tipMovement = firstTip.minus(secondTip);
 
@@ -470,48 +478,81 @@ public class FrameHandler implements Tickable {
                     frames.get(increment).fingers().fingerType(f.type()).get(0).tipVelocity()
             );
 
+            Vector stabilizedTip = firstTip;
 
+
+            Vector stabilisedThreshold = new Vector(10f, 10f, 10f);
+            Vector totalChange = new Vector(Math.abs(tipMovement.getX()),
+                            Math.abs(tipMovement.getY()),
+                            Math.abs(tipMovement.getZ()));
 
             int counter = 0;
             for (int i = increment; i < count; i += increment) {
-                Finger f1 =
-                        frames.get(i).fingers().fingerType(f.type()).get(0);
 
-                tips.add(f1.tipPosition());
+                SeededFinger f1 =
+                        (SeededFinger) frames.get(i).fingers().fingerType(f.type()).get(0);
 
-                Finger f2 = frames.get(i + increment).fingers().fingerType(f.type())
+                tips.add(f1.rawTipPosition());
+
+                SeededFinger f2 = (SeededFinger) frames.get(i + increment).fingers().fingerType(f.type())
                         .get(0);
-                tipMovement = tipMovement
-                        .plus(f1.tipPosition().minus(f2.tipPosition()));
 
-                stabTipMovement = stabTipMovement.plus(f1.tipVelocity());
+                Vector tipChange = f1.rawTipPosition().minus(f2.rawTipPosition());
+
+                totalChange = totalChange.plus(new Vector(
+                        Math.abs(tipChange.getX()),
+                        Math.abs(tipChange.getY()),
+                        Math.abs(tipChange.getZ())
+                ));
+
+                tipMovement = tipMovement
+                        .plus(tipChange);
+
+                if (stabilisedThreshold.getX() < totalChange.getX()){
+                    stabilizedTip.setX(f1.rawTipPosition().getX());
+                    stabilisedThreshold.setX(Float.MAX_VALUE);
+                }
+
+                if (stabilisedThreshold.getY() < totalChange.getY()){
+                    stabilizedTip.setY(f1.rawTipPosition().getY());
+                    stabilisedThreshold.setY(Float.MAX_VALUE);
+                }
+
+                if (stabilisedThreshold.getZ() < totalChange.getZ()){
+                    stabilizedTip.setZ(f1.rawTipPosition().getZ());
+                    stabilisedThreshold.setZ(Float.MAX_VALUE);
+                }
+
 
                 counter++;
 
             }
 
-            stabTipMovement = stabTipMovement.divide(counter);
-
             ((SeededFinger) f).setTipVelocity(tipMovement);
 
 
 
-            float mod = 1f;
-            float magSqr = stabTipMovement.magnitudeSquared();
-            float mag = (float) Math.pow(magSqr/2000f, 10);
-            if (mag > 0){
-                mod = Math.min(1f, Math.max(0, (512-mag)/1024));
-            }
+//            float mod = 1f;
+//            float magSqr = stabTipMovement.magnitudeSquared();
+//            float mag = (float) Math.pow(magSqr/2000f, 10);
+//            if (mag > 0){
+//                mod = Math.min(1f, Math.max(0, (512-mag)/1024));
+//            }
+//
+//            int frameNum = (int)(mod * counter) + 1;
+//
+//            if (frameNum <= minimumFrame){
+//                minimumFrame = frameNum;
+//            } else {
+//                mod = frameNum / (float)counter;
+//            }
+//
+//            ((SeededFinger) f).setStabilizedTipPosition(BezierHelper.bezier(tips, mod));
+            ((SeededFinger) f).setStabilizedTipPosition(stabilizedTip);
 
-            int frameNum = (int)(mod * counter) + 1;
 
-            if (frameNum <= minimumFrame){
-                minimumFrame = frameNum;
-            } else {
-                mod = frameNum / (float)counter;
-            }
+            ((SeededFinger) f).normalize();
 
-            ((SeededFinger) f).setStabilizedTipPosition(BezierHelper.bezier(tips, mod));
         }
 
         Vector palmVelocity = frame.hand(0).palmPosition().minus(frames.get(increment).hand(0).palmPosition());

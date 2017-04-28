@@ -423,6 +423,10 @@ public class App implements ThrowableListener, Tickable {
                 case SAMPLE:
                     run = new SamplingRunType();
                     break;
+                case WEB:
+                    App.getApp().setup(false);
+                    run = new WebTestingRunType();
+                    break;
                 default:
                     App.out.println("Unimplemented MILLIS");
                     return;
@@ -789,7 +793,7 @@ public class App implements ThrowableListener, Tickable {
             }
 
 
-            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
+            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run" + Properties.CURRENT_RUN + ".nmDump");
 
             if (status() != AppStatus.FINISHED) { // still running so dump stuff!
 

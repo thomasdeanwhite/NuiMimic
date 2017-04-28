@@ -82,8 +82,8 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	public static SeededController getSeededController(boolean setupForTesting) {
 
-		if (!Properties.FRAME_SELECTION_STRATEGY.equals(Properties.FrameSelectionStrategy.EMPTY)){
-			Properties.RECORDING = false;
+		if (Properties.RECORDING){
+			Properties.FRAME_SELECTION_STRATEGY = Properties.FrameSelectionStrategy.EMPTY;
 		}
 
 		while (initializing){

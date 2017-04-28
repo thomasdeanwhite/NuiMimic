@@ -30,7 +30,8 @@ public class SeededFinger extends Finger implements Serializable {
 	protected int timeVisible;
 	protected Vector tipVelocity = Vector.zero();
 	protected Vector tipPosition;
-	protected Vector stabilizedTipPosition = Vector.zero();
+    protected Vector stabilizedTipPosition = Vector.zero();
+    protected Vector nStabilizedTipPosition = Vector.zero();
 	protected float touchDistance;
 	protected Zone touchZone;
 	protected float width;
@@ -120,6 +121,13 @@ public class SeededFinger extends Finger implements Serializable {
 		touchZone = touchDistance == 0 ? Zone.ZONE_HOVERING
 				: touchDistance < 0 ? Zone.ZONE_TOUCHING :
 				Zone.ZONE_NONE;
+
+
+		if (!Properties.SINGLE_DATA_POOL){
+			nStabilizedTipPosition = offset.plus(rotation.rotateVector(stabilizedTipPosition));
+		} else {
+		    nStabilizedTipPosition = stabilizedTipPosition;
+        }
 	}
 
 	@Override
@@ -207,7 +215,7 @@ public class SeededFinger extends Finger implements Serializable {
 		// TODO Auto-generated method stub
 		//App.out.println("tip: " + tipPosition);
 		//return BezierHelper.stabiliseVector(tipPosition(), tipVelocity());
-		return stabilizedTipPosition;
+		return nStabilizedTipPosition;
 	}
 
 	public void setStabilizedTipPosition(Vector v) {
@@ -228,6 +236,18 @@ public class SeededFinger extends Finger implements Serializable {
 	public Vector tipPosition() {
 		// TODO Auto-generated method stub
 		return Properties.SINGLE_DATA_POOL ? tipPosition : offset.plus(rotation.rotateVector(tipPosition));
+	}
+
+
+	public Vector rawTipPosition() {
+		// TODO Auto-generated method stub
+		return tipPosition;
+	}
+
+
+	public Vector rawStabilizedTipPosition() {
+		// TODO Auto-generated method stub
+		return tipPosition;
 	}
 
 	@Override
