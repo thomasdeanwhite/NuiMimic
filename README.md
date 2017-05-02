@@ -40,8 +40,7 @@ There are various steps to using NuiMimic:
 - Tmin:[arg]  _Min value to tune (inclusive)_
 - Tmax:[arg]  _Max value to tune (exclusive)_
 - Tparameter:[arg]  _Parameter to tune_
-</p>
-</details>
+  </p></details>
 
 ## Data Interpolation
 - switchTime:[arg]  _Time for interpolation between frames_
