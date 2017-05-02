@@ -44,7 +44,7 @@ There are various steps to using NuiMimic:
 | bezierPoints:[arg]  | _Amount of points to use for Bezier Interpolation_ |
 | **Leap Motion Sampling** |  |
 | processPlayback  | _Should frames be processed during playback?_ |
-| processScreenshots  | _Should screenshots be taken during playback?_ |
+| processScreenshots  | _Should screenshots be processed  during playback?_ |
 | singleDataPool  | _Should a single data pool be used to reconstruct hands?_ |
 | **Instrumentation** |  |
 | untrackedPackages:[arg]  | _Packages to not be tracked when outputting lines and branches (comma separated)_ |
