@@ -35,18 +35,18 @@ There are various steps to using NuiMimic:
 # Runtime Options
 | Key | Description |
 | --- | --- |
-| # Parameter Tuning # |  |
+| **Parameter Tuning** |  |
 | Tmin:[arg]  | _Min value to tune (inclusive)_ |
 | Tmax:[arg]  | _Max value to tune (exclusive)_ |
 | Tparameter:[arg]  | _Parameter to tune_ |
-| # Data Interpolation # |  |
+| **Data Interpolation** |  |
 | switchTime:[arg]  | _Time for interpolation between frames_ |
 | bezierPoints:[arg]  | _Amount of points to use for Bezier Interpolation_ |
-| # Leap Motion Sampling # |  |
+| **Leap Motion Sampling** |  |
 | processPlayback  | _Should frames be processed during playback?_ |
 | processScreenshots  | _Should screenshots be taken during playback?_ |
 | singleDataPool  | _Should a single data pool be used to reconstruct hands?_ |
-| # Instrumentation # |  |
+| **Instrumentation** |  |
 | untrackedPackages:[arg]  | _Packages to not be tracked when outputting lines and branches (comma separated)_ |
 | sliceRoot:[arg]  | _Root for static slice through system_ |
 | log_filename:[arg]  | _Select the file name for the log file. Files are divided into folders for coverage etc_ |
@@ -59,22 +59,22 @@ There are various steps to using NuiMimic:
 | log_timings:[arg]  | _set whether application timings should be written to a log file_ |
 | use_changed_flag:[arg]  | _It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data_ |
 | track_active_testcase:[arg]  | _When collecting coverage information, it is possible to include information about which test case covered each line. If this argument is true, use ClassAnalyzer.setActiveTest(TestCase), and then each line/branch object will have a list of test cases that cover it, accessed by CoverableGoal.getCoveringTests_ |
-| # Experiments # |  |
+| **Experiments** |  |
 | currentRun:[arg]  | _Can be used for experiments to output the current run (-1 will set to system runtime)_ |
-| # Common # |  |
+| **Common** |  |
 | runtype:[arg]  | _Type of run (default instrument)_ |
-| # State Recognition # |  |
+| **State Recognition** |  |
 | histogramBins:[arg]  | _Amount of bins to sort pixels into for histogram comparison during generation guidence_ |
 | histogramThreshold:[arg]  | _Difference required for two histograms to be considered unique states during generation guidence_ |
 | screenshotCompression:[arg]  | _Order of magnitude to compress screenshots_ |
-| # Output # |  |
+| **Output** |  |
 | outputDir:[arg]  | _Directory for Output (default NuiMimic)_ |
 | outputNullValue:[arg]  | _Output Value of Null Values ("NONE" by default)_ |
 | outputExcludes:[arg]  | _Output options to exclude when logging_ |
 | outputIncludes:[arg]  | _Output options to include when logging_ |
-| # Data Processing # |  |
+| **Data Processing** |  |
 | clusters:[arg]  | _Amount of clusters to use for data processing_ |
-| # Leap Motion Testing # |  |
+| **Leap Motion Testing** |  |
 | dataPoolDirectory:[arg]  | _Directory containing data pool_ |
 | remainingBudget:[arg]  | _Remaining Budget after resuming from system halt_ |
 | singleThread  | _Should frames be seeded on same thread as generation occurs?_ |
@@ -92,16 +92,16 @@ There are various steps to using NuiMimic:
 | jitter:[arg]  | _Random amount to move all joints per frame_ |
 | skipDependencyTree  | _Skip building dependency tree_ |
 | dependencyTreeOverride  | _Use to always build a fresh dependency tree_ |
-| # Oracle # |  |
+| **Oracle** |  |
 | ThistogramThreshold:[arg]  | _Difference required for two histograms to be considered unique states for oracle_ |
 | ThistogramBins:[arg]  | _Amount of bins to sort pixels into for histogram comparison for oracle_ |
-| # Web Testing # |  |
+| **Web Testing** |  |
 | webpage:[arg]  | _Webpage containing Leap Motion app to test_ |
-| # Leap Motion Gestures # |  |
+| **Leap Motion Gestures** |  |
 | gestureCircleMinRadius:[arg]  | _Minimum radius a circle gesture can be_ |
 | gestureCircleCentreFrames:[arg]  | _Number of previous frames used to calculated a circle gesture._ |
 | gestureTimeLimit:[arg]  | _Duration to seed gestures for_ |
-| # Leap Motion Instrumentation # |  |
+| **Leap Motion Instrumentation** |  |
 | jar:[arg]  | _Jar to instrument_ |
 | excludedPackages:[arg]  | _Additional packages to exclude from instrumentation_ |
 | forbiddenPackages:[arg]  | _Override packages to exclude from instrumentation_ |
@@ -110,8 +110,3 @@ There are various steps to using NuiMimic:
 | recording  | _Records Leap Motion data to storage_ |
 | controllerSuperClass  | _The Controller class is extended instead of instantiated_ |
 | frameSelectionStrategy:[arg]  | _Strategy for Frame Selection_ |
-
-
-
-
-
