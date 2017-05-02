@@ -17,6 +17,7 @@ public class FrameSeedingRunnableQueue implements Runnable {
             ConcurrentLinkedQueue<FrameSeedingRunnable>();
     private boolean running;
     private long startTime = -1;
+    private long maxTime = 0;
 
     private int discardedFrames = 0;
 
@@ -108,6 +109,10 @@ public class FrameSeedingRunnableQueue implements Runnable {
 
         frameSeeding.offer(r);
 
+        if (r.getSeedTime() > maxTime){
+            maxTime = r.getSeedTime();
+        }
+
         if (!running){
             start();
         }
@@ -119,5 +124,9 @@ public class FrameSeedingRunnableQueue implements Runnable {
 
     public int discardedFrames(){
         return discardedFrames;
+    }
+
+    public long lastTimestamp(){
+        return maxTime;
     }
 }

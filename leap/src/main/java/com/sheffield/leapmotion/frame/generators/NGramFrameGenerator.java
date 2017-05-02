@@ -224,6 +224,8 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
         this.positions = positions;
         this.rotations = rotations;
 
+        Properties.CLUSTERS = this.joints.size();
+
         this.jointNgram = jointNgram;
         this.jointNgram.calculateProbabilities();
 
@@ -249,7 +251,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
     @Override
     public Frame newFrame() {
         Frame f = SeededController.newFrame();
-        Hand newHand = lastHand;
+        Hand newHand = lastHand.copy();
         f = HandFactory.injectHandIntoFrame(f, newHand);
 
         return f;
@@ -267,8 +269,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
             h = hand;
         }
         if (h instanceof SeededHand) {
-            //float modifier = Math.min(1f, currentAnimationTime / (float)
-            //		Properties.SWITCH_TIME);
+
             SeededHand sh = (SeededHand) h;
 
             Quaternion q = lastRotation;
@@ -299,84 +300,6 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
         nggh.tick(time);
 
-
-//        if (currentAnimationTime >= Properties.SWITCH_TIME) {
-//            // load next frame
-//            currentAnimationTime = 0;
-//            lastHand = seededHands.get(seededHands.size() - 1);
-//            lastLabel = seededLabels.get(seededLabels.size() - 1);
-//            String handValue = "";
-//
-//            for (int i = 0; i < seededLabels.size(); i++) {
-//                handValue += seededLabels.get(i) + NGramModel.DELIMITER;
-//            }
-//
-//            seededHands.clear();
-//            seededLabels.clear();
-//
-//            NGramLog ngLog = new NGramLog();
-//            ngLog.element = handValue;
-//            ngLog.timeSeeded = (int) (time - lastSwitchTime);
-//            logs.add(ngLog);
-//            if (outputFile != null) {
-//                try {
-//                    FileHandler.appendToFile(outputFile, ngLog.toString());
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace(App.out);
-//                }
-//            }
-//
-//            NGramLog posLog = new NGramLog();
-//            posLog.element = "";
-//
-//            for (String s : positionLabels) {
-//                posLog.element += s + NGramModel.DELIMITER;
-//            }
-//
-//            posLog.timeSeeded = (int) (time - lastSwitchTime);
-//
-//            NGramLog rotLog = new NGramLog();
-//            rotLog.element = "";
-//
-//            for (String s : rotationLabels) {
-//                rotLog.element += s + NGramModel.DELIMITER;
-//            }
-//
-//            rotLog.timeSeeded = posLog.timeSeeded;
-//            if (outputPosFile != null) {
-//                try {
-//                    FileHandler.appendToFile(outputPosFile, posLog.toString());
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace(App.out);
-//                }
-//            }
-//
-//            if (outputRotFile != null) {
-//                try {
-//                    FileHandler.appendToFile(outputRotFile, rotLog.toString());
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace(App.out);
-//                }
-//            }
-//
-//            lastPosition = seededPositions.get(seededPositions.size() - 1);
-//            lastPositionLabel = positionLabels.get(positionLabels.size() - 1);
-//            lastRotation = seededRotations.get(seededRotations.size() - 1);
-//            lastRotationLabel = rotationLabels.get(rotationLabels.size() - 1);
-//
-//            seededPositions.clear();
-//            seededRotations.clear();
-//            positionLabels.clear();
-//            rotationLabels.clear();
-//            fillLists();
-//            lastSwitchTime = time;
-//        } else {
-//            currentAnimationTime = (int) (time - lastSwitchTime);
-//        }
-
     }
 
     private String currentSequence = "";
@@ -406,52 +329,6 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
         nextSequenceRotation();
         lastRotationLabel = getLastLabel(currentSequenceRotation);
         lastRotation = rotations.get(lastRotationLabel);
-
-
-//		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-//			if (seededPositions.contains(lastPosition)){
-//				Vector position = null;
-//				String pLabel = null;
-//				while (position == null){
-//
-//					nextSequencePosition();
-//					pLabel = getLastLabel(currentSequencePosition);
-//
-//					if (pLabel != null){
-//						position = positions.get(pLabel);
-//						if (position != null) {
-//							positionLabels.add(pLabel);
-//							seededPositions.add(position);
-//						}
-//					}
-//				}
-//			} else {
-//				seededPositions.add(0, lastPosition);
-//				positionLabels.add(0, lastPositionLabel);
-//			}
-//		}
-//
-//		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-//			if (seededRotations.contains(lastRotation)){
-//				Quaternion rotation = null;
-//				String rLabel = null;
-//				while (rotation == null){
-//					nextSequenceRotation();
-//					rLabel = getLastLabel(currentSequenceRotation);
-//
-//					if (rLabel != null){
-//						rotation = rotations.get(rLabel);
-//						if (rotation != null) {
-//							rotationLabels.add(rLabel);
-//							seededRotations.add(rotation);
-//						}
-//					}
-//				}
-//			} else {
-//				seededRotations.add(0, lastRotation);
-//				rotationLabels.add(0, lastRotationLabel);
-//			}
-//		}
     }
 
     public void nextSequenceJoints() {

@@ -51,13 +51,65 @@ public class SeededHand extends Hand implements Serializable {
         Vector[] vs = q.toMatrix(true);
         setBasis(vs[0], vs[1], vs[2]);
 
-        for (Finger f : fingerList) {
-            if (f instanceof SeededFinger) {
-                SeededFinger sf = (SeededFinger) f;
-                sf.rotation = rotation;
-                sf.normalize();
+        setPalmNormal(q.rotateVector(Vector.yAxis().opposite()));
+
+
+        if (!Properties.SINGLE_DATA_POOL) {
+
+            for (Finger f : fingerList) {
+                if (f instanceof SeededFinger) {
+                    SeededFinger sf = (SeededFinger) f;
+                    sf.rotation = rotation;
+                    sf.normalize();
+                }
             }
         }
+    }
+
+    public SeededHand copy(){
+        SeededHand h = new SeededHand();
+        h.basis = basis;
+        h.direction = direction;
+        h.frame = frame;
+        h.palmNormal = palmNormal;
+        h.palmPosition = palmPosition;
+        h.palmVelocity = palmVelocity;
+        h.palmWidth = palmWidth;
+        h.timeVisible = timeVisible;
+        h.isLeft = isLeft;
+        h.id = id;
+        h.uniqueId = uniqueId;
+        SeededFingerList sfl = new SeededFingerList();
+        for (Finger f : fingerList) {
+            SeededFinger sf = new SeededFinger();
+            SeededFinger of = ((SeededFinger)f);
+            for (Bone.Type bt : Bone.Type.values()) {
+                SeededBone sb = new SeededBone();
+                Bone rb = f.bone(bt);
+                SeededBone b = (SeededBone) rb;
+
+                sb.type = bt;
+                sb.basis = b.basis;
+                sb.center = b.center;
+                sb.length = b.length();
+                sb.nextJoint = b.nextJoint;
+                sb.prevJoint = b.prevJoint;
+                sb.rotation = b.rotation;
+                sb.width = b.width();
+                sf.bones.put(bt, sb);
+            }
+            sf.rotation = of.rotation;
+            sf.type = of.type;
+            sf.tipPosition = of.tipPosition;
+            sf.tipVelocity = of.tipVelocity;
+            sf.hand = h;
+            sf.stabilizedTipPosition = of.stabilizedTipPosition;
+            sf.tipPosition = of.tipPosition;
+            sf.normalize();
+            sfl.addFinger(sf);
+        }
+        h.fingerList = sfl;
+        return h;
     }
 
     public Hand fadeHand(SeededHand hand, float modifier) {

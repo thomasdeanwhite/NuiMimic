@@ -32,7 +32,7 @@ public class SeededFrame extends Frame implements Serializable {
 	protected SeededHandList handList;
 	protected SeededPointableList pointables;
 	protected SeededFingerList fingerList;
-	protected long id;
+	protected long id = -1;
 	protected boolean valid = true;
 
 

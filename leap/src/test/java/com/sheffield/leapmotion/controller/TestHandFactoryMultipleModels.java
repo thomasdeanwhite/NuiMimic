@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static com.sheffield.leapmotion.TestUtils.*;
 
 /**
  * Created by thomas on 10/03/17.
@@ -283,52 +284,6 @@ public class TestHandFactoryMultipleModels {
 
         assertVectorEquals("Position is incorrect.", original.palmPosition(), pos);
 
-    }
-
-    public void assertVectorEquals(String error, Vector v1, Vector v2){
-        assertEquals(error, v1.getX(), v2.getX(), 0.0001f);
-        assertEquals(error, v1.getY(), v2.getY(), 0.0001f);
-        assertEquals(error, v1.getZ(), v2.getZ(), 0.0001f);
-    }
-
-    public void assertFingerEquals(Finger f1, Finger f2){
-        for (Bone.Type bt : fingerBoneTypes){
-
-            String error = f1.type() + ":" + bt + " is incorrectly reconstructed!";
-
-            assertVectorEquals(error, f1.bone(bt).nextJoint(),
-                    f2.bone(bt).nextJoint());
-
-            assertVectorEquals(error, f1.bone(bt).prevJoint(),
-                    f2.bone(bt).prevJoint());
-
-            assertVectorEquals(error, f1.bone(bt).direction(),
-                    f2.bone(bt).direction());
-
-
-            assertVectorEquals(error, f1.bone(bt).center(),
-                    f2.bone(bt).center());
-
-        }
-
-        Vector tip1 = f1.tipPosition();
-
-        Vector lastJointPosDir = f1.bone(Bone.Type.TYPE_DISTAL).direction();
-
-        Vector tip2 = f2.tipPosition();
-
-        assertVectorEquals("Finger Tip Position reconstruction error: " +
-                        tip1 + tip2 + lastJointPosDir + tip2.minus(tip1),
-                tip1, tip2);
-
-
-        tip1 = f1.stabilizedTipPosition();
-
-        tip2 = f2.stabilizedTipPosition();
-
-        assertVectorEquals("Finger Tip Position reconstruction error: " +
-                        tip1 + tip2,
-                tip1, tip2);
     }
 
 }

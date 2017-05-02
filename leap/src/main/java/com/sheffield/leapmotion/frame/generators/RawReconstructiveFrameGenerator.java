@@ -66,87 +66,87 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
 
     public RawReconstructiveFrameGenerator(String filename) throws IOException {
-            tpgh = new ReconstructiveGestureHandler(filename);
-            App.out.println("* Setting up Raw Reconstruction");
-            lastSwitchTime = 0;
-            currentAnimationTime = 0;
-            handLabelStack = new ArrayList<String>();
+        tpgh = new ReconstructiveGestureHandler(filename);
+        App.out.println("* Setting up Raw Reconstruction");
+        lastSwitchTime = 0;
+        currentAnimationTime = 0;
+        handLabelStack = new ArrayList<String>();
 
-            handLabelStack.add(0, null);
+        handLabelStack.add(0, null);
 
-            String clusterFile = Properties.DIRECTORY + "/" + filename + "/" +
-                    (Properties.SINGLE_DATA_POOL ? "hand_joints_pool.ARFF" :
-                            "joint_positions_pool.ARFF");
-            hands = new HashMap<String, SeededHand>();
+        String clusterFile = Properties.DIRECTORY + "/" + filename + "/" +
+                (Properties.SINGLE_DATA_POOL ? "hand_joints_pool.ARFF" :
+                        "joint_positions_pool.ARFF");
+        hands = new HashMap<String, SeededHand>();
 
-            currentLabel = 0;
+        currentLabel = 0;
 
-            String contents = FileHandler.readFile(new File(clusterFile));
-            String[] lines = contents.split("\n");
+        String contents = FileHandler.readFile(new File(clusterFile));
+        String[] lines = contents.split("\n");
 
-            boolean data = false;
+        boolean data = false;
 
-            App.out.println(ProgressBar.getHeaderBar(21));
+        App.out.println(ProgressBar.getHeaderBar(21));
 
-            int counter = 0;
+        int counter = 0;
 
-            for (String line : lines) {
-                float progress = counter++ / (float) (lines.length-1);
-                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[1 of 4]");
-                }
-
-                if (data && line.trim().length() > 0) {
-                    Frame f = SeededController.newFrame();
-                    SeededHand hand = HandFactory.createHand(line, f);
-
-                    hands.put(hand.getUniqueId(), hand);
-
-                    HandFactory.injectHandIntoFrame(f, hand);
-                } else {
-                    if (line.contains("@DATA")) {
-                        data = true;
-                    }
-                }
-
+        for (String line : lines) {
+            float progress = counter++ / (float) (lines.length - 1);
+            if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[1 of 4]");
             }
 
-            String sequenceFile =
-                    Properties.DIRECTORY + "/" + filename + "/processed/" +
-                            (Properties.SINGLE_DATA_POOL ?
-                                    "hand_joints.raw_sequence" :
-                                    "joint_position.raw_sequence");
-            String sequenceInfo = FileHandler.readFile(new File(sequenceFile));
+            if (data && line.trim().length() > 0) {
+                Frame f = SeededController.newFrame();
+                SeededHand hand = HandFactory.createHand(line, f);
 
-            timings = new ArrayList<Long>();
-            //final ArrayList<Long> timings = new ArrayList<Long>();
+                hands.put(hand.getUniqueId(), hand);
 
-            String[] tim = sequenceInfo.split("\n")[1].split(",");
-
-            counter = 0;
-
-            for (String s : tim) {
-                float progress = counter++ / (float) (tim.length-1);
-                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[2 of 4]");
-                }
-                if (s.length() > 0) {
-                    // x / 1000 microsec to millisec
-                    timings.add(Long.parseLong(s.split("@")[0]));
-                    handLabelStack.add(s);
+                HandFactory.injectHandIntoFrame(f, hand);
+            } else {
+                if (line.contains("@DATA")) {
+                    data = true;
                 }
             }
 
-            final ArrayList<Integer> indices = new ArrayList<Integer>();
+        }
 
-            for (int i = 0; i < timings.size(); i++) {
-                indices.add(i);
+        String sequenceFile =
+                Properties.DIRECTORY + "/" + filename + "/processed/" +
+                        (Properties.SINGLE_DATA_POOL ?
+                                "hand_joints.raw_sequence" :
+                                "joint_position.raw_sequence");
+        String sequenceInfo = FileHandler.readFile(new File(sequenceFile));
+
+        timings = new ArrayList<Long>();
+        //final ArrayList<Long> timings = new ArrayList<Long>();
+
+        String[] tim = sequenceInfo.split("\n")[1].split(",");
+
+        counter = 0;
+
+        for (String s : tim) {
+            float progress = counter++ / (float) (tim.length - 1);
+            if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[2 of 4]");
             }
+            if (s.length() > 0) {
+                // x / 1000 microsec to millisec
+                timings.add(Long.parseLong(s.split("@")[0]));
+                handLabelStack.add(s);
+            }
+        }
 
-            final ArrayList<Long> tims = timings;
+        final ArrayList<Integer> indices = new ArrayList<Integer>();
 
-            //This will sort the indices array so other lists can be
-            // reordered using the indices
+        for (int i = 0; i < timings.size(); i++) {
+            indices.add(i);
+        }
+
+        final ArrayList<Long> tims = timings;
+
+        //This will sort the indices array so other lists can be
+        // reordered using the indices
 //            indices.sort(new Comparator<Integer>() {
 //                @Override
 //                public int compare(Integer o1, Integer o2) {
@@ -158,88 +158,88 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 //
 //            handLabelStack.sort(new ListComparator<String>(indices));
 
-            long first = tims.get(indices.get(0));
+        long first = tims.get(indices.get(0));
 
-            for (int i = timings.size() - 2; i >= 0; i--) {
-                long l = timings.get(i);
-                long l1 = timings.get(i + 1);
-                if (l > l1) {
-                    throw new IllegalArgumentException(
-                            "Timings must increase chronologically");
-                } else {
-                    long m = timings.remove(i + 1);
-                    timings.add(i + 1, (m - first) / 1000);
+        for (int i = timings.size() - 2; i >= 0; i--) {
+            long l = timings.get(i);
+            long l1 = timings.get(i + 1);
+            if (l > l1) {
+                throw new IllegalArgumentException(
+                        "Timings must increase chronologically");
+            } else {
+                long m = timings.remove(i + 1);
+                timings.add(i + 1, (m - first) / 1000);
+            }
+        }
+
+
+        timings.remove(0);
+        timings.add(0, 0L);
+
+        String positionFile = Properties.DIRECTORY + "/" + filename +
+                "/hand_positions_pool.ARFF";
+        contents = FileHandler.readFile(new File(positionFile));
+        lines = contents.split("\n");
+        vectors = new HashMap<String, Vector>();
+
+        data = false;
+
+        counter = 0;
+
+        for (String line : lines) {
+            float progress = counter++ / (float) (lines.length - 1);
+            if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[3 of 4]");
+            }
+            if (data && line.trim().length() > 0) {
+                Vector v = new Vector();
+                String[] vect = line.split(",");
+                v.setX(Float.parseFloat(vect[1]));
+                v.setY(Float.parseFloat(vect[2]));
+                v.setZ(Float.parseFloat(vect[3]));
+
+                vectors.put(vect[0], v);
+            } else {
+                if (line.contains("@DATA")) {
+                    data = true;
                 }
             }
 
+        }
 
-            timings.remove(0);
-            timings.add(0, 0L);
+        String rotationFile = Properties.DIRECTORY + "/" + filename +
+                "/hand_rotations_pool.ARFF";
+        contents = FileHandler.readFile(new File(rotationFile));
+        lines = contents.split("\n");
+        rotations = new HashMap<String, Quaternion>();
 
-            String positionFile = Properties.DIRECTORY + "/" + filename +
-                    "/hand_positions_pool.ARFF";
-            contents = FileHandler.readFile(new File(positionFile));
-            lines = contents.split("\n");
-            vectors = new HashMap<String, Vector>();
+        data = false;
 
-            data = false;
+        counter = 0;
 
-            counter = 0;
-
-            for (String line : lines) {
-                float progress = counter++ / (float) (lines.length-1);
-                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[3 of 4]");
-                }
-                if (data && line.trim().length() > 0) {
-                    Vector v = new Vector();
-                    String[] vect = line.split(",");
-                    v.setX(Float.parseFloat(vect[1]));
-                    v.setY(Float.parseFloat(vect[2]));
-                    v.setZ(Float.parseFloat(vect[3]));
-
-                    vectors.put(vect[0], v);
-                } else {
-                    if (line.contains("@DATA")) {
-                        data = true;
-                    }
-                }
-
+        for (String line : lines) {
+            float progress = counter++ / (float) (lines.length - 1);
+            if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
+                App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[4 of 4]");
             }
 
-            String rotationFile = Properties.DIRECTORY + "/" + filename +
-                    "/hand_rotations_pool.ARFF";
-            contents = FileHandler.readFile(new File(rotationFile));
-            lines = contents.split("\n");
-            rotations = new HashMap<String, Quaternion>();
+            if (data && line.trim().length() > 0) {
+                String[] vect = line.split(",");
+                Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
+                        Float.parseFloat(vect[2]),
+                        Float.parseFloat(vect[3]),
+                        Float.parseFloat(vect[4])).normalise();
 
-            data = false;
-
-            counter = 0;
-
-            for (String line : lines) {
-                float progress = counter++ / (float) (lines.length-1);
-                if (Properties.SHOW_PROGRESS || (int) (progress * 100000f) % 25000 == 0) {
-                    App.out.print("\r" + ProgressBar.getProgressBar(21, progress) + "[4 of 4]");
+                rotations.put(vect[0], q);
+            } else {
+                if (line.contains("@DATA")) {
+                    data = true;
                 }
-
-                if (data && line.trim().length() > 0) {
-                    String[] vect = line.split(",");
-                    Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
-                            Float.parseFloat(vect[2]),
-                            Float.parseFloat(vect[3]),
-                            Float.parseFloat(vect[4])).normalise();
-
-                    rotations.put(vect[0], q);
-                } else {
-                    if (line.contains("@DATA")) {
-                        data = true;
-                    }
-                }
-
             }
 
-            App.out.println(" done!");
+        }
+
+        App.out.println(" done!");
     }
 
     private class ListComparator<T> implements Comparator<T> {
@@ -302,7 +302,7 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
         if (currentHand != null) {
             f = (SeededFrame) currentHand.frame();
             f.setId(currentHand.id());
-            long seedTime = timings.get(currentHandIndex)*1000;
+            long seedTime = timings.get(currentHandIndex) * 1000;
             f.setTimestamp(seedTime);
         }
 
@@ -348,67 +348,44 @@ public class RawReconstructiveFrameGenerator extends FrameGenerator
 
         seededTime = time - startSeededTime;
 
-        long frameTime = timings.get(currentHandIndex);
 
         if (currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES >=
                 timings.size() || currentHandIndex >= timings.size()) {
-//            App.getApp().setStatus(AppStatus.FINISHED);
+
             return;
         }
 
-//
-//        if (seededTime > frameTime) {
 
-            lastSwitchTime = seededTime - Properties.SWITCH_TIME;
+        lastSwitchTime = seededTime - Properties.SWITCH_TIME;
 
-            currentHand = null;
-            currentPosition = null;
-            currentRotation = null;
+        currentHand = null;
+        currentPosition = null;
+        currentRotation = null;
 
+        String currentHand = null;
+        String currentPosition = null;
+        String currentRotation = null;
 
-            int skippedHands = 0;
-            long newFrameTime = timings.get(currentHandIndex);
+        if (handLabelStack.size() > 0) {
+            currentHand = handLabelStack.get(currentHandIndex);
+            currentPosition = handLabelStack.get
+                    (currentHandIndex);
+            currentRotation = handLabelStack.get
+                    (currentHandIndex);
+        }
 
-//            while (newFrameTime <= seededTime) {
-//                newFrameTime = timings.get(currentHandIndex + skippedHands);
-//                skippedHands++;
-//            }
-//
-//            if (skippedHands != 0) {
-//                currentHandIndex += (skippedHands - 1);
-//            }
-//
-//            discardedHands += skippedHands;
-//
-//            frameTime = timings.get(currentHandIndex);
-
-            String currentHand = null;
-            String currentPosition = null;
-            String currentRotation = null;
-
-            if (handLabelStack.size() > 0) {
-                currentHand = handLabelStack.get(currentHandIndex);
-                currentPosition = handLabelStack.get
-                        (currentHandIndex);
-                currentRotation = handLabelStack.get
-                        (currentHandIndex);
-
-                frameTime = timings.get(currentHandIndex);
-            }
-
-            tpgh.changeGesture(
-                    currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES);
+        tpgh.changeGesture(
+                currentHandIndex + Properties.GESTURE_CIRCLE_FRAMES);
 
 
-            assert (hands.get(currentHand) == null ||
-                    vectors.get(currentPosition) == null ||
-                    rotations.get(currentRotation) == null);
+        assert (hands.get(currentHand) == null ||
+                vectors.get(currentPosition) == null ||
+                rotations.get(currentRotation) == null);
 
-            this.currentHand = hands.get(currentHand);
-            this.currentPosition = vectors.get(currentPosition);
+        this.currentHand = hands.get(currentHand);
+        this.currentPosition = vectors.get(currentPosition);
 
-            this.currentRotation = rotations.get(currentRotation);
-//        }
+        this.currentRotation = rotations.get(currentRotation);
 
 
         tpgh.tick(time);

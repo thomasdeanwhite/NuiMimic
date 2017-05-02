@@ -28,9 +28,12 @@ import java.util.Map;
  * Created by thomas on 04/05/2016.
  */
 public class Properties extends InstrumentationProperties {
+
+    @Parameter(key = "clusters", description = "Amount of clusters to use for data processing", category = "Data Processing")
+    public static int CLUSTERS = 400;
     /*
-                Properties for Leap Motion Testing
-         */
+                    Properties for Leap Motion Testing
+             */
     @Parameter(key = "dataPoolDirectory", description = "Directory containing data pool", hasArgs = true, category = "Leap Motion Testing")
     public static String DIRECTORY = System.getProperty("user.home") + "/data/leap-motion";
 
@@ -179,7 +182,7 @@ public class Properties extends InstrumentationProperties {
     public static String NULL_VALUE_OUTPUT = "NONE";
 
     @Parameter(key = "outputExcludes", description = "Output options to exclude when logging", hasArgs = true, category = "Output")
-    public static String OUTPUT_EXCLUDES = "outputNullValue,outputExcludes,jar,cp,leave_leapmotion_alone,replace_fingers_method,Tmin,Tmax,Tparameter,Tcluster,outputDir";
+    public static String OUTPUT_EXCLUDES = "outputNullValue,outputExcludes,jar,cp,leave_leapmotion_alone,replace_fingers_method,Tmin,Tmax,Tparameter,outputDir";
 
     public static ArrayList<String> OUTPUT_EXCLUDES_ARRAY;
 
@@ -201,9 +204,6 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "Tparameter", description = "Parameter to tune", hasArgs = true, category = "Parameter Tuning")
     public static String TUNING_PARAMETER = null;
 
-    @Parameter(key = "Tcluster", description = "Cluster to use (/5)", hasArgs = true, category = "Parameter Tuning")
-    public static int CLUSTER_IDENTIFIER = -1;
-
 
     public enum RunType {
         INSTRUMENT, VISUALISE, RECONSTRUCT, STATE_RECOGNITION, MANUAL_STATE_RECOGNITION, MODEL_GEN, HELP,
@@ -220,7 +220,7 @@ public class Properties extends InstrumentationProperties {
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean PROCESS_PLAYBACK = false;
 
-    @Parameter(key = "processScreenshots", description = "Should screenshots be taken during playback?",
+    @Parameter(key = "processScreenshots", description = "Should screenshots be processed during playback?",
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean PROCESS_SCREENSHOTS = false;
 
@@ -315,13 +315,6 @@ public class Properties extends InstrumentationProperties {
                 String value = "" + (MIN_TUNING_VALUE + (Math.random() * (MAX_TUNING_VALUE - MIN_TUNING_VALUE)));
                 App.out.println("- Tuning: " + p.key() + "=" + value);
                 setParameter(p.key(), value);
-            }
-
-            if (CLUSTER_IDENTIFIER >= 0) {
-                CLUSTER_IDENTIFIER = CLUSTER_IDENTIFIER * 5;
-                for (int i = 0; i < INPUT.length; i++) {
-                    INPUT[i] = INPUT[i] + "-" + CLUSTER_IDENTIFIER;
-                }
             }
 
             OUTPUT_EXCLUDES_ARRAY = new ArrayList<String>();
@@ -588,19 +581,20 @@ public class Properties extends InstrumentationProperties {
     public void printOptionsMd() {
 
         App.out.println("# Runtime Options");
-
+        App.out.println("| Key | Description |");
+        App.out.println("| --- | --- |");
         for (String s : categoryMap.keySet()) {
-            App.out.println("## " + s);
+            App.out.println("| **" + s + "** |  |");
+
             for (String opt : categoryMap.get(s)) {
                 Parameter p = annotationMap.get(opt);
                 String opts = " ";
                 if (p.hasArgs()) {
                     opts = ":[arg] ";
                 }
-                App.out.println("- " + p.key() + opts + " _" + p.description()
-                        + "_");
+                App.out.println("| " + p.key() + opts + " | _" + p.description()
+                        + "_ |");
             }
-            App.out.println();
         }
     }
 

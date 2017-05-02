@@ -42,14 +42,8 @@ public class Quaternion {
     }
 
     public void setBasis(SeededHand h) {
-        Vector[] vs = toMatrix(true);
-        h.setBasis(vs[0], vs[1], vs[2]);
 
-        h.setPalmNormal(rotateVector(Vector.yAxis().opposite()));
-
-        if (!Properties.SINGLE_DATA_POOL){
-            h.setRotation(this);
-        }
+        h.setRotation(this);
 
     }
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.Properties;
 import weka.clusterers.ClusterEvaluation;
 import weka.clusterers.Cobweb;
 import weka.clusterers.EM;
@@ -27,7 +28,7 @@ public class WekaClusterer {
 
     public ClusterResult cluster() throws Exception {
 
-        int clusters = 200;
+        int clusters = Properties.CLUSTERS;
         int iterations = 100;
 
         File f = new File(filename);

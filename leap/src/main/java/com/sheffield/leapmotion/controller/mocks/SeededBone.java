@@ -20,7 +20,7 @@ public class SeededBone extends Bone implements Serializable {
 	protected Vector prevJoint;
 	protected Bone.Type type;
 	protected float width;
-	protected Quaternion rotation;
+	protected Quaternion rotation = Quaternion.IDENTITY;
 
 	protected static Random RANDOM = new Random(0);
 
@@ -73,7 +73,7 @@ public class SeededBone extends Bone implements Serializable {
 
 		center = prevJoint().plus(nextJoint()).divide(2f);
 
-		length = nextJoint().minus(prevJoint).magnitude();
+		length = nextJoint().minus(prevJoint()).magnitude();
 	}
 
 	@Override

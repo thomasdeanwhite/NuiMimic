@@ -29,15 +29,10 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 	}
 
 	private HashMap<String, SeededHand> hands;
-
-	private int currentAnimationTime = 0;
 	private long lastSwitchTime = 0;
 
 	private SeededHand lastHand;
 	private String lastLabel = null;
-	private ArrayList<SeededHand> seededHands;
-	private ArrayList<String> seededLabels;
-
 	private Random random = new Random();
 
 	private HashMap<String, Vector> vectors;
@@ -45,13 +40,9 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 	private Vector lastPosition;
 	private String lastPositionLabel;
-	private ArrayList<Vector> seededPositions = new ArrayList<Vector>();
-	private ArrayList<String> positionLabels = new ArrayList<String>();
 
 	private Quaternion lastRotation;
 	private String lastRotationLabel;
-	private ArrayList<Quaternion> seededRotations = new ArrayList<Quaternion>();
-	private ArrayList<String> rotationLabels = new ArrayList<String>();
 
 	File pFile, rFile, jFile;
 
@@ -72,14 +63,11 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 			jFile = generateFile("joint_positions-" + testIndex);
 			jFile.createNewFile();
 
-			seededHands = new ArrayList<SeededHand>();
-			seededLabels = new ArrayList<String>();
-			//SeededController.getSeededController().setGestureHandler(new RandomGestureHandler());
 			App.out.println("* Setting up VQ Frame Selector");
-			lastSwitchTime = System.currentTimeMillis();
-			currentAnimationTime = Properties.SWITCH_TIME;
+
 			String clusterFile = Properties.DIRECTORY + "/" + filename + "/processed/" +
 					(Properties.SINGLE_DATA_POOL ? "hand_joints_data" : "joint_position_data");
+
 			hands = new HashMap<String, SeededHand>();
 
 			String contents = FileHandler.readFile(new File(clusterFile));
@@ -95,9 +83,11 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 			}
 
+			Properties.CLUSTERS = this.hands.size();
+
 			String positionFile = Properties.DIRECTORY + "/" + filename + "/processed/hand_position_data";
 			lastSwitchTime = System.currentTimeMillis();
-			currentAnimationTime = Properties.SWITCH_TIME;
+
 			contents = FileHandler.readFile(new File(positionFile));
 			lines = contents.split("\n");
 			vectors = new HashMap<String, Vector>();
@@ -164,95 +154,9 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 	@Override
 	public Frame newFrame() {
-		while (lastHand == null){
-			lastLabel = randomHand();
-			lastHand = hands.get(lastLabel);
-		}
-		while (seededHands.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-			if (!seededHands.contains(lastHand)){
-				seededHands.clear();
-				seededHands.add(0, lastHand);
-				seededLabels.clear();
-				seededLabels.add(lastLabel);
-			} else {
-				String label = randomHand();
-				Hand h = hands.get(label);
-				if (h != null && h instanceof SeededHand) {
-					seededHands.add((SeededHand) h);
-					seededLabels.add(label);
-				}
-			}
-		}
 
-		System.out.println("HELLO");
-
-		if (currentAnimationTime >= Properties.SWITCH_TIME) {
-			// load next frame
-
-			try {
-				NGramLog posLog = new NGramLog();
-				posLog.element = "";
-				currentAnimationTime = 0;
-
-				for (String s : positionLabels){
-					posLog.element += s + ",";
-				}
-
-				posLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
-
-				NGramLog rotLog = new NGramLog();
-				rotLog.element = "";
-
-				for (String s : rotationLabels){
-					rotLog.element += s + ",";
-				}
-
-				rotLog.timeSeeded = posLog.timeSeeded;
-
-				String handValue = "";
-
-				for (int i = 0; i < seededLabels.size(); i++){
-					handValue += seededLabels.get(i) + ",";
-				}
-
-				NGramLog ngLog = new NGramLog();
-				ngLog.element = handValue;
-				ngLog.timeSeeded = (int) (System.currentTimeMillis() - lastSwitchTime);
-				FileHandler.appendToFile(pFile, posLog.toString());
-				FileHandler.appendToFile(rFile, rotLog.toString());
-				FileHandler.appendToFile(jFile, ngLog.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			lastHand = seededHands.get(seededHands.size() - 1);
-			lastLabel = seededLabels.get(seededLabels.size() - 1);
-			seededHands.clear();
-			seededLabels.clear();
-
-			if (seededPositions.size() > 0 &&
-					seededRotations.size() > 0) {
-
-				lastPosition = seededPositions.get(seededPositions.size() - 1);
-				lastPositionLabel = positionLabels.get(positionLabels.size() - 1);
-				lastRotation = seededRotations.get(seededRotations.size() - 1);
-				lastRotationLabel = rotationLabels.get(rotationLabels.size() - 1);
-
-			}
-
-			seededPositions.clear();
-			seededRotations.clear();
-			positionLabels.clear();
-			rotationLabels.clear();
-
-			currentAnimationTime = 0;
-			lastSwitchTime = System.currentTimeMillis();
-			return newFrame();
-		}
-		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
 		Frame f = SeededController.newFrame();
-		float modifier = Math.min(1, currentAnimationTime / (float) Properties.SWITCH_TIME);
-		Hand newHand = lastHand.fadeHand(seededHands, modifier);
+		Hand newHand = lastHand.copy();
 		f = HandFactory.injectHandIntoFrame(f, newHand);
 
 		return f;
@@ -265,78 +169,18 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 
 	@Override
 	public void modifyFrame(SeededFrame frame) {
-		while (lastPosition == null){
-			lastPositionLabel =  randomPosition();
-			if (lastPositionLabel != null && !lastPositionLabel.equals("null")){
-				lastPosition = vectors.get(lastPositionLabel);
-			}
-		}
-
-		while (lastRotation== null){
-			lastRotationLabel = randomRotation();
-			if (lastRotationLabel != null && !lastRotationLabel.equals("null")){
-				lastRotation = rotations.get(lastRotationLabel);
-			}
-		}
-
-
-		while (seededPositions.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-			if (seededPositions.contains(lastPosition)){
-				Vector position = null;
-				String pLabel = null;
-				while (position == null){
-					pLabel = randomPosition();
-
-					if (pLabel != null){
-						position = vectors.get(pLabel);
-						if (position != null) {
-							positionLabels.add(pLabel);
-							seededPositions.add(position);
-						}
-					}
-				}
-			} else {
-				seededPositions.add(0, lastPosition);
-				positionLabels.add(0, lastPositionLabel);
-			}
-		}
-
-		while (seededRotations.size() < com.sheffield.leapmotion.Properties.BEZIER_POINTS){
-			if (seededRotations.contains(lastRotation)){
-				Quaternion rotation = null;
-				String rLabel = null;
-				while (rotation == null){
-					rLabel = randomRotation();
-
-					if (rLabel != null){
-						rotation = rotations.get(rLabel);
-						if (rotation != null) {
-							rotationLabels.add(rLabel);
-							seededRotations.add(rotation);
-						}
-					}
-				}
-			} else {
-				seededRotations.add(0, lastRotation);
-				rotationLabels.add(0, lastRotationLabel);
-			}
-		}
-
 		Hand h = Hand.invalid();
 		for (Hand hand : frame.hands()) {
 			h = hand;
 		}
 		if (h instanceof SeededHand) {
-			float modifier = Math.min(1f, currentAnimationTime / (float) Properties.SWITCH_TIME);
-			SeededHand sh = (SeededHand) h;
+			SeededHand sh = ((SeededHand) h);
 
-			Quaternion q = QuaternionHelper.fadeQuaternions(seededRotations, modifier);
+			lastRotation.setBasis(sh);
 
-			q.setBasis(sh);
-
-			sh.setOrigin(BezierHelper.bezier(seededPositions, modifier));
+			sh.setOrigin(lastPosition);
 		}
-		currentAnimationTime = (int) (System.currentTimeMillis() - lastSwitchTime);
+
 	}
 
 	@Override
@@ -349,13 +193,19 @@ public class VectorQuantizedFrameGenerator extends FrameGenerator {
 		return "Random Clusters Generation";
 	}
 
-	public Vector fadeVector(Vector prev, Vector next, float modifier){
-		return prev.plus(next.minus(prev).times(modifier));
-	}
-
 	private long lastUpdate = 0;
 	@Override
 	public void tick(long time) {
+
+		lastLabel = randomHand();
+		lastHand = hands.get(lastLabel);
+
+		lastPositionLabel =  randomPosition();
+		lastPosition = vectors.get(lastPositionLabel);
+
+		lastRotationLabel = randomRotation();
+		lastRotation = rotations.get(lastPositionLabel);
+
 		lastUpdate = time;
 	}
 

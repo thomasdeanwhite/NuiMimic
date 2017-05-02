@@ -321,6 +321,8 @@ public class FrameHandler implements Tickable {
         return frame;
     }
 
+    private long lastFrameGenTime = 0;
+
     public void loadNewFrame(long time) {
 
         if (frameGenerator == null || frameSeedingQueue.size() > Properties.MAX_LOADED_FRAMES){
@@ -352,7 +354,7 @@ public class FrameHandler implements Tickable {
             }
 
 
-            if (!(frameGenerator instanceof Reconstruction)) {
+            if (!(frameGenerator instanceof RawReconstructiveFrameGenerator)) {
                 sf = (SeededFrame) finalizeFrame(sf, time);
             }
 
@@ -377,7 +379,8 @@ public class FrameHandler implements Tickable {
 
 
         if (frame.timestamp() == -1 && frame instanceof SeededFrame){
-            ((SeededFrame)frame).setTimestamp(time*1000);
+            ((SeededFrame)frame).setTimestamp(frameSeedingQueue.lastTimestamp() + (1000/Properties.FRAMES_PER_SECOND));
+            ((SeededFrame)frame).setId(frame.timestamp());
         }
 
         if (firstFrameTimestamp == Long.MIN_VALUE) {
