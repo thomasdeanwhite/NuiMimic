@@ -35,10 +35,12 @@ There are various steps to using NuiMimic:
 # Runtime Options
 <details> 
   <summary>Parameter Tuning</summary>
+  <p>
 ## Parameter Tuning
 - Tmin:[arg]  _Min value to tune (inclusive)_
 - Tmax:[arg]  _Max value to tune (exclusive)_
 - Tparameter:[arg]  _Parameter to tune_
+</p>
 </details>
 
 ## Data Interpolation
