@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.controller.mocks;
 
+import com.leapmotion.leap.Bone;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Finger.Type;
 import com.leapmotion.leap.FingerList;
@@ -103,15 +104,32 @@ public class SeededFingerList extends FingerList implements Serializable {
 		return sfl;
 	}
 
+	private Finger frontmost = null;
+
 	@Override
 	public Finger frontmost() {
-		Finger fm = Finger.invalid();
-		for (Finger p : this){
-			if (!fm.isValid() || fm.tipPosition().minus(p.tipPosition()).getZ() > 0){
-				fm = p;
+
+		if (frontmost == null) {
+			float leastZ = Float.MAX_VALUE;
+			frontmost = Finger.invalid();
+
+			for (Finger p : this) {
+				for (Bone.Type bt : Bone.Type.values()){
+					Bone b = p.bone(bt);
+					if (b.nextJoint().getZ() < leastZ){
+						frontmost = p;
+						leastZ = b.nextJoint().getZ();
+					}
+
+					if (b.prevJoint().getZ() < leastZ){
+						frontmost = p;
+						leastZ = b.prevJoint().getZ();
+					}
+				}
 			}
 		}
-		return fm;
+
+		return frontmost;
 	}
 
 	@Override

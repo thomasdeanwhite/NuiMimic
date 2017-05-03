@@ -207,7 +207,10 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 			GestureList gl = ((Reconstruction)recFrameGen).handleFrame(fhFrame, SeededController.getController());
 
 			((SeededFrame) fhFrame).setGestures(gl);
-			dw.setFrame(fhFrame);
+
+			if (dw != null) {
+				dw.setFrame(fhFrame);
+			}
 
 			App.out.println(f.hand(0).fingers().frontmost().stabilizedTipPosition() + " : " + fhFrame.hand(0).fingers().frontmost().stabilizedTipPosition());
 		}
