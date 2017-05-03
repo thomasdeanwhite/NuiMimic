@@ -1,7 +1,9 @@
 # NuiMimic #
 [![Build Status](https://travis-ci.org/thomasdeanwhite/NuiMimic.svg?branch=master)](https://travis-ci.org/thomasdeanwhite/NuiMimic)[![Coverage Status](https://coveralls.io/repos/github/thomasdeanwhite/NuiMimic/badge.svg?branch=master)](https://coveralls.io/github/thomasdeanwhite/NuiMimic?branch=master)
 
-Repository for the NuiMimic automated software testing tool.
+Repository for the NuiMimic automated software testing tool. NuiMimic is a tool which allows automated testing of applications which use Natural User Interfaces. Currently, only the Leap Motion Leap is supported.
+
+![Image of Leapmotion Hands](hhttp://i.imgur.com/pAg83Km.png)
 
 # Installation #
 
