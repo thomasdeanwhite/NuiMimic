@@ -3,7 +3,7 @@
 
 Repository for the NuiMimic automated software testing tool. NuiMimic is a tool which allows automated testing of applications which use Natural User Interfaces. Currently, only the Leap Motion Leap is supported.
 
-![Image of Leapmotion Hands](hhttp://i.imgur.com/pAg83Km.png)
+![Image of Leapmotion Hands](http://i.imgur.com/pAg83Km.png)
 
 # Installation #
 
