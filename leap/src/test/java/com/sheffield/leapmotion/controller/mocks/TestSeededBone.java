@@ -18,6 +18,11 @@ import static com.sheffield.leapmotion.TestUtils.*;
  * Created by thomas on 10/03/17.
  */
 public class TestSeededBone {
+//
+//    @Before
+//    public void setup(){
+//        System.loadLibrary("LeapJava");
+//    }
 
     @Test
     public void testIdentityRotation(){
@@ -56,6 +61,8 @@ public class TestSeededBone {
                 (float)Math.cos(Math.PI/4),
                 0
         );
+
+        sb.normalize();
 
         Vector actualNext = sb.nextJoint();
 
