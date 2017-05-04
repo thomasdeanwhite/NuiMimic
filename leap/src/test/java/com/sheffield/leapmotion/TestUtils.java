@@ -5,6 +5,7 @@ import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Vector;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 /**
  * Created by thomas on 02/05/17.
@@ -25,6 +26,12 @@ public class TestUtils {
         assertEquals(error, v1.getX(), v2.getX(), 0.0001f);
         assertEquals(error, v1.getY(), v2.getY(), 0.0001f);
         assertEquals(error, v1.getZ(), v2.getZ(), 0.0001f);
+    }
+
+    public static void assertVectorNotEquals(String error, Vector v1, Vector v2){
+        assertFalse(error, v1.getX() == v2.getX() &&
+                v1.getY() == v2.getY() &&
+                v1.getZ() == v2.getZ());
     }
 
     public static void assertFingerEquals(Finger f1, Finger f2){
@@ -62,5 +69,15 @@ public class TestUtils {
         assertVectorEquals("Stabilised Tip Position Reconstruction Error",
                 tip1, tip2
         );
+    }
+
+    public static void assertFingerNotEquals(Finger f1, Finger f2){
+        try {
+            assertFingerEquals(f1, f2);
+        } catch (AssertionError e){
+            return;
+        }
+
+        throw new AssertionError("Expected: " + f1 + " != " + f2 + ".\nActual: " + f1 + " == " + f2 + ".");
     }
 }

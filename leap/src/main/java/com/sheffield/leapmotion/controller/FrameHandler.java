@@ -481,7 +481,9 @@ public class FrameHandler implements Tickable {
                     frames.get(increment).fingers().fingerType(f.type()).get(0).tipVelocity()
             );
 
-            Vector stabilizedTip = firstTip;
+            Vector stabilizedTip = new Vector(firstTip.getX(),
+                    firstTip.getY(),
+                    firstTip.getZ());
 
 
             Vector stabilisedThreshold = new Vector(10f, 10f, 10f);

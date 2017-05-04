@@ -287,7 +287,10 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
 
         if (currentHand != null) {
 
-            currentHand = currentHand.copy();
+            SeededHand copy = currentHand.copy();
+
+
+            currentHand = copy;
 
             SeededFrame f = new SeededFrame(SeededController.newFrame());
 
@@ -343,10 +346,6 @@ public class ReconstructiveFrameGenerator extends FrameGenerator implements
         seededTime = time - startSeededTime;
 
         lastSwitchTime = seededTime - Properties.SWITCH_TIME;
-
-        currentHand = null;
-        currentPosition = null;
-        currentRotation = null;
 
         gestureHandIndex = currentHandIndex;
 

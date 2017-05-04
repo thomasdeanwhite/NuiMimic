@@ -4,11 +4,14 @@ import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
+import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.util.Serializer;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import static com.sheffield.leapmotion.TestUtils.assertFingerEquals;
+import static com.sheffield.leapmotion.TestUtils.assertFingerNotEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -117,6 +120,51 @@ public class TestSeededHand {
         assertEquals(newCentre.getX(), actualCentre.getX(), 0.00001);
         assertEquals(newCentre.getY(), actualCentre.getY(), 0.00001);
         assertEquals(newCentre.getZ(), actualCentre.getZ(), 0.00001);
+    }
+
+    @Test
+    public void testCopy(){
+        SeededFrame f1 = new SeededFrame(Frame.invalid());
+        SeededHand h1 = HandFactory.createRandomHand(f1, "h1");
+
+        SeededHand h2 = h1.copy();
+
+        for (Finger f : h1.fingers()){
+            Finger f2 = null;
+
+            for (Finger fi : h2.fingers()){
+                if (fi.type().equals(f.type())){
+                    f2 = fi;
+                    break;
+                }
+            }
+
+            assertFingerEquals(f, f2);
+        }
+    }
+
+
+    @Test
+    public void testDeepCopy(){
+        SeededFrame f1 = new SeededFrame(Frame.invalid());
+        SeededHand h1 = HandFactory.createRandomHand(f1, "h1");
+
+        SeededHand h2 = h1.copy();
+
+        h1.setRotation(new Quaternion((float)Math.PI/4, 0, (float)Math.PI/4, 0));
+
+        for (Finger f : h1.fingers()){
+            Finger f2 = null;
+
+            for (Finger fi : h2.fingers()){
+                if (fi.type().equals(f.type())){
+                    f2 = fi;
+                    break;
+                }
+            }
+
+            assertFingerNotEquals(f, f2);
+        }
     }
 
 }

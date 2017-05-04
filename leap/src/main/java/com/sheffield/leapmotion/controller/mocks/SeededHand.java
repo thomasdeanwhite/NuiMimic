@@ -104,7 +104,7 @@ public class SeededHand extends Hand implements Serializable {
             sf.tipVelocity = of.tipVelocity;
             sf.hand = h;
             sf.stabilizedTipPosition = of.stabilizedTipPosition;
-            sf.tipPosition = of.tipPosition;
+            sf.nStabilizedTipPosition = of.nStabilizedTipPosition;
             sf.normalize();
             sfl.addFinger(sf);
         }
