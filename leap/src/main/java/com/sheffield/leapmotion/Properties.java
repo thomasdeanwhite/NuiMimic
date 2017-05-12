@@ -29,6 +29,9 @@ import java.util.Map;
  */
 public class Properties extends InstrumentationProperties {
 
+    @Parameter(key = "N", description = "N-Gram Length to use for data processing", category = "Data Processing")
+    public static int N = 400;
+
     @Parameter(key = "clusters", description = "Amount of clusters to use for data processing", category = "Data Processing")
     public static int CLUSTERS = 400;
     /*
@@ -444,8 +447,10 @@ public class Properties extends InstrumentationProperties {
 
             if (RESUME_RUN >= 0) {
                 CURRENT_RUN = RESUME_RUN;
+            }
 
-
+            if (CURRENT_RUN == -1){
+                CURRENT_RUN = System.currentTimeMillis();
             }
         } catch (Exception e1) {
             // TODO Auto-generated catch block

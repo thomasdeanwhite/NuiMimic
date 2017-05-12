@@ -601,6 +601,15 @@ public class App implements ThrowableListener, Tickable {
                 App.out.println("- Starting Frame Seeding");
                 int delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
 
+                if (Properties.RESUME_RUN == -1) {
+
+                    File csvFile = FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results");
+
+                    while (csvFile.exists()) {
+                        csvFile = FileHandler.generateTestingOutputFile("RUN" + (Properties.CURRENT_RUN++) + "-test-results");
+                    }
+                }
+
                 SeededController.getController();
 
                 long lastTime = System.nanoTime();
@@ -1031,7 +1040,7 @@ public class App implements ThrowableListener, Tickable {
                     + timePassed + " > " + Properties.RUNTIME);
             status = AppStatus.FINISHED;
 
-            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run.nmDump");
+            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run" + Properties.CURRENT_RUN + ".nmDump");
 
             lastRunDump.delete();
         }
