@@ -420,6 +420,9 @@ public class App implements ThrowableListener, Tickable {
                 case PROCESS_DATA:
                     run = new DataProcessingRunType();
                     break;
+                case EVALUATION:
+                    run = new IntrinsicEvaluationRunType();
+                    break;
                 case SAMPLE:
                     run = new SamplingRunType();
                     break;
