@@ -26,12 +26,6 @@ public class IntrinsicEvaluationRunType implements RunType {
     @Override
     public int run() {
 
-        DataRawProcessingRunType drpr = new DataRawProcessingRunType();
-
-        drpr.run();
-
-        Gson gson = new Gson();
-
         HashMap<String, String> files = new HashMap<String, String>();
 
         files.put("joint_positions_pool.ARFF", "joint_position");
