@@ -14,14 +14,16 @@ import weka.core.Instance;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 /**
  * Created by thomas on 08/02/17.
  */
 public class IntrinsicEvaluationRunType implements RunType {
+    private HashMap<String, ArrayList<Float>> perplexity = new HashMap<>();
 
     @Override
     public int run() {
@@ -40,7 +42,10 @@ public class IntrinsicEvaluationRunType implements RunType {
         }
         String dataDir = DIRECTORY + "/" + INPUT[0];
 
-        for (String s : files.keySet()) {
+
+        long seed = System.currentTimeMillis();
+
+        files.keySet().stream().map(s -> {
 
             String joints = dataDir + "/" + s;
 
@@ -84,9 +89,21 @@ public class IntrinsicEvaluationRunType implements RunType {
                 int size = clusterOrder.size();//(int) Math.sqrt(clusterOrder
                         //.size());
 
-                float perplexity = 0f;
 
-                for (int i = N; i < size; i+=N){
+
+
+                Random r = new Random(seed);
+
+                int sampleSize = clusterOrder.size()/10;
+                int start = N + r.nextInt(clusterOrder.size() - N - sampleSize);
+                int end = start + sampleSize;
+
+                App.out.println("Calculating " + s + " perplexity between [" + start + " .. " + end + "]");
+
+
+                IntrinsicEvaluationRunType.this.perplexity.put(s, new ArrayList<>());
+
+                DoubleStream perplexity = IntStream.range(start, end).mapToDouble(i -> {
                     String candidate = "";
 
                     for (int j = i-N; j < i; j++){
@@ -117,15 +134,18 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                     while(probability == 0f){
                         candidate = candidate.substring(candidate.indexOf(" "));
-                        probability = ng.getProbability(candidate) * 0.1f;
+                        probability = ng.getProbability(candidate) * 0.0001f;
                     }
 
-                    perplexity += Math.pow(1f/probability,
-                            1/(float)N);
-                }
+//                    IntrinsicEvaluationRunType.this.perplexity.get(s).add((float)Math.pow(1f/probability,
+//                            1/(float)N));
+                    return (float)Math.pow(1f/probability, 1/(float)N);
+                });
+
+                float perplex = (float)perplexity.sum();
 
 
-                csv.add("preplexity", "" + perplexity);
+                csv.add("preplexity", "" + perplex);
                 csv.add("cluster", "" + CLUSTERS);
                 csv.add("N", "" + N);
                 csv.add("model", s);
@@ -141,12 +161,13 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                 FileHandler.appendToFile(f, csv.getValues() + "\n");
 
-                App.out.println(s + " perplexity: " + perplexity);
+                App.out.println(s + " perplexity: " + perplex);
 
             } catch (Exception e) {
                 e.printStackTrace(App.out);
             }
-        }
+            return s;
+        }).collect(Collectors.toList());
 
         return 0;
     }
