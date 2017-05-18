@@ -31,6 +31,7 @@ public class IntrinsicEvaluationRunType implements RunType {
         files.put("joint_positions_pool.ARFF", "joint_position");
         files.put("hand_positions_pool.ARFF", "hand_position");
         files.put("hand_rotations_pool.ARFF", "hand_rotation");
+        files.put("hand_joints_pool.ARFF", "hand_joints");
 
         HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>(3);
 
@@ -51,7 +52,6 @@ public class IntrinsicEvaluationRunType implements RunType {
                 results.put(s, cr);
 
                 HashMap<String, String> assignments = cr.getAssignments();
-                HashMap<String, Instance> centroids = cr.getCentroids();
 
                 ArrayList<String> keys = new ArrayList<>();
 
@@ -81,11 +81,12 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                 Csv csv = new Csv();
 
-                int size = (int) Math.sqrt(clusterOrder.size());
+                int size = clusterOrder.size();//(int) Math.sqrt(clusterOrder
+                        //.size());
 
                 float perplexity = 0f;
 
-                for (int i = N; i < size; i++){
+                for (int i = N; i < size; i+=N){
                     String candidate = "";
 
                     for (int j = i-N; j < i; j++){
@@ -94,31 +95,53 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                     StringBuilder sb = new StringBuilder();
 
-                    for (int k = i; k < clusterOrder.size()-1; k++){
-                        sb.append(clusterOrder.get(i) + " ");
+                    for (int k = i; k < clusterOrder.size(); k++){
+                        sb.append(clusterOrder.get(k) + " ");
+                    }
+
+                    StringBuilder sbPrev = new StringBuilder();
+
+                    for (int k = 0; k < i - N; k++){
+                        sbPrev.append(clusterOrder.get(k) + " ");
                     }
 
 
                     NGram ng = NGramModel.getNGram(N, sb.toString());
+                    NGram ngPrev = NGramModel.getNGram(N, sbPrev.toString());
+
+                    ng.merge(ngPrev);
 
                     ng.calculateProbabilities();
 
-                    perplexity += Math.pow(1f/ng.getProbability(candidate), 1/N);
+                    float probability = ng.getProbability(candidate);
+
+                    while(probability == 0f){
+                        candidate = candidate.substring(candidate.indexOf(" "));
+                        probability = ng.getProbability(candidate) * 0.1f;
+                    }
+
+                    perplexity += Math.pow(1f/probability,
+                            1/(float)N);
                 }
 
 
                 csv.add("preplexity", "" + perplexity);
                 csv.add("cluster", "" + CLUSTERS);
                 csv.add("N", "" + N);
+                csv.add("model", s);
+
+                csv.finalize();
 
                 File f = new File("NuiMimicEvaluation.csv");
 
                 if (!f.exists()){
                     f.createNewFile();
-                    FileHandler.writeToFile(f, csv.getHeaders());
+                    FileHandler.writeToFile(f, csv.getHeaders() + "\n");
                 }
 
-                FileHandler.appendToFile(f, csv.getValues());
+                FileHandler.appendToFile(f, csv.getValues() + "\n");
+
+                App.out.println(s + " perplexity: " + perplexity);
 
             } catch (Exception e) {
                 e.printStackTrace(App.out);

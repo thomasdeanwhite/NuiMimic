@@ -30,7 +30,7 @@ import java.util.Map;
 public class Properties extends InstrumentationProperties {
 
     @Parameter(key = "N", description = "N-Gram Length to use for data processing", category = "Data Processing")
-    public static int N = 400;
+    public static int N = 3;
 
     @Parameter(key = "clusters", description = "Amount of clusters to use for data processing", category = "Data Processing")
     public static int CLUSTERS = 400;
