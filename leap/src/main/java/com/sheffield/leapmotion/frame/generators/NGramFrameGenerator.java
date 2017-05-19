@@ -7,155 +7,30 @@ import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
-import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
-import com.sheffield.leapmotion.frame.util.QuaternionHelper;
-import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.frame.playback.NGramLog;
-import com.sheffield.leapmotion.controller.mocks.HandFactory;
-import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
-import com.sheffield.output.Csv;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
-public class NGramFrameGenerator extends FrameGenerator implements GestureHandler {
-    public Csv getCsv() {
-        return new Csv();
-    }
-
-    protected HashMap<String, SeededHand> joints;
+public class NGramFrameGenerator extends SequenceFrameGenerator implements GestureHandler {
 
     protected NGram jointNgram;
-
-    protected ArrayList<NGramLog> logs;
-
-    protected int currentAnimationTime = 0;
-    protected long lastSwitchTime = 0;
-
-    protected ArrayList<SeededHand> seededHands;
-    protected ArrayList<String> seededLabels;
-
-    protected SeededHand lastHand;
-    protected String lastLabel = "";
-    protected File outputFile;
-
     protected NGram positionNgram;
     protected NGram rotationNgram;
-    protected HashMap<String, Vector> positions;
-    protected HashMap<String, Quaternion> rotations;
 
-    protected Vector lastPosition;
-    protected String lastPositionLabel = "";
-    protected ArrayList<Vector> seededPositions;
-    protected ArrayList<String> positionLabels;
-
-    protected Quaternion lastRotation;
-    protected String lastRotationLabel = "";
-    protected ArrayList<Quaternion> seededRotations;
-    protected ArrayList<String> rotationLabels;
-
-    protected File outputPosFile;
-    protected File outputRotFile;
-
-    protected float modifier = 0f;
-
-    protected NGramGestureHandler nggh;
-
-    public void setOutputFiles(File pos, File rot) {
-        outputPosFile = pos;
-        outputRotFile = rot;
-    }
+    protected NGramGestureHandler ngGestureHandler;
 
     public void setGestureOutputFile(File file) {
-        nggh.setOutputFile(file);
-    }
-
-    public void setOutputFile(File outputFile) {
-        this.outputFile = outputFile;
-    }
-
-    public ArrayList<NGramLog> getLogs() {
-        return logs;
-    }
-
-    public static HashMap<String, SeededHand> getJoints(String filename) throws IOException {
-        HashMap<String, SeededHand> joints = new HashMap<String, SeededHand>();
-        String clusterFile = filename;
-        if (!Properties.SINGLE_DATA_POOL) {
-            clusterFile += "/joint_position_data";
-        } else {
-            clusterFile += "/hand_joints_data";
-        }
-
-        String contents = FileHandler.readFile(new File(clusterFile));
-        String[] lines = contents.split("\n");
-        for (String line : lines) {
-            Frame f = SeededController.newFrame();
-            SeededHand hand = HandFactory.createHand(line, f);
-
-            joints.put(hand.getUniqueId(), hand);
-            // order.add(hand.getUniqueId());
-
-            HandFactory.injectHandIntoFrame(f, hand);
-
-        }
-
-        return joints;
-    }
-
-
-    public static HashMap<String, Vector> getPositions(String filename) throws IOException {
-        HashMap<String, Vector> positions = new HashMap<String, Vector>();
-
-        String positionFile = filename + "/hand_position_data";
-        String contents = FileHandler.readFile(new File(positionFile));
-        String[] lines = contents.split("\n");
-        for (String line : lines) {
-            Vector v = new Vector();
-            String[] vect = line.split(",");
-            v.setX(Float.parseFloat(vect[1]));
-            v.setY(Float.parseFloat(vect[2]));
-            v.setZ(Float.parseFloat(vect[3]));
-
-            positions.put(vect[0], v);
-
-        }
-
-        return positions;
-    }
-
-
-    public static HashMap<String, Quaternion> getRotations(String filename) throws IOException {
-        String rotationFile = filename + "/hand_rotation_data";
-        String contents = FileHandler.readFile(new File(rotationFile));
-        String[] lines = contents.split("\n");
-        HashMap<String, Quaternion> rotations = new HashMap<String, Quaternion>();
-        for (String line : lines) {
-            String[] vect = line.split(",");
-            Quaternion q = new Quaternion(Float.parseFloat(vect[1]),
-                    Float.parseFloat(vect[2]),
-                    Float.parseFloat(vect[3]),
-                    Float.parseFloat(vect[4])).normalise();
-
-            rotations.put(vect[0], q);
-
-        }
-        return rotations;
+        ngGestureHandler.setGestureOutputFile(file);
     }
 
     public NGramFrameGenerator(String filename) {
+        super(filename);
         try {
             String rawFile = Properties.DIRECTORY + "/" + filename + "/processed";
-
-            HashMap<String, SeededHand> joints = getJoints(rawFile);
-            HashMap<String, Vector> positions = getPositions(rawFile);
-            HashMap<String, Quaternion> rotations = getRotations(rawFile);
 
             String sequenceFile = rawFile;
 
@@ -191,7 +66,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
             gestureNgram.calculateProbabilities();
 
-            setup(jointNgram, positionNgram, rotationNgram, gestureNgram, joints, positions, rotations);
+            setup(jointNgram, positionNgram, rotationNgram, gestureNgram);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace(App.out);
@@ -202,27 +77,20 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
     public NGramFrameGenerator(NGram jointNgram, NGram positionNgram, NGram rotationNgram, NGram gestureNGram,
                                HashMap<String, SeededHand> joints, HashMap<String, Vector> positions, HashMap<String, Quaternion> rotations) {
-        setup(jointNgram, positionNgram, rotationNgram, gestureNGram, joints, positions, rotations);
+        super(joints, positions, rotations);
+        setup(jointNgram, positionNgram, rotationNgram, gestureNGram);
     }
 
     public void merge(NGramFrameGenerator ngfs) {
         jointNgram.merge(ngfs.jointNgram);
         positionNgram.merge(ngfs.positionNgram);
         rotationNgram.merge(ngfs.rotationNgram);
-        nggh.merge(ngfs.nggh);
+        ngGestureHandler.merge(ngfs.ngGestureHandler);
 
     }
 
-    private void setup(NGram jointNgram, NGram positionNgram, NGram rotationNgram, NGram gestureNGram,
-                       HashMap<String, SeededHand> joints, HashMap<String, Vector> positions, HashMap<String, Quaternion> rotations) {
+    private void setup(NGram jointNgram, NGram positionNgram, NGram rotationNgram, NGram gestureNGram) {
         App.out.println("* Setting up NGramModel Frame Selection");
-        lastSwitchTime = 0;
-        currentAnimationTime = Properties.SWITCH_TIME;
-        logs = new ArrayList<NGramLog>();
-
-        this.joints = joints;
-        this.positions = positions;
-        this.rotations = rotations;
 
         Properties.CLUSTERS = this.joints.size();
 
@@ -235,54 +103,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
         this.rotationNgram = rotationNgram;
         this.rotationNgram.calculateProbabilities();
 
-        this.nggh = new NGramGestureHandler(gestureNGram);
-
-
-        seededHands = new ArrayList<SeededHand>();
-        seededLabels = new ArrayList<String>();
-
-        seededPositions = new ArrayList<Vector>();
-        positionLabels = new ArrayList<String>();
-
-        seededRotations = new ArrayList<Quaternion>();
-        rotationLabels = new ArrayList<String>();
-    }
-
-    @Override
-    public Frame newFrame() {
-        Frame f = SeededController.newFrame();
-        Hand newHand = lastHand.copy();
-        f = HandFactory.injectHandIntoFrame(f, newHand);
-
-        return f;
-    }
-
-    @Override
-    public String status() {
-        return null;
-    }
-
-    @Override
-    public void modifyFrame(SeededFrame frame) {
-        Hand h = Hand.invalid();
-        for (Hand hand : frame.hands()) {
-            h = hand;
-        }
-        if (h instanceof SeededHand) {
-
-            SeededHand sh = (SeededHand) h;
-
-            Quaternion q = lastRotation;
-
-            q.setBasis(sh);
-            sh.setOrigin(lastPosition);
-        }
-
-    }
-
-    @Override
-    public boolean allowProcessing() {
-        return true;
+        this.ngGestureHandler = new NGramGestureHandler(gestureNGram);
     }
 
     @Override
@@ -294,11 +115,9 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
     @Override
     public void tick(long time) {
-        lastUpdate = time;
+        super.tick(time);
 
-        fillLists();
-
-        nggh.tick(time);
+        ngGestureHandler.tick(time);
 
     }
 
@@ -315,48 +134,34 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
         return s;
     }
 
-    public void fillLists() {
-
-
-        nextSequenceJoints();
-        lastLabel = getLastLabel(currentSequence);
-        lastHand = joints.get(lastLabel);
-
-        nextSequencePosition();
-        lastPositionLabel = getLastLabel(currentSequencePosition);
-        lastPosition = positions.get(lastPositionLabel);
-
-        nextSequenceRotation();
-        lastRotationLabel = getLastLabel(currentSequenceRotation);
-        lastRotation = rotations.get(lastRotationLabel);
-    }
-
-    public void nextSequenceJoints() {
+    public String nextSequenceJoints() {
         currentSequence = jointNgram.babbleNext(currentSequence);
 
         if (currentSequence == null) {
             throw new DataSparsityException("Data is too sparse for input");
         }
+
+        return getLastLabel(currentSequence);
     }
 
-    public void nextSequencePosition() {
+    public String nextSequencePosition() {
         currentSequencePosition = jointNgram.babbleNext(currentSequencePosition);
 
         if (currentSequencePosition == null) {
             throw new DataSparsityException("Data is too sparse for input");
         }
+
+        return getLastLabel(currentSequencePosition);
     }
 
-    public void nextSequenceRotation() {
+    public String nextSequenceRotation() {
         currentSequenceRotation = jointNgram.babbleNext(currentSequenceRotation);
 
         if (currentSequenceRotation == null) {
             throw new DataSparsityException("Data is too sparse for input");
         }
-    }
 
-    public long lastTick() {
-        return lastUpdate;
+        return getLastLabel(currentSequenceRotation);
     }
 
     @Override
@@ -366,6 +171,7 @@ public class NGramFrameGenerator extends FrameGenerator implements GestureHandle
 
     @Override
     public GestureList handleFrame(Frame frame, Controller controller) {
-        return nggh.handleFrame(frame, controller);
+        return ngGestureHandler.handleFrame(frame, controller);
     }
+
 }

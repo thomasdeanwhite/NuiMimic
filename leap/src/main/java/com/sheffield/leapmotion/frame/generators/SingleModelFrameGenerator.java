@@ -4,16 +4,13 @@ import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
-import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.output.Csv;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Random;
 
 public class SingleModelFrameGenerator extends FrameGenerator implements GestureHandler {
@@ -56,7 +53,7 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
             ngfs.setOutputFiles(pFile, rFile);
             File jFile = generateFile("joint_positions-" + testIndex);
             jFile.createNewFile();
-            ngfs.setOutputFile(jFile);
+            ngfs.setOutputJointsFile(jFile);
             frameSelector = ngfs;
             File gFile = generateFile("gestures-" + testIndex);
             gFile.createNewFile();
@@ -97,6 +94,11 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
     @Override
     public GestureList handleFrame(Frame frame, Controller controller) {
         return gestureHandler.handleFrame(frame, controller);
+    }
+
+    @Override
+    public void setGestureOutputFile(File f) {
+        gestureHandler.setGestureOutputFile(f);
     }
 
     private long lastUpdate = 0;

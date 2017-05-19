@@ -6,10 +6,8 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.mocks.SeededFinger;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.generators.*;
-import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Serializer;
 import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
@@ -26,8 +24,6 @@ import org.apache.commons.io.LineIterator;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -142,7 +138,7 @@ public class FrameHandler implements Tickable {
                     File p = FileHandler.generateTestingOutputFile(
                             "joint_positions-" + testIndex);
                     p.createNewFile();
-                    sifs.setOutputFile(p);
+                    sifs.setJointsOutputFile(p);
 
                     File hp = FileHandler.generateTestingOutputFile(
                             "hand_positions-" + testIndex);
@@ -275,7 +271,7 @@ public class FrameHandler implements Tickable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            rgh.setOutputFile(f);
+            rgh.setGestureOutputFile(f);
 
             setGestureHandler(rgh);
         }

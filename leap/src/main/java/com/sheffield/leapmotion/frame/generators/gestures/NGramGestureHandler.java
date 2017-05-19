@@ -17,11 +17,6 @@ public class NGramGestureHandler extends RandomGestureHandler {
 	private File outputFile;
 
 	private String currentGesture = "";
-	
-	public void setOutputFile(File f){
-		outputFile = f;
-		super.setOutputFile(f);
-	}
 
 
 	public NGramGestureHandler(NGram ng) {

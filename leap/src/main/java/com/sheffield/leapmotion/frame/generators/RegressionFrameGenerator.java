@@ -545,6 +545,11 @@ public class RegressionFrameGenerator extends FrameGenerator implements
         return gl;
     }
 
+    @Override
+    public void setGestureOutputFile(File f) {
+
+    }
+
     private SeededCircleGesture scg;
     private SeededSwipeGesture ssg;
     private static final Gesture.Type[] TYPES =

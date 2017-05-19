@@ -45,6 +45,8 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 		if (status.contains("null") || status == null){
 			status = "";
+		} else {
+			status += " ";
 		}
 
 		status += MemoryManager.getMemoryUsage();

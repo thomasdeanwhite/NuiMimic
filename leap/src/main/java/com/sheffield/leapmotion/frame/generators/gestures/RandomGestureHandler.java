@@ -22,13 +22,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
     protected Frame lastFrame;
     protected int gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
 
-
-    private File outputFile;
     private ArrayList<NGramLog> logs = new ArrayList<NGramLog>();
-
-    public void setOutputFile(File o) {
-        outputFile = o;
-    }
 
 
     @Override

@@ -40,9 +40,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		}
     }
 
-	public void setOutputFile(File outputFile){
+	public void setJointsOutputFile(File outputFile){
 		for (NGramFrameGenerator ngfg : generators.values()){
-			ngfg.setOutputFile(outputFile);
+			ngfg.setOutputJointsFile(outputFile);
 		}
 	}
 

@@ -1,12 +1,8 @@
 package com.sheffield.leapmotion.frame.generators.gestures;
 
-import com.google.gson.Gson;
-import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.generators.NGramFrameGenerator;
 import com.sheffield.leapmotion.output.StateComparator;
-import com.sheffield.leapmotion.util.FileHandler;
 
 import java.io.File;
 import java.util.HashMap;
@@ -19,9 +15,9 @@ public class StateGramGestureHandler extends RandomGestureHandler {
 
 	private String currentGesture = "";
 
-	public void setOutputFile(File f){
+	public void setGestureOutputFile(File f){
 		outputFile = f;
-		super.setOutputFile(f);
+		super.setGestureOutputFile(f);
 	}
 
 

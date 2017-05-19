@@ -4,7 +4,9 @@ import com.leapmotion.leap.*;
 import com.leapmotion.leap.Gesture.State;
 import com.leapmotion.leap.Gesture.Type;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.frame.playback.NGramLog;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -21,6 +23,13 @@ public class NoneGestureHandler implements GestureHandler {
 	protected int gestureId = 0;
 	protected ArrayList<Vector> cumalitiveGesturePositions = new ArrayList<Vector>();
 	protected int gestureCount = 0;
+
+	protected File outputFile;
+
+	@Override
+	public void setGestureOutputFile(File o) {
+		outputFile = o;
+	}
 	
 	@Override
 	public GestureList handleFrame(Frame frame, Controller controller) {
