@@ -1000,6 +1000,8 @@ public class App implements ThrowableListener, Tickable {
 
     private boolean printHeaders = true;
 
+    private float nextProgress = 0f;
+
     public void tick(long time) {
         SeededController sc = SeededController.getSeededController();
         //if (time - lastSwitchTime > timeBetweenSwitch) {
@@ -1032,7 +1034,8 @@ public class App implements ThrowableListener, Tickable {
 
         float prog = getProgress();
 
-        if (Properties.SHOW_PROGRESS || (int) (prog * 100000f) % 25000 == 0) {
+        if (Properties.SHOW_PROGRESS || prog >= nextProgress) {
+            nextProgress += 0.25;
             String progress = ProgressBar.getProgressBar(21, prog);
 
             out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());

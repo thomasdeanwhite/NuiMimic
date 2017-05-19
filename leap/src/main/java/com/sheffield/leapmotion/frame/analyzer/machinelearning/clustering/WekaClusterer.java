@@ -21,14 +21,20 @@ import weka.core.converters.ConverterUtils;
 public class WekaClusterer {
 
     private String filename;
+    private int clusters = 0;
 
     public WekaClusterer(String filename){
         this.filename = filename;
+        setClusters(Properties.CLUSTERS);
+    }
+
+
+    public void setClusters(int clusters){
+        this.clusters = clusters;
     }
 
     public ClusterResult cluster() throws Exception {
 
-        int clusters = Properties.CLUSTERS;
         int iterations = 100;
 
         File f = new File(filename);

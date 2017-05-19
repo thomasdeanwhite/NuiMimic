@@ -280,13 +280,13 @@ public class FrameHandler implements Tickable {
             setGestureHandler(rgh);
         }
 
-        String output = Properties.FRAME_SELECTION_STRATEGY.toString();
+        String output = frameGenerator.getName();
 
         if (Properties.PLAYBACK_FILE != null && !(frameGenerator instanceof UserPlaybackFrameGenerator)) {
             FrameGenerator backupFs = frameGenerator;
             frameGenerator =
                     new UserPlaybackFrameGenerator(backupFs, seededController);
-            output = "USER_PLAYBACK_FRAME_SELECTOR(" + output + ")";
+            output = frameGenerator.getName() + "::" + output;
         }
 
         App.out.println("- Using " + output + " for frame selection.");

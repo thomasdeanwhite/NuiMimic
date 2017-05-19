@@ -1,8 +1,11 @@
 package com.sheffield.leapmotion.runtypes;
 
 import com.google.gson.Gson;
-import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.*;
+
 import static com.sheffield.leapmotion.Properties.*;
+
+import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.clustering.ClusterResult;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.clustering.WekaClusterer;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
@@ -149,6 +152,7 @@ public class IntrinsicEvaluationRunType implements RunType {
                 csv.add("cluster", "" + CLUSTERS);
                 csv.add("N", "" + N);
                 csv.add("model", s);
+                csv.add("dataPool", Properties.INPUT[0]);
 
                 csv.finalize();
 

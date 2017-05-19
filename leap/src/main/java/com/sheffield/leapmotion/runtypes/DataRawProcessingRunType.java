@@ -92,6 +92,8 @@ public class DataRawProcessingRunType implements RunType {
 
             WekaClusterer wc = new WekaClusterer(joints);
 
+            wc.setClusters(Properties.CLUSTERS * 3);
+
             try {
                 ClusterResult cr = wc.cluster();
 
