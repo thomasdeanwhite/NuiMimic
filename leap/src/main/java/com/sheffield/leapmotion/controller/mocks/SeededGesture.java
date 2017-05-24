@@ -58,8 +58,10 @@ public class SeededGesture extends Gesture implements Serializable {
 
 	@Override
 	public synchronized void delete() {
-		// TODO Auto-generated method stub
-		// super.delete();
+	}
+
+	public void destroy(){
+
 	}
 
 	@Override

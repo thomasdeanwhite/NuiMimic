@@ -68,12 +68,12 @@ public class SeededHand extends Hand implements Serializable {
 
     public SeededHand copy(){
         SeededHand h = new SeededHand();
-        h.basis = basis;
-        h.direction = direction;
+        h.basis = new Matrix(basis);
+        h.direction = new Vector(direction);
         h.frame = frame;
-        h.palmNormal = palmNormal;
-        h.palmPosition = palmPosition;
-        h.palmVelocity = palmVelocity;
+        h.palmNormal = new Vector(palmNormal);
+        h.palmPosition = new Vector(palmPosition);
+        h.palmVelocity = new Vector(palmVelocity);
         h.palmWidth = palmWidth;
         h.timeVisible = timeVisible;
         h.isLeft = isLeft;
@@ -89,22 +89,22 @@ public class SeededHand extends Hand implements Serializable {
                 SeededBone b = (SeededBone) rb;
 
                 sb.type = bt;
-                sb.basis = b.basis;
-                sb.center = b.center;
+                sb.basis = new Matrix(b.basis);
+                sb.center = new Vector(b.center);
                 sb.length = b.length();
-                sb.nextJoint = b.nextJoint;
-                sb.prevJoint = b.prevJoint;
+                sb.nextJoint = new Vector(b.nextJoint);
+                sb.prevJoint = new Vector(b.prevJoint);
                 sb.rotation = b.rotation;
                 sb.width = b.width();
                 sf.bones.put(bt, sb);
             }
             sf.rotation = of.rotation;
             sf.type = of.type;
-            sf.tipPosition = of.tipPosition;
-            sf.tipVelocity = of.tipVelocity;
+            sf.tipPosition = new Vector(of.tipPosition);
+            sf.tipVelocity = new Vector(of.tipVelocity);
             sf.hand = h;
-            sf.stabilizedTipPosition = of.stabilizedTipPosition;
-            sf.nStabilizedTipPosition = of.nStabilizedTipPosition;
+            sf.stabilizedTipPosition = new Vector(of.stabilizedTipPosition);
+            sf.nStabilizedTipPosition = new Vector(of.nStabilizedTipPosition);
             sf.normalize();
             sfl.addFinger(sf);
         }
@@ -366,7 +366,7 @@ public class SeededHand extends Hand implements Serializable {
 
     public void setRotation(Vector axis, float rotation) {
         //basis = Matrix.identity();
-        basis.setRotation(new Vector(axis.getX(), axis.getY(), axis.getZ()).normalized(), rotation);
+        basis.setRotation(axis.normalized(), rotation);
         //basis.setRotation(Vector.xAxis(), 1.46f);
     }
 
@@ -398,8 +398,18 @@ public class SeededHand extends Hand implements Serializable {
 
     @Override
     public synchronized void delete() {
-        // TODO Auto-generated method stub
-        // super.delete();
+    }
+
+    public void destroy(){
+
+//        for (Finger f : fingerList){
+//            ((SeededFinger)f).destroy();
+//        }
+
+        palmNormal.delete();
+        palmPosition.delete();
+        palmVelocity.delete();
+        basis.delete();
     }
 
     @Override

@@ -13,6 +13,11 @@ public class FrameSeedingRunnable implements Runnable, Comparable {
     private FrameSwitchListener listener;
     private Frame next;
     private Frame last;
+
+    public Frame getNext() {
+        return next;
+    }
+
     private long seedTime = 0;
 
     public FrameSeedingRunnable (FrameSwitchListener fsl,
@@ -40,7 +45,13 @@ public class FrameSeedingRunnable implements Runnable, Comparable {
         return 1;
     }
 
-public long getSeedTime (){
-        return seedTime;
-}
+    public long getSeedTime (){
+            return seedTime;
+    }
+
+    public void destroy(){
+        next = null;
+        last = null;
+        listener = null;
+    }
 }

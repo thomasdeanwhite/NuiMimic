@@ -12,6 +12,7 @@ import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
+import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.output.Csv;
 import weka.core.Instance;
 
@@ -45,6 +46,12 @@ public class IntrinsicEvaluationRunType implements RunType {
         }
         String dataDir = DIRECTORY + "/" + INPUT[0];
 
+        List<String> trainingFiles = new ArrayList<>();
+
+        for (int i = 1; i < INPUT.length; i++){
+            trainingFiles.add(DIRECTORY + "/" + INPUT[i]);
+        }
+
 
         long seed = System.currentTimeMillis();
 
@@ -52,7 +59,13 @@ public class IntrinsicEvaluationRunType implements RunType {
 
             String joints = dataDir + "/" + s;
 
-            WekaClusterer wc = new WekaClusterer(joints);
+            List<String> fs = new ArrayList<>();
+
+            for (String tf : trainingFiles){
+                fs.add(tf + "/" + s);
+            }
+
+            WekaClusterer wc = new WekaClusterer(joints, fs);
 
             try {
                 ClusterResult cr = wc.cluster();
@@ -78,74 +91,76 @@ public class IntrinsicEvaluationRunType implements RunType {
                     clusterOrder.add(assignments.get(key));
                 }
 
-                File outputSequence = new File(dataDir + "/processed/" + files.get(s) + ".raw_sequence");
+                NGram ng = NGramModel.getNGram();
 
-                if (!outputSequence.exists()){
-                    if (outputSequence.getParentFile() != null && !outputSequence.getParentFile().exists()){
-                        outputSequence.getParentFile().mkdirs();
+                for (String trainingFile : trainingFiles){
+
+
+                    File outputSequence = new File(trainingFile + "/sequence_hand_data");
+
+                    String outSeq = FileHandler.readFile(outputSequence);
+
+                    String[] outpSeq = outSeq.split(",");
+
+                    outSeq = "";
+
+                    for (String os : outpSeq){
+                        outSeq += assignments.get(os + trainingFile + "/" + s) + " ";
                     }
-                    outputSequence.createNewFile();
+
+                    NGram ngf = NGramModel.getNGramOpenVocab(N, outSeq);
+
+                    ng.merge(ngf);
                 }
+
+                ng.calculateProbabilities();
 
                 Csv csv = new Csv();
 
-                int size = clusterOrder.size();//(int) Math.sqrt(clusterOrder
-                        //.size());
-
-
-
-
                 Random r = new Random(seed);
-
-                int sampleSize = clusterOrder.size()/10;
-                int start = N + r.nextInt(clusterOrder.size() - N - sampleSize);
-                int end = start + sampleSize;
-
-                App.out.println("Calculating " + s + " perplexity between [" + start + " .. " + end + "]");
 
 
                 IntrinsicEvaluationRunType.this.perplexity.put(s, new ArrayList<>());
 
-                DoubleStream perplexity = IntStream.range(start, end).mapToDouble(i -> {
+
+                File outputSequence = new File(dataDir+ "/sequence_hand_data");
+
+                String[] outSeq = FileHandler.readFile(outputSequence).split(",");
+
+                float perplex = 0f;
+
+                float lastProg = 0f;
+                App.out.println(ProgressBar.getHeaderBar(21));
+                for (int i = N; i <= outSeq.length; i++) {
                     String candidate = "";
 
-                    for (int j = i-N; j < i; j++){
-                        candidate += clusterOrder.get(j) + " ";
+                    for (int j = i - N; j < i; j++){
+                        candidate += assignments.get(outSeq[j] + joints) + " ";
                     }
-
-                    StringBuilder sb = new StringBuilder();
-
-                    for (int k = i; k < clusterOrder.size(); k++){
-                        sb.append(clusterOrder.get(k) + " ");
-                    }
-
-                    StringBuilder sbPrev = new StringBuilder();
-
-                    for (int k = 0; k < i - N; k++){
-                        sbPrev.append(clusterOrder.get(k) + " ");
-                    }
-
-
-                    NGram ng = NGramModel.getNGram(N, sb.toString());
-                    NGram ngPrev = NGramModel.getNGram(N, sbPrev.toString());
-
-                    ng.merge(ngPrev);
-
-                    ng.calculateProbabilities();
-
                     float probability = ng.getProbability(candidate);
 
-                    while(probability == 0f){
-                        candidate = candidate.substring(candidate.indexOf(" "));
-                        probability = ng.getProbability(candidate) * 0.0001f;
-                    }
+//                    while (probability == 0f) {
+//                        candidate = candidate.substring(candidate.indexOf(" ")+1);
+//                        probability = ng.getProbability(candidate) * 0.0001f;
+//                        if (candidate.length() == 0){
+//                            probability = (float)Math.pow(0.0001, N);
+//                        }
+//                    }
 
 //                    IntrinsicEvaluationRunType.this.perplexity.get(s).add((float)Math.pow(1f/probability,
 //                            1/(float)N));
-                    return (float)Math.pow(1f/probability, 1/(float)N);
-                });
+                    float perplexity = (float) Math.pow(1f / probability, 1 / (float) N);
+                    perplex += perplexity;
 
-                float perplex = (float)perplexity.sum();
+                    float prog = i / (float) outSeq.length;
+
+                    if (Properties.SHOW_PROGRESS || prog > lastProg){
+                        App.out.print("\r" + ProgressBar.getProgressBar(21, prog) + candidate + ": " + perplexity);
+                        lastProg = prog + 0.1f;
+                    }
+                }
+
+                App.out.println();
 
 
                 csv.add("preplexity", "" + perplex);
@@ -153,6 +168,12 @@ public class IntrinsicEvaluationRunType implements RunType {
                 csv.add("N", "" + N);
                 csv.add("model", s);
                 csv.add("dataPool", Properties.INPUT[0]);
+                String tf = "";
+
+                for (String sf : trainingFiles){
+                    tf += sf + ";";
+                }
+                csv.add("trainingData", tf);
 
                 csv.finalize();
 

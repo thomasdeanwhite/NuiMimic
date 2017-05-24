@@ -1,9 +1,13 @@
 package com.sheffield.leapmotion.controller;
 
+import com.leapmotion.leap.Frame;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,6 +23,8 @@ public class FrameSeedingRunnableQueue implements Runnable {
     private long startTime = -1;
     private long maxTime = 0;
 
+    private List<Frame> frameCleanup;
+
     private int discardedFrames = 0;
 
     private Thread currentThread;
@@ -28,6 +34,8 @@ public class FrameSeedingRunnableQueue implements Runnable {
     }
 
     public void start(){
+
+        frameCleanup = new ArrayList<>();
 
         if (startTime == -1){
             startTime = MockSystem.currentTimeMillis();
@@ -46,6 +54,10 @@ public class FrameSeedingRunnableQueue implements Runnable {
 
             //1 second backlog
             long currentTime = (MockSystem.currentTimeMillis() - startTime) - Properties.DELAY_TIME;
+
+            if (currentTime > maxTime){
+                maxTime = currentTime;
+            }
 
             FrameSeedingRunnable fsr = frameSeeding.peek();
 
@@ -94,10 +106,22 @@ public class FrameSeedingRunnableQueue implements Runnable {
             if (fsr != null) {
                 try {
                     fsr.run();
+//                    fsr.destroy();
+                    frameCleanup.add(frameCleanup.size(), fsr.getNext());
                 } catch (Throwable t){
                     App.getApp().throwableThrown(t);
                 }
             }
+
+            if (frameCleanup.size() > Properties.MAX_LOADED_FRAMES && (seedTime - (frameCleanup.get(0).timestamp()/1000) > 1000)){
+                Frame f = frameCleanup.remove(0);
+                if (f instanceof SeededFrame){
+                    SeededController.getSeededController().registerFrameForDeletion((SeededFrame)f);
+                } else {
+                    f.delete();
+                }
+            }
+
         }
         running = false;
         currentThread = null;

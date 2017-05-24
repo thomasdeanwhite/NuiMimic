@@ -74,8 +74,17 @@ public class SeededFinger extends Finger implements Serializable {
 
 	@Override
 	public synchronized void delete() {
-		// TODO Auto-generated method stub
-		// super.delete();
+	}
+
+	public void destroy(){
+
+		for (Bone.Type bt : Bone.Type.values()){
+			((SeededBone)bone(bt)).destroy();
+		}
+
+		tipPosition.delete();
+		stabilizedTipPosition.delete();
+		nStabilizedTipPosition.delete();
 	}
 
 	@Override

@@ -80,9 +80,7 @@ public class SeededFrame extends Frame implements Serializable {
 	}
 
 	public void setHandList(SeededHandList hl) {
-		handList.clear();
-		fingerList.clear();
-		pointables.clear();
+		clearHands();
 		for (Hand h : hl) {
 			handList.addHand(h);
 
@@ -133,7 +131,39 @@ public class SeededFrame extends Frame implements Serializable {
 
 	@Override
 	public synchronized void delete() {
+	}
+
+	public void destroy(){
 		// frame.delete();
+
+		fingerList.destroy();
+
+		for (Hand h : handList){
+			((SeededHand)h).destroy();
+		}
+
+		for (Gesture g : gestureList){
+			((SeededGesture)g).destroy();
+		}
+
+		setId(-1);
+
+		clear();
+	}
+
+	public void clearHands(){
+		handList.clear();
+		fingerList.clear();
+		pointables.clear();
+	}
+
+	public void clearGestures(){
+		((SeededGestureList)gestureList).clear();
+	}
+
+	public void clear(){
+		clearHands();
+		clearGestures();
 	}
 
 	@Override

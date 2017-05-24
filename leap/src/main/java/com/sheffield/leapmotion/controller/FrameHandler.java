@@ -370,12 +370,23 @@ public class FrameHandler implements Tickable {
             //sf.interactionBox();
         }
         if (frames.contains(frame)) {
+            boolean found = false;
+            for (Frame f : frames){
+                if (f == frame){
+                    found = true;
+                }
+            }
+
+            if (!found){
+                frame.delete();
+            }
+
             return;
         }
 
 
         if (frame.timestamp() == -1 && frame instanceof SeededFrame){
-            ((SeededFrame)frame).setTimestamp(frameSeedingQueue.lastTimestamp() + (1000/Properties.FRAMES_PER_SECOND));
+            ((SeededFrame)frame).setTimestamp(1000* (frameSeedingQueue.lastTimestamp() + (1000/Properties.FRAMES_PER_SECOND)));
             ((SeededFrame)frame).setId(frame.timestamp());
         }
 
@@ -431,6 +442,10 @@ public class FrameHandler implements Tickable {
         // get frames seeded in last second:
         //     1000000 -> 1 second in microseconds
         while (timeElapsed < 1000000 && frames.size() > count) {
+            if (frames.get(count).timestamp() == -1){
+                frames.remove(count);
+                continue;
+            }
             if (frames.get(count).isValid() &&
                     frames.get(count).hands().count() > 0) {
                 timeElapsed = timeStamp - frames.get(count++).timestamp();
@@ -487,7 +502,6 @@ public class FrameHandler implements Tickable {
                             Math.abs(tipMovement.getY()),
                             Math.abs(tipMovement.getZ()));
 
-            int counter = 0;
             for (int i = increment; i < count; i += increment) {
 
                 SeededFinger f1 =
@@ -500,11 +514,15 @@ public class FrameHandler implements Tickable {
 
                 Vector tipChange = f1.rawTipPosition().minus(f2.rawTipPosition());
 
+                Vector tc = totalChange;
+
                 totalChange = totalChange.plus(new Vector(
                         Math.abs(tipChange.getX()),
                         Math.abs(tipChange.getY()),
                         Math.abs(tipChange.getZ())
                 ));
+
+                tc.delete();
 
                 tipMovement = tipMovement
                         .plus(tipChange);
@@ -523,9 +541,6 @@ public class FrameHandler implements Tickable {
                     stabilizedTip.setZ(f1.rawTipPosition().getZ());
                     stabilisedThreshold.setZ(Float.MAX_VALUE);
                 }
-
-
-                counter++;
 
             }
 
@@ -554,6 +569,9 @@ public class FrameHandler implements Tickable {
 
             ((SeededFinger) f).normalize();
 
+            stabilisedThreshold.delete();
+            totalChange.delete();
+
         }
 
         Vector palmVelocity = frame.hand(0).palmPosition().minus(frames.get(increment).hand(0).palmPosition());
@@ -562,7 +580,10 @@ public class FrameHandler implements Tickable {
             Hand h1 = frames.get(i).hand(0);
             Hand h2 = frames.get(i + increment).hand(0);
 
+
+            Vector pv = palmVelocity;
             palmVelocity = palmVelocity.plus(h1.palmPosition().minus(h2.palmPosition()));
+            pv.delete();
 
         }
 

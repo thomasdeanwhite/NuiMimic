@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.frame.analyzer.machinelearning.clustering;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
@@ -21,11 +22,18 @@ import weka.core.converters.ConverterUtils;
 public class WekaClusterer {
 
     private String filename;
+    private List<String> files;
     private int clusters = 0;
 
     public WekaClusterer(String filename){
         this.filename = filename;
         setClusters(Properties.CLUSTERS);
+        files = new ArrayList<>();
+    }
+
+    public WekaClusterer(String filename, List<String> files){
+        this(filename);
+        this.files.addAll(files);
     }
 
 
@@ -35,7 +43,7 @@ public class WekaClusterer {
 
     public ClusterResult cluster() throws Exception {
 
-        int iterations = 100;
+        int iterations = 2;
 
         File f = new File(filename);
 
@@ -52,10 +60,43 @@ public class WekaClusterer {
         ArrayList<String> ids = new ArrayList<String>(data.size());
 
         for (Instance s : data){
-            ids.add(s.stringValue(0));
+            ids.add(s.stringValue(0) + filename);
+        }
+
+//        data.deleteStringAttributes();
+
+        for (String s : files) {
+            File fi = new File(s);
+
+            if (!fi.exists()) {
+                throw new IllegalArgumentException("File " + fi.getAbsolutePath() + " does not exist!");
+            }
+
+            ArffLoader fiLoader = new ArffLoader();
+
+            loader.setFile(fi);
+
+            Instances fiData = loader.getDataSet();
+
+            ConverterUtils.DataSource fiS = new ConverterUtils.DataSource(fiData);
+            Instances struct = fiS.getStructure();
+//            struct.deleteStringAttributes();
+
+            ArrayList<String> fiIds = new ArrayList<String>(data.size());
+
+            for (Instance sfi : fiData){
+                ids.add(sfi.stringValue(0) + s);
+            }
+
+            while(fiS.hasMoreElements(struct)){
+                Instance next = fiS.nextElement(struct);
+
+                data.add(next);
+            }
         }
 
         data.deleteStringAttributes();
+
 
         //data.setClassIndex(0);
 

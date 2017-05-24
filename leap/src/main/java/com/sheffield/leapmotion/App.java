@@ -1035,7 +1035,7 @@ public class App implements ThrowableListener, Tickable {
         float prog = getProgress();
 
         if (Properties.SHOW_PROGRESS || prog >= nextProgress) {
-            nextProgress += 0.25;
+            nextProgress += 0.1;
             String progress = ProgressBar.getProgressBar(21, prog);
 
             out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());

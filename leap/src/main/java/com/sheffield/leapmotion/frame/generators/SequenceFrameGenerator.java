@@ -245,7 +245,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
     @Override
     public Frame newFrame() {
         Frame f = SeededController.newFrame();
-
+//
         if (lastHand == null){
             return null;
         }

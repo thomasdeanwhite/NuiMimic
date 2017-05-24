@@ -11,6 +11,7 @@ import java.util.ArrayList;
  */
 public class NGram implements Serializable {
 
+    public static final String UNKNOWN = "<unk>";
     protected String element;
 
     protected int count = 0;
@@ -116,13 +117,21 @@ public class NGram implements Serializable {
 
         String[] cs = child.split(NGramModel.DELIMITER);
 
+        NGram unk = null;
+
         for (NGram n : children){
             if (n.element.equals(cs[0])){
                 return n.getProbability(child.substring(child.indexOf(NGramModel.DELIMITER)+1));
             }
+
+            if (n.element.equals(UNKNOWN)){
+                unk = n;
+            }
         }
 
-        return probability;
+
+
+        return unk == null ? probability : unk.getProbability(child.substring(child.indexOf(NGramModel.DELIMITER)+1));
     }
 
     public int getCount(String child){
@@ -249,7 +258,7 @@ public class NGram implements Serializable {
         if (ng.element.equals(element)){
             count += ng.count;
 
-            if (ng.children.size() != 0 && children.size() != 0){
+            if (ng.children.size() != 0){
                 for (NGram on : ng.children){
                     boolean matched = false;
                     for (NGram n : children){

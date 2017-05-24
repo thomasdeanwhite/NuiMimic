@@ -30,6 +30,10 @@ public class SeededGestureList extends GestureList implements Serializable {
 		return this;
 	}
 
+	public void clear(){
+		gestures.clear();
+	}
+
 	@Override
 	public int count() {
 		// TODO Auto-generated method stub
@@ -38,6 +42,9 @@ public class SeededGestureList extends GestureList implements Serializable {
 
 	@Override
 	public synchronized void delete() {
+	}
+
+	public void destroy(){
 		for (Gesture g : gestures) {
 			g.delete();
 		}

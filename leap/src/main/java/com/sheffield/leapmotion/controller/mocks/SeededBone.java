@@ -23,6 +23,8 @@ public class SeededBone extends Bone implements Serializable {
 	protected Quaternion rotation = Quaternion.IDENTITY;
 
 	protected static Random RANDOM = new Random(0);
+	private Vector finalNext;
+	private Vector finalPrev;
 
 	public SeededBone() {
 		basis = Matrix.identity();
@@ -43,8 +45,18 @@ public class SeededBone extends Bone implements Serializable {
 
 	@Override
 	public synchronized void delete() {
-		// TODO Auto-generated method stub
-		// super.delete();
+	}
+
+	public void destroy(){
+		nextJoint.delete();
+		prevJoint.delete();
+		basis.delete();
+		center.delete();
+		direction.delete();
+
+		finalNext.delete();
+		finalPrev.delete();
+
 	}
 
 	@Override
@@ -69,6 +81,10 @@ public class SeededBone extends Bone implements Serializable {
 	public void normalize() {
 		//basis = basis.times(Matrix.identity());
 		//basis.setOrigin(offset);
+		finalNext = translatePoint(nextJoint);
+
+		finalPrev = translatePoint(prevJoint);
+
 		direction = prevJoint().minus(nextJoint()).normalized();
 
 		center = prevJoint().plus(nextJoint()).divide(2f);
@@ -116,13 +132,13 @@ public class SeededBone extends Bone implements Serializable {
 	@Override
 	public Vector nextJoint() {
 		// TODO Auto-generated method stub
-		return translatePoint(nextJoint);
+		return finalNext;
 	}
 
 	@Override
 	public Vector prevJoint() {
 		// TODO Auto-generated method stub
-		return translatePoint(prevJoint);
+		return finalPrev;
 	}
 
 	@Override

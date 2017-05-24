@@ -2,6 +2,7 @@ package com.sheffield.leapmotion.frame.generators;
 
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
@@ -141,19 +142,19 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
     @Override
     public Frame newFrame() {
 
-        Frame frame = Frame.invalid();
-
         if (handLabelStack.size() > 0 && currentHandIndex < handLabelStack.size()) {
-            frame = super.newFrame();
+            Frame frame = super.newFrame();
 
             if (frame != null) {
                 ((SeededFrame) frame).setTimestamp(timings.get(currentHandIndex) * 1000);
-                ((SeededFrame) frame).setId(currentHandIndex);
+                ((SeededFrame) frame).setId(timings.get(currentHandIndex) * 1000);
             }
+
+            return frame;
         }
 
         currentHandIndex++;
-        return frame;
+        return SeededController.newFrame();
     }
 
     @Override

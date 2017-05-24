@@ -345,7 +345,24 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		frameHandler.setGestureHandler(gh);
 	}
 
+
+	private ArrayList<Frame> recyclableFrames = new ArrayList<Frame>();
+	public void registerFrameForDeletion(SeededFrame frame){
+		recyclableFrames.add(frame);
+	}
+
 	private Frame createFrame() {
+		if (recyclableFrames.size() > 0){
+			Frame f = recyclableFrames.remove(0);
+
+			if (f instanceof SeededFrame){
+				SeededFrame sf = (SeededFrame) f;
+				sf.destroy();
+				//sf.destroy();
+			}
+
+			return f;
+		}
 		return super.frame();
 	}
 
