@@ -103,9 +103,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 		}
 		if (CONTROLLER == null) {
 			initializing = true;
-			//App.startTesting();
 			CONTROLLER = new SeededController();
-			//App.getApp().setup(setupForTesting);
 			CONTROLLER.setup();
 			initializing = false;
 		}
@@ -492,11 +490,6 @@ public class SeededController extends Controller implements FrameSwitchListener,
 
 	public void cleanUp(){
 		frameHandler.cleanUp();
-
-//		if (App.DISPLAY_WINDOW != null){
-//			App.DISPLAY_WINDOW.setVisible(false);
-//			App.DISPLAY_WINDOW = null;
-//		}
 	}
 
 	public boolean allowProcessing(){

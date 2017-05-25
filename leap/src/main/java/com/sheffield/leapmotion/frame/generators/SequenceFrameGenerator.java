@@ -228,6 +228,9 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
             joints = getJoints(processed);
             positions = getPositions(processed);
             rotations = getRotations(processed);
+
+            Properties.CLUSTERS = joints.keySet().size();
+
         } catch (IOException e) {
             e.printStackTrace(App.out);
 

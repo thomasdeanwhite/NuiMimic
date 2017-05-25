@@ -29,7 +29,7 @@ public class FrameDeconstructor {
     private String filenameStart = "";
     private String addition = "";
 
-    public static long[] BREAK_TIMES = new long[]{Long.MAX_VALUE};
+    public static long[] BREAK_TIMES = new long[]{Properties.RUNTIME};
 
     private boolean calculatingScreenshot = false;
 
@@ -61,6 +61,8 @@ public class FrameDeconstructor {
     public FrameDeconstructor() {
         handIds = new ArrayList<String>();
         gestures = new ArrayList<String>();
+
+        BREAK_TIMES[0] = Properties.RUNTIME;
     }
 
     public void addHandId(String id){

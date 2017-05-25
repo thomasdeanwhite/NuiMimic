@@ -93,6 +93,8 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                 NGram ng = NGramModel.getNGram();
 
+                long trainingSize = 0l;
+
                 for (String trainingFile : trainingFiles){
 
 
@@ -102,7 +104,12 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                     String[] outpSeq = outSeq.split(",");
 
-                    outSeq = "";
+                    long dataSize = Long.parseLong(outpSeq[outpSeq.length-1].split("@")[0]) -
+                            Long.parseLong(outpSeq[0].split("@")[0]);
+
+                            outSeq = "";
+
+                    trainingSize += dataSize;
 
                     for (String os : outpSeq){
                         outSeq += assignments.get(os + trainingFile + "/" + s) + " ";
@@ -126,6 +133,9 @@ public class IntrinsicEvaluationRunType implements RunType {
                 File outputSequence = new File(dataDir+ "/sequence_hand_data");
 
                 String[] outSeq = FileHandler.readFile(outputSequence).split(",");
+
+                long dataSize = Long.parseLong(outSeq[outSeq.length-1].split("@")[0]) -
+                        Long.parseLong(outSeq[0].split("@")[0]);
 
                 float perplex = 0f;
 
@@ -168,11 +178,15 @@ public class IntrinsicEvaluationRunType implements RunType {
                 csv.add("N", "" + N);
                 csv.add("model", s);
                 csv.add("dataPool", Properties.INPUT[0]);
+                csv.add("trainingSize", ""+trainingSize);
+                csv.add("dataSize", ""+dataSize);
                 String tf = "";
 
-                for (String sf : trainingFiles){
-                    tf += sf + ";";
+                for (int i = 1; i < Properties.INPUT.length; i++){
+                    tf += Properties.INPUT[i] + ";";
                 }
+
+                tf = tf.substring(0, tf.length()-1);
                 csv.add("trainingData", tf);
 
                 csv.finalize();

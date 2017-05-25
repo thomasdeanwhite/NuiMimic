@@ -74,7 +74,7 @@ public class SamplerApp extends Listener {
         if (REQUEST_NAME) {
             filenameStart = JOptionPane.showInputDialog(null, "Please enter your identifier", "Leap Motion Sampler", JOptionPane.INFORMATION_MESSAGE);
 
-            FrameDeconstructor.BREAK_TIMES = new long[]{300000};
+            FrameDeconstructor.BREAK_TIMES = new long[]{Properties.RUNTIME};
         }
 
         if (SHOW_GUI) {

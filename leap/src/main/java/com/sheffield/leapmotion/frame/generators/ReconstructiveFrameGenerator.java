@@ -57,9 +57,6 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
 
             currentLabel = 0;
 
-
-            Properties.CLUSTERS = joints.size();
-
             String sequenceFile =
                     Properties.DIRECTORY + "/" + filename + "/processed/" +
                             (Properties.SINGLE_DATA_POOL ?

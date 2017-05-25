@@ -574,20 +574,24 @@ public class FrameHandler implements Tickable {
 
         }
 
-        Vector palmVelocity = frame.hand(0).palmPosition().minus(frames.get(increment).hand(0).palmPosition());
+        if (frame.hand(0) != null && frame.hand(0).isValid() &&
+                frames.get(increment).hand(0) != null && frames.get(increment).hand(0).isValid()) {
+            Vector palmVelocity = frame.hand(0).palmPosition().minus(frames.get(increment).hand(0).palmPosition());
 
-        for (int i = increment; i < count; i += increment) {
-            Hand h1 = frames.get(i).hand(0);
-            Hand h2 = frames.get(i + increment).hand(0);
+            for (int i = increment; i < count; i += increment) {
+                Hand h1 = frames.get(i).hand(0);
+                Hand h2 = frames.get(i + increment).hand(0);
 
+                if (h1 != null && h1.isValid() && h2 != null && h2.isValid()) {
+                    Vector pv = palmVelocity;
+                    palmVelocity = palmVelocity.plus(h1.palmPosition().minus(h2.palmPosition()));
+                    pv.delete();
+                }
 
-            Vector pv = palmVelocity;
-            palmVelocity = palmVelocity.plus(h1.palmPosition().minus(h2.palmPosition()));
-            pv.delete();
+            }
 
+            ((SeededHand) frame.hand(0)).setPalmVelocity(palmVelocity);
         }
-
-        ((SeededHand)frame.hand(0)).setPalmVelocity(palmVelocity);
 
         return frame;
     }

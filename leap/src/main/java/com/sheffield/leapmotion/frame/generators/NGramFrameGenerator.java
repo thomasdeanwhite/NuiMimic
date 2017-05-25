@@ -92,8 +92,6 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     private void setup(NGram jointNgram, NGram positionNgram, NGram rotationNgram, NGram gestureNGram) {
         App.out.println("* Setting up NGramModel Frame Selection");
 
-        Properties.CLUSTERS = this.joints.size();
-
         this.jointNgram = jointNgram;
         this.jointNgram.calculateProbabilities();
 
