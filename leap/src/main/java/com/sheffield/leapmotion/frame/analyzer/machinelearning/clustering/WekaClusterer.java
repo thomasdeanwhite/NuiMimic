@@ -43,7 +43,7 @@ public class WekaClusterer {
 
     public ClusterResult cluster() throws Exception {
 
-        int iterations = 2;
+        int iterations = 50;
 
         File f = new File(filename);
 

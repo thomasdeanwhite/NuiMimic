@@ -108,6 +108,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 			App.out.println("* User Playback: Loading Leap Motion Frames");
 			App.out.println(ProgressBar.getHeaderBar(21));
+			float progress = 0f;
 			while (lineIterator.hasNext()){
 				try {
 					frameStack.add(Serializer
@@ -118,8 +119,9 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 				float prog = counter++ / (float) maxFrames;
 
-				if (Properties.SHOW_PROGRESS || (int)(prog*100000f)%25000 == 0) {
+				if (Properties.SHOW_PROGRESS || prog > progress) {
 					App.out.print("\r" + ProgressBar.getProgressBar(21, prog));
+					progress += 0.1f;
 				}
 				//counter--;
 			}

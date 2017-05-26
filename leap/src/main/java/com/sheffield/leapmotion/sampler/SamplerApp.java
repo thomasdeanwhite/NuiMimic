@@ -190,6 +190,8 @@ public class SamplerApp extends Listener {
 
     private boolean printHeader = true;
 
+    private float progress = 0f;
+
     public void frame(Frame f) {
 
         if (App.getApp().status().equals(com.sheffield.leapmotion.util.AppStatus.FINISHED)) {
@@ -316,7 +318,8 @@ public class SamplerApp extends Listener {
                     .length - 1];
 
             float percent = done / (float) total;
-            if (Properties.SHOW_PROGRESS || (int) (percent * 100000f) % 25000 == 0) {
+            if (Properties.SHOW_PROGRESS || percent > progress) {
+                progress += 0.1f;
                 String progress = ProgressBar.getProgressBar(bars, percent);
 
                 out.print("\r" + progress);
