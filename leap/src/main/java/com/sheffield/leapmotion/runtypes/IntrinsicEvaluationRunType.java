@@ -76,6 +76,8 @@ public class IntrinsicEvaluationRunType implements RunType {
 
                 results.put(s, cr);
 
+                App.out.println();
+
                 HashMap<String, String> assignments = cr.getAssignments();
 
                 ArrayList<String> keys = new ArrayList<>();
