@@ -68,9 +68,15 @@ public class IntrinsicEvaluationRunType implements RunType {
             WekaClusterer wc = new WekaClusterer(joints, fs);
 
             try {
+                App.out.println(ProgressBar.getHeaderBar(21));
+                App.out.print("\r" + ProgressBar.getProgressBar(21, 0f) +
+                        " clustering...");
+
                 ClusterResult cr = wc.cluster();
 
                 results.put(s, cr);
+
+                App.out.println();
 
                 HashMap<String, String> assignments = cr.getAssignments();
 

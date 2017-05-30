@@ -25,7 +25,6 @@ public class ModelGeneratingRunType implements RunType {
 
         App.setOutput();
 
-
         App.out.println(ProgressBar.getHeaderBar(21));
 
         float progress = 0f;
@@ -40,6 +39,8 @@ public class ModelGeneratingRunType implements RunType {
             float prog = SeededController.getSeededController().getProgress();
 
             if (Properties.SHOW_PROGRESS  || prog > progress) {
+                progress += 0.1f;
+
                 App.out.print("\r" + ProgressBar.getProgressBar(21, prog) +
                         SeededController.getSeededController().status());
                 progress += 0.1f;
