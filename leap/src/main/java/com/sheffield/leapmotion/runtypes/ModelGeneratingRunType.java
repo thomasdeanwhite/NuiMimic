@@ -43,7 +43,6 @@ public class ModelGeneratingRunType implements RunType {
 
                 App.out.print("\r" + ProgressBar.getProgressBar(21, prog) +
                         SeededController.getSeededController().status());
-                progress += 0.1f;
             }
         }
 

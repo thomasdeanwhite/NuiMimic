@@ -45,7 +45,7 @@ public class DataProcessingRunType implements RunType {
         files.put("gesture_swipe_pool.ARFF", "gesture_swipe");
         files.put("stabilised_tip_pool.ARFF", "stabilised_tip");
 
-        HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>(3);
+        HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>();
 
         if (Properties.DIRECTORY.toLowerCase().endsWith("/processed")) {
             Properties.DIRECTORY = Properties.DIRECTORY.substring(0, Properties.DIRECTORY.lastIndexOf("/"));

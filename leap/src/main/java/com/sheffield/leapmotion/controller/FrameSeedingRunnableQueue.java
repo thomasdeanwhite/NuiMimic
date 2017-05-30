@@ -83,26 +83,25 @@ public class FrameSeedingRunnableQueue implements Runnable {
                     }
 
                 }
-            }
 
-            long timeDiff = seedTime - currentTime;
+                long timeDiff = seedTime - currentTime;
 
-            //if loop wasn't entered
-            if (discFrames == 0 && timeDiff > 0 && !Properties
-                    .PROCESS_PLAYBACK) {
-                try {
-                    //sleep for a while
-                    Thread.sleep(timeDiff/2);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                //if loop wasn't entered
+                if (discFrames == 0 && timeDiff > 0) {
+                    try {
+                        //sleep for a while
+                        Thread.sleep(timeDiff);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
 
-            if (discFrames > 0){
-                discFrames--;
-            }
+                if (discFrames > 0){
+                    discFrames--;
+                }
 
-            discardedFrames += discFrames;
+                discardedFrames += discFrames;
+            }
 
             if (fsr != null) {
                 try {
