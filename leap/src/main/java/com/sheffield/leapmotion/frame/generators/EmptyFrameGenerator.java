@@ -1,10 +1,20 @@
 package com.sheffield.leapmotion.frame.generators;
 
+import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
+import com.sheffield.leapmotion.controller.mocks.SeededGestureList;
+import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.output.Csv;
 
 public class EmptyFrameGenerator extends FrameGenerator {
+
+	@Override
+	public GestureList handleFrame(Frame frame, Controller controller) {
+		return new SeededGestureList();
+	}
+
 	public Csv getCsv() {
 		return new Csv();
 	}

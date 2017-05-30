@@ -1,10 +1,7 @@
 package com.sheffield.leapmotion.sampler;
 
-import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.*;
 import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Listener;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
@@ -216,7 +213,7 @@ public class SamplerApp extends Listener {
 
         long newTime = f.timestamp();
 
-        assert newTime > lastTimeSeen;
+//        assert newTime > lastTimeSeen;
 
         lastTimeSeen = newTime;
 
@@ -266,7 +263,9 @@ public class SamplerApp extends Listener {
 
                     if (frame.gestures().count() > 0) {
                         for (Gesture g : frame.gestures()) {
-                            frameDeconstructor.setCurrentGesture(g.type().name());
+                            String finger = new Finger(g.pointables().frontmost()).type().toString();
+
+                            frameDeconstructor.setCurrentGesture(g.type().name() + ">>" + finger);
                         }
                     }
                     try {

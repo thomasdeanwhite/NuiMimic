@@ -38,6 +38,10 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
 
     protected HashMap<String, Vector> positions;
     protected HashMap<String, Quaternion> rotations;
+    protected HashMap<String, CircleGesture> circleGestures;
+    protected HashMap<String, SwipeGesture> swipeGestures;
+    protected HashMap<String, KeyTapGesture> keytapGestures;
+    protected HashMap<String, ScreenTapGesture> screenTapGestures;
 
     protected Vector lastPosition;
     protected String lastPositionLabel = "";
@@ -317,6 +321,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
     public abstract String nextSequencePosition();
 
     public abstract String nextSequenceRotation();
+
+    public abstract String nextSequenceGesture();
 
     public long lastTick() {
         return lastUpdate;

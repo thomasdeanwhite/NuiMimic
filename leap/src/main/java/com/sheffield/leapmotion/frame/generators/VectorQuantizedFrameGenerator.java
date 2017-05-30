@@ -1,10 +1,21 @@
 package com.sheffield.leapmotion.frame.generators;
 
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.GestureList;
+import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.output.Csv;
 
 import java.util.Random;
 
 public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
+	private RandomGestureHandler rgh = new RandomGestureHandler();
+
+	@Override
+	public GestureList handleFrame(Frame frame, Controller controller) {
+		return rgh.handleFrame(frame, controller);
+	}
+
 	@Override
 	public Csv getCsv() {
 		return new Csv();
@@ -67,6 +78,11 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 	@Override
 	public String nextSequenceRotation() {
 		return randomRotation();
+	}
+
+	@Override
+	public String nextSequenceGesture() {
+		return null;
 	}
 
 	public long lastTick(){

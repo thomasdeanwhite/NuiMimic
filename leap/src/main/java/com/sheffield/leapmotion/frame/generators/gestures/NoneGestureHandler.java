@@ -52,12 +52,12 @@ public class NoneGestureHandler implements GestureHandler {
 		return frame;
 
 	}
-	
+
 	public Type randomType(){
 		int index = random.nextInt(TYPES.length);
 		return TYPES[index];
 	}
-	
+
 	public void advanceGestures(long time){
 		if (gestureState == null || gestureTypes == null || gestureState == State.STATE_STOP){
 			gestureState = State.STATE_START;

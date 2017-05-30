@@ -135,6 +135,10 @@ public class FrameDeconstructor {
     public String getStabilisedTip(Hand h){
         String tips = uniqueId;
 
+        tips += "," + h.stabilizedPalmPosition().getX() +
+                "," + h.stabilizedPalmPosition().getY() +
+                "," + h.stabilizedPalmPosition().getZ();
+
         Vector thumb = h.fingers().fingerType(Finger.Type.TYPE_THUMB).get(0).stabilizedTipPosition();
 
         tips += "," + thumb.getX() +
@@ -269,6 +273,27 @@ public class FrameDeconstructor {
         return header;
     }
 
+    public String getHeadersGesture(String data, String relation){
+        int features = data.split(",").length;
+
+
+        String header = "% 1. Leap Motion Hands\n"+
+                "% 2. Created by NuiMimic\n" +
+                "@RELATION " + relation + "\n" +
+                "\n" +
+                "@ATTRIBUTE id STRING\n" +
+                "@ATTRIBUTE fingerType STRING\n";
+
+        for (int i = 2; i < features; i++){
+            header += "@ATTRIBUTE v" + i + " NUMERIC\n";
+        }
+
+
+        header += "@DATA\n";
+
+        return header;
+    }
+
     public boolean isCalculating() {
         return calculatingScreenshot;
     }
@@ -325,8 +350,6 @@ public class FrameDeconstructor {
             for (int i = 0; i < gestures.size(); i++) {
                 if (gestures.get(i) != null && gestures.get(i).length() > 1) {
                     gests += gestures.get(i) + ",";
-                } else {
-                    gests += Gesture.Type.TYPE_INVALID + ",";
                 }
             }
             if (gests.length() > 1) {
@@ -339,15 +362,19 @@ public class FrameDeconstructor {
     public void outputGestureModel(Frame frame) throws IOException {
         String gestureString = "";
         if (frame.gestures().count() > 0) {
-
-
             for (Gesture g : frame.gestures()) {
-                gestureString += g.type() + "+";
+
+                if (!g.pointables().frontmost().isFinger()){
+                    continue;
+                }
+
+                String finger = new Finger(g.pointables().frontmost()).type().toString();
+                gestureString += uniqueId + "::" + g.type() + ">>" + finger + "+";
 
                 switch (g.type()) {
                     case TYPE_CIRCLE:
                         CircleGesture cg = new CircleGesture(g);
-                        String circleGesture = uniqueId + "," + cg.center().getX() + "," +
+                        String circleGesture = uniqueId + "," + finger + "," + cg.center().getX() + "," +
                                 cg.center().getY() + "," +
                                 cg.center().getZ() + ",";
 
@@ -364,14 +391,14 @@ public class FrameDeconstructor {
                             currentGesturesCircle.getParentFile().mkdirs();
                             currentGesturesCircle.createNewFile();
 
-                            FileHandler.writeToFile(currentGesturesCircle, getHeaders(circleGesture, "circlegesture"));
+                            FileHandler.writeToFile(currentGesturesCircle, getHeadersGesture(circleGesture, "circlegesture"));
                         }
 
                         FileHandler.appendToFile(currentGesturesCircle, circleGesture);
                         break;
                     case TYPE_SWIPE:
                         SwipeGesture sg = new SwipeGesture(g);
-                        String swipeGesture = uniqueId + ","  + sg.startPosition().getX() + "," +
+                        String swipeGesture = uniqueId + "," + finger + ","  + sg.startPosition().getX() + "," +
                                 sg.startPosition().getY() + "," +
                                 sg.startPosition().getZ() + ",";
 
@@ -391,7 +418,7 @@ public class FrameDeconstructor {
                             currentGesturesSwipe.getParentFile().mkdirs();
                             currentGesturesSwipe.createNewFile();
 
-                            FileHandler.writeToFile(currentGesturesSwipe, getHeaders(swipeGesture, "swipegesture"));
+                            FileHandler.writeToFile(currentGesturesSwipe, getHeadersGesture(swipeGesture, "swipegesture"));
                         }
 
                         FileHandler.appendToFile(currentGesturesSwipe, swipeGesture);
@@ -399,7 +426,7 @@ public class FrameDeconstructor {
                     case TYPE_SCREEN_TAP:
                         ScreenTapGesture stg = new ScreenTapGesture(g);
 
-                        String screenTapGesture = uniqueId  + "," + stg.position().getX() + "," +
+                        String screenTapGesture = uniqueId + "," + finger + "," + stg.position().getX() + "," +
                                 stg.position().getY() + "," +
                                 stg.position().getZ() + ",";
 
@@ -407,14 +434,14 @@ public class FrameDeconstructor {
                                 stg.direction().getY() + "," +
                                 stg.direction().getZ() + ",";
 
-                        screenTapGesture += stg.progress();
+                        screenTapGesture += stg.progress() + "\n";
 
                         if (currentGesturesScreenTap == null) {
                             currentGesturesScreenTap = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/gesture_screentap_pool.ARFF");
                             currentGesturesScreenTap.getParentFile().mkdirs();
                             currentGesturesScreenTap.createNewFile();
 
-                            FileHandler.writeToFile(currentGesturesScreenTap, getHeaders(screenTapGesture, "screentapgesture"));
+                            FileHandler.writeToFile(currentGesturesScreenTap, getHeadersGesture(screenTapGesture, "screentapgesture"));
                         }
 
                         FileHandler.appendToFile(currentGesturesScreenTap, screenTapGesture);
@@ -423,7 +450,7 @@ public class FrameDeconstructor {
                     case TYPE_KEY_TAP:
                         KeyTapGesture ktg = new KeyTapGesture(g);
 
-                        String keyTapGesture = uniqueId + ","  + ktg.position().getX() + "," +
+                        String keyTapGesture = uniqueId + "," + finger + ","  + ktg.position().getX() + "," +
                                 ktg.position().getY() + "," +
                                 ktg.position().getZ() + ",";
 
@@ -438,7 +465,7 @@ public class FrameDeconstructor {
                             currentGesturesKeyTap.getParentFile().mkdirs();
                             currentGesturesKeyTap.createNewFile();
 
-                            FileHandler.writeToFile(currentGesturesKeyTap, getHeaders(keyTapGesture, "keytapgesture"));
+                            FileHandler.writeToFile(currentGesturesKeyTap, getHeadersGesture(keyTapGesture, "keytapgesture"));
                         }
 
                         FileHandler.appendToFile(currentGesturesKeyTap, keyTapGesture);

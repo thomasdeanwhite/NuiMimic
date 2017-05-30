@@ -1,8 +1,7 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
+import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
@@ -17,6 +16,15 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class RandomFrameGenerator extends FrameGenerator {
+
+	private RandomGestureHandler rgh = new RandomGestureHandler();
+
+	@Override
+	public GestureList handleFrame(Frame frame, Controller controller) {
+		return rgh.handleFrame(frame, controller);
+	}
+
+
 	@Override
 	public Csv getCsv() {
 		return new Csv();

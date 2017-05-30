@@ -212,6 +212,11 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
     }
 
     @Override
+    public String nextSequenceGesture() {
+        return null;
+    }
+
+    @Override
     public boolean hasNextFrame() {
         return currentHandIndex < handLabelStack.size();
     }

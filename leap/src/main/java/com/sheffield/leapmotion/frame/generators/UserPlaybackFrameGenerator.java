@@ -8,6 +8,7 @@ import com.sheffield.leapmotion.controller.FrameHandler;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
+import com.sheffield.leapmotion.controller.mocks.SeededGestureList;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.sampler.SamplerApp;
@@ -50,6 +51,11 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 	@Override
 	public void modifyFrame(SeededFrame frame) {
 
+	}
+
+	@Override
+	public GestureList handleFrame(Frame frame, Controller controller) {
+		return new SeededGestureList();
 	}
 
 	@Override
