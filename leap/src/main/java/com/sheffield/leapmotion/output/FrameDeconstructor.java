@@ -1,13 +1,6 @@
 package com.sheffield.leapmotion.output;
 
-import com.leapmotion.leap.CircleGesture;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.KeyTapGesture;
-import com.leapmotion.leap.ScreenTapGesture;
-import com.leapmotion.leap.SwipeGesture;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
@@ -57,6 +50,7 @@ public class FrameDeconstructor {
     //1 state capture/second
     //private static final int STATE_CAPTURE_TIME = 300;
     private long lastStateCapture = 0;
+    private File currentStab;
 
     public FrameDeconstructor() {
         handIds = new ArrayList<String>();
@@ -136,6 +130,38 @@ public class FrameDeconstructor {
             currentSequence.createNewFile();
         }
         FileHandler.appendToFile(currentSequence, uniqueId + ",");
+    }
+
+    public String getStabilisedTip(Hand h){
+        String tips = uniqueId;
+
+        Vector thumb = h.fingers().fingerType(Finger.Type.TYPE_THUMB).get(0).stabilizedTipPosition();
+
+        tips += "," + thumb.getX() +
+                "," + thumb.getY() +
+                "," + thumb.getZ();
+
+        for (Finger.Type ft : HandFactory.fingerTypes){
+            Finger f = h.fingers().fingerType(ft).get(0);
+            tips += "," + f.stabilizedTipPosition().getX() + "," +
+                    f.stabilizedTipPosition().getY() + "," +
+                    f.stabilizedTipPosition().getZ();
+        }
+        return tips;
+    }
+
+    public void outputStabilisedTip(Hand h) throws IOException {
+
+        String tips = getStabilisedTip(h);
+
+        if (currentStab == null) {
+            currentStab= new File(FileHandler.generateFileWithName(filenameStart) + addition + "/stabilised_tip_pool.ARFF");
+            currentStab.getParentFile().mkdirs();
+            currentStab.createNewFile();
+
+            FileHandler.writeToFile(currentStab, getHeaders(tips, "stabtips"));
+        }
+        FileHandler.appendToFile(currentStab, tips + "\n");
     }
 
     public void outputJointPositionModel(String frameAsString) throws IOException {
@@ -321,7 +347,7 @@ public class FrameDeconstructor {
                 switch (g.type()) {
                     case TYPE_CIRCLE:
                         CircleGesture cg = new CircleGesture(g);
-                        String circleGesture = uniqueId + cg.center().getX() + "," +
+                        String circleGesture = uniqueId + "," + cg.center().getX() + "," +
                                 cg.center().getY() + "," +
                                 cg.center().getZ() + ",";
 
@@ -345,7 +371,7 @@ public class FrameDeconstructor {
                         break;
                     case TYPE_SWIPE:
                         SwipeGesture sg = new SwipeGesture(g);
-                        String swipeGesture = uniqueId + sg.startPosition().getX() + "," +
+                        String swipeGesture = uniqueId + ","  + sg.startPosition().getX() + "," +
                                 sg.startPosition().getY() + "," +
                                 sg.startPosition().getZ() + ",";
 
@@ -373,7 +399,7 @@ public class FrameDeconstructor {
                     case TYPE_SCREEN_TAP:
                         ScreenTapGesture stg = new ScreenTapGesture(g);
 
-                        String screenTapGesture = uniqueId + stg.position().getX() + "," +
+                        String screenTapGesture = uniqueId  + "," + stg.position().getX() + "," +
                                 stg.position().getY() + "," +
                                 stg.position().getZ() + ",";
 
@@ -397,7 +423,7 @@ public class FrameDeconstructor {
                     case TYPE_KEY_TAP:
                         KeyTapGesture ktg = new KeyTapGesture(g);
 
-                        String keyTapGesture = uniqueId + ktg.position().getX() + "," +
+                        String keyTapGesture = uniqueId + ","  + ktg.position().getX() + "," +
                                 ktg.position().getY() + "," +
                                 ktg.position().getZ() + ",";
 

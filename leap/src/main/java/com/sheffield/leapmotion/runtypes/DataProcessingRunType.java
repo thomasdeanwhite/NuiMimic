@@ -39,6 +39,11 @@ public class DataProcessingRunType implements RunType {
         files.put("joint_positions_pool.ARFF", "joint_position");
         files.put("hand_positions_pool.ARFF", "hand_position");
         files.put("hand_rotations_pool.ARFF", "hand_rotation");
+        files.put("gesture_circle_pool.ARFF", "gesture_circle");
+        files.put("gesture_keytap_pool.ARFF", "gesture_keytap");
+        files.put("gesture_screentap_pool.ARFF", "gesture_screentap");
+        files.put("gesture_swipe_pool.ARFF", "gesture_swipe");
+        files.put("stabilised_tip_pool.ARFF", "stabilised_tip");
 
         HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>(3);
 
@@ -94,6 +99,8 @@ public class DataProcessingRunType implements RunType {
         }
 
         for (String s : files.keySet()) {
+
+            App.out.println("\r" + s);
 
             String joints = dataDir + "/" + s;
 

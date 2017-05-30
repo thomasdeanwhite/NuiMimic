@@ -28,25 +28,21 @@ public class ModelGeneratingRunType implements RunType {
 
         App.out.println(ProgressBar.getHeaderBar(21));
 
+        float progress = 0f;
+
         while (SeededController.getSeededController().hasNextFrame()) {
             long time = System.currentTimeMillis();
 
             if (sc.lastTick() < time) {
                 sc.tick(time);
             }
-//            Frame f = sc.frame();
-//
-//            if (App.DISPLAY_WINDOW != null) {
-//                App.DISPLAY_WINDOW.setFrame(f);
-//            }
-//
-//            SamplerApp.getApp().frame(f);
 
             float prog = SeededController.getSeededController().getProgress();
 
-            if (Properties.SHOW_PROGRESS  || (int)(prog*100000f)%25000 == 0) {
+            if (Properties.SHOW_PROGRESS  || prog > progress) {
                 App.out.print("\r" + ProgressBar.getProgressBar(21, prog) +
                         SeededController.getSeededController().status());
+                progress += 0.1f;
             }
         }
 

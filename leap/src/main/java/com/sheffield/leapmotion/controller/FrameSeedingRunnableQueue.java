@@ -70,18 +70,19 @@ public class FrameSeedingRunnableQueue implements Runnable {
 
             int discFrames = -1;
 
-            while ((seedTime <= currentTime || Properties.PROCESS_PLAYBACK) && frameSeeding.size() > 0) {
-
+            if (Properties.PROCESS_PLAYBACK){
                 fsr = frameSeeding.poll();
-                if (fsr != null){
-                    seedTime = fsr.getSeedTime();
-                    discFrames++;
-                }
+            } else {
 
-                if (Properties.PROCESS_PLAYBACK){
-                    break;
-                }
+                while ((seedTime <= currentTime) && frameSeeding.size() > 0) {
 
+                    fsr = frameSeeding.poll();
+                    if (fsr != null) {
+                        seedTime = fsr.getSeedTime();
+                        discFrames++;
+                    }
+
+                }
             }
 
             long timeDiff = seedTime - currentTime;

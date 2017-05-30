@@ -27,6 +27,9 @@ public class FrameSeedingRunnable implements Runnable, Comparable {
         listener = fsl;
         this.next = next;
         this.last = last;
+
+        assert(next.timestamp() > last.timestamp());
+
         this.seedTime = seedTime;
     }
 
@@ -39,7 +42,7 @@ public class FrameSeedingRunnable implements Runnable, Comparable {
     public int compareTo(Object o) {
         if (o instanceof  FrameSeedingRunnable){
 
-                return (int)(next.timestamp() - ((FrameSeedingRunnable)o).next.timestamp());
+                return (int)(seedTime - ((FrameSeedingRunnable)o).seedTime);
         }
 
         return 1;

@@ -184,13 +184,13 @@ public class SamplerApp extends Listener {
         }
     }
 
-    private long lastTimeSeen = 0;
+    private long lastTimeSeen = Long.MIN_VALUE;
 
     private long lastFrame = 0;
 
     private boolean printHeader = true;
 
-    public void frame(Frame f) {
+    public synchronized void frame(Frame f) {
 
         if (App.getApp().status().equals(com.sheffield.leapmotion.util.AppStatus.FINISHED)) {
             return;
@@ -270,8 +270,6 @@ public class SamplerApp extends Listener {
                     try {
 
                         if (Properties.PROCESS_PLAYBACK) {
-
-
                             String frameAsString = HandFactory.handToString(uniqueId, h);
 
                             Properties.FRAMES_PER_SECOND = 1000;
@@ -281,6 +279,7 @@ public class SamplerApp extends Listener {
                             frameDeconstructor.outputSequence();
                             frameDeconstructor.outputHandPositionModel(h);
                             frameDeconstructor.outputHandRotationModel(h);
+                            frameDeconstructor.outputStabilisedTip(h);
 
                             try {
                                 frameDeconstructor.outputGestureModel(frame);
@@ -302,12 +301,12 @@ public class SamplerApp extends Listener {
             }
         }
 
-        final int bars = 21;
-        if (printHeader) {
-            out.println(ProgressBar.getHeaderBar(bars));
-            printHeader = false;
-        }
         if (LOOP) {
+            final int bars = 21;
+            if (printHeader) {
+                out.println(ProgressBar.getHeaderBar(bars));
+                printHeader = false;
+            }
             long done = time - startTime;
             FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
 
