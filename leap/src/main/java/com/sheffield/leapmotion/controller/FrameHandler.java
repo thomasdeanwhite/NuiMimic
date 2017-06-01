@@ -526,21 +526,21 @@ public class FrameHandler implements Tickable {
 
                 tipMovement = tipMovement
                         .plus(tipChange);
-
-                if (stabilisedThreshold.getX() < totalChange.getX()){
-                    stabilizedTip.setX(f1.rawTipPosition().getX());
-                    stabilisedThreshold.setX(Float.MAX_VALUE);
-                }
-
-                if (stabilisedThreshold.getY() < totalChange.getY()){
-                    stabilizedTip.setY(f1.rawTipPosition().getY());
-                    stabilisedThreshold.setY(Float.MAX_VALUE);
-                }
-
-                if (stabilisedThreshold.getZ() < totalChange.getZ()){
-                    stabilizedTip.setZ(f1.rawTipPosition().getZ());
-                    stabilisedThreshold.setZ(Float.MAX_VALUE);
-                }
+//
+//                if (stabilisedThreshold.getX() < totalChange.getX()){
+//                    stabilizedTip.setX(f1.rawTipPosition().getX());
+//                    stabilisedThreshold.setX(Float.MAX_VALUE);
+//                }
+//
+//                if (stabilisedThreshold.getY() < totalChange.getY()){
+//                    stabilizedTip.setY(f1.rawTipPosition().getY());
+//                    stabilisedThreshold.setY(Float.MAX_VALUE);
+//                }
+//
+//                if (stabilisedThreshold.getZ() < totalChange.getZ()){
+//                    stabilizedTip.setZ(f1.rawTipPosition().getZ());
+//                    stabilisedThreshold.setZ(Float.MAX_VALUE);
+//                }
 
             }
 
@@ -564,7 +564,7 @@ public class FrameHandler implements Tickable {
 //            }
 //
 //            ((SeededFinger) f).setStabilizedTipPosition(BezierHelper.bezier(tips, mod));
-            ((SeededFinger) f).setStabilizedTipPosition(stabilizedTip);
+            //((SeededFinger) f).setStabilizedTipPosition(stabilizedTip);
 
 
             ((SeededFinger) f).normalize();

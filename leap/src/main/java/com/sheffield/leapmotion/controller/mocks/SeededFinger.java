@@ -132,11 +132,11 @@ public class SeededFinger extends Finger implements Serializable {
 				Zone.ZONE_NONE;
 
 
-		if (!Properties.SINGLE_DATA_POOL){
-			nStabilizedTipPosition = offset.plus(rotation.rotateVector(stabilizedTipPosition));
-		} else {
+//		if (!Properties.SINGLE_DATA_POOL){
+//			nStabilizedTipPosition = offset.plus(rotation.rotateVector(stabilizedTipPosition));
+//		} else {
 		    nStabilizedTipPosition = stabilizedTipPosition;
-        }
+//        }
 	}
 
 	@Override

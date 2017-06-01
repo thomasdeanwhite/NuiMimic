@@ -62,6 +62,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 		HashMap<String, Quaternion> rotations = NGramFrameGenerator.getRotations(fileStart);
 
+		HashMap<String, Vector[]> stabilisedTips = NGramFrameGenerator
+				.getStabilizedTips(fileStart);
+
 		Type type =  new TypeToken<Map<Integer, Integer[]>>(){}.getType();
 
 		HashMap<Integer, Integer[]> states = gson.fromJson(FileHandler.readFile(new File(fileStart + "raw_states")), type);
@@ -83,6 +86,8 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		Map<Integer, NGram> positionNgrams = loadStateNgram(fileStart + "hand_position_stategram", stateAssignment);
 		Map<Integer, NGram> rotationNgrams = loadStateNgram(fileStart + "hand_rotation_stategram", stateAssignment);
 		Map<Integer, NGram> gestureNgrams = loadStateNgram(fileStart + "gesture_type_stategram", stateAssignment);
+		Map<Integer, NGram> tipNgrams = loadStateNgram(fileStart +
+				"stabilised_tips_stategram", stateAssignment);
 
 
 		for (Integer i : positionNgrams.keySet()){
@@ -97,8 +102,8 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			if (jointNgrams.containsKey(i) && positionNgrams.containsKey(i) && rotationNgrams.containsKey(i)) {
 				Integer newState = stateAssignment.get(i);
 				NGramFrameGenerator newFs = new NGramFrameGenerator(jointNgrams.get(i), positionNgrams.get(i), rotationNgrams.get(i),
-						gestureNgrams.get(i),
-						joints, positions, rotations);
+						gestureNgrams.get(i), tipNgrams.get(i),
+						joints, positions, rotations, stabilisedTips);
 				if (generators.containsKey(newState)) {
 					generators.get(newState).merge(newFs);
 				} else {
@@ -111,9 +116,11 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		NGram pNgram = positionNgrams.get(-1);
 		NGram rNgram = rotationNgrams.get(-1);
 		NGram gNgram = gestureNgrams.get(-1);
+		NGram stNgram = tipNgrams.get(-1);
 
-		generators.put(-1, new NGramFrameGenerator(jNgram, pNgram, rNgram, gNgram,
-				joints, positions, rotations));
+		generators.put(-1, new NGramFrameGenerator(jNgram, pNgram, rNgram,
+				gNgram, stNgram,
+				joints, positions, rotations, stabilisedTips));
 
 		currentGenerator = generators.get(-1);
 

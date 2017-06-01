@@ -47,7 +47,7 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
 
     public RawReconstructiveFrameGenerator(String filename) throws IOException {
         super(getRawJoints(filename), getRawPositions(filename),
-                getRawRotations(filename));
+                getRawRotations(filename), getRawStabilisedTips(filename));
         tpgh = new ReconstructiveGestureHandler(filename);
         App.out.println("* Setting up Raw Reconstruction");
         handLabelStack = new ArrayList<String>();
@@ -125,9 +125,9 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
         SeededFrame f = (SeededFrame)super.newFrame();
 
         if (f != null){
-            f.setId(timings.get(currentHandIndex));
             long seedTime = timings.get(currentHandIndex) * 1000;
             f.setTimestamp(seedTime);
+            f.setId(seedTime);
         }
 
         currentHandIndex++;
@@ -214,6 +214,11 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
     @Override
     public String nextSequenceGesture() {
         return null;
+    }
+
+    @Override
+    public String nextSequenceStabilisedTips() {
+        return handLabelStack.get(currentHandIndex);
     }
 
     @Override

@@ -596,6 +596,10 @@ public class SeededHand extends Hand implements Serializable {
         return stabilizedPalmPosition;
     }
 
+    public void setStabilizedPalmPosition(Vector v){
+        stabilizedPalmPosition = v;
+    }
+
     @Override
     public float timeVisible() {
         // TODO Auto-generated method stub

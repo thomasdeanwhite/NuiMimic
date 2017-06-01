@@ -10,6 +10,7 @@ import java.util.Random;
 
 public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 	private RandomGestureHandler rgh = new RandomGestureHandler();
+	private String[] candidateStabilised;
 
 	@Override
 	public GestureList handleFrame(Frame frame, Controller controller) {
@@ -36,7 +37,7 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 			candidateHands = new String[joints.keySet().size()];
 			joints.keySet().toArray(candidateHands);
 		}
-		return candidateHands[random.nextInt(joints.keySet().size())];
+		return candidateHands[random.nextInt(candidateHands.length)];
 	}
 
 	public String randomPosition(){
@@ -44,7 +45,16 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 			candidatePositions = new String[positions.keySet().size()];
 			positions.keySet().toArray(candidatePositions);
 		}
-		return candidatePositions[random.nextInt(positions.keySet().size())];
+		return candidatePositions[random.nextInt(candidatePositions.length)];
+	}
+
+	public String randomStabilised(){
+		if (candidateStabilised == null){
+			candidateStabilised = new String[stabilisedTipPositions.keySet().size()];
+			stabilisedTipPositions.keySet().toArray(candidateStabilised);
+		}
+		return candidateStabilised[random.nextInt(candidateStabilised
+				.length)];
 	}
 
 	public String randomRotation(){
@@ -52,7 +62,7 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 			candidateRotations = new String[rotations.keySet().size()];
 			rotations.keySet().toArray(candidateRotations);
 		}
-		return candidateRotations[random.nextInt(rotations.keySet().size())];
+		return candidateRotations[random.nextInt(candidateRotations.length)];
 	}
 
 	@Override
@@ -82,6 +92,11 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 
 	@Override
 	public String nextSequenceGesture() {
+		return null;
+	}
+
+	@Override
+	public String nextSequenceStabilisedTips() {
 		return null;
 	}
 

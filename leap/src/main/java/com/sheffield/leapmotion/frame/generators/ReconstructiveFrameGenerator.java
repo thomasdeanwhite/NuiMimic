@@ -21,6 +21,8 @@ import java.util.ArrayList;
 public class ReconstructiveFrameGenerator extends SequenceFrameGenerator implements
         GestureHandler, Reconstruction {
 
+    private ArrayList<String> stabLabelStack;
+
     @Override
     public Csv getCsv() {
         return new Csv();
@@ -52,6 +54,7 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
             handLabelStack = new ArrayList<String>();
             positionLabelStack = new ArrayList<String>();
             rotationLabelStack = new ArrayList<String>();
+            stabLabelStack = new ArrayList<String>();
 
 
 
@@ -125,6 +128,18 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
                     rotationLabelStack.add(s);
             }
 
+
+
+            sequenceFile = Properties.DIRECTORY + "/" + filename +
+                    "/processed/stabilised_tip.raw_sequence";
+            sequenceInfo = FileHandler.readFile(new File(sequenceFile));
+            seqData = sequenceInfo.split("\n")[0].split(",");
+
+            for (String s : seqData) {
+                if (s.length() > 0)
+                    stabLabelStack.add(s);
+            }
+
         } catch (IOException e) {
             e.printStackTrace(App.out);
         }
@@ -138,20 +153,23 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
 
     @Override
     public Frame newFrame() {
-
+        Frame frame = null;
         if (handLabelStack.size() > 0 && currentHandIndex < handLabelStack.size()) {
-            Frame frame = super.newFrame();
+            frame = super.newFrame();
 
             if (frame != null) {
                 ((SeededFrame) frame).setTimestamp(timings.get(currentHandIndex) * 1000);
                 ((SeededFrame) frame).setId(timings.get(currentHandIndex) * 1000);
             }
-
-            return frame;
         }
 
         currentHandIndex++;
-        return SeededController.newFrame();
+
+        if (frame == null){
+            frame = SeededController.newFrame();
+        }
+
+        return frame;
     }
 
     @Override
@@ -213,6 +231,11 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
     @Override
     public String nextSequenceGesture() {
         return null;
+    }
+
+    @Override
+    public String nextSequenceStabilisedTips() {
+        return stabLabelStack.get(currentHandIndex);
     }
 
     @Override

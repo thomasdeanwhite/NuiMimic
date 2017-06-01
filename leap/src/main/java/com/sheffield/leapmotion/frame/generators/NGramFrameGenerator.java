@@ -20,8 +20,10 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     protected NGram jointNgram;
     protected NGram positionNgram;
     protected NGram rotationNgram;
+    protected NGram stabilisedNgram;
 
     protected NGramGestureHandler ngGestureHandler;
+    private String currentSequenceStab = "";
 
     public void setGestureOutputFile(File file) {
         ngGestureHandler.setGestureOutputFile(file);
@@ -66,7 +68,16 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
             gestureNgram.calculateProbabilities();
 
-            setup(jointNgram, positionNgram, rotationNgram, gestureNgram);
+
+            ngString = rawFile + "/stabilised_tip_ngram";
+
+            NGram stabNgram = gson.fromJson(FileHandler.readFile(new File
+                    (ngString)), NGram.class);
+
+            stabNgram.calculateProbabilities();
+
+            setup(jointNgram, positionNgram, rotationNgram, gestureNgram,
+                    stabNgram);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace(App.out);
@@ -75,10 +86,12 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
     }
 
-    public NGramFrameGenerator(NGram jointNgram, NGram positionNgram, NGram rotationNgram, NGram gestureNGram,
-                               HashMap<String, SeededHand> joints, HashMap<String, Vector> positions, HashMap<String, Quaternion> rotations) {
-        super(joints, positions, rotations);
-        setup(jointNgram, positionNgram, rotationNgram, gestureNGram);
+    public NGramFrameGenerator(NGram jointNgram, NGram positionNgram, NGram
+            rotationNgram, NGram gestureNGram, NGram tipsNgram,
+                               HashMap<String, SeededHand> joints, HashMap<String, Vector> positions, HashMap<String, Quaternion> rotations,
+                               HashMap<String, Vector[]> stabilisedTips) {
+        super(joints, positions, rotations, stabilisedTips);
+        setup(jointNgram, positionNgram, rotationNgram, gestureNGram, tipsNgram);
     }
 
     public void merge(NGramFrameGenerator ngfs) {
@@ -89,7 +102,8 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
     }
 
-    private void setup(NGram jointNgram, NGram positionNgram, NGram rotationNgram, NGram gestureNGram) {
+    private void setup(NGram jointNgram, NGram positionNgram, NGram
+            rotationNgram, NGram gestureNGram, NGram stabilisedNgram) {
         App.out.println("* Setting up NGramModel Frame Selection");
 
         this.jointNgram = jointNgram;
@@ -100,6 +114,9 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
         this.rotationNgram = rotationNgram;
         this.rotationNgram.calculateProbabilities();
+
+        this.stabilisedNgram = stabilisedNgram;
+        this.stabilisedNgram.calculateProbabilities();
 
         this.ngGestureHandler = new NGramGestureHandler(gestureNGram);
     }
@@ -165,6 +182,18 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     @Override
     public String nextSequenceGesture() {
         return null;
+    }
+
+    @Override
+    public String nextSequenceStabilisedTips() {
+        currentSequenceStab = stabilisedNgram.babbleNext
+                (currentSequenceStab);
+
+        if (currentSequenceStab == null) {
+            throw new DataSparsityException("Data is too sparse for input");
+        }
+
+        return getLastLabel(currentSequenceStab);
     }
 
     @Override

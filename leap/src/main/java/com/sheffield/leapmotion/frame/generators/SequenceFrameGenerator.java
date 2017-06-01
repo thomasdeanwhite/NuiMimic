@@ -5,6 +5,7 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
+import com.sheffield.leapmotion.controller.mocks.SeededFinger;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
@@ -24,6 +25,8 @@ import java.util.HashMap;
  * Created by thomas on 19/05/17.
  */
 public abstract class SequenceFrameGenerator extends FrameGenerator {
+
+
     public Csv getCsv() {
         return new Csv();
     }
@@ -42,12 +45,16 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
     protected HashMap<String, SwipeGesture> swipeGestures;
     protected HashMap<String, KeyTapGesture> keytapGestures;
     protected HashMap<String, ScreenTapGesture> screenTapGestures;
+    protected HashMap<String, Vector[]> stabilisedTipPositions;
 
     protected Vector lastPosition;
     protected String lastPositionLabel = "";
 
     protected Quaternion lastRotation;
     protected String lastRotationLabel = "";
+
+    private String lastStabilisedLabel;
+    private Vector[] lastStabilised;
 
     protected File outputPosFile;
     protected File outputRotFile;
@@ -130,6 +137,29 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
         return rotations;
     }
 
+    public static HashMap<String, Vector[]> getStabilizedTips(String filename)
+            throws IOException {
+        HashMap<String, Vector[]> positions = new HashMap<String, Vector[]>();
+
+        String positionFile = filename + "/hand_position_data";
+        String contents = FileHandler.readFile(new File(positionFile));
+        String[] lines = contents.split("\n");
+        for (String line : lines) {
+            Vector[] v = new Vector[6];
+            String[] vect = line.split(",");
+
+            for (int i = 0; i < v.length; i++) {
+                v[i] = new Vector(Float.parseFloat(vect[1]),
+                        Float.parseFloat(vect[2]),
+                        Float.parseFloat(vect[3]));
+            }
+            positions.put(vect[0], v);
+
+        }
+
+        return positions;
+    }
+
     public static HashMap<String, SeededHand> getRawJoints(String filename) throws IOException {
         String clusterFile = Properties.DIRECTORY + "/" + filename + "/" +
                 (Properties.SINGLE_DATA_POOL ? "hand_joints_pool.ARFF" :
@@ -193,6 +223,39 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
         return vectors;
     }
 
+    public static HashMap<String, Vector[]> getRawStabilisedTips(String
+                                                                         filename)
+            throws IOException {
+        HashMap<String, Vector[]> vectors = new HashMap<String, Vector[]>();
+        String positionFile = Properties.DIRECTORY + "/" + filename +
+                "/stabilised_tip_pool.ARFF";
+        String contents = FileHandler.readFile(new File(positionFile));
+        String[] lines = contents.split("\n");
+        boolean data = false;
+
+        for (String line : lines) {
+
+
+            if (data && line.trim().length() > 0) {
+                Vector[] v = new Vector[6];
+                String[] vect = line.split(",");
+                for (int i = 0; i < v.length; i++) {
+                    v[i] = new Vector(Float.parseFloat(vect[1 + i*3]), Float
+                            .parseFloat(vect[2 + i*3]), Float.parseFloat
+                            (vect[3 + i*3]));
+                }
+
+                vectors.put(vect[0], v);
+            } else {
+                if (line.contains("@DATA")) {
+                    data = true;
+                }
+            }
+
+        }
+        return vectors;
+    }
+
 
     public static HashMap<String, Quaternion> getRawRotations(String filename) throws IOException {
         String rotationFile = Properties.DIRECTORY + "/" + filename +
@@ -232,6 +295,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
             joints = getJoints(processed);
             positions = getPositions(processed);
             rotations = getRotations(processed);
+            stabilisedTipPositions = getStabilizedTips(processed);
 
             Properties.CLUSTERS = joints.keySet().size();
 
@@ -243,10 +307,13 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
 
     public SequenceFrameGenerator(HashMap<String, SeededHand> joints,
                                   HashMap<String, Vector> positions,
-                                  HashMap<String, Quaternion> rotations) {
+                                  HashMap<String, Quaternion> rotations,
+                                  HashMap<String, Vector[]>
+                                          stabilisedTipPositions) {
         this.joints = joints;
         this.positions = positions;
         this.rotations = rotations;
+        this.stabilisedTipPositions = stabilisedTipPositions;
     }
 
     @Override
@@ -278,6 +345,13 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
         if (h instanceof SeededHand) {
 
             SeededHand sh = (SeededHand) h;
+
+            for (int i = 0; i < Finger.Type.values().length; i++){
+                ((SeededFinger)sh.fingers().fingerType(Finger.Type.values()[i])
+                        .get(0)).setStabilizedTipPosition(lastStabilised[i+1]);
+            }
+
+            sh.setStabilizedPalmPosition(lastStabilised[0]);
 
             Quaternion q = lastRotation;
 
@@ -314,6 +388,9 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
 
         lastRotationLabel = nextSequenceRotation();
         lastRotation = rotations.get(lastRotationLabel);
+        
+        lastStabilisedLabel = nextSequenceStabilisedTips();
+        lastStabilised = stabilisedTipPositions.get(lastStabilisedLabel);
     }
 
     public abstract String nextSequenceJoints();
@@ -323,6 +400,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
     public abstract String nextSequenceRotation();
 
     public abstract String nextSequenceGesture();
+
+    public abstract String nextSequenceStabilisedTips();
 
     public long lastTick() {
         return lastUpdate;
