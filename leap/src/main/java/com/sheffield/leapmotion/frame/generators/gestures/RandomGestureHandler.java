@@ -214,10 +214,13 @@ public class RandomGestureHandler extends NoneGestureHandler {
                         for (Gesture.Type gt : gestureTypes) {
                             ngLog.element += gt.toString() + ",";
                         }
-                        ngLog.timeSeeded = (int) (gestureDuration);
+                        ngLog.timeSeeded = gestureDuration;
                         logs.add(ngLog);
                         if (outputFile != null) {
                             try {
+                                if (!outputFile.exists()){
+                                    outputFile.createNewFile();
+                                }
                                 FileHandler.appendToFile(outputFile, ngLog.toString());
                             } catch (IOException e) {
                                 // TODO Auto-generated catch block
