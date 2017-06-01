@@ -28,7 +28,7 @@ public class FrameSeedingRunnable implements Runnable, Comparable {
         this.next = next;
         this.last = last;
 
-        assert(next.timestamp() > last.timestamp());
+        //assert(next.timestamp() > last.timestamp());
 
         this.seedTime = seedTime;
     }

@@ -61,14 +61,14 @@ public class TestUtils {
         assertVectorEquals("Finger Tip Position reconstruction error",
                 tip1, tip2);
 
-        tip1 = f1.stabilizedTipPosition();
-
-        tip2 = f2.stabilizedTipPosition();
-
-
-        assertVectorEquals("Stabilised Tip Position Reconstruction Error",
-                tip1, tip2
-        );
+//        tip1 = f1.stabilizedTipPosition();
+//
+//        tip2 = f2.stabilizedTipPosition();
+//
+//
+//        assertVectorEquals("Stabilised Tip Position Reconstruction Error",
+//                tip1, tip2
+//        );
     }
 
     public static void assertFingerNotEquals(Finger f1, Finger f2){

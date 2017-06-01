@@ -37,7 +37,7 @@ public class DataProcessingRunType implements RunType {
 
         HashMap<String, String> files = new HashMap<String, String>();
 
-        //files.put("joint_positions_pool.ARFF", "joint_position");
+        files.put("joint_positions_pool.ARFF", "joint_position");
         files.put("hand_positions_pool.ARFF", "hand_position");
         files.put("hand_rotations_pool.ARFF", "hand_rotation");
         files.put("gesture_circle_pool.ARFF", "gesture_circle");
@@ -115,9 +115,15 @@ public class DataProcessingRunType implements RunType {
                 HashMap<String, String> assignments = cr.getAssignments();
                 HashMap<String, Instance> centroids = cr.getCentroids();
 
+                ArrayList<String> keysMod = new ArrayList<>();
+
+                keysMod.addAll(assignments.keySet());
+
                 ArrayList<String> keys = new ArrayList<>();
 
-                keys.addAll(assignments.keySet());
+                for (int i = 0; i < keys.size(); i++){
+                    keys.add(keysMod.get(i).replace(s, ""));
+                }
 
                 keys.sort(new Comparator<String>() {
                     @Override

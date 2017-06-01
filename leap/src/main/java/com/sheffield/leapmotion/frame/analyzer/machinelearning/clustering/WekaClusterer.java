@@ -59,9 +59,14 @@ public class WekaClusterer {
 
         ArrayList<String> ids = new ArrayList<String>(data.size());
 
-        for (Instance s : data){
-            ids.add(s.stringValue(0) + filename);
-        }
+
+            for (Instance s : data) {
+                String id = s.stringValue(0);
+                if (files.size() > 0) {
+                    id += filename;
+                }
+                ids.add(id);
+            }
 
 //        data.deleteStringAttributes();
 
