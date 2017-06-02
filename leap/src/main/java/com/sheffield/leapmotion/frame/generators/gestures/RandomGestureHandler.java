@@ -219,6 +219,9 @@ public class RandomGestureHandler extends NoneGestureHandler {
                         if (outputFile != null) {
                             try {
                                 if (!outputFile.exists()){
+                                    if (!outputFile.getParentFile().exists()){
+                                        outputFile.getParentFile().mkdirs();
+                                    }
                                     outputFile.createNewFile();
                                 }
                                 FileHandler.appendToFile(outputFile, ngLog.toString());

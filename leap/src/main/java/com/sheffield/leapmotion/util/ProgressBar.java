@@ -54,13 +54,13 @@ public class ProgressBar {
     }
 
     public static class HeaderedBarDrawer implements BarDrawer {
-        private static String progChar = String.valueOf((char)0x220E);
+        private static String progChar = String.valueOf((char)0x25A0);
 
-        static {
-            if (System.getProperty("os.name").toLowerCase().contains("windows")){
-                progChar = "#";
-            }
-        }
+//        static {
+//            if (System.getProperty("os.name").toLowerCase().contains("windows")){
+//                progChar = "#";
+//            }
+//        }
 
         @Override
         public String drawBar(int width, float percent) {

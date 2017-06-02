@@ -28,7 +28,7 @@ public class TestBarDrawer {
         assertEquals("|0 ----- 50 ----- 100%|", bd
                 .getBarHeader(bars));
 
-        assertEquals(osify("|∎∎∎∎∎∎∎∎∎∎           | 50.0%"), bd.drawBar(bars,
+        assertEquals(osify("|■■■■■■■■■■           | 50.0%"), bd.drawBar(bars,
                 0.5f));
 
         assertEquals(bd.getBarHeader(bars).length(), bd.drawBar(bars, 0.5f).lastIndexOf("|")+1);
@@ -57,7 +57,7 @@ public class TestBarDrawer {
         assertEquals("|0 ----- 50 ----- 100%|", bd
                 .getBarHeader(bars));
 
-        assertEquals(osify("|∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎| 100.0%"), bd.drawBar(bars,
+        assertEquals(osify("|■■■■■■■■■■■■■■■■■■■■■| 100.0%"), bd.drawBar(bars,
                 1f));
     }
 

@@ -185,10 +185,10 @@ public class InstantiationVisitor extends MethodVisitor {
         if (owner.equalsIgnoreCase(JOPTIONS_CLASS)) {
             shouldCall = false;
             super.visitMethodInsn(opcode, MOCK_JOPTIONS_CLASS, name, desc, itf);
-        } else if (owner.equalsIgnoreCase(GE_CLASS) && name.equals("getDefaultScreenDevice")) {
-            super.visitInsn(Opcodes.POP);
-            shouldCall = false;
-            super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_GD_CLASS, name, desc, itf);
+//        } else if (owner.equalsIgnoreCase(GE_CLASS) && name.equals("getDefaultScreenDevice")) {
+//            super.visitInsn(Opcodes.POP);
+//            shouldCall = false;
+//            super.visitMethodInsn(Opcodes.INVOKESTATIC, MOCK_GD_CLASS, name, desc, itf);
 //            methodVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 //            methodVisitor.visitLdcInsn(className + "(" + owner + "::" + name + ")");
 //            methodVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", itf);

@@ -267,6 +267,7 @@ public class FrameHandler implements Tickable {
             File f = FileHandler.generateTestingOutputFile("gestures-" +
                     Properties.CURRENT_RUN);
             try {
+                f.getParentFile().mkdirs();
                 f.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
