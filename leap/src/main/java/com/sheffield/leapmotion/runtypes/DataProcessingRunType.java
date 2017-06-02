@@ -40,10 +40,10 @@ public class DataProcessingRunType implements RunType {
         files.put("joint_positions_pool.ARFF", "joint_position");
         files.put("hand_positions_pool.ARFF", "hand_position");
         files.put("hand_rotations_pool.ARFF", "hand_rotation");
-        files.put("gesture_circle_pool.ARFF", "gesture_circle");
-        files.put("gesture_keytap_pool.ARFF", "gesture_keytap");
-        files.put("gesture_screentap_pool.ARFF", "gesture_screentap");
-        files.put("gesture_swipe_pool.ARFF", "gesture_swipe");
+//        files.put("gesture_circle_pool.ARFF", "gesture_circle");
+//        files.put("gesture_keytap_pool.ARFF", "gesture_keytap");
+//        files.put("gesture_screentap_pool.ARFF", "gesture_screentap");
+//        files.put("gesture_swipe_pool.ARFF", "gesture_swipe");
         files.put("stabilised_tip_pool.ARFF", "stabilised_tip");
 
         HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>();
@@ -121,7 +121,7 @@ public class DataProcessingRunType implements RunType {
 
                 ArrayList<String> keys = new ArrayList<>();
 
-                for (int i = 0; i < keys.size(); i++){
+                for (int i = 0; i < keysMod.size(); i++){
                     keys.add(keysMod.get(i).replace(s, ""));
                 }
 

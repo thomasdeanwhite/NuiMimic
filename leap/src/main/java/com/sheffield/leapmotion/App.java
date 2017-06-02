@@ -309,7 +309,7 @@ public class App implements ThrowableListener, Tickable {
     public static void setOutput() {
 
         if (!Properties.SHOW_OUTPUT) {
-            App.out = dummyStream;
+            App.out = System.out;//dummyStream;
             System.setOut(dummyStream);
             return;
         }

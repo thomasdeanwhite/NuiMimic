@@ -393,6 +393,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
         lastStabilised = stabilisedTipPositions.get(lastStabilisedLabel);
     }
 
+
+    //TODO: Model as parameter
     public abstract String nextSequenceJoints();
 
     public abstract String nextSequencePosition();
