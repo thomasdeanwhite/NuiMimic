@@ -97,7 +97,7 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 
 	@Override
 	public String nextSequenceStabilisedTips() {
-		return null;
+		return randomStabilised();
 	}
 
 	public long lastTick(){
