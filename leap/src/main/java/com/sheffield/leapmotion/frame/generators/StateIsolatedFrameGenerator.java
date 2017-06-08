@@ -87,7 +87,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		Map<Integer, NGram> rotationNgrams = loadStateNgram(fileStart + "hand_rotation_stategram", stateAssignment);
 		Map<Integer, NGram> gestureNgrams = loadStateNgram(fileStart + "gesture_type_stategram", stateAssignment);
 		Map<Integer, NGram> tipNgrams = loadStateNgram(fileStart +
-				"stabilised_tips_stategram", stateAssignment);
+				"stabilised_tip_stategram", stateAssignment);
 
 
 		for (Integer i : positionNgrams.keySet()){
