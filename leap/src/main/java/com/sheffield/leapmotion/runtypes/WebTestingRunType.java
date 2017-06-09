@@ -33,13 +33,12 @@ public class WebTestingRunType implements RunType {
         //setup Selenium web browser
         wd = new ChromeDriver();
 
-        //start data seeding
-        thread.start();
-
         wd.get(Properties.WEBSITE);
 
+        App.getApp().setup(true);
 
-
+        //start data seeding
+        ws.run();
 
         return 0;
     }

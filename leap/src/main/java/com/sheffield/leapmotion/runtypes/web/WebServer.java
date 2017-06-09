@@ -5,11 +5,15 @@ import com.leapmotion.leap.Listener;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.util.AppStatus;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -20,31 +24,95 @@ public class WebServer extends Listener implements Runnable {
     private ServerSocket server;
 
     private HashMap<Socket, PrintWriter> clients = new HashMap<Socket, PrintWriter>();
+    private HashMap<Socket, BufferedReader> clientReader = new HashMap<Socket, BufferedReader>();
+
+    private ArrayList<String> connected = new ArrayList<String>();
+
+
+    public static String deriveHttpKey(String key){
+        String websocketKey = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+        byte[] hashedKey = DigestUtils.sha1(websocketKey);
+
+        String encodedKey = Base64.encodeBase64String(hashedKey);
+
+        return encodedKey;
+    }
+
+    public static final String getHttpHeaders(String key){
+
+
+
+        String header = "HTTP/1.1 101 Switching Protocols\r\n" +
+                "Connection: Upgrade\r\n" +
+                "Sec-WebSocket-Accept: " + deriveHttpKey(key) + "\r\n" +
+                "Sec-WebSocket-Key: " + key + "\r\n" +
+                "Server: WebSocket++/0.2.2dev\r\n" +
+                "Upgrade: websocket\r\n\r\n";
+
+        return header;
+}
 
     public WebServer() {
     }
 
     @Override
     public void run() {
+
+        App.setOutput();
+
         //6347 is the leapmotion server port
         try {
-            server = new ServerSocket(6437);
+            server = new ServerSocket();
+
+            InetSocketAddress ins = new InetSocketAddress("127.0.0.1", 6437);
+
+            server.bind(ins);
+
+            App.out.println("[] Web Server has started: " + server.getLocalSocketAddress().toString() + ":" + server.getLocalPort());
 
 
             while (App.getApp().status() != AppStatus.FINISHED) {
-                Socket client = server.accept();
-                clients.put(client, new PrintWriter(client.getOutputStream(), true));
+                final Socket client = server.accept();
+
+                if (!connected.contains(client.getInetAddress().toString())) {
+                    //handshake
+
+                    App.out.println("[] Client " + client.getInetAddress().toString() + " connected.");
+
+                    clients.put(client, new PrintWriter(client.getOutputStream(), true));
+                    clientReader.put(client, new BufferedReader(new InputStreamReader(client.getInputStream())));
+
+
+                    String line;
+
+                    String websocketKey = "";
+
+                    while ((line = clientReader.get(client).readLine()).length() > 0) {
+                        App.out.println(line);
+                        if (line.contains("Sec-WebSocket-Key")) {
+                            websocketKey = line.split(":")[1].trim();
+                        }
+                    }
+
+                    clients.get(client).write(getHttpHeaders(websocketKey));
+
+                    clients.get(client).flush();
+
+                    connected.add(client.getInetAddress().toString());
+                }
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(App.out);
         }
     }
 
     @Override
     public void onFrame(Controller controller) {
         for (Socket s : clients.keySet()){
-            clients.get(s).print(HandFactory.toJavaScript(controller.frame()));
+            clients.get(s).write(HandFactory.toJavaScript(controller.frame()));
+            clients.get(s).flush();
         }
     }
 }
