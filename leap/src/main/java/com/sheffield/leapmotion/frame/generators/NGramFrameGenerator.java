@@ -181,7 +181,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
     @Override
     public String nextSequenceGesture() {
-        return null;
+        return "TYPE_INVALID";
     }
 
     @Override

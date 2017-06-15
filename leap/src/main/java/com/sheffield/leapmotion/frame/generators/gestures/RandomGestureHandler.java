@@ -133,11 +133,23 @@ public class RandomGestureHandler extends NoneGestureHandler {
     public void advanceGestures(long time) {
         //super.advanceGestures(time);
         if (gestureTypes == null){
-            String[] stringNext = nextGestures();
-            nextGestures = new Gesture.Type[stringNext.length];
+            String[] stringNextRaw = nextGestures();
+            ArrayList<Gesture.Type> stringNext = new ArrayList<>();
 
-            for (int i = 0; i < stringNext.length; i++){
-                nextGestures[i] = Gesture.Type.valueOf(stringNext[i]);
+            for (String s : stringNextRaw){
+                if (s != null && !s.equals("null")){
+                    try {
+                        stringNext.add(Gesture.Type.valueOf(s));
+                    } catch (Exception e){
+                        // The exception is either null or not a valid gesture
+                    }
+                }
+            }
+
+            nextGestures = new Gesture.Type[stringNext.size()];
+
+            for (int i = 0; i < stringNext.size(); i++){
+                nextGestures[i] = stringNext.get(i);
             }
         }
 

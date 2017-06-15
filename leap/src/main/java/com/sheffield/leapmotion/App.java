@@ -257,6 +257,7 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public void setup(boolean initialiseForTesting) {
+        setOutput();
         testing = initialiseForTesting;
         if (testing) {
             App.getApp().setTesting();
@@ -286,8 +287,6 @@ public class App implements ThrowableListener, Tickable {
 
         App.out.println("- Setup Complete");
 
-        setOutput();
-
         if (testing) {
             startTesting();
             start();
@@ -309,21 +308,8 @@ public class App implements ThrowableListener, Tickable {
     public static void setOutput() {
 
         if (!Properties.SHOW_OUTPUT) {
-            App.out = System.out;//dummyStream;
-            System.setOut(dummyStream);
-            return;
+            App.out = dummyStream;
         }
-
-        if (out != null) {
-            return;
-        }
-
-        if (!ENABLE_APPLICATION_OUTPUT && (!outputSet || out == null)) {
-            out = System.out;
-
-            outputSet = true;
-        }
-
 
         System.setOut(dummyStream);
     }
@@ -452,6 +438,7 @@ public class App implements ThrowableListener, Tickable {
      * @param instr Instrumentation instance to attach a ClassFileTransformer
      */
     public static void premain(String arg, Instrumentation instr) {
+        setOutput();
         App.out.println("- Instrumenting AUT");
 
         try {
@@ -618,6 +605,8 @@ public class App implements ThrowableListener, Tickable {
                 long lastTime = System.nanoTime();
                 START_TIME = lastTime;
                 long lastTimeRecorded = 0;
+
+                setOutput();
 
                 while (app.status() != AppStatus.FINISHED) {
                     try {

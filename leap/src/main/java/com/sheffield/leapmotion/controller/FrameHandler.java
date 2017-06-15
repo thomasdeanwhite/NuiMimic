@@ -129,26 +129,6 @@ public class FrameHandler implements Tickable {
                     StateIsolatedFrameGenerator
                             sifs = new StateIsolatedFrameGenerator(
                             Properties.INPUT[0]);
-                    long testIndex = Properties.CURRENT_RUN;
-                    File g = FileHandler
-                            .generateTestingOutputFile("gestures-" + testIndex);
-                    g.createNewFile();
-                    sifs.setGestureOutputFile(g);
-
-                    File p = FileHandler.generateTestingOutputFile(
-                            "joint_positions-" + testIndex);
-                    p.createNewFile();
-                    sifs.setJointsOutputFile(p);
-
-                    File hp = FileHandler.generateTestingOutputFile(
-                            "hand_positions-" + testIndex);
-                    hp.createNewFile();
-
-                    File hr = FileHandler.generateTestingOutputFile(
-                            "hand_rotations-" + testIndex);
-                    hr.createNewFile();
-                    sifs.setOutputFiles(hp, hr);
-
                     frameGenerator = sifs;
                     break;
                 case RECONSTRUCTION:
