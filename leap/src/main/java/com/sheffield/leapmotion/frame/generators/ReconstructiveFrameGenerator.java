@@ -18,8 +18,7 @@ import java.util.ArrayList;
 /**
  * Created by thoma on 11/05/2016.
  */
-public class ReconstructiveFrameGenerator extends SequenceFrameGenerator implements
-        GestureHandler, Reconstruction {
+public class ReconstructiveFrameGenerator extends SequenceFrameGenerator implements Reconstruction {
 
     private ArrayList<String> stabLabelStack;
 
@@ -231,6 +230,11 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
     @Override
     public String nextSequenceGesture() {
         return null;
+    }
+
+    @Override
+    public String nextSequenceCircleGesture() {
+        return "0";
     }
 
     @Override

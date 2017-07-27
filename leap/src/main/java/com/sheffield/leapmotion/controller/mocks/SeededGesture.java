@@ -108,10 +108,16 @@ public class SeededGesture extends Gesture implements Serializable {
 		return true;
 	}
 
+	private SeededPointableList spl = new SeededPointableList();
+
+	public void addPointable(SeededFinger sf){
+		spl.addPointable(sf);
+	}
+
 	@Override
 	public PointableList pointables() {
 		// TODO Auto-generated method stub
-		return frame.pointables();
+		return spl;
 	}
 
 	@Override

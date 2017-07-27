@@ -160,11 +160,11 @@ public class NGram implements Serializable {
         String babble = babbleRecursive(text);
 
         String[] elements = null;
-        String returnString = null;
+        String returnString = "";
 
         if (babble == null || babble.length() == 0){
             if (!text.contains(NGramModel.DELIMITER)){
-                throw new DataSparsityException("Data is too sparse!");
+                throw new DataSparsityException("Data is too sparse! [" + text + "]");
             }
             String newText = text.substring(text.indexOf(NGramModel.DELIMITER)+1);
             babble = babbleRecursive(newText);

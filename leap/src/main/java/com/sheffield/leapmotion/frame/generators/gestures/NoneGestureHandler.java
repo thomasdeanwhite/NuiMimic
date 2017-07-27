@@ -18,6 +18,7 @@ public class NoneGestureHandler implements GestureHandler {
 
 	protected State gestureState;
 	protected Type[] gestureTypes;
+	protected Finger.Type[] fingerTypes;
 	protected long gestureStart;
 	protected int gestureDuration;
 	protected int gestureId = 0;
@@ -25,6 +26,8 @@ public class NoneGestureHandler implements GestureHandler {
 	protected int gestureCount = 0;
 
 	protected File outputFile;
+
+
 
 	@Override
 	public void setGestureOutputFile(File o) {
@@ -62,7 +65,13 @@ public class NoneGestureHandler implements GestureHandler {
 		if (gestureState == null || gestureTypes == null || gestureState == State.STATE_STOP){
 			gestureState = State.STATE_START;
 			//TODO: Implement GestureSelector here!
-			gestureTypes = new Gesture.Type[]{Gesture.Type.valueOf(getNextGesture())};
+			String[] gest = getNextGesture().split(">>");
+			gestureTypes = new Gesture.Type[]{Gesture.Type.valueOf(gest[0])};
+			if (gest.length > 1){
+				fingerTypes = new Finger.Type[]{Finger.Type.valueOf(gest[1])};
+			} else {
+				fingerTypes = new Finger.Type[]{null};
+			}
 			gestureStart = time-3;
 			//default duration should be > 0 according to docs
 			gestureDuration = 3;

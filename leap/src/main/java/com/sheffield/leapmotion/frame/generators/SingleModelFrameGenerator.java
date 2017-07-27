@@ -21,19 +21,13 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 	private Random r = new Random();
 
     private long lastGestureChange = 0;
-    private final static int GESTURE_CHANGE_TIME = 10000;
+    private final static int GESTURE_CHANGE_TIME = 300000;
 
 	private String currentGesture;
 
-    private FrameGenerator frameSelector;
+    private NGramFrameGenerator frameSelector;
 
     private GestureHandler gestureHandler;
-
-    private boolean changeGestures = false;
-
-    private long lastPositionChange = 0;
-    private final int POSITION_LOCATE_TIME = 500;
-    private final int POSITION_CHANGE_TIME = 4000;
 
     public File generateFile(String filename){
         return FileHandler.generateTestingOutputFile(filename);
@@ -42,23 +36,11 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 	public SingleModelFrameGenerator() {
 		String gesture = Properties.INPUT[0];
 
-        long testIndex = Properties.CURRENT_RUN;
-
         try {
-            File pFile = generateFile("hand_positions-" + testIndex);
-            pFile.createNewFile();
-            File rFile = generateFile("hand_rotations-" + testIndex);
-            rFile.createNewFile();
             NGramFrameGenerator ngfs = new NGramFrameGenerator(gesture);
-            ngfs.setOutputFiles(pFile, rFile);
-            File jFile = generateFile("joint_positions-" + testIndex);
-            jFile.createNewFile();
-            ngfs.setOutputJointsFile(jFile);
-            frameSelector = ngfs;
-            File gFile = generateFile("gestures-" + testIndex);
-            gFile.createNewFile();
 
-            ngfs.setGestureOutputFile(gFile);
+            frameSelector = ngfs;
+
             gestureHandler = ngfs;
         } catch (Exception e){
             e.printStackTrace(App.out);
@@ -77,6 +59,7 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
         return null;
     }
 
+    @Override
     public void modifyFrame(SeededFrame frame) {
 		frameSelector.modifyFrame(frame);
 	}
@@ -93,12 +76,12 @@ public class SingleModelFrameGenerator extends FrameGenerator implements Gesture
 
     @Override
     public GestureList handleFrame(Frame frame, Controller controller) {
-        return gestureHandler.handleFrame(frame, controller);
+        return frameSelector.handleFrame(frame, controller);
     }
 
     @Override
     public void setGestureOutputFile(File f) {
-        gestureHandler.setGestureOutputFile(f);
+
     }
 
     private long lastUpdate = 0;

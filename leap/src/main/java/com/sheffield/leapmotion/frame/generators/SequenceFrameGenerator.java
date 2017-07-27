@@ -4,12 +4,11 @@ import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.mocks.HandFactory;
-import com.sheffield.leapmotion.controller.mocks.SeededFinger;
-import com.sheffield.leapmotion.controller.mocks.SeededFrame;
-import com.sheffield.leapmotion.controller.mocks.SeededHand;
+import com.sheffield.leapmotion.controller.mocks.*;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
+import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
+import com.sheffield.leapmotion.frame.generators.gestures.SequenceGestureHandler;
 import com.sheffield.leapmotion.frame.playback.NGramLog;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.util.FileHandler;
@@ -24,12 +23,14 @@ import java.util.HashMap;
 /**
  * Created by thomas on 19/05/17.
  */
-public abstract class SequenceFrameGenerator extends FrameGenerator {
+public abstract class SequenceFrameGenerator extends FrameGenerator implements GestureHandler {
 
 
     public Csv getCsv() {
         return new Csv();
     }
+
+    protected SequenceGestureHandler sgh;
 
     protected HashMap<String, SeededHand> joints;
 
@@ -154,6 +155,38 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
                         Float.parseFloat(vect[3]));
             }
             positions.put(vect[0], v);
+
+        }
+
+        return positions;
+    }
+
+    public static HashMap<String, SeededCircleGesture> getCircleGestures(String filename)
+            throws IOException {
+        HashMap<String, SeededCircleGesture> positions = new HashMap<String, SeededCircleGesture>();
+
+        String positionFile = filename + "/gesture_circle_data";
+        String contents = FileHandler.readFile(new File(positionFile));
+        String[] lines = contents.split("\n");
+
+        SeededGesture sg = new SeededGesture(Gesture.Type.TYPE_CIRCLE, Gesture.State.STATE_UPDATE,
+                Frame.invalid(), 0, 0);
+
+        for (String line : lines) {
+            SeededCircleGesture scg = new SeededCircleGesture(sg);
+            String[] vect = line.split(",");
+
+            scg.setCenter(new Vector(Float.parseFloat(vect[1]),
+                    Float.parseFloat(vect[2]),
+                    Float.parseFloat(vect[3])));
+
+            scg.setNormal(new Vector(Float.parseFloat(vect[4]),
+                    Float.parseFloat(vect[5]),
+                    Float.parseFloat(vect[6])));
+
+            scg.setRadius(Float.parseFloat(vect[7]));
+
+            positions.put(vect[0], scg);
 
         }
 
@@ -296,7 +329,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
             positions = getPositions(processed);
             rotations = getRotations(processed);
             stabilisedTipPositions = getStabilizedTips(processed);
-
+            this.sgh = new SequenceGestureHandler(getCircleGestures(processed));
             Properties.CLUSTERS = joints.keySet().size();
 
         } catch (IOException e) {
@@ -309,11 +342,15 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
                                   HashMap<String, Vector> positions,
                                   HashMap<String, Quaternion> rotations,
                                   HashMap<String, Vector[]>
-                                          stabilisedTipPositions) {
+                                          stabilisedTipPositions,
+                                  HashMap<String, SeededCircleGesture> seededCircleGestures) {
         this.joints = joints;
         this.positions = positions;
         this.rotations = rotations;
         this.stabilisedTipPositions = stabilisedTipPositions;
+        this.sgh = new SequenceGestureHandler(seededCircleGestures);
+
+        Properties.CLUSTERS = joints.keySet().size();
     }
 
     @Override
@@ -353,6 +390,9 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
 
             sh.setStabilizedPalmPosition(lastStabilised[0]);
 
+            assert lastPosition != null;
+            assert lastRotation != null;
+
             Quaternion q = lastRotation;
 
             q.setBasis(sh);
@@ -375,6 +415,14 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
     public void tick(long time) {
         lastUpdate = time;
 
+        String nextGesture = nextSequenceGesture();
+        sgh.setNextGesture(nextGesture);
+        if (nextGesture.contains("TYPE_CIRCLE")) {
+            sgh.setNextCircleGesture(nextSequenceCircleGesture());
+        }
+
+        sgh.tick(time);
+
         fillLists();
 
     }
@@ -391,6 +439,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
         
         lastStabilisedLabel = nextSequenceStabilisedTips();
         lastStabilised = stabilisedTipPositions.get(lastStabilisedLabel);
+
+
     }
 
 
@@ -403,6 +453,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
 
     public abstract String nextSequenceGesture();
 
+    public abstract String nextSequenceCircleGesture();
+
     public abstract String nextSequenceStabilisedTips();
 
     public long lastTick() {
@@ -413,4 +465,11 @@ public abstract class SequenceFrameGenerator extends FrameGenerator {
     public void cleanUp() {
 
     }
+
+    @Override
+    public GestureList handleFrame(Frame f, Controller c){
+        return sgh.handleFrame(f, c);
+    }
+
+
 }

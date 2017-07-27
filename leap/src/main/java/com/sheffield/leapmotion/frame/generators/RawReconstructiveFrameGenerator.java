@@ -47,7 +47,8 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
 
     public RawReconstructiveFrameGenerator(String filename) throws IOException {
         super(getRawJoints(filename), getRawPositions(filename),
-                getRawRotations(filename), getRawStabilisedTips(filename));
+                getRawRotations(filename), getRawStabilisedTips(filename),
+                new HashMap<>());
         tpgh = new ReconstructiveGestureHandler(filename);
         App.out.println("* Setting up Raw Reconstruction");
         handLabelStack = new ArrayList<String>();
@@ -213,6 +214,11 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
 
     @Override
     public String nextSequenceGesture() {
+        return null;
+    }
+
+    @Override
+    public String nextSequenceCircleGesture() {
         return null;
     }
 

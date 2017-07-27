@@ -49,7 +49,7 @@ public class App implements ThrowableListener, Tickable {
     public static boolean CLOSING = false;
     public static boolean ENABLE_APPLICATION_OUTPUT = true;
     public static boolean IS_INSTRUMENTING = false;
-    public static int RECORDING_INTERVAL = 60000;
+    public static int RECORDING_INTERVAL = 15000;
 
     private boolean testing = false;
 
@@ -612,9 +612,16 @@ public class App implements ThrowableListener, Tickable {
                     try {
                         //delay = (int) (1000f / Properties.FRAMES_PER_SECOND);
                         long time = System.nanoTime();
+
+
+                        //time passed in millis
                         int timePassed = (int) ((time - lastTime) / 1000000);
                         App.getApp().increaseIterationTime(timePassed);
                         App.getApp().increaseFps(time / 1000000);
+
+                        ClassAnalyzer.collectHitCounters(false);
+
+
 
                         if ((lastTime - lastTimeRecorded) / 1000000 >=
                                 RECORDING_INTERVAL &&
@@ -622,10 +629,10 @@ public class App implements ThrowableListener, Tickable {
                                         .allowProcessing() && !Properties
                                 .PROCESS_PLAYBACK &&
                                 !Properties.PROCESS_SCREENSHOTS) {
-                            ClassAnalyzer.collectHitCounters(false);
 
                             App.getApp().output(false);
                             lastTimeRecorded = lastTime;
+
                         }
 
                         long timePassedNanos = time - START_TIME;
@@ -636,17 +643,17 @@ public class App implements ThrowableListener, Tickable {
                         app.tick(time / 1000000);
                         try {
                             int d = delay - timePassed;
-                            if (d >= 0) {
-                                Thread.sleep(d);
-
-                                time += d * 1000000;
+                            if (d <= 0) {
+                                d = 1;
                             }
+                            Thread.sleep(d);
+
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
 
 
-                        lastTime = time;
+                        lastTime = System.nanoTime();
                     } catch (Throwable t){
                         App.getApp().throwableThrown(t);
                     }
@@ -672,6 +679,12 @@ public class App implements ThrowableListener, Tickable {
         String output = Properties.TESTING_OUTPUT + "/branches.csv";
         String output2 = Properties.TESTING_OUTPUT + "/lines.csv";
         ClassAnalyzer.output(output, output2, Properties.UNTRACKED_PACKAGES);
+        try {
+            App.getApp().outputLineAndBranchHits();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         CLOSING = true;
 
@@ -690,8 +703,6 @@ public class App implements ThrowableListener, Tickable {
         }
         try {
             ClassAnalyzer.setOut(App.out);
-
-            outputLineAndBranchHits();
 
             String gestureFiles = "";
             for (String s : Properties.INPUT) {

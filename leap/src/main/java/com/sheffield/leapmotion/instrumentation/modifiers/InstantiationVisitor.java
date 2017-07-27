@@ -169,7 +169,7 @@ public class InstantiationVisitor extends MethodVisitor {
             // Convert from old API version to new one.
             super.visitMethodInsn(opcode, owner, "isEmpty", desc, false);
             shouldCall = false;
-        } else if (owner.equals(CIRCLE_GESTURE_CLASS) && name.contains("<init>")) {
+        } else if (owner.equals(CIRCLE_GESTURE_CLASS) && name.contains("<init>") && !Properties.RECORDING) {
             super.visitInsn(Opcodes.DUP_X2);
             super.visitMethodInsn(opcode, owner, name, desc, itf);
             super.visitInsn(Opcodes.POP);

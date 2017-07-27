@@ -2,14 +2,11 @@ package com.sheffield.leapmotion.frame.generators.gestures;
 
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.mocks.*;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.frame.playback.NGramLog;
-import com.sheffield.leapmotion.controller.mocks.SeededCircleGesture;
-import com.sheffield.leapmotion.controller.mocks.SeededGesture;
-import com.sheffield.leapmotion.controller.mocks.SeededGestureList;
-import com.sheffield.leapmotion.controller.mocks.SeededSwipeGesture;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,18 +30,64 @@ public class RandomGestureHandler extends NoneGestureHandler {
         SeededGestureList gl = new SeededGestureList();
 
         int counter = 0;
-        for (Gesture.Type gestureType : gestureTypes) {
+
+        if (gestureTypes == null || gestureTypes.length == 0){
+            return new SeededGestureList();
+        }
+
+        for (int i = 0; i < gestureTypes.length; i++) {
+            Gesture.Type gestureType = gestureTypes[i];
+            Finger.Type fingerType = fingerTypes[i];
             if (gestureType == Gesture.Type.TYPE_INVALID)
-                return gl;
+                continue;
 
             gestureCount++;
 
-            gl.addGesture(setupGesture(gestureType, frame, gestureId, counter++, controller));
+            Gesture g = setupGesture(gestureType, frame, gestureId, counter++, controller);
+
+            gl.addGesture(g);
+
+            if (fingerType != null){
+
+                Finger ft = Finger.invalid();
+
+                for (Finger f : frame.fingers()){
+                    if (f.type().equals(fingerType)){
+                        ft = f;
+                        break;
+                    }
+                }
+
+                ((SeededGesture)g).addPointable((SeededFinger) ft);
+
+                if (((SeededGesture)g).getCircleGesture() != null){
+                    ((SeededCircleGesture)((SeededGesture)g).getCircleGesture()).setProgress(gestureDuration/1000f);
+                    ((SeededCircleGesture)((SeededGesture)g).getCircleGesture()).setPointable(ft);
+                }
+
+            } else {
+                Finger f = Finger.invalid();
+
+                SeededGesture sg = ((SeededGesture) g);
+                if (sg.getCircleGesture() != null){
+                    f = (Finger) sg.getCircleGesture().pointable();
+                }
+
+                if (f != null) {
+                    ((SeededGesture) g).addPointable((SeededFinger) f);
+                }
+
+                if (((SeededGesture)g).getCircleGesture() != null){
+                    ((SeededCircleGesture)((SeededGesture)g).getCircleGesture()).setProgress(gestureDuration/1000f);
+
+                }
+            }
         }
         return gl;
     }
 
     private Gesture.Type[] nextGestures = null;
+    private Finger.Type[] nextFingers = null;
 
     public Gesture setupGesture(Gesture.Type gestureType, Frame frame,
                                 int gestureId, int count, Controller controller) {
@@ -54,7 +97,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
         Pointable frontMost = g.pointables().frontmost();
         Pointable lastFrontMost = lastFrame.pointables().frontmost();
 
-        if (count > 0){
+        if (count > 0) {
             frontMost = g.pointables().get(count);
             gestureCount = 0;
         }
@@ -65,14 +108,14 @@ public class RandomGestureHandler extends NoneGestureHandler {
             if (cumalitiveGesturePositions.size() <= count) {
                 Vector center = Vector.zero();
                 int counter = 0;
-                for (int i = 1; i < Properties.GESTURE_CIRCLE_FRAMES; i++){
+                for (int i = 1; i < Properties.GESTURE_CIRCLE_FRAMES; i++) {
                     Frame f = controller.frame(i);
 
-                    if (!f.isValid()){
+                    if (!f.isValid()) {
                         break;
                     }
 
-                    if (count > 0){
+                    if (count > 0) {
                         frontMost = g.pointables().get(count);
                         center = center.plus(f.pointables().get(count).stabilizedTipPosition());
                     } else {
@@ -131,120 +174,142 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
     @Override
     public void advanceGestures(long time) {
-        //super.advanceGestures(time);
-        if (gestureTypes == null){
-            String[] stringNextRaw = nextGestures();
+        String[] nextGest = nextGestures();
+        if (gestureTypes == null) {
+            String[] stringNextRaw = nextGest;
             ArrayList<Gesture.Type> stringNext = new ArrayList<>();
+            ArrayList<Finger.Type> fingersNext = new ArrayList<>();
 
-            for (String s : stringNextRaw){
-                if (s != null && !s.equals("null")){
+            for (String s : stringNextRaw) {
+                if (s != null && !s.equals("null")) {
                     try {
-                        stringNext.add(Gesture.Type.valueOf(s));
-                    } catch (Exception e){
+                        String[] gest = s.split(">>");
+
+                        stringNext.add(Gesture.Type.valueOf(gest[0]));
+                        fingersNext.add(Finger.Type.valueOf(gest[1]));
+                    } catch (Exception e) {
                         // The exception is either null or not a valid gesture
+                        if (fingersNext.size() < stringNext.size()){
+                            fingersNext.add(null);
+                        }
                     }
                 }
             }
 
             nextGestures = new Gesture.Type[stringNext.size()];
+            nextFingers = new Finger.Type[fingersNext.size()];
 
-            for (int i = 0; i < stringNext.size(); i++){
+            for (int i = 0; i < stringNext.size(); i++) {
                 nextGestures[i] = stringNext.get(i);
+                nextFingers[i] = fingersNext.get(i);
             }
+
+            gestureTypes = nextGestures;
+            fingerTypes = nextFingers;
         }
 
-            if (gestureState == null || gestureTypes == null ||
-                    gestureState
-                            == Gesture.State.STATE_STOP) {
-                gestureState = Gesture.State.STATE_START;
-                //currentGesture = analyzer.getDataAnalyzer().next();
-                gestureStart = time-3;
-                gestureTypes = nextGestures;
-                nextGestures = null;
-                gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
-                gestureCount = 0;
-                cumalitiveGesturePositions.clear();
-            } else {
-                    if (gestureState == Gesture.State.STATE_UPDATE) {
+        if (gestureState == null || gestureTypes == null ||
+                gestureState
+                        == Gesture.State.STATE_STOP) {
+            gestureState = Gesture.State.STATE_START;
+            //currentGesture = analyzer.getDataAnalyzer().next();
+            gestureStart = time - 3;
+            gestureTypes = nextGestures;
+            fingerTypes = nextFingers;
+            nextGestures = null;
+            nextFingers = null;
+            gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
+            gestureCount = 0;
+            cumalitiveGesturePositions.clear();
+        } else {
 
-                        String[] stringNext = nextGestures();
+            gestureTypes = nextGestures;
+            fingerTypes = nextFingers;
 
-                        boolean continueGesture = true;
+            if (gestureState == Gesture.State.STATE_UPDATE && gestureTypes != null && gestureTypes.length > 0) {
 
-                        for (String s : stringNext) {
-                            Gesture.Type newGesture;
-                            try {
-                                newGesture = Gesture.Type.valueOf(s);
+                String[] stringNext = nextGest;
 
-                                boolean found = false;
+                boolean continueGesture = true;
 
-                                for (Gesture.Type currentGestures : gestureTypes) {
-                                    if (currentGestures.equals(newGesture)) {
-                                        found = true;
-                                    }
-                                }
+                for (String s : stringNext) {
+                    Gesture.Type newGesture;
+                    try {
 
-                                if (!found) {
-                                    continueGesture = false;
-                                }
-                            } catch (Exception e) {
+                        String gest[] = s.split(">>");
 
+                        newGesture = Gesture.Type.valueOf(gest[0]);
+
+                        boolean found = false;
+
+                        for (Gesture.Type currentGestures : gestureTypes) {
+                            if (currentGestures.equals(newGesture) && currentGestures != Gesture.Type.TYPE_INVALID) {
+                                found = true;
                             }
-
                         }
 
-                        if (continueGesture) {
-                            int newDuration = (int) (time - gestureStart);
-                            gestureTimeLimit = newDuration + Properties.GESTURE_TIME_LIMIT;
-                            gestureDuration = newDuration;
-                        } else if (gestureDuration > gestureTimeLimit) {
-                            nextGestures = new Gesture.Type[stringNext.length];
-
-                            for (int i = 0; i < stringNext.length; i++){
-                                nextGestures[i] = Gesture.Type.valueOf(stringNext[i]);
-                            }
-                            gestureState = Gesture.State.STATE_STOP;
-                            gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
-                        } else {
-                            nextGestures = null;
+                        if (!found) {
+                            continueGesture = false;
                         }
-
-                    } else {
-                        gestureState = Gesture.State.STATE_UPDATE;
+                    } catch (Exception e) {
+                        App.out.println(e);
                     }
 
-                    //            if (gestureType == Gesture.Type.TYPE_INVALID){
-                    //                return;
-                    //            }
-                    //update times
+                }
+
+                if (continueGesture) {
                     int newDuration = (int) (time - gestureStart);
+                    gestureTimeLimit = newDuration + Properties.GESTURE_TIME_LIMIT;
                     gestureDuration = newDuration;
+                } else if (gestureDuration > gestureTimeLimit) {
+                    nextGestures = new Gesture.Type[stringNext.length];
+                    nextFingers = new Finger.Type[stringNext.length];
 
-                    if (gestureState == Gesture.State.STATE_STOP) {
-                        NGramLog ngLog = new NGramLog();
-                        ngLog.element = "";
-                        for (Gesture.Type gt : gestureTypes) {
-                            ngLog.element += gt.toString() + ",";
-                        }
-                        ngLog.timeSeeded = gestureDuration;
-                        logs.add(ngLog);
-                        if (outputFile != null) {
-                            try {
-                                if (!outputFile.exists()){
-                                    if (!outputFile.getParentFile().exists()){
-                                        outputFile.getParentFile().mkdirs();
-                                    }
-                                    outputFile.createNewFile();
-                                }
-                                FileHandler.appendToFile(outputFile, ngLog.toString());
-                            } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace(App.out);
-                            }
+                    for (int i = 0; i < stringNext.length; i++) {
+                        String gest[] = stringNext[i].split(">>");
+                        nextGestures[i] = Gesture.Type.valueOf(gest[0]);
+                        if (gest.length > 1) {
+                            nextFingers[i] = Finger.Type.valueOf(gest[1]);
+                        } else {
+                            nextFingers[i] = null;
                         }
                     }
+                    gestureState = Gesture.State.STATE_STOP;
+                    gestureTimeLimit = Properties.GESTURE_TIME_LIMIT;
+                }
 
+            } else {
+                gestureState = Gesture.State.STATE_UPDATE;
             }
+
+            int newDuration = (int) (time - gestureStart);
+            gestureDuration = newDuration;
+
+            if (gestureState == Gesture.State.STATE_STOP) {
+                NGramLog ngLog = new NGramLog();
+                ngLog.element = "";
+                for (Gesture.Type gt : gestureTypes) {
+                    ngLog.element += gt.toString() + ",";
+                }
+                ngLog.timeSeeded = gestureDuration;
+                logs.add(ngLog);
+                if (outputFile != null) {
+                    try {
+                        if (!outputFile.exists()) {
+                            if (!outputFile.getParentFile().exists()) {
+                                outputFile.getParentFile().mkdirs();
+                            }
+                            outputFile.createNewFile();
+                        }
+                        FileHandler.appendToFile(outputFile, ngLog.toString());
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace(App.out);
+                    }
+                }
+            }
+
+        }
 
     }
 
@@ -268,7 +333,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
         return super.getNextGesture();
     }
 
-    private String[] nextGestures(){
+    private String[] nextGestures() {
         return getNextGesture().split("\\+");
     }
 }

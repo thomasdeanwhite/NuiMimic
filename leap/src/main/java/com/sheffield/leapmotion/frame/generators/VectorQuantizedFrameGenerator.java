@@ -2,10 +2,12 @@ package com.sheffield.leapmotion.frame.generators;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.output.Csv;
 
+import java.io.File;
 import java.util.Random;
 
 public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
@@ -15,6 +17,11 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 	@Override
 	public GestureList handleFrame(Frame frame, Controller controller) {
 		return rgh.handleFrame(frame, controller);
+	}
+
+	@Override
+	public void setGestureOutputFile(File f) {
+
 	}
 
 	@Override
@@ -29,6 +36,8 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 	private String[] candidateHands = null;
 	private String[] candidatePositions = null;
 	private String[] candidateRotations = null;
+	private String[] candidateGestures = null;
+	private String[] candidateCircleGestures = null;
 
 	private Random random = new Random();
 
@@ -65,6 +74,26 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 		return candidateRotations[random.nextInt(candidateRotations.length)];
 	}
 
+	public String randomGesture(){
+		if (candidateGestures == null){
+			Gesture.Type[] gts = Gesture.Type.values();
+			candidateGestures = new String[gts.length];
+
+			for (int i = 0; i < gts.length; i++){
+				candidateGestures[i] = gts[i].toString();
+			}
+		}
+		return candidateGestures[random.nextInt(candidateGestures.length)];
+	}
+
+	public String randomCircleGesture(){
+		if (candidateCircleGestures == null){
+			candidateCircleGestures = new String[circleGestures.keySet().size()];
+			circleGestures.keySet().toArray(candidateCircleGestures);
+		}
+		return candidateCircleGestures[random.nextInt(candidateCircleGestures.length)];
+	}
+
 	@Override
 	public boolean allowProcessing() {
 		return true;
@@ -92,7 +121,12 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 
 	@Override
 	public String nextSequenceGesture() {
-		return null;
+		return randomGesture();
+	}
+
+	@Override
+	public String nextSequenceCircleGesture() {
+		return randomCircleGesture();
 	}
 
 	@Override

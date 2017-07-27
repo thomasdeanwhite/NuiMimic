@@ -7,6 +7,7 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Properties;
+import com.sheffield.leapmotion.controller.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
@@ -65,6 +66,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		HashMap<String, Vector[]> stabilisedTips = NGramFrameGenerator
 				.getStabilizedTips(fileStart);
 
+		HashMap<String, SeededCircleGesture> circleGestures = NGramFrameGenerator
+				.getCircleGestures(fileStart);
+
 		Type type =  new TypeToken<Map<Integer, Integer[]>>(){}.getType();
 
 		HashMap<Integer, Integer[]> states = gson.fromJson(FileHandler.readFile(new File(fileStart + "raw_states")), type);
@@ -89,6 +93,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		Map<Integer, NGram> tipNgrams = loadStateNgram(fileStart +
 				"stabilised_tip_stategram", stateAssignment);
 
+		Map<Integer, NGram> circleNgrams = loadStateNgram(fileStart +
+				"gesture_circle_stategram", stateAssignment);
+
 
 		for (Integer i : positionNgrams.keySet()){
 			if (!gestureNgrams.containsKey(i)){
@@ -102,8 +109,8 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			if (jointNgrams.containsKey(i) && positionNgrams.containsKey(i) && rotationNgrams.containsKey(i)) {
 				Integer newState = stateAssignment.get(i);
 				NGramFrameGenerator newFs = new NGramFrameGenerator(jointNgrams.get(i), positionNgrams.get(i), rotationNgrams.get(i),
-						gestureNgrams.get(i), tipNgrams.get(i),
-						joints, positions, rotations, stabilisedTips);
+						gestureNgrams.get(i), tipNgrams.get(i), circleNgrams.get(i),
+						joints, positions, rotations, stabilisedTips, circleGestures);
 				if (generators.containsKey(newState)) {
 					generators.get(newState).merge(newFs);
 				} else {
@@ -117,10 +124,11 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		NGram rNgram = rotationNgrams.get(-1);
 		NGram gNgram = gestureNgrams.get(-1);
 		NGram stNgram = tipNgrams.get(-1);
+		NGram circleNgram = circleNgrams.get(-1);
 
 		generators.put(-1, new NGramFrameGenerator(jNgram, pNgram, rNgram,
-				gNgram, stNgram,
-				joints, positions, rotations, stabilisedTips));
+				gNgram, stNgram, circleNgram,
+				joints, positions, rotations, stabilisedTips, circleGestures));
 
 		currentGenerator = generators.get(-1);
 

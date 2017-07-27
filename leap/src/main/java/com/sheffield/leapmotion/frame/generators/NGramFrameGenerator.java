@@ -3,6 +3,7 @@ package com.sheffield.leapmotion.frame.generators;
 import com.google.gson.Gson;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
@@ -15,12 +16,17 @@ import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import java.io.File;
 import java.util.HashMap;
 
-public class NGramFrameGenerator extends SequenceFrameGenerator implements GestureHandler {
+public class NGramFrameGenerator extends SequenceFrameGenerator {
 
     protected NGram jointNgram;
     protected NGram positionNgram;
     protected NGram rotationNgram;
     protected NGram stabilisedNgram;
+    protected NGram gestureNGram;
+    protected NGram circleNGram;
+
+    protected String nextSequenceCircle = "";
+    protected String nextSequenceGesture = "";
 
     protected NGramGestureHandler ngGestureHandler;
     private String currentSequenceStab = "";
@@ -76,8 +82,15 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
             stabNgram.calculateProbabilities();
 
+            ngString = rawFile + "/gesture_circle_ngram";
+
+            NGram gcNgram = gson.fromJson(FileHandler.readFile(new File
+                    (ngString)), NGram.class);
+
+            gcNgram.calculateProbabilities();
+
             setup(jointNgram, positionNgram, rotationNgram, gestureNgram,
-                    stabNgram);
+                    stabNgram, gcNgram);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace(App.out);
@@ -87,11 +100,11 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     }
 
     public NGramFrameGenerator(NGram jointNgram, NGram positionNgram, NGram
-            rotationNgram, NGram gestureNGram, NGram tipsNgram,
+            rotationNgram, NGram gestureNGram, NGram tipsNgram, NGram circleNGram,
                                HashMap<String, SeededHand> joints, HashMap<String, Vector> positions, HashMap<String, Quaternion> rotations,
-                               HashMap<String, Vector[]> stabilisedTips) {
-        super(joints, positions, rotations, stabilisedTips);
-        setup(jointNgram, positionNgram, rotationNgram, gestureNGram, tipsNgram);
+                               HashMap<String, Vector[]> stabilisedTips, HashMap<String, SeededCircleGesture> seededCircles) {
+        super(joints, positions, rotations, stabilisedTips, seededCircles);
+        setup(jointNgram, positionNgram, rotationNgram, gestureNGram, tipsNgram, circleNGram);
     }
 
     public void merge(NGramFrameGenerator ngfs) {
@@ -99,11 +112,14 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
         positionNgram.merge(ngfs.positionNgram);
         rotationNgram.merge(ngfs.rotationNgram);
         ngGestureHandler.merge(ngfs.ngGestureHandler);
+        stabilisedNgram.merge(ngfs.stabilisedNgram);
+        gestureNGram.merge(ngfs.gestureNGram);
+        circleNGram.merge(circleNGram);
 
     }
 
     private void setup(NGram jointNgram, NGram positionNgram, NGram
-            rotationNgram, NGram gestureNGram, NGram stabilisedNgram) {
+            rotationNgram, NGram gestureNGram, NGram stabilisedNgram, NGram circleNGram) {
         App.out.println("* Setting up NGramModel Frame Selection");
 
         this.jointNgram = jointNgram;
@@ -118,7 +134,9 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
         this.stabilisedNgram = stabilisedNgram;
         this.stabilisedNgram.calculateProbabilities();
 
-        this.ngGestureHandler = new NGramGestureHandler(gestureNGram);
+        this.gestureNGram = gestureNGram;
+
+        this.circleNGram = circleNGram;
     }
 
     @Override
@@ -132,7 +150,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     public void tick(long time) {
         super.tick(time);
 
-        ngGestureHandler.tick(time);
+        //ngGestureHandler.tick(time);
 
     }
 
@@ -160,7 +178,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     }
 
     public String nextSequencePosition() {
-        currentSequencePosition = jointNgram.babbleNext(currentSequencePosition);
+        currentSequencePosition = positionNgram.babbleNext(currentSequencePosition);
 
         if (currentSequencePosition == null) {
             throw new DataSparsityException("Data is too sparse for input");
@@ -170,7 +188,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
     }
 
     public String nextSequenceRotation() {
-        currentSequenceRotation = jointNgram.babbleNext(currentSequenceRotation);
+        currentSequenceRotation = rotationNgram.babbleNext(currentSequenceRotation);
 
         if (currentSequenceRotation == null) {
             throw new DataSparsityException("Data is too sparse for input");
@@ -181,7 +199,23 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
     @Override
     public String nextSequenceGesture() {
-        return "TYPE_INVALID";
+        nextSequenceGesture = gestureNGram.babbleNext(nextSequenceGesture);
+
+        String gest = getLastLabel(nextSequenceGesture);
+        if (!gest.contains("TYPE_CIRCLE")){
+            nextSequenceCircle = "";
+        }
+
+
+        return gest;
+    }
+
+
+
+    @Override
+    public String nextSequenceCircleGesture() {
+        nextSequenceCircle = circleNGram.babbleNext(nextSequenceCircle);
+        return getLastLabel(nextSequenceCircle);
     }
 
     @Override
@@ -201,9 +235,9 @@ public class NGramFrameGenerator extends SequenceFrameGenerator implements Gestu
 
     }
 
-    @Override
-    public GestureList handleFrame(Frame frame, Controller controller) {
-        return ngGestureHandler.handleFrame(frame, controller);
-    }
+//    @Override
+//    public GestureList handleFrame(Frame frame, Controller controller) {
+//        return ngGestureHandler.handleFrame(frame, controller);
+//    }
 
 }

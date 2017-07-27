@@ -51,6 +51,10 @@ public class SeededCircleGesture extends CircleGesture implements Serializable {
         }
     }
 
+    public Gesture getGesture() {
+        return gesture;
+    }
+
     @Override
     public Vector center() {
         return center;
@@ -140,6 +144,17 @@ public class SeededCircleGesture extends CircleGesture implements Serializable {
     @Override
     public String toString() {
         return gesture.toString();
+    }
+
+    public SeededCircleGesture copy(){
+        SeededCircleGesture scg = new SeededCircleGesture(gesture);
+        scg.center = center;
+        scg.normal = normal;
+        scg.radius = radius;
+        scg.pointable = pointable;
+        scg.progress = progress;
+        scg.gesture = gesture;
+        return scg;
     }
 
 }

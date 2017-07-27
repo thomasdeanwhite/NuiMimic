@@ -350,6 +350,11 @@ public class FrameHandler implements Tickable {
 
             //sf.interactionBox();
         }
+
+        if (frame == null){
+            return;
+        }
+
         if (frames.contains(frame)) {
             boolean found = false;
             for (Frame f : frames){
@@ -381,8 +386,6 @@ public class FrameHandler implements Tickable {
         }
         final Frame last = getFrame(1);
         final Frame next = frame;
-
-        assert (next != null && !next.equals(last));
 
         framesGenerated++;
 

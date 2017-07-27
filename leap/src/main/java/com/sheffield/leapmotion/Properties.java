@@ -66,7 +66,7 @@ public class Properties extends InstrumentationProperties {
     public static long FRAMES_PER_SECOND = 200;
 
     @Parameter(key = "switchTime", description = "Time for interpolation between frames", hasArgs = true, category = "Data Interpolation")
-    public static int SWITCH_TIME = 5;//20fps
+    public static int SWITCH_TIME = 5;//200fps
 
     @Parameter(key = "bezierPoints", description = "Amount of points to use for Bezier Interpolation", hasArgs = true, category = "Data Interpolation")
     public static int BEZIER_POINTS = 1;
