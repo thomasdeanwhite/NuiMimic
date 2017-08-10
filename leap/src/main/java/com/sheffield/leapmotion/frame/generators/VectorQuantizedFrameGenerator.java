@@ -11,13 +11,6 @@ import java.io.File;
 import java.util.Random;
 
 public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
-	private RandomGestureHandler rgh = new RandomGestureHandler();
-	private String[] candidateStabilised;
-
-	@Override
-	public GestureList handleFrame(Frame frame, Controller controller) {
-		return rgh.handleFrame(frame, controller);
-	}
 
 	@Override
 	public void setGestureOutputFile(File f) {
@@ -38,6 +31,7 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 	private String[] candidateRotations = null;
 	private String[] candidateGestures = null;
 	private String[] candidateCircleGestures = null;
+	private String[] candidateStabilised;
 
 	private Random random = new Random();
 
@@ -88,8 +82,8 @@ public class VectorQuantizedFrameGenerator extends SequenceFrameGenerator {
 
 	public String randomCircleGesture(){
 		if (candidateCircleGestures == null){
-			candidateCircleGestures = new String[circleGestures.keySet().size()];
-			circleGestures.keySet().toArray(candidateCircleGestures);
+			candidateCircleGestures = new String[sgh.getCircleGestures().keySet().size()];
+			sgh.getCircleGestures().keySet().toArray(candidateCircleGestures);
 		}
 		return candidateCircleGestures[random.nextInt(candidateCircleGestures.length)];
 	}

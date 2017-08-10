@@ -45,4 +45,8 @@ public class SequenceGestureHandler extends RandomGestureHandler {
         }
         return super.setupGesture(gestureType, frame, gestureId, count, controller);
     }
+
+    public HashMap<String, SeededCircleGesture> getCircleGestures() {
+        return circleGestures;
+    }
 }

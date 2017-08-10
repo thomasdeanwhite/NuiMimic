@@ -417,7 +417,7 @@ public class App implements ThrowableListener, Tickable {
                     run = new WebTestingRunType();
                     break;
                 default:
-                    App.out.println("Unimplemented MILLIS");
+                    App.out.println("Invalid Runtype. Use -runtype to select a valid one.");
                     return;
             }
             run.run();

@@ -47,7 +47,7 @@ public class RandomGestureHandler extends NoneGestureHandler {
 
             gl.addGesture(g);
 
-            if (fingerType != null){
+            if (fingerType != null && g.type() == Gesture.Type.TYPE_CIRCLE){
 
                 Finger ft = Finger.invalid();
 
@@ -65,11 +65,11 @@ public class RandomGestureHandler extends NoneGestureHandler {
                     ((SeededCircleGesture)((SeededGesture)g).getCircleGesture()).setPointable(ft);
                 }
 
-            } else {
+            } else if (g.type() == Gesture.Type.TYPE_CIRCLE) {
                 Finger f = Finger.invalid();
 
                 SeededGesture sg = ((SeededGesture) g);
-                if (sg.getCircleGesture() != null){
+                if (sg.getCircleGesture() != null && sg.getCircleGesture().pointable() instanceof SeededFinger){
                     f = (Finger) sg.getCircleGesture().pointable();
                 }
 

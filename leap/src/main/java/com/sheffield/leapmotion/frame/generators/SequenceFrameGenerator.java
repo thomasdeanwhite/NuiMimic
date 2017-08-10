@@ -32,6 +32,12 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     protected SequenceGestureHandler sgh;
 
+    private boolean outputSequence = true;
+
+    protected void disableOutput (){
+        outputSequence = false;
+    }
+
     protected HashMap<String, SeededHand> joints;
 
     protected ArrayList<NGramLog> logs;
@@ -42,10 +48,6 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     protected HashMap<String, Vector> positions;
     protected HashMap<String, Quaternion> rotations;
-    protected HashMap<String, CircleGesture> circleGestures;
-    protected HashMap<String, SwipeGesture> swipeGestures;
-    protected HashMap<String, KeyTapGesture> keytapGestures;
-    protected HashMap<String, ScreenTapGesture> screenTapGestures;
     protected HashMap<String, Vector[]> stabilisedTipPositions;
 
     protected Vector lastPosition;
@@ -57,8 +59,15 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     private String lastStabilisedLabel;
     private Vector[] lastStabilised;
 
+    private String nextGesture = "TYPE_INVALID";
+    private String nextCircleGesture = "0";
+
+    private long lastTime = 0;
+
     protected File outputPosFile;
     protected File outputRotFile;
+
+    protected File regressionFile;
 
     public void setOutputFiles(File pos, File rot) {
         outputPosFile = pos;
@@ -332,6 +341,15 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
             this.sgh = new SequenceGestureHandler(getCircleGestures(processed));
             Properties.CLUSTERS = joints.keySet().size();
 
+            regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/regression_orders.json");
+
+            if (!regressionFile.exists()){
+                if (!regressionFile.getParentFile().exists()){
+                    regressionFile.getParentFile().mkdirs();
+                }
+                regressionFile.createNewFile();
+            }
+
         } catch (IOException e) {
             e.printStackTrace(App.out);
 
@@ -414,11 +432,9 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     @Override
     public void tick(long time) {
         lastUpdate = time;
-
-        String nextGesture = nextSequenceGesture();
         sgh.setNextGesture(nextGesture);
         if (nextGesture.contains("TYPE_CIRCLE")) {
-            sgh.setNextCircleGesture(nextSequenceCircleGesture());
+            sgh.setNextCircleGesture(nextCircleGesture);
         }
 
         sgh.tick(time);
@@ -440,6 +456,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         lastStabilisedLabel = nextSequenceStabilisedTips();
         lastStabilised = stabilisedTipPositions.get(lastStabilisedLabel);
 
+        nextGesture = nextSequenceGesture();
+        nextCircleGesture = nextSequenceCircleGesture();
 
     }
 
@@ -468,6 +486,17 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     @Override
     public GestureList handleFrame(Frame f, Controller c){
+
+        //output regression suite
+        if (outputSequence){ // we should write the output (e.g. false if regression testing)
+
+            RegressionOrder rg = new RegressionOrder(lastLabel, lastPositionLabel, lastRotationLabel,
+                    lastStabilisedLabel, nextGesture, nextCircleGesture, lastTime);
+
+            FileHandler.appendToFile(regressionFile, );
+        }
+
+
         return sgh.handleFrame(f, c);
     }
 

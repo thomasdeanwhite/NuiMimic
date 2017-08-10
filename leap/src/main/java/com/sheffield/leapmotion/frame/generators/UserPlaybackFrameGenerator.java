@@ -123,7 +123,7 @@ public class UserPlaybackFrameGenerator extends FrameGenerator implements App.Ti
 
 				}
 
-				float prog = counter++ / (float) maxFrames;
+				float prog = counter++ / (float) (maxFrames-1);
 
 				if (Properties.SHOW_PROGRESS || prog > progress) {
 					App.out.print("\r" + ProgressBar.getProgressBar(21, prog));

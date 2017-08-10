@@ -18,9 +18,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 
 
-/**
- * Hello world!
- */
 public class SamplerApp extends Listener {
 
     private static SamplerApp APP;
@@ -259,7 +256,7 @@ public class SamplerApp extends Listener {
                     String uniqueId = frame.timestamp() + "@"
                             + UNIQUE_MACHINE_NAME;
 
-                    frameDeconstructor.setUniqueId(uniqueId);
+                     frameDeconstructor.setUniqueId(uniqueId);
 
                     if (frame.gestures().count() > 0) {
                         for (Gesture g : frame.gestures()) {
