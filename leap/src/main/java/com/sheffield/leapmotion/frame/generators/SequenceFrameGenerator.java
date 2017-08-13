@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.frame.generators;
 
+import com.google.gson.Gson;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
@@ -484,6 +485,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     }
 
+    Gson gson = new Gson();
+
     @Override
     public GestureList handleFrame(Frame f, Controller c){
 
@@ -493,7 +496,12 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
             RegressionOrder rg = new RegressionOrder(lastLabel, lastPositionLabel, lastRotationLabel,
                     lastStabilisedLabel, nextGesture, nextCircleGesture, lastTime);
 
-            FileHandler.appendToFile(regressionFile, );
+
+            try {
+                FileHandler.appendToFile(regressionFile, gson.toJson(rg));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
 

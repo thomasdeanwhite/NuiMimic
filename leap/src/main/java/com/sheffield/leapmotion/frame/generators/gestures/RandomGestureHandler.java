@@ -71,15 +71,9 @@ public class RandomGestureHandler extends NoneGestureHandler {
                 SeededGesture sg = ((SeededGesture) g);
                 if (sg.getCircleGesture() != null && sg.getCircleGesture().pointable() instanceof SeededFinger){
                     f = (Finger) sg.getCircleGesture().pointable();
-                }
-
-                if (f != null) {
                     ((SeededGesture) g).addPointable((SeededFinger) f);
-                }
 
-                if (((SeededGesture)g).getCircleGesture() != null){
                     ((SeededCircleGesture)((SeededGesture)g).getCircleGesture()).setProgress(gestureDuration/1000f);
-
                 }
             }
         }

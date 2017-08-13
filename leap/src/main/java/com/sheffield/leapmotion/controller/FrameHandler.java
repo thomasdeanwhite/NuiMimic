@@ -219,7 +219,7 @@ public class FrameHandler implements Tickable {
                         }
                     }
                     frameGenerator = new RegressionFrameGenerator(Properties
-                            .INPUT[0], logs, handStateMap, stateMapping);
+                            .INPUT[0]);
                     break;
                 case MANUAL:
                     frameGenerator = null;
