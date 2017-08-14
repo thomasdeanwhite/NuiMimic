@@ -35,18 +35,6 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	private int currentState = 0;
 
-    public void setOutputFiles(File pos, File rot){
-		for (NGramFrameGenerator ngfg : generators.values()){
-			ngfg.setOutputFiles(pos, rot);
-		}
-    }
-
-	public void setJointsOutputFile(File outputFile){
-		for (NGramFrameGenerator ngfg : generators.values()){
-			ngfg.setOutputJointsFile(outputFile);
-		}
-	}
-
 	public void setGestureOutputFile(File outputFile){
 		for (NGramFrameGenerator ngfg : generators.values()){
 			ngfg.setGestureOutputFile(outputFile);

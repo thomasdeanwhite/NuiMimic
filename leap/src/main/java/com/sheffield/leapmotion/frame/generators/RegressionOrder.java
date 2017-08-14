@@ -11,9 +11,11 @@ public class RegressionOrder implements Serializable {
     private String gesture;
     private String gestureCircleCluster;
     private long timestamp;
+    private int state;
 
     public RegressionOrder(String jointCluster, String posCluster, String rotCluster,
-                           String stabilisedCluster, String gesture, String gestureCircleCluster, long timestamp) {
+                           String stabilisedCluster, String gesture, String gestureCircleCluster, long timestamp,
+                           int state) {
         this.jointCluster = jointCluster;
         this.posCluster = posCluster;
         this.rotCluster = rotCluster;
@@ -21,10 +23,15 @@ public class RegressionOrder implements Serializable {
         this.gesture = gesture;
         this.gestureCircleCluster = gestureCircleCluster;
         this.timestamp = timestamp;
+        this.state = state;
     }
 
     public String getJointCluster() {
         return jointCluster;
+    }
+
+    public int getState() {
+        return state;
     }
 
     public String getPosCluster() {

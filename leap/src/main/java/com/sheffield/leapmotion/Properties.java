@@ -255,56 +255,56 @@ public class Properties extends InstrumentationProperties {
             }
 
             Gson g = new Gson();
-            File branches = new File(Properties.TESTING_OUTPUT + "/branches.csv");
-            if (branches.getAbsoluteFile().exists()) {
-                String branchesString = FileHandler.readFile(branches);
-                Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
-                }.getType();
-
-                try {
-                ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
-                } catch (JsonSyntaxException e){}
-
-                // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
-            }
-
-            File linesFile = new File(Properties.TESTING_OUTPUT + "/lines.csv");
-            if (linesFile.getAbsoluteFile().exists()) {
-                try {
-                    String linesString = FileHandler.readFile(linesFile);
-
-                    Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
-                    }.getType();
-
-                    try {
-                        ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
-                    } catch (JsonSyntaxException e){}
-
-                    //App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            File relatedFile = new File(Properties.TESTING_OUTPUT + "/related_classes.csv");
-            if (relatedFile.getAbsoluteFile().exists()) {
-                String[] classes = FileHandler.readFile(relatedFile).split("\n");
-                ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length - 1);
-                for (int i = 1; i < classes.length; i++) {
-                    if (classes[i].length() > 0) {
-                        String[] clInfo = classes[i].split(",");
-                        int lines = Integer.parseInt(clInfo[1]);
-                        App.relatedLines += lines;
-                        int brans = Integer.parseInt(clInfo[2]);
-                        App.relatedBranches += (brans * 2);
-                        clas.add(new ClassTracker(clInfo[0], lines, brans));
-                    }
-                }
-                App.relatedClasses = clas;
-
-                //App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
-                //App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
-            }
+//            File branches = new File(Properties.TESTING_OUTPUT + "/branches.csv");
+//            if (branches.getAbsoluteFile().exists()) {
+//                String branchesString = FileHandler.readFile(branches);
+//                Type mapType = new TypeToken<Map<Integer, Map<Integer, BranchHit>>>() {
+//                }.getType();
+//
+//                try {
+//                ClassAnalyzer.setBranches((Map<Integer, Map<Integer, BranchHit>>) g.fromJson(branchesString, mapType));
+//                } catch (JsonSyntaxException e){}
+//
+//                // App.out.println("- Found branches file at: " + branches.getAbsolutePath());
+//            }
+//
+//            File linesFile = new File(Properties.TESTING_OUTPUT + "/lines.csv");
+//            if (linesFile.getAbsoluteFile().exists()) {
+//                try {
+//                    String linesString = FileHandler.readFile(linesFile);
+//
+//                    Type mapType = new TypeToken<Map<Integer, Map<Integer, LineHit>>>() {
+//                    }.getType();
+//
+//                    try {
+//                        ClassAnalyzer.setLines((Map<Integer, Map<Integer, LineHit>>) g.fromJson(linesString, mapType));
+//                    } catch (JsonSyntaxException e){}
+//
+//                    //App.out.println("- Found lines file at: " + linesFile.getAbsolutePath());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            File relatedFile = new File(Properties.TESTING_OUTPUT + "/related_classes.csv");
+//            if (relatedFile.getAbsoluteFile().exists()) {
+//                String[] classes = FileHandler.readFile(relatedFile).split("\n");
+//                ArrayList<ClassTracker> clas = new ArrayList<ClassTracker>(classes.length - 1);
+//                for (int i = 1; i < classes.length; i++) {
+//                    if (classes[i].length() > 0) {
+//                        String[] clInfo = classes[i].split(",");
+//                        int lines = Integer.parseInt(clInfo[1]);
+//                        App.relatedLines += lines;
+//                        int brans = Integer.parseInt(clInfo[2]);
+//                        App.relatedBranches += (brans * 2);
+//                        clas.add(new ClassTracker(clInfo[0], lines, brans));
+//                    }
+//                }
+//                App.relatedClasses = clas;
+//
+//                //App.out.println("- Found related classes file at: " + linesFile.getAbsolutePath());
+//                //App.out.println("[" + App.relatedLines + " related lines, " + App.relatedBranches + " related branches]");
+//            }
             if (Properties.INPUT_STRING != null) {
                 Properties.INPUT = Properties.INPUT_STRING.split(";");
             }

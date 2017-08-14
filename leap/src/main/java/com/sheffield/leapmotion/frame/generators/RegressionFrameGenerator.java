@@ -1,19 +1,14 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.google.gson.Gson;
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.output.Csv;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.HashMap;
 
 public class RegressionFrameGenerator extends SequenceFrameGenerator {
 
@@ -34,6 +29,9 @@ public class RegressionFrameGenerator extends SequenceFrameGenerator {
 		super(filename);
 		File regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/regression_orders.json");
 
+		//disable output from super class as we're regression testing
+		disableOutput();
+
 		try {
 			String[] regressionStrings = FileHandler.readFile(regressionFile).split("\n");
 
@@ -47,14 +45,6 @@ public class RegressionFrameGenerator extends SequenceFrameGenerator {
 		}
 	}
 
-	private String[] candidateHands = null;
-	private String[] candidatePositions = null;
-	private String[] candidateRotations = null;
-	private String[] candidateGestures = null;
-	private String[] candidateCircleGestures = null;
-
-	private Random random = new Random();
-
 	@Override
 	public boolean allowProcessing() {
 		return true;
@@ -62,7 +52,7 @@ public class RegressionFrameGenerator extends SequenceFrameGenerator {
 
 	@Override
 	public String getName() {
-		return "Random Clusters Generation";
+		return "Regression Testing";
 	}
 
 	@Override

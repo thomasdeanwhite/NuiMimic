@@ -238,9 +238,7 @@ public class FrameHandler implements Tickable {
             System.exit(-1);
         }
 
-        if (frameGenerator instanceof GestureHandler) { //frameGenerator
-            // instanceof ReconstructiveFrameGenerator || frameGenerator
-            // instanceof RegressionFrameGenerator){ //
+        if (frameGenerator instanceof GestureHandler) {
             setGestureHandler((GestureHandler) frameGenerator);
         } else {
             RandomGestureHandler rgh = new RandomGestureHandler();

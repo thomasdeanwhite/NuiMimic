@@ -1,6 +1,7 @@
 package com.sheffield.leapmotion;
 
 import com.google.gson.Gson;
+import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.DependencyTree;
 import com.sheffield.instrumenter.analysis.ThrowableListener;
@@ -72,7 +73,8 @@ public class App implements ThrowableListener, Tickable {
     private int iterationTimes = 0;
     private int iterations = 0;
 
-    HashMap<String, ArrayList<String>> classSeen = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, HashMap<String, Integer>> classSeen = new HashMap<String, HashMap<String, Integer>>();
+    private int classesTotal = 0;
 
     private static Thread mainThread = null;
 
@@ -441,6 +443,10 @@ public class App implements ThrowableListener, Tickable {
         setOutput();
         App.out.println("- Instrumenting AUT");
 
+        Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
+        Properties.USE_CHANGED_FLAG = true;
+        Properties.LOG = false;
+
         try {
             loadOptions(arg);
         } catch (IOException e) {
@@ -520,10 +526,6 @@ public class App implements ThrowableListener, Tickable {
     public static boolean DISABLE_BACKGROUND_THREAD = false;
 
     public static void background(String[] args) {
-
-        Properties.INSTRUMENTATION_APPROACH = Properties.InstrumentationApproach.ARRAY;
-        Properties.USE_CHANGED_FLAG = true;
-        Properties.LOG = false;
 
         if (DISABLE_BACKGROUND_THREAD) {
             return;
@@ -619,10 +621,6 @@ public class App implements ThrowableListener, Tickable {
                         App.getApp().increaseIterationTime(timePassed);
                         App.getApp().increaseFps(time / 1000000);
 
-                        ClassAnalyzer.collectHitCounters(false);
-
-
-
                         if ((lastTime - lastTimeRecorded) / 1000000 >=
                                 RECORDING_INTERVAL &&
                                 SeededController.getSeededController()
@@ -632,6 +630,8 @@ public class App implements ThrowableListener, Tickable {
 
                             App.getApp().output(false);
                             lastTimeRecorded = lastTime;
+
+                            ClassAnalyzer.collectHitCounters(false);
 
                         }
 
@@ -882,6 +882,8 @@ public class App implements ThrowableListener, Tickable {
             App.DISPLAY_WINDOW.dispatchEvent(new WindowEvent(App.DISPLAY_WINDOW, WindowEvent.WINDOW_CLOSING));
     }
 
+
+
     public void outputLineAndBranchHits() throws IOException {
         StringBuilder linesHit = new StringBuilder();
         ArrayList<LineHit> linesCovered = ClassAnalyzer.getLinesCovered();
@@ -896,9 +898,9 @@ public class App implements ThrowableListener, Tickable {
 
             if (classSeen.containsKey(packageName)) {
 
-                if (classSeen.get(packageName).contains(className)) {
+                if (classSeen.get(packageName).containsKey(className)) {
                     found = true;
-                    className = "" + classSeen.get(packageName).indexOf(className);
+                    className = "" + classSeen.get(packageName).get(className);
                 }
 
             }
@@ -913,14 +915,14 @@ public class App implements ThrowableListener, Tickable {
                     classes.createNewFile();
                 }
                 if (!classSeen.containsKey(packageName)) {
-                    classSeen.put(packageName, new ArrayList<String>());
+                    classSeen.put(packageName, new HashMap<String, Integer>());
                 }
-                FileHandler.appendToFile(classes, fullName + ":");
+                String classRow = fullName + ":";
 
-                classSeen.get(packageName).add(className);
+                classSeen.get(packageName).put(className, classesTotal++);
 
-                className = "" + classSeen.get(packageName).indexOf(className);
-                FileHandler.appendToFile(classes, className + "\n");
+                className = "" + classSeen.get(packageName).get(className);
+                FileHandler.appendToFile(classes, classRow + className + "\n");
             }
 
             // (linesCovered.contains(lh)) {
@@ -939,9 +941,9 @@ public class App implements ThrowableListener, Tickable {
 
 
             if (classSeen.containsKey(packageName)) {
-                if (classSeen.get(packageName).contains(className)) {
+                if (classSeen.get(packageName).containsKey(className)) {
                     found = true;
-                    className = "" + classSeen.get(packageName).indexOf(className);
+                    className = "" + classSeen.get(packageName).get(className);
                 }
             }
             if (!found) {
@@ -954,14 +956,14 @@ public class App implements ThrowableListener, Tickable {
                     classes.createNewFile();
                 }
                 if (!classSeen.containsKey(packageName)) {
-                    classSeen.put(packageName, new ArrayList<String>());
+                    classSeen.put(packageName, new HashMap<String, Integer>());
                 }
-                FileHandler.appendToFile(classes, fullName + ":");
+                String classRow = fullName + ":";
 
-                classSeen.get(packageName).add(className);
+                classSeen.get(packageName).put(className, classesTotal++);
 
-                className = "" + classSeen.get(packageName).indexOf(className);
-                FileHandler.appendToFile(classes, className + "\n");
+                className = "" + classSeen.get(packageName).get(className);
+                FileHandler.appendToFile(classes, classRow + className + "\n");
             }
             branchesHit.append(className + "#" + lh.getBranch().getLineNumber() + ";");
         }
