@@ -50,7 +50,7 @@ public class App implements ThrowableListener, Tickable {
     public static boolean CLOSING = false;
     public static boolean ENABLE_APPLICATION_OUTPUT = true;
     public static boolean IS_INSTRUMENTING = false;
-    public static int RECORDING_INTERVAL = 15000;
+    public static int RECORDING_INTERVAL = 60000;
 
     private boolean testing = false;
 

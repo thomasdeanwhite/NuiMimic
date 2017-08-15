@@ -89,7 +89,7 @@ public class FrameHandler implements Tickable {
 
 
                 for (Hand h : f.hands()){
-                    if (h.isValid() && h.isRight()){
+                    if (h.isValid()){
                         SeededFrame.originalFrame = f;
                         break;
                     }
@@ -141,83 +141,8 @@ public class FrameHandler implements Tickable {
                     break;
 
                 case REGRESSION:
-                    Properties.TESTING_OUTPUT = "testing_regression";
-                    ArrayList<NGramLog>[] logs = (ArrayList<NGramLog>[]) Array
-                            .newInstance(ArrayList.class, 4);
-                    String[] files = {Properties.INPUT[1], Properties.INPUT[2],
-                            Properties.INPUT[3], Properties.INPUT[4]};
-
-                    HashMap<NGramLog, String> handStateMap = new HashMap
-                            <NGramLog, String>();
-
-                    int lastState = -1;
-                    HashMap<Integer, ArrayList<Integer>> stateMapping = new
-                            HashMap
-                                    <Integer, ArrayList<Integer>>();
-
-                    for (int i = 0; i < files.length; i++) {
-                        logs[i] = new ArrayList<NGramLog>();
-                        String[] data = FileHandler.readFile(new File(files[i]))
-                                .split("\n");
-                        for (String s : data) {
-                            s = s.trim();
-                            if (s.length() <= 0) {
-                                continue;
-                            }
-
-                            String[] d = s.split(":");
-                            NGramLog log = new NGramLog();
-                            //trailing ,
-                            log.element = d[0];
-                            if (d[0].contains(",")) {
-                                log.element = log.element
-                                        .substring(0, d[0].length() - 1);
-                            }
-                            log.timeSeeded = Integer.parseInt(d[1]);
-                            String currentState = d[2];
-                            currentState = currentState
-                                    .substring(1, d[2].length() - 1);
-
-                            handStateMap.put(log, currentState.replace(",",
-                                    ";"));
-
-                            if (currentState.trim().length() == 0) {
-                                continue;
-                            }
-
-                            String[] stateArr = currentState.split(",");
-                            Integer[] cState = new Integer[stateArr.length];
-
-                            for (int z = 0; z < stateArr.length; z++) {
-                                try {
-                                    cState[z] = Integer.parseInt(stateArr[z]);
-                                } catch (NumberFormatException e) {
-                                    App.out.println(
-                                            files[i] + ": State[" + z + "/" +
-                                                    stateArr.length + "]: " +
-                                                    stateArr[z]);
-                                }
-                            }
-
-                            int newState = TestingStateComparator.addState
-                                    (cState);
-
-                            log.state = newState;
-
-                            if (!stateMapping.containsKey(lastState)) {
-                                stateMapping.put(lastState, new ArrayList
-                                        <Integer>());
-                            }
-                            if (!stateMapping.get(lastState).contains
-                                    (newState)) {
-                                stateMapping.get(lastState).add(newState);
-                            }
-                            logs[i].add(log);
-
-                            lastState = newState;
-
-                        }
-                    }
+                    //disable output from SequenceFrameGenerator
+                    SequenceFrameGenerator.OUTPUT_SEQUENCE = false;
                     frameGenerator = new RegressionFrameGenerator(Properties
                             .INPUT[0]);
                     break;

@@ -57,4 +57,8 @@ public class RegressionOrder implements Serializable {
     public long getTimestamp() {
         return timestamp;
     }
+
+    public void reduceTimestamp(long ts){
+        timestamp -= ts;
+    }
 }

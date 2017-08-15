@@ -6,13 +6,10 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.mocks.*;
-import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
-import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures.SequenceGestureHandler;
 import com.sheffield.leapmotion.frame.playback.NGramLog;
 import com.sheffield.leapmotion.frame.util.Quaternion;
-import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
@@ -35,10 +32,10 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     protected SequenceGestureHandler sgh;
 
-    private boolean outputSequence = true;
+    public static boolean OUTPUT_SEQUENCE = true;
 
     protected void disableOutput (){
-        outputSequence = false;
+        OUTPUT_SEQUENCE = false;
     }
 
     private HashMap<Integer, Integer[]> states = new HashMap<Integer, Integer[]>();
@@ -67,7 +64,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     private String nextGesture = "TYPE_INVALID";
     private String nextCircleGesture = "0";
 
-    private long lastTime = 0;
+    protected long lastUpdate = 0;
 
     protected File outputPosFile;
     protected File outputRotFile;
@@ -334,7 +331,6 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         return rotations;
     }
 
-
     public SequenceFrameGenerator(String file) {
         try {
 
@@ -350,18 +346,21 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
             //load ordering of clusters and observed states
 
-            regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/regression_orders.json");
-            statesFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/states.json");
+            if (OUTPUT_SEQUENCE) {
 
-            if (!regressionFile.exists()){
-                if (!regressionFile.getParentFile().exists()){
-                    regressionFile.getParentFile().mkdirs();
+                regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/regression_orders.json");
+                statesFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/states.json");
+
+                if (!regressionFile.exists()) {
+                    if (!regressionFile.getParentFile().exists()) {
+                        regressionFile.getParentFile().mkdirs();
+                    }
+                    regressionFile.createNewFile();
                 }
-                regressionFile.createNewFile();
-            }
 
-            if (!statesFile.exists()){
-                statesFile.createNewFile();
+                if (!statesFile.exists()) {
+                    statesFile.createNewFile();
+                }
             }
 
         } catch (IOException e) {
@@ -441,8 +440,6 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     @Override
     public abstract String getName();
 
-    protected long lastUpdate = 0;
-
     @Override
     public void tick(long time) {
         lastUpdate = time;
@@ -504,11 +501,11 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     public GestureList handleFrame(Frame f, Controller c){
 
         //output regression suite
-        if (outputSequence){ // we should write the output (e.g. false if regression testing)
+        if (OUTPUT_SEQUENCE){ // we should write the output (e.g. false if regression testing)
             try {
                 int state = TestingStateComparator.getCurrentState();
 
-                if (!states.containsKey(state)){
+                if (state != -1 && !states.containsKey(state)){
 
                     StringBuilder sb = new StringBuilder();
 
@@ -525,7 +522,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
                 }
 
                 RegressionOrder rg = new RegressionOrder(lastLabel, lastPositionLabel, lastRotationLabel,
-                        lastStabilisedLabel, nextGesture, nextCircleGesture, lastTime, state);
+                        lastStabilisedLabel, nextGesture, nextCircleGesture, lastUpdate, state);
 
 
 

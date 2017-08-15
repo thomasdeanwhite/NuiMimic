@@ -43,7 +43,7 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			status += frameHandler.status();
 		}
 
-		if (status.contains("null") || status == null){
+		if (status == null || status.trim().equals("null") ){
 			status = "";
 		} else {
 			status += " ";

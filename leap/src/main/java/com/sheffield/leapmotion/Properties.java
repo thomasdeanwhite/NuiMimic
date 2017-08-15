@@ -150,6 +150,9 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "frameSelectionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
     public static FrameSelectionStrategy FRAME_SELECTION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
 
+    @Parameter(key = "frameRegressionStrategy", description = "Strategy for Frame Selection", hasArgs = true, category = "Leap Motion Instrumentation")
+    public static FrameSelectionStrategy FRAME_REGRESSION_STRATEGY = FrameSelectionStrategy.STATE_DEPENDENT;
+
     @Parameter(key = "histogramBins", description = "Amount of bins to sort pixels into for histogram comparison during generation guidence", hasArgs = true,
             category =
             "State " +

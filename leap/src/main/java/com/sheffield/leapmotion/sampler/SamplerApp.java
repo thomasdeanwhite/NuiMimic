@@ -186,6 +186,8 @@ public class SamplerApp extends Listener {
 
     private float progress = 0f;
 
+    private boolean rightHand = false;
+
     public void frame(Frame f) {
 
         if (App.getApp().status().equals(com.sheffield.leapmotion.util.AppStatus.FINISHED)) {
@@ -250,8 +252,16 @@ public class SamplerApp extends Listener {
 //                    frameDeconstructor.setAddition(addition);
 
             for (Hand h : frame.hands()) {
+
                 //write hands out to file
-                if (h.isValid() && h.isRight()) {
+
+                if (h.isValid() &&
+                        //this is to stop both hands being recorded if used simultaneously
+                        (!rightHand || (rightHand && h.isRight()))) {
+
+                    if (h.isRight()){
+                        rightHand = true;
+                    }
 
                     String uniqueId = frame.timestamp() + "@"
                             + UNIQUE_MACHINE_NAME;
