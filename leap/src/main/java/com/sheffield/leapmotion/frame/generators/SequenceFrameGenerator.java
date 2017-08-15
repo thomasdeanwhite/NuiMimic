@@ -13,6 +13,7 @@ import com.sheffield.leapmotion.frame.generators.gestures.SequenceGestureHandler
 import com.sheffield.leapmotion.frame.playback.NGramLog;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.output.StateComparator;
+import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.output.Csv;
@@ -40,7 +41,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         outputSequence = false;
     }
 
-    private HashMap<Integer, int[]> states = new HashMap<Integer, int[]>();
+    private HashMap<Integer, Integer[]> states = new HashMap<Integer, Integer[]>();
 
     protected HashMap<String, SeededHand> joints;
 
@@ -359,6 +360,10 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
                 regressionFile.createNewFile();
             }
 
+            if (!statesFile.exists()){
+                statesFile.createNewFile();
+            }
+
         } catch (IOException e) {
             e.printStackTrace(App.out);
 
@@ -500,21 +505,33 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
         //output regression suite
         if (outputSequence){ // we should write the output (e.g. false if regression testing)
-
-            int state = StateComparator.getCurrentState();
-
-            if (!states.containsKey(state)){
-
-            }
-
-            RegressionOrder rg = new RegressionOrder(lastLabel, lastPositionLabel, lastRotationLabel,
-                    lastStabilisedLabel, nextGesture, nextCircleGesture, lastTime, state);
-
-
             try {
+                int state = TestingStateComparator.getCurrentState();
+
+                if (!states.containsKey(state)){
+
+                    StringBuilder sb = new StringBuilder();
+
+                    Integer[] states = TestingStateComparator.getState(state);
+
+                    for (Integer i : states){
+                        sb.append(i);
+                        sb.append(",");
+                    }
+
+                    FileHandler.appendToFile(statesFile, state + ":" + sb.toString() + "\n");
+
+                    this.states.put(state, states);
+                }
+
+                RegressionOrder rg = new RegressionOrder(lastLabel, lastPositionLabel, lastRotationLabel,
+                        lastStabilisedLabel, nextGesture, nextCircleGesture, lastTime, state);
+
+
+
                 FileHandler.appendToFile(regressionFile, gson.toJson(rg));
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(App.out);
             }
         }
 
