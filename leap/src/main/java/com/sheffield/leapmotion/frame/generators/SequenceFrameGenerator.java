@@ -529,7 +529,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
 
 
-                FileHandler.appendToFile(regressionFile, gson.toJson(rg));
+                FileHandler.appendToFile(regressionFile, gson.toJson(rg) + "\n");
             } catch (IOException e) {
                 e.printStackTrace(App.out);
             }
