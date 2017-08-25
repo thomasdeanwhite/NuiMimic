@@ -113,7 +113,7 @@ public class NGramModelTest {
 
 
 
-    @Test
+    @Ignore
     public void checkDataSparsity(){
         String sentence = "hello world".toLowerCase();
 
@@ -129,7 +129,7 @@ public class NGramModelTest {
 
     }
 
-    @Test
+    @Ignore
     public void checkDataSparsityChild(){
         String sentence = "hello world hi".toLowerCase();
 

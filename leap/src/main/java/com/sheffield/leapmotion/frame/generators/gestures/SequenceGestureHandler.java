@@ -28,6 +28,11 @@ public class SequenceGestureHandler extends RandomGestureHandler {
 
     @Override
     public String getNextGesture() {
+        if (this.nextGesture == null || this.nextGesture.equals("null") ||
+                this.nextCircleGesture == null || this.nextCircleGesture.equals("null")){
+            this.nextGesture = "";
+            return "TYPE_INVALID";
+        }
         return nextGesture;
     }
 

@@ -24,9 +24,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StateIsolatedFrameGenerator extends FrameGenerator implements GestureHandler {
+
+	private static float IGNORE_STATE_CHANCE = 0.05f;
+
+
 	@Override
 	public Csv getCsv() {
-		return new Csv();
+		Csv csv = new Csv();
+
+		csv.add("states_hit", hits + "");
+		csv.add("states_missed", miss + "");
+
+		return csv;
 	}
 
 	private HashMap<Integer, NGramFrameGenerator> generators;
@@ -34,6 +43,9 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 	private NGramFrameGenerator currentGenerator;
 
 	private int currentState = 0;
+
+	private int hits = 0;
+	private int miss = 0;
 
 	public void setGestureOutputFile(File outputFile){
 		for (NGramFrameGenerator ngfg : generators.values()){
@@ -94,16 +106,21 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 		generators = new HashMap<Integer, NGramFrameGenerator>();
 
 		for (Integer i : stateAssignment.keySet()){
-			if (jointNgrams.containsKey(i) && positionNgrams.containsKey(i) && rotationNgrams.containsKey(i)) {
-				Integer newState = stateAssignment.get(i);
-				NGramFrameGenerator newFs = new NGramFrameGenerator(jointNgrams.get(i), positionNgrams.get(i), rotationNgrams.get(i),
-						gestureNgrams.get(i), tipNgrams.get(i), circleNgrams.get(i),
-						joints, positions, rotations, stabilisedTips, circleGestures);
-				if (generators.containsKey(newState)) {
-					generators.get(newState).merge(newFs);
-				} else {
-					generators.put(newState, newFs);
-				}
+
+			NGram jn = getStateGram(jointNgrams, i);
+			NGram pn = getStateGram(positionNgrams, i);
+			NGram rn = getStateGram(rotationNgrams, i);
+			NGram gn = getStateGram(gestureNgrams, i);
+			NGram tn = getStateGram(tipNgrams, i);
+			NGram cn = getStateGram(circleNgrams, i);
+
+			Integer newState = stateAssignment.get(i);
+			NGramFrameGenerator newFs = new NGramFrameGenerator(jn, pn, rn, gn, tn, cn,
+					joints, positions, rotations, stabilisedTips, circleGestures);
+			if (generators.containsKey(newState)) {
+				generators.get(newState).merge(newFs);
+			} else {
+				generators.put(newState, newFs);
 			}
 		}
 
@@ -120,7 +137,18 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 		currentGenerator = generators.get(-1);
 
+		currentGenerator.tick(0);
 
+
+	}
+
+	private NGram getStateGram(Map<Integer, NGram> ngram, int index){
+		if (ngram.containsKey(index)){
+			if (ngram.get(index) != null){
+				return ngram.get(index);
+			}
+		}
+		return ngram.get(-1);
 	}
 
 	private	Gson gson = new Gson();
@@ -161,7 +189,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	@Override
 	public String status() {
-		return "ss|" + StateComparator.getStates().size() + "|:" + StateComparator.getCurrentState();
+		return String.format("[%f]", hits / (float) (miss == 0 ? 1 : miss));
 	}
 
 	@Override
@@ -195,9 +223,15 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			currentState = updateState();
 
 			if (generators.containsKey(currentState)) {
+				hits++;
 				currentGenerator = generators.get(currentState);
 			} else {
 				//-1 contains single model NGram
+				miss++;
+				currentGenerator = generators.get(-1);
+			}
+
+			if (Math.random() < IGNORE_STATE_CHANCE){
 				currentGenerator = generators.get(-1);
 			}
 
@@ -232,6 +266,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 			return generators.get(-1).handleFrame(frame, controller);
 		}
 	}
+
 
 
 }

@@ -162,7 +162,7 @@ public class Properties extends InstrumentationProperties {
     @Parameter(key = "histogramThreshold", description = "Difference required for two histograms to be considered unique states during generation guidence", hasArgs =
             true,
             category = "State Recognition")
-    public static float HISTOGRAM_THRESHOLD = 0.1f;
+    public static float HISTOGRAM_THRESHOLD = 0.01f;
 
     @Parameter(key = "ThistogramThreshold", description = "Difference required for two histograms to be considered unique states for oracle", hasArgs = true, category =
             "Oracle")

@@ -27,12 +27,10 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
 
     protected String nextSequenceCircle = "";
     protected String nextSequenceGesture = "";
-
-    protected NGramGestureHandler ngGestureHandler;
     private String currentSequenceStab = "";
 
     public void setGestureOutputFile(File file) {
-        ngGestureHandler.setGestureOutputFile(file);
+
     }
 
     public NGramFrameGenerator(String filename) {
@@ -111,7 +109,6 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
         jointNgram.merge(ngfs.jointNgram);
         positionNgram.merge(ngfs.positionNgram);
         rotationNgram.merge(ngfs.rotationNgram);
-        ngGestureHandler.merge(ngfs.ngGestureHandler);
         stabilisedNgram.merge(ngfs.stabilisedNgram);
         gestureNGram.merge(ngfs.gestureNGram);
         circleNGram.merge(circleNGram);
@@ -135,8 +132,10 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
         this.stabilisedNgram.calculateProbabilities();
 
         this.gestureNGram = gestureNGram;
+        this.gestureNGram.calculateProbabilities();
 
         this.circleNGram = circleNGram;
+        this.circleNGram.calculateProbabilities();
     }
 
     @Override
@@ -159,6 +158,9 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
     private String currentSequenceRotation = "";
 
     public static String getLastLabel(String s) {
+        if (s == null){
+            return null;
+        }
         int delimSubstring = s.lastIndexOf(NGramModel.DELIMITER) + 1;
         if (delimSubstring > 0) {
             s = s.substring(delimSubstring);
@@ -171,7 +173,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
         currentSequence = jointNgram.babbleNext(currentSequence);
 
         if (currentSequence == null) {
-            throw new DataSparsityException("Data is too sparse for input");
+            currentSequence = jointNgram.babbleNext("");
         }
 
         return getLastLabel(currentSequence);
@@ -181,7 +183,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
         currentSequencePosition = positionNgram.babbleNext(currentSequencePosition);
 
         if (currentSequencePosition == null) {
-            throw new DataSparsityException("Data is too sparse for input");
+            currentSequencePosition = positionNgram.babbleNext("");
         }
 
         return getLastLabel(currentSequencePosition);
@@ -191,7 +193,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
         currentSequenceRotation = rotationNgram.babbleNext(currentSequenceRotation);
 
         if (currentSequenceRotation == null) {
-            throw new DataSparsityException("Data is too sparse for input");
+            currentSequenceRotation = rotationNgram.babbleNext("");
         }
 
         return getLastLabel(currentSequenceRotation);
@@ -200,6 +202,14 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
     @Override
     public String nextSequenceGesture() {
         nextSequenceGesture = gestureNGram.babbleNext(nextSequenceGesture);
+
+        if (nextSequenceGesture == null || nextSequenceGesture.equals("null")){
+            nextSequenceGesture = gestureNGram.babbleNext("");
+        }
+
+        if (nextSequenceGesture == null  || nextSequenceGesture.equals("null")){
+            nextSequenceGesture = "TYPE_INVALID";
+        }
 
         String gest = getLastLabel(nextSequenceGesture);
         if (!gest.contains("TYPE_CIRCLE")){
@@ -215,6 +225,11 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
     @Override
     public String nextSequenceCircleGesture() {
         nextSequenceCircle = circleNGram.babbleNext(nextSequenceCircle);
+
+        if (nextSequenceCircle == null){
+            nextSequenceCircle = circleNGram.babbleNext("");
+        }
+
         return getLastLabel(nextSequenceCircle);
     }
 
@@ -224,7 +239,8 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
                 (currentSequenceStab);
 
         if (currentSequenceStab == null) {
-            throw new DataSparsityException("Data is too sparse for input");
+            currentSequenceStab = stabilisedNgram.babbleNext
+                    ("");
         }
 
         return getLastLabel(currentSequenceStab);
@@ -234,10 +250,5 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
     public void cleanUp() {
 
     }
-
-//    @Override
-//    public GestureList handleFrame(Frame frame, Controller controller) {
-//        return ngGestureHandler.handleFrame(frame, controller);
-//    }
 
 }
