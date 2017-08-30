@@ -12,12 +12,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import weka.core.Instance;
+
+import static com.sheffield.leapmotion.Properties.DIRECTORY;
+import static com.sheffield.leapmotion.Properties.INPUT;
 
 /**
  * Created by thomas on 08/02/17.
@@ -52,6 +56,20 @@ public class DataProcessingRunType implements RunType {
             Properties.DIRECTORY = Properties.DIRECTORY.substring(0, Properties.DIRECTORY.lastIndexOf("/"));
         }
         String dataDir = Properties.DIRECTORY + "/" + Properties.INPUT[0];
+        String originDir = dataDir;
+        List<String> trainingFiles = new ArrayList<>();
+
+        for (int i = 1; i < INPUT.length; i++){
+            trainingFiles.add(DIRECTORY + "/" + INPUT[i]);
+        }
+
+        if (trainingFiles.size() > 0 && Properties.INPUT[0].contains("-")){
+            dataDir = Properties.DIRECTORY + "/" +
+                    Properties.INPUT[0].substring(Properties.INPUT[0].indexOf(
+                            "-"
+                    ));
+        }
+
 
 
         HashMap<Integer, String> stateSequences = new HashMap<Integer, String>();
@@ -59,7 +77,28 @@ public class DataProcessingRunType implements RunType {
         HashMap<Integer, Integer[]> rawStates = new HashMap<Integer, Integer[]>();
 
         try {
-            String[] lines = FileHandler.readFile(new File(dataDir + "/dct_pool")).split("\n");
+            ArrayList<String> allLines = new ArrayList<>();
+
+            String[] orig = FileHandler.readFile(new File(originDir +
+                    "/dct_pool")).split("\n");
+
+            for (String o : orig){
+                allLines.add(o);
+            }
+
+            for (String s : trainingFiles){
+                String[] l = FileHandler.readFile(new File
+                        (s +
+                                "/dct_pool"))
+                        .split("\n");
+                for (String li : l){
+                    allLines.add(li);
+                }
+            }
+
+            String[] lines = new String[allLines.size()];
+
+            allLines.toArray(lines);
 
             for (String s : lines){
                 if (s.trim().length() == 0 || !s.contains(":")){
@@ -103,11 +142,15 @@ public class DataProcessingRunType implements RunType {
 
             App.out.println("\r" + s);
 
-            String joints = dataDir + "/" + s;
+            String joints = originDir + "/" + s;
+            List<String> fs = new ArrayList<>();
 
+            for (String tf : trainingFiles){
+                fs.add(tf + "/" + s);
+            }
             try {
 
-                WekaClusterer wc = new WekaClusterer(joints);
+                WekaClusterer wc = new WekaClusterer(joints, fs);
 
                 ClusterResult cr = wc.cluster();
 
@@ -239,13 +282,18 @@ public class DataProcessingRunType implements RunType {
             }
         }
 
-        NGram gestureNgram = null;
-
         try {
-
+            NGram gestureNgram = null;
             HashMap<String, String> handGestures = new HashMap<>();
 
-            String gestureString = FileHandler.readFile(new File(dataDir + "/sequence_gesture_data.csv"));
+            String gestureString = FileHandler.readFile(new File(originDir +
+                    "/sequence_gesture_data.csv"));
+
+            for (String gs : trainingFiles){
+                String ng = FileHandler.readFile(new File(gs +
+                        "/sequence_gesture_data.csv"));
+                gestureString += " " + ng;
+            }
 
             StringBuilder newSentence = new StringBuilder();
 
@@ -334,6 +382,7 @@ public class DataProcessingRunType implements RunType {
             e.printStackTrace();
             return 1;
         }
+
 
         return 0;
     }
