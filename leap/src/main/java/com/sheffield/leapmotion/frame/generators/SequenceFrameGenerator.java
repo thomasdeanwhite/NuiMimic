@@ -72,18 +72,6 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     protected File regressionFile;
     protected File statesFile;
 
-    public void setOutputFiles(File pos, File rot) {
-        outputPosFile = pos;
-        outputRotFile = rot;
-    }
-
-    public void setOutputJointsFile(File outputJointsFile) {
-        this.outputJointsFile = outputJointsFile;
-    }
-
-    public ArrayList<NGramLog> getLogs() {
-        return logs;
-    }
 
     public static HashMap<String, SeededHand> getJoints(String filename) throws IOException {
         HashMap<String, SeededHand> joints = new HashMap<String, SeededHand>();
@@ -331,6 +319,25 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         return rotations;
     }
 
+    public void setupOutputFiles() throws IOException {
+        if (OUTPUT_SEQUENCE) {
+
+            regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/regression_orders.json");
+            statesFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/states.json");
+
+            if (!regressionFile.exists()) {
+                if (!regressionFile.getParentFile().exists()) {
+                    regressionFile.getParentFile().mkdirs();
+                }
+                regressionFile.createNewFile();
+            }
+
+            if (!statesFile.exists()) {
+                statesFile.createNewFile();
+            }
+        }
+    }
+
     public SequenceFrameGenerator(String file) {
         try {
 
@@ -345,23 +352,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
             Properties.CLUSTERS = joints.keySet().size();
 
             //load ordering of clusters and observed states
+            setupOutputFiles();
 
-            if (OUTPUT_SEQUENCE) {
-
-                regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/regression_orders.json");
-                statesFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/states.json");
-
-                if (!regressionFile.exists()) {
-                    if (!regressionFile.getParentFile().exists()) {
-                        regressionFile.getParentFile().mkdirs();
-                    }
-                    regressionFile.createNewFile();
-                }
-
-                if (!statesFile.exists()) {
-                    statesFile.createNewFile();
-                }
-            }
 
         } catch (IOException e) {
             e.printStackTrace(App.out);
@@ -382,6 +374,12 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         this.sgh = new SequenceGestureHandler(seededCircleGestures);
 
         Properties.CLUSTERS = joints.keySet().size();
+
+        try {
+            setupOutputFiles();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -415,8 +413,11 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
             SeededHand sh = (SeededHand) h;
 
             for (int i = 0; i < Finger.Type.values().length; i++){
-                ((SeededFinger)sh.fingers().fingerType(Finger.Type.values()[i])
-                        .get(0)).setStabilizedTipPosition(lastStabilised[i+1]);
+                Finger f = sh.fingers().fingerType(Finger.Type.values()[i]).get(0);
+
+                if (f != null && f instanceof SeededFinger) {
+                    ((SeededFinger)f).setStabilizedTipPosition(lastStabilised[i + 1]);
+                }
             }
 
             sh.setStabilizedPalmPosition(lastStabilised[0]);
@@ -443,7 +444,10 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     @Override
     public void tick(long time) {
         lastUpdate = time;
+
+
         sgh.setNextGesture(nextGesture);
+
         if (nextGesture.contains("TYPE_CIRCLE")) {
             sgh.setNextCircleGesture(nextCircleGesture);
         }

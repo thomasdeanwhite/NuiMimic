@@ -5,6 +5,7 @@ import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.mocks.SeededFinger;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
+import com.sheffield.leapmotion.controller.mocks.SeededHandList;
 import com.sheffield.leapmotion.frame.generators.*;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
@@ -154,8 +155,9 @@ public class FrameHandler implements Tickable {
             }
         } catch (Exception e) {
             e.printStackTrace(App.out);
+            SeededController.initializing = false;
             //TODO: Alert user an error has occurred
-            App.getApp().throwableThrown(e);
+            //App.getApp().throwableThrown(e);
             System.exit(-1);
         }
 
@@ -528,7 +530,7 @@ public class FrameHandler implements Tickable {
     }
 
     public Csv getCsv() {
-        Csv csv = frameGenerator.getCsv();
+        Csv csv = frameGenerator == null ? new Csv() : frameGenerator.getCsv();
         Csv newCsv = new Csv();
 
         newCsv.add("framesGenerated", framesGenerated + "");
@@ -561,6 +563,6 @@ public class FrameHandler implements Tickable {
     }
 
     public String getTechnique() {
-        return frameGenerator.getName();
+        return frameGenerator == null ? "Error Initialising" : frameGenerator.getName();
     }
 }

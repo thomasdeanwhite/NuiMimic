@@ -56,7 +56,7 @@ public class App implements ThrowableListener, Tickable {
     public static long timePassed = 0;
 
     //check states every x-ms
-    public static final long STATE_CHECK_TIME = 20000;
+    public static final long STATE_CHECK_TIME = 10000;
     public long lastStateCheck = 0;
     private int framesSeeded = 0;
     private int fps = 0;
@@ -717,6 +717,8 @@ public class App implements ThrowableListener, Tickable {
 
             csv.add("statesStarting", "" + (StateComparator.statesVisits.size() - StateComparator.statesFound));
 
+            csv.add("final", finished ? "TRUE" : "FALSE");
+
             csv.add("technique",
                     SeededController.getSeededController().getTechnique() + " "
                             +
@@ -1000,8 +1002,13 @@ public class App implements ThrowableListener, Tickable {
         //if (time - lastSwitchTime > timeBetweenSwitch) {
 
         if (sc.lastTick() < time) {
-            sc.tick(time);
-            lastSwitchTime = time;
+            try {
+                sc.tick(time);
+                lastSwitchTime = time;
+            } catch (Exception e){
+                e.printStackTrace(App.out);
+                dump(-1);
+            }
         }
         //}
 

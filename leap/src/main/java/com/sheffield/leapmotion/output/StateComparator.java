@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.output;
 
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 
 import javax.imageio.ImageIO;
@@ -24,7 +25,7 @@ public class StateComparator {
 
     private static ArrayList<Integer[]> states;
 
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = false;
+    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
 
     private static int currentState;
 
@@ -94,7 +95,7 @@ public class StateComparator {
 
 
     private static boolean isSameState(int difference, int size) {
-        double diffPercentage = difference / (double) size;
+        double diffPercentage = difference / (double) (size*2);
 
         //App.out.println(difference);
 
@@ -102,6 +103,7 @@ public class StateComparator {
     }
 
     public static int calculateStateDifference(Integer[] s1, Integer[] s2) {
+
         int differences = 0;
         int limit = Math.min(s1.length, s2.length);
         for (int j = 0; j < limit; j++) {
@@ -367,9 +369,6 @@ public class StateComparator {
         for (int i = 0; i < states.size(); i++) {
             Integer[] ss = states.get(i);
             int differences = calculateStateDifference(bins, ss);
-
-            ///App.out.println(i + ":" + ((float)differences/(float)
-            // resultData.length));
 
             if (differences < maxDifference) {
                 maxDifference = differences;

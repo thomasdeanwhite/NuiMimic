@@ -122,7 +122,8 @@ public class SeededFingerList extends FingerList implements Serializable {
 
             fingerTypes.put(arg0, sfl);
         }
-        return fingerTypes.get(arg0);
+        FingerList fl = fingerTypes.get(arg0);
+        return fl == null ? new SeededFingerList() : fl;
     }
 
     @Override

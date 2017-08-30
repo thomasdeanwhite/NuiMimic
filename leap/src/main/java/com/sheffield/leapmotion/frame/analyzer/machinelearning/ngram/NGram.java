@@ -1,5 +1,6 @@
 package com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram;
 
+import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.frame.generators.DataSparsityException;
 
 import java.io.Serializable;
@@ -163,7 +164,7 @@ public class NGram implements Serializable {
 
         if (babble == null || babble.length() == 0){
             if (!text.contains(NGramModel.DELIMITER)){
-                throw new DataSparsityException("Data is too sparse! [" + text + "]");
+                return null;
             }
             String newText = text.substring(text.indexOf(NGramModel.DELIMITER)+1);
             babble = babbleRecursive(newText);
@@ -184,14 +185,14 @@ public class NGram implements Serializable {
                 returnString = NGramModel.DELIMITER + elements[i] + returnString;
             }
 
-            while (returnString.charAt(0) == NGramModel.DELIMITER.charAt(0)) {
+            while (returnString.length() > 0 && returnString.charAt(0) == NGramModel.DELIMITER.charAt(0)) {
                 returnString = returnString.substring(1);
             }
         }
 
-        if (returnString == null){
-            throw new DataSparsityException("Data is too sparse!");
-        }
+//        if (returnString == null){
+//            throw new DataSparsityException("Data is too sparse!");
+//        }
 
         return returnString;
     }
@@ -207,7 +208,7 @@ public class NGram implements Serializable {
                     return NGramModel.DELIMITER + c.element;
                 }
             }
-            return null;
+            return "";
         }
         String childText = text;
         String recurringText = "";

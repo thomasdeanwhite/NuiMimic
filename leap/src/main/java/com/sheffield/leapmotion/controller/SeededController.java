@@ -26,7 +26,7 @@ import java.util.LinkedList;
 public class SeededController extends Controller implements FrameSwitchListener, Tickable {
 
 	public static SeededController CONTROLLER;
-	private static boolean initializing = false;
+	protected static boolean initializing = false;
 	private static LinkedList<Frame> framesForSeeding = new LinkedList<>();
 
 	public static boolean initialized(){
@@ -231,13 +231,17 @@ public class SeededController extends Controller implements FrameSwitchListener,
 			framesForSeeding.removeLast();
 		}
 
-		for (int i = 0; i < listeners.size(); i++) {
-			final Listener l = listeners.get(i);
-			l.onFrame(this);
-		}
+		if (this.frame() != null) {
 
-		if (App.DISPLAY_WINDOW != null) {
-			App.DISPLAY_WINDOW.setFrame(nextFrame);
+			for (int i = 0; i < listeners.size(); i++) {
+				final Listener l = listeners.get(i);
+				l.onFrame(this);
+			}
+
+
+			if (App.DISPLAY_WINDOW != null) {
+				App.DISPLAY_WINDOW.setFrame(nextFrame);
+			}
 		}
 	}
 
@@ -263,19 +267,30 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	@Override
-	public boolean addListener(Listener arg0) {
+	public boolean addListener(final Listener arg0) {
 		App.getApp().setStatus(AppStatus.TESTING);
 
 		if (App.APP != null && App.APP.status() == AppStatus.FINISHED) {
 			throw new IllegalArgumentException("Runtime Finished!");
 		}
 		if (!listeners.contains(arg0)) {
-			listeners.add(arg0);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					boolean connected = !Properties.RECORDING || CONNECTED_TO_API;
+					if (connected) {
+						arg0.onConnect(SeededController.getController());
+					}
 
-			boolean connected = !Properties.RECORDING || CONNECTED_TO_API;
-			if (connected) {
-				arg0.onConnect(this);
-			}
+					listeners.add(arg0);
+				}
+			}).start();
+
 			return true;
 		} else {
 			return false;
@@ -498,6 +513,6 @@ public class SeededController extends Controller implements FrameSwitchListener,
 	}
 
 	public String getTechnique(){
-		return frameHandler.getTechnique();
+		return frameHandler != null ? frameHandler.getTechnique() : "Error Initialising";
 	}
 }
