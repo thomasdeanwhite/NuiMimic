@@ -1,7 +1,6 @@
 package com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram;
 
 import com.sheffield.leapmotion.frame.generators.DataSparsityException;
-import com.sheffield.leapmotion.instrumentation.MockRandom;
 
 import java.io.Serializable;
 import java.util.ArrayList;

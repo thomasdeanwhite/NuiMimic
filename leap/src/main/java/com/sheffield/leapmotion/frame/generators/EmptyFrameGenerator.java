@@ -5,7 +5,6 @@ import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededGestureList;
-import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.output.Csv;
 
 public class EmptyFrameGenerator extends FrameGenerator {

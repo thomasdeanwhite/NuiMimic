@@ -17,7 +17,6 @@ import com.leapmotion.leap.Tool;
 import com.leapmotion.leap.ToolList;
 import com.leapmotion.leap.TrackedQuad;
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 
 import java.io.Serializable;

@@ -5,11 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import weka.clusterers.ClusterEvaluation;
-import weka.clusterers.Cobweb;
-import weka.clusterers.EM;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instance;
 import weka.core.Instances;

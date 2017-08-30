@@ -5,7 +5,6 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures
         .ReconstructiveGestureHandler;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;

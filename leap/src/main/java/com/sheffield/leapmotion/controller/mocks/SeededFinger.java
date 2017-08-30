@@ -8,7 +8,6 @@ import com.leapmotion.leap.Matrix;
 import com.leapmotion.leap.Pointable;
 import com.leapmotion.leap.Vector;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 
 import java.io.Serializable;

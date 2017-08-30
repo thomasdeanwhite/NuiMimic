@@ -19,3 +19,5 @@ NuiMimic/*
 leap/NuiMimic
 leap/NuiMimic/*
 chrome/*
+*.log
+*/*.log

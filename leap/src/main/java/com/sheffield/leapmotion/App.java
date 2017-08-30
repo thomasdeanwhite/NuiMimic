@@ -1,15 +1,6 @@
 package com.sheffield.leapmotion;
 
 import com.google.gson.Gson;
-import com.sheffield.instrumenter.InstrumentationProperties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.analysis.DependencyTree;
-import com.sheffield.instrumenter.analysis.ThrowableListener;
-import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;

@@ -1,9 +1,5 @@
 package com.sheffield.leapmotion.instrumentation;
 
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
-
-import java.net.URL;
-
 /**
  * Created by thomas on 20/03/17.
  */

@@ -1,11 +1,9 @@
 package com.sheffield.leapmotion.runtypes;
 
-import com.leapmotion.leap.Frame;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.ProgressBar;
 
 /**

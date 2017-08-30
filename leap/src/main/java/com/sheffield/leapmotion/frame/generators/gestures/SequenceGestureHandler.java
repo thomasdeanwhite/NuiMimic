@@ -3,7 +3,6 @@ package com.sheffield.leapmotion.frame.generators.gestures;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.controller.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.controller.mocks.SeededGesture;
-import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 
 import java.util.HashMap;
 

@@ -4,7 +4,6 @@ import com.leapmotion.leap.*;
 import com.leapmotion.leap.Gesture.State;
 import com.leapmotion.leap.Gesture.Type;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.playback.NGramLog;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -13,19 +13,15 @@ import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.frame.generators.FrameGenerator;
-import com.sheffield.leapmotion.frame.playback.NGramLog;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
-import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.output.Csv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 public class FrameHandler implements Tickable {

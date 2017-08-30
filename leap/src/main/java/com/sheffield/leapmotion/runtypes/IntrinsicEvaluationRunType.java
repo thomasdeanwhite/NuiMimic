@@ -1,6 +1,5 @@
 package com.sheffield.leapmotion.runtypes;
 
-import com.google.gson.Gson;
 import com.sheffield.leapmotion.*;
 
 import static com.sheffield.leapmotion.Properties.*;
@@ -10,18 +9,13 @@ import com.sheffield.leapmotion.frame.analyzer.machinelearning.clustering.Cluste
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.clustering.WekaClusterer;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
-import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.output.Csv;
-import weka.core.Instance;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 /**
  * Created by thomas on 08/02/17.
