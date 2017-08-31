@@ -65,9 +65,16 @@ public class DataProcessingRunType implements RunType {
 
         if (trainingFiles.size() > 0 && Properties.INPUT[0].contains("-")){
             dataDir = Properties.DIRECTORY + "/" +
-                    Properties.INPUT[0].substring(Properties.INPUT[0].indexOf(
+                    Properties.INPUT[0].substring(1 + Properties.INPUT[0]
+                            .indexOf(
                             "-"
                     ));
+        }
+
+        File ddir = new File(dataDir);
+
+        if (!ddir.exists()){
+            ddir.mkdirs();
         }
 
 
@@ -105,7 +112,9 @@ public class DataProcessingRunType implements RunType {
                     continue;
                 }
                 String[] elements = s.split(":");
-
+                if (elements.length < 2){
+                    continue;
+                }
                 String state = elements[0];
                 String candidates = elements[1];
 
@@ -195,9 +204,11 @@ public class DataProcessingRunType implements RunType {
                 StringBuilder sb = new StringBuilder();
 
                 for (int i = 0; i < clusterOrder.size()-1; i++){
-                    FileHandler.appendToFile(outputSequence, clusterOrder.get(i) + ",");
                     sb.append(clusterOrder.get(i) + " ");
                 }
+                FileHandler.appendToFile(outputSequence, sb.toString()
+                        .replace(" ", ","));
+
 
                 HashMap<Integer, NGram> stateNgrams = new HashMap<Integer, NGram>();
 
@@ -230,13 +241,15 @@ public class DataProcessingRunType implements RunType {
 
 
 
-                FileHandler.appendToFile(outputSequence, clusterOrder.get(clusterOrder.size()-1));
+                FileHandler.appendToFile(outputSequence, clusterOrder.get
+                        (clusterOrder.size()-1) + "\n");
 
-                FileHandler.appendToFile(outputSequence, "\n");
+                StringBuilder keyB = new StringBuilder();
 
                 for (int i = 0; i < keys.size()-1; i++){
-                    FileHandler.appendToFile(outputSequence, keys.get(i) + ",");
+                    keyB.append(keys.get(i) + ",");
                 }
+                FileHandler.appendToFile(outputSequence, keyB.toString());
 
                 FileHandler.appendToFile(outputSequence, keys.get(keys.size()-1));
 

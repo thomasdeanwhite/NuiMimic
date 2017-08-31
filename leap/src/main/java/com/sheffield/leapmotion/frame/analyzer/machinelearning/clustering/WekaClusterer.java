@@ -58,9 +58,9 @@ public class WekaClusterer {
 
             for (Instance s : data) {
                 String id = s.stringValue(0);
-                if (files.size() > 0) {
-                    id += filename;
-                }
+//                if (files.size() > 0) {
+//                    id += filename;
+//                }
                 ids.add(id);
             }
 
@@ -86,7 +86,7 @@ public class WekaClusterer {
             ArrayList<String> fiIds = new ArrayList<String>(data.size());
 
             for (Instance sfi : fiData){
-                ids.add(sfi.stringValue(0) + s);
+                ids.add(sfi.stringValue(0));
             }
 
             while(fiS.hasMoreElements(struct)){

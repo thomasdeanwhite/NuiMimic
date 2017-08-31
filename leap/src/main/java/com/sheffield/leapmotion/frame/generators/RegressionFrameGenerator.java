@@ -5,7 +5,7 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.io.IOException;

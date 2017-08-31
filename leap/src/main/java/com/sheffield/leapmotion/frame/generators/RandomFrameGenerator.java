@@ -7,7 +7,7 @@ import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.util.ArrayList;
 import java.util.Random;

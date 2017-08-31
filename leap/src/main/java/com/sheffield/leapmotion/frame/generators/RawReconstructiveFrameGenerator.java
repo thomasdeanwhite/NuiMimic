@@ -9,7 +9,7 @@ import com.sheffield.leapmotion.frame.generators.gestures
         .ReconstructiveGestureHandler;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.io.IOException;

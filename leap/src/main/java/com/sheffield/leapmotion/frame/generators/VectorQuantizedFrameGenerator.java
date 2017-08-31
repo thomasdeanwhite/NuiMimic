@@ -1,7 +1,7 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.leapmotion.leap.Gesture;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.util.Random;

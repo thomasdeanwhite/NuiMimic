@@ -1,6 +1,6 @@
 package com.sheffield.leapmotion.instrumentation;
 
-import com.sheffield.util.ClassNameUtils;
+import com.scythe.util.ClassNameUtils;
 
 import java.util.HashMap;
 import java.util.Random;

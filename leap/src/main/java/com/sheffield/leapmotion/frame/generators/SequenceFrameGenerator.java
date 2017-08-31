@@ -13,7 +13,7 @@ import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.io.IOException;

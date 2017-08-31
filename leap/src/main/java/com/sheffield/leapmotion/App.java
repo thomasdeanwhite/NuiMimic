@@ -1,6 +1,14 @@
 package com.sheffield.leapmotion;
 
 import com.google.gson.Gson;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.analysis.DependencyTree;
+import com.scythe.instrumenter.analysis.ThrowableListener;
+import com.scythe.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.Line;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
@@ -14,7 +22,7 @@ import com.sheffield.leapmotion.util.ClassTracker;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Tickable;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 
 import javax.imageio.ImageIO;

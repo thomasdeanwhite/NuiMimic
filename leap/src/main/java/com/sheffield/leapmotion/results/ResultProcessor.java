@@ -2,8 +2,8 @@ package com.sheffield.leapmotion.results;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.util.ClassTracker;
 import com.sheffield.leapmotion.util.FileHandler;

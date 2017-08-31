@@ -16,7 +16,7 @@ import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
 import com.sheffield.leapmotion.frame.generators.FrameGenerator;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 

@@ -13,7 +13,7 @@ import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Serializer;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 

@@ -1,14 +1,14 @@
 package com.sheffield.leapmotion.runtypes.agent;
 
 import com.leapmotion.leap.Controller;
-import com.sheffield.instrumenter.InstrumentationProperties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
+import com.scythe.instrumenter.InstrumentationProperties;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
-import com.sheffield.util.ClassNameUtils;
+import com.scythe.util.ClassNameUtils;
 import org.objectweb.asm.ClassVisitor;
 
 import java.io.*;

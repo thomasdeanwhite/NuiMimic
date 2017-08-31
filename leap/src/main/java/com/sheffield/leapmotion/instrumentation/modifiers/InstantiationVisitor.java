@@ -10,7 +10,7 @@ import com.leapmotion.leap.HandList;
 import com.leapmotion.leap.PointableList;
 import com.leapmotion.leap.ScreenList;
 import com.leapmotion.leap.ToolList;
-import com.sheffield.instrumenter.analysis.DependencyTree;
+import com.scythe.instrumenter.analysis.DependencyTree;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
