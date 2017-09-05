@@ -728,11 +728,10 @@ public class App implements ThrowableListener, Tickable {
             csv.add("final", finished ? "TRUE" : "FALSE");
 
             csv.add("technique",
-                    SeededController.getSeededController().getTechnique() + " "
-                            +
-                            (Properties.SINGLE_DATA_POOL ?
-                                    "(single model)" :
-                                    "(multiple models)"));
+                    SeededController.getSeededController().getTechnique());
+
+            csv.add("modelSource", Properties.INPUT[0].contains("-") ?
+                "Single Source" : "Merged");
 
             csv.add("statesFound", "" + StateComparator.statesFound);
             csv.add("statesVisits", "" + StateComparator.getStatesVisits().size());

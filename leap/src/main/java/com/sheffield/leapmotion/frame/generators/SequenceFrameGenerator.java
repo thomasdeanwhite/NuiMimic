@@ -161,12 +161,18 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         return positions;
     }
 
-    public static HashMap<String, SeededCircleGesture> getCircleGestures(String filename)
-            throws IOException {
+    public static HashMap<String, SeededCircleGesture> getCircleGestures(String filename) {
         HashMap<String, SeededCircleGesture> positions = new HashMap<String, SeededCircleGesture>();
 
         String positionFile = filename + "/gesture_circle_data";
-        String contents = FileHandler.readFile(new File(positionFile));
+
+        String contents = null;
+        try {
+            contents = FileHandler.readFile(new File(positionFile));
+        } catch (IOException e) {
+            App.out.println("- No circle gestures found!");
+            return new HashMap<String, SeededCircleGesture>();
+        }
         String[] lines = contents.split("\n");
 
         SeededGesture sg = new SeededGesture(Gesture.Type.TYPE_CIRCLE, Gesture.State.STATE_UPDATE,
