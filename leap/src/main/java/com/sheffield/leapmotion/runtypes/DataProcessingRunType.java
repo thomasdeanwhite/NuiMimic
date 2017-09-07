@@ -29,9 +29,9 @@ public class DataProcessingRunType implements RunType {
     @Override
     public int run() {
 
-        DataRawProcessingRunType drpr = new DataRawProcessingRunType();
-
-        drpr.run();
+//        DataRawProcessingRunType drpr = new DataRawProcessingRunType();
+//
+//        drpr.run();
 
         Gson gson = new Gson();
 
