@@ -4,7 +4,6 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;

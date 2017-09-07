@@ -3,8 +3,6 @@ package com.sheffield.leapmotion.controller;
 import com.leapmotion.leap.Frame;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 
-import java.util.Comparator;
-
 /**
  * Created by thomas on 29/03/2017.
  */

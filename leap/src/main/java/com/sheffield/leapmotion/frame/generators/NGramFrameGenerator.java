@@ -6,7 +6,6 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.controller.mocks.SeededCircleGesture;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
-import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures.NGramGestureHandler;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;

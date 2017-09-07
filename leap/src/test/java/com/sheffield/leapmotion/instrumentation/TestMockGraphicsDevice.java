@@ -1,7 +1,6 @@
 package com.sheffield.leapmotion.instrumentation;
 
 
-import com.sheffield.leapmotion.instrumentation.MockGraphicsDevice;
 import org.junit.Test;
 
 import java.awt.*;

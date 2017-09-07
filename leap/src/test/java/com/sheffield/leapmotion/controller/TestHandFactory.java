@@ -1,7 +1,6 @@
 package com.sheffield.leapmotion.controller;
 
 import com.leapmotion.leap.*;
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;

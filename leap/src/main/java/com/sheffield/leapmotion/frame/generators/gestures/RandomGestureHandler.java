@@ -8,7 +8,6 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.frame.playback.NGramLog;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 

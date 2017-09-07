@@ -3,10 +3,9 @@ package com.sheffield.leapmotion.controller;
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;
 import com.sheffield.leapmotion.App;
-import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 /**
  * Created by thomas on 07/04/17.

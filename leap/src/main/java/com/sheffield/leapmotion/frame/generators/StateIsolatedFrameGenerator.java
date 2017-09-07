@@ -15,7 +15,7 @@ import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 import java.lang.reflect.Type;
 
 import java.io.File;

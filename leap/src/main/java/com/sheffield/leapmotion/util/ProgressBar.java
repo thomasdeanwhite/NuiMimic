@@ -1,7 +1,5 @@
 package com.sheffield.leapmotion.util;
 
-import com.sheffield.leapmotion.instrumentation.MockSystem;
-
 /**
  * Created by thomas on 18/11/2016.
  */

@@ -6,7 +6,6 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.display.DisplayWindow;
-import com.sheffield.leapmotion.instrumentation.MockSourceDataLine;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
 import com.sheffield.leapmotion.output.FrameDeconstructor;
 import com.sheffield.leapmotion.util.ProgressBar;
@@ -15,7 +14,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.ArrayList;
 
 
 public class SamplerApp extends Listener {

@@ -4,7 +4,7 @@ import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.runtypes.state_identification.ImageStateIdentifier;
 import com.sheffield.leapmotion.runtypes.state_identification.StateShowingFrame;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

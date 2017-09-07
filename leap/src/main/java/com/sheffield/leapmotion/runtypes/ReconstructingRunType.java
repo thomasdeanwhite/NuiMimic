@@ -4,7 +4,7 @@ import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 /**
  * Created by thomas on 18/11/2016.

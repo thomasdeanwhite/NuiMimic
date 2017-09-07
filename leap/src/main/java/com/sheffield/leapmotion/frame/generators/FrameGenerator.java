@@ -6,7 +6,7 @@ import com.leapmotion.leap.GestureList;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 public abstract class FrameGenerator implements Tickable {
 	public abstract Frame newFrame();

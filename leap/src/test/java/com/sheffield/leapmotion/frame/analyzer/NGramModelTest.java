@@ -1,6 +1,5 @@
 package com.sheffield.leapmotion.frame.analyzer;
 
-import com.leapmotion.leap.Controller;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGram;
 import com.sheffield.leapmotion.frame.analyzer.machinelearning.ngram.NGramModel;
 import com.sheffield.leapmotion.frame.generators.DataSparsityException;

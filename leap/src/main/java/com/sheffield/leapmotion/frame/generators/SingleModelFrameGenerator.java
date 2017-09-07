@@ -8,7 +8,7 @@ import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.util.Random;

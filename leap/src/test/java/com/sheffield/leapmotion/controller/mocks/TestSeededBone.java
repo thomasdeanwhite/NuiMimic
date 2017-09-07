@@ -1,15 +1,8 @@
 package com.sheffield.leapmotion.controller.mocks;
 
 import com.leapmotion.leap.*;
-import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.frame.util.Quaternion;
-import com.sheffield.leapmotion.output.FrameDeconstructor;
-import com.sheffield.leapmotion.util.Serializer;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static com.sheffield.leapmotion.TestUtils.*;

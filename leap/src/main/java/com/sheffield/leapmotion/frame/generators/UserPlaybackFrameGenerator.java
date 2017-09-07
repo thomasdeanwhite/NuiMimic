@@ -4,9 +4,7 @@ import com.google.gson.JsonSyntaxException;
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.controller.FrameHandler;
 import com.sheffield.leapmotion.controller.SeededController;
-import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededGestureList;
 import com.sheffield.leapmotion.display.DisplayWindow;
@@ -15,7 +13,7 @@ import com.sheffield.leapmotion.sampler.SamplerApp;
 import com.sheffield.leapmotion.util.AppStatus;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Serializer;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 

@@ -2,15 +2,12 @@ package com.sheffield.leapmotion.frame.generators;
 
 import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
-import com.sheffield.leapmotion.frame.util.BezierHelper;
 import com.sheffield.leapmotion.Properties;
-import com.sheffield.leapmotion.frame.util.Quaternion;
-import com.sheffield.leapmotion.frame.util.QuaternionHelper;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.mocks.HandFactory;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.util.ArrayList;
 import java.util.Random;

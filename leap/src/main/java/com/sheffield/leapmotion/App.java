@@ -1,15 +1,14 @@
 package com.sheffield.leapmotion;
 
 import com.google.gson.Gson;
-import com.sheffield.instrumenter.InstrumentationProperties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.analysis.DependencyTree;
-import com.sheffield.instrumenter.analysis.ThrowableListener;
-import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.analysis.DependencyTree;
+import com.scythe.instrumenter.analysis.ThrowableListener;
+import com.scythe.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.Line;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.display.DisplayWindow;
 import com.sheffield.leapmotion.instrumentation.MockSystem;
@@ -23,7 +22,7 @@ import com.sheffield.leapmotion.util.ClassTracker;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
 import com.sheffield.leapmotion.util.Tickable;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 
 import javax.imageio.ImageIO;
@@ -729,11 +728,10 @@ public class App implements ThrowableListener, Tickable {
             csv.add("final", finished ? "TRUE" : "FALSE");
 
             csv.add("technique",
-                    SeededController.getSeededController().getTechnique() + " "
-                            +
-                            (Properties.SINGLE_DATA_POOL ?
-                                    "(single model)" :
-                                    "(multiple models)"));
+                    SeededController.getSeededController().getTechnique());
+
+            csv.add("modelSource", Properties.INPUT[0].contains("-") ?
+                "Single Source" : "Merged");
 
             csv.add("statesFound", "" + StateComparator.statesFound);
             csv.add("statesVisits", "" + StateComparator.getStatesVisits().size());

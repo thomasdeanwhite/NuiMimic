@@ -4,14 +4,12 @@ import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
-import com.sheffield.leapmotion.controller.mocks.SeededHand;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.frame.generators.gestures
         .ReconstructiveGestureHandler;
-import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.util.FileHandler;
 import com.sheffield.leapmotion.util.ProgressBar;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.io.IOException;

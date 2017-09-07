@@ -101,6 +101,16 @@
             <artifactId>instrumentation</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.scythe</groupId>
+            <artifactId>instrumentation</artifactId>
+            <version>0.0.1-DEV</version>
+        </dependency>
+        <dependency>
+            <groupId>com.scythe</groupId>
+            <artifactId>scythe</artifactId>
+            <version>0.0.1-DEV</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,13 +1,11 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.google.gson.Gson;
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.output.StateComparator;
 import com.sheffield.leapmotion.output.TestingStateComparator;
 import com.sheffield.leapmotion.util.FileHandler;
-import com.sheffield.output.Csv;
-import org.junit.Test;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.io.IOException;

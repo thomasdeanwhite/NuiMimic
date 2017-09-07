@@ -5,11 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
-import weka.clusterers.ClusterEvaluation;
-import weka.clusterers.Cobweb;
-import weka.clusterers.EM;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -62,9 +58,9 @@ public class WekaClusterer {
 
             for (Instance s : data) {
                 String id = s.stringValue(0);
-                if (files.size() > 0) {
-                    id += filename;
-                }
+//                if (files.size() > 0) {
+//                    id += filename;
+//                }
                 ids.add(id);
             }
 
@@ -90,7 +86,7 @@ public class WekaClusterer {
             ArrayList<String> fiIds = new ArrayList<String>(data.size());
 
             for (Instance sfi : fiData){
-                ids.add(sfi.stringValue(0) + s);
+                ids.add(sfi.stringValue(0));
             }
 
             while(fiS.hasMoreElements(struct)){

@@ -1,7 +1,6 @@
 package com.sheffield.leapmotion.frame.generators;
 
 import com.leapmotion.leap.Frame;
-import com.sheffield.leapmotion.controller.SeededController;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import org.junit.Test;
 

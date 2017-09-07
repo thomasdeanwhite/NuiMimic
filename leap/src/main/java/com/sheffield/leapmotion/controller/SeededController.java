@@ -18,7 +18,7 @@ import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.util.Tickable;
 import com.sheffield.leapmotion.frame.generators.gestures.GestureHandler;
 import com.sheffield.leapmotion.controller.listeners.FrameSwitchListener;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

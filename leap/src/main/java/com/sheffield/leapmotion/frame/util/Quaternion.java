@@ -1,7 +1,6 @@
 package com.sheffield.leapmotion.frame.util;
 
 import com.leapmotion.leap.Vector;
-import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.controller.mocks.SeededHand;
 
 /**

@@ -1,12 +1,12 @@
 package com.sheffield.leapmotion.util;
 
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.ClassReplacementTransformer;
+import com.scythe.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.leapmotion.App;
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.instrumentation.visitors.TestingClassAdapter;
-import com.sheffield.util.ClassNameUtils;
+import com.scythe.util.ClassNameUtils;
 import org.objectweb.asm.ClassVisitor;
 
 import java.io.File;

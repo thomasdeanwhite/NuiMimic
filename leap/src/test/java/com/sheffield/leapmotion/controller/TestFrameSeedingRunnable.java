@@ -1,7 +1,5 @@
 package com.sheffield.leapmotion.controller;
 
-import com.leapmotion.leap.Frame;
-import com.sheffield.leapmotion.controller.mocks.SeededFinger;
 import com.sheffield.leapmotion.controller.mocks.SeededFrame;
 import org.junit.Test;
 

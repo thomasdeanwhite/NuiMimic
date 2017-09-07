@@ -1,15 +1,13 @@
 package com.sheffield.leapmotion;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
-import com.sheffield.instrumenter.InstrumentationProperties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
-import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.sheffield.leapmotion.util.ClassTracker;
+import com.scythe.instrumenter.InstrumentationProperties;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
+import com.scythe.output.Csv;
 import com.sheffield.leapmotion.util.FileHandler;
-import com.sheffield.output.Csv;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;

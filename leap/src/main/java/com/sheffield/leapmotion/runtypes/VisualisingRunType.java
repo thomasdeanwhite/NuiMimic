@@ -2,7 +2,6 @@ package com.sheffield.leapmotion.runtypes;
 
 import com.sheffield.leapmotion.Properties;
 import com.sheffield.leapmotion.output.TrainingDataVisualiser;
-import com.sheffield.leapmotion.runtypes.RunType;
 
 /**
  * Created by thomas on 18/11/2016.

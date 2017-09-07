@@ -1,11 +1,7 @@
 package com.sheffield.leapmotion.frame.generators;
 
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Frame;
 import com.leapmotion.leap.Gesture;
-import com.leapmotion.leap.GestureList;
-import com.sheffield.leapmotion.frame.generators.gestures.RandomGestureHandler;
-import com.sheffield.output.Csv;
+import com.scythe.output.Csv;
 
 import java.io.File;
 import java.util.Random;

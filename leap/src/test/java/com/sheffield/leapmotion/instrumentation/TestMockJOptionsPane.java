@@ -1,6 +1,5 @@
 package com.sheffield.leapmotion.instrumentation;
 
-import com.sheffield.leapmotion.instrumentation.MockJOptionPane;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
