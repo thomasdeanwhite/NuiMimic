@@ -11,6 +11,8 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.core.converters.ConverterUtils;
+import weka.filters.Filter;
+import weka.filters.unsupervised.instance.RemoveWithValues;
 
 /**
  * Created by thomas on 08/02/17.
@@ -52,6 +54,7 @@ public class WekaClusterer {
         loader.setFile(f);
 
         Instances data = loader.getDataSet();
+
 
         ArrayList<String> ids = new ArrayList<String>(data.size());
 
@@ -102,6 +105,16 @@ public class WekaClusterer {
         //data.setClassIndex(0);
 
         SimpleKMeans clusterer = new SimpleKMeans();
+
+        RemoveWithValues rmv = new RemoveWithValues();
+
+        rmv.setMatchMissingValues(true);
+        rmv.setSplitPoint(Double.POSITIVE_INFINITY);
+        rmv.setInvertSelection(true);
+        rmv.setInputFormat(data);
+
+        data = Filter.useFilter(data, rmv);
+
 
         clusterer.setSeed(0);
 
