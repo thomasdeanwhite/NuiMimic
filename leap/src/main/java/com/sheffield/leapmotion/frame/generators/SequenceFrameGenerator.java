@@ -347,7 +347,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     public SequenceFrameGenerator(String file) {
         try {
 
-            String processed = Properties.DIRECTORY + "/" + file + "/processed";
+            String processed = Properties.DIRECTORY + "/" + file +
+                    "/processed/" + Properties.CLUSTERS + "-" + Properties.N;
 
             //setup clusters
             joints = getJoints(processed);

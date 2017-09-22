@@ -190,7 +190,7 @@ public class DataProcessingRunType implements RunType {
                 for (String key : keys){
                     clusterOrder.add(assignments.get(key));
                 }
-                File outputSequence = new File(dataDir + "/processed/" + files.get(s) + ".raw_sequence");
+                File outputSequence = new File(dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" + files.get(s) + ".raw_sequence");
 
                 if (!outputSequence.exists()){
                     if (outputSequence.getParentFile() != null && !outputSequence.getParentFile().exists()){
@@ -253,7 +253,7 @@ public class DataProcessingRunType implements RunType {
 
                 FileHandler.appendToFile(outputSequence, keys.get(keys.size()-1));
 
-                File outputClusters = new File(dataDir + "/processed/" + files.get(s) + "_data");
+                File outputClusters = new File(dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" + files.get(s) + "_data");
 
                 if (!outputClusters.exists()){
                     if (outputClusters.getParentFile() != null && !outputClusters.getParentFile().exists()){
@@ -275,7 +275,7 @@ public class DataProcessingRunType implements RunType {
 
                 ng.calculateProbabilities();
 
-                File ngramOutput = new File(dataDir + "/processed/" + files.get(s) + "_ngram");
+                File ngramOutput = new File(dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" + files.get(s) + "_ngram");
 
                 if (!ngramOutput.exists()){
                     if (ngramOutput.getParentFile() != null && !ngramOutput.getParentFile().exists()){
@@ -288,7 +288,7 @@ public class DataProcessingRunType implements RunType {
 
                 stateNgrams.put(-1, ng);
 
-                FileHandler.writeToFile(new File(dataDir + "/processed/" + files.get(s) + "_stategram"), gson.toJson(stateNgrams));
+                FileHandler.writeToFile(new File(dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" + files.get(s) + "_stategram"), gson.toJson(stateNgrams));
 
             } catch (Exception e) {
                 e.printStackTrace(App.out);
