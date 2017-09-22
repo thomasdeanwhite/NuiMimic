@@ -11,7 +11,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: com.leapmotion:leapmotion.sdk:1.0" level="project" />
-    <orderEntry type="library" name="Maven: com.sheffield:instrumentation:0.0.1-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-java:3.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-api:3.4.0" level="project" />
     <orderEntry type="library" name="Maven: org.seleniumhq.selenium:selenium-chrome-driver:3.4.0" level="project" />
@@ -80,7 +79,6 @@
     <orderEntry type="library" name="Maven: com.googlecode.netlib-java:netlib-java:1.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.fommil.netlib:core:1.1" level="project" />
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.10" level="project" />
-    <orderEntry type="library" name="Maven: com.scythe:instrumentation:0.0.1-DEV" level="project" />
     <orderEntry type="module" module-name="scythe" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-all:5.0.3" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm-commons:5.0.3" level="project" />
