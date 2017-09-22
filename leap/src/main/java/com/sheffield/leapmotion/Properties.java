@@ -448,10 +448,14 @@ public class Properties extends InstrumentationProperties {
 
             if (RESUME_RUN >= 0) {
                 CURRENT_RUN = RESUME_RUN;
-            }
+            } else {
+                if (CURRENT_RUN == -1) {
+                    CURRENT_RUN = System.currentTimeMillis();
+                }
 
-            if (CURRENT_RUN == -1){
-                CURRENT_RUN = System.currentTimeMillis();
+                while(FileHandler.generateTestingOutputFile("RUN" + Properties.CURRENT_RUN + "-test-results").exists()){
+                    Properties.CURRENT_RUN++;
+                }
             }
         } catch (Exception e1) {
             // TODO Auto-generated catch block
