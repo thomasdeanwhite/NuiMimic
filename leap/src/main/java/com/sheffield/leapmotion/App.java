@@ -804,20 +804,31 @@ public class App implements ThrowableListener, Tickable {
                 csv.add("dataHitRatio", "" + 0);
             }
 
+            if (Properties.DUMP) {
+                File lastRunDump = new File(
+                        Properties.TESTING_OUTPUT + "/current_run" +
+                                Properties.CURRENT_RUN + ".nmDump");
 
-            File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run" + Properties.CURRENT_RUN + ".nmDump");
+                if (status() !=
+                        AppStatus.FINISHED) { // still running so dump stuff!
 
-            if (status() != AppStatus.FINISHED) { // still running so dump stuff!
+                    Gson g = new Gson();
 
-                Gson g = new Gson();
+                    String dump =
+                            "current-run:" + Properties.CURRENT_RUN + "\n" +
+                                    "remaining-budget:" +
+                                    (Properties.RUNTIME - timePassed) + "\n" +
+                                    "frameGenerator:" +
+                                    Properties.FRAME_SELECTION_STRATEGY + "\n" +
+                                    "lines:" +
+                                    g.toJson(ClassAnalyzer.getRawLines()) +
+                                    "\n" +
+                                    "branches:" +
+                                    g.toJson(ClassAnalyzer.getRawBranches()) +
+                                    "\n";
 
-                String dump = "current-run:" + Properties.CURRENT_RUN + "\n" +
-                        "remaining-budget:" + (Properties.RUNTIME - timePassed) + "\n" +
-                        "frameGenerator:" + Properties.FRAME_SELECTION_STRATEGY + "\n" +
-                        "lines:" + g.toJson(ClassAnalyzer.getRawLines()) + "\n" +
-                        "branches:" + g.toJson(ClassAnalyzer.getRawBranches()) + "\n";
-
-                FileHandler.writeToFile(lastRunDump, dump);
+                    FileHandler.writeToFile(lastRunDump, dump);
+                }
             }
 
 

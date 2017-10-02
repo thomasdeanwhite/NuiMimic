@@ -25,8 +25,6 @@ public class StateComparator {
 
     private static ArrayList<Integer[]> states;
 
-    private static final boolean WRITE_SCREENSHOTS_TO_FILE = true;
-
     private static int currentState;
 
     public static String SCREENSHOT_DIRECTORY;
@@ -287,7 +285,7 @@ public class StateComparator {
         BufferedImage screenShot = screenshot();
         String state = captureState(screenShot);
 
-        if (WRITE_SCREENSHOTS_TO_FILE) {
+        if (Properties.WRITE_SCREENSHOTS_TO_FILE) {
             try {
                 File f = new File(
                         SCREENSHOT_DIRECTORY + "/" + Properties.FRAME_SELECTION_STRATEGY + "/" + CURRENT_RUN + "/" +
@@ -383,7 +381,7 @@ public class StateComparator {
 
         currentState = addState(bins);
 
-        if (WRITE_SCREENSHOTS_TO_FILE) {
+        if (Properties.WRITE_SCREENSHOTS_TO_FILE) {
             BufferedImage compressed = new BufferedImage(X_LIM, Y_LIM,
                     BufferedImage.TYPE_INT_RGB);
             for (int i = 0; i < X_LIM; i++) {

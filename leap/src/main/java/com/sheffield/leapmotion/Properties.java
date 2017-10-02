@@ -228,6 +228,21 @@ public class Properties extends InstrumentationProperties {
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean PROCESS_SCREENSHOTS = false;
 
+    @Parameter(key = "dump", description = "Writes application state data " +
+            "during generation",
+            hasArgs = false, category = "Leap Motion Testing")
+    public static boolean DUMP = false;
+
+    @Parameter(key = "outputSequence", description = "Should screenshots be " +
+            "processed during playback?",
+            hasArgs = false, category = "Leap Motion Sampling")
+    public static boolean OUTPUT_SEQUENCE = true;
+
+    @Parameter(key = "writeScreenshots", description = "Should screenshots be" +
+            " saved?",
+            hasArgs = false, category = "Leap Motion Testing")
+    public static boolean WRITE_SCREENSHOTS_TO_FILE = false;
+
     @Parameter(key = "singleDataPool", description = "Should a single data pool be used to reconstruct hands?",
             hasArgs = false, category = "Leap Motion Sampling")
     public static boolean SINGLE_DATA_POOL = false;

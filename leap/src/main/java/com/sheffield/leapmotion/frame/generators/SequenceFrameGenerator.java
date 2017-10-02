@@ -32,10 +32,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     protected SequenceGestureHandler sgh;
 
-    public static boolean OUTPUT_SEQUENCE = true;
-
     protected void disableOutput (){
-        OUTPUT_SEQUENCE = false;
+        Properties.OUTPUT_SEQUENCE = false;
     }
 
     private HashMap<Integer, Integer[]> states = new HashMap<Integer, Integer[]>();
@@ -326,7 +324,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     }
 
     public void setupOutputFiles() throws IOException {
-        if (OUTPUT_SEQUENCE) {
+        if (Properties.OUTPUT_SEQUENCE) {
 
             regressionFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/regression_orders.json");
             statesFile = new File(Properties.TESTING_OUTPUT + "/" + Properties.CURRENT_RUN + "/" + Properties.FRAME_SELECTION_STRATEGY + "/states.json");
@@ -512,7 +510,8 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     public GestureList handleFrame(Frame f, Controller c){
 
         //output regression suite
-        if (OUTPUT_SEQUENCE){ // we should write the output (e.g. false if regression testing)
+        if (Properties.OUTPUT_SEQUENCE){ // we should write the output (e.g.
+            // false if regression testing)
             try {
                 int state = TestingStateComparator.getCurrentState();
 
