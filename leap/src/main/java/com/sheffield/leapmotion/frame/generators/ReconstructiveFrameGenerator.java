@@ -59,7 +59,7 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
             currentLabel = 0;
 
             String sequenceFile =
-                    Properties.DIRECTORY + "/" + filename + "/processed/" +
+                    Properties.DIRECTORY + "/" + filename + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/"  +
                             (Properties.SINGLE_DATA_POOL ?
                                     "hand_joints.raw_sequence" :
                                     "joint_position.raw_sequence");
@@ -107,7 +107,7 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
 
 
             sequenceFile = Properties.DIRECTORY + "/" + filename +
-                    "/processed/hand_position.raw_sequence";
+                    "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/hand_position.raw_sequence";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             seqData = sequenceInfo.split("\n")[0].split(",");
 
@@ -117,7 +117,7 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
             }
 
             sequenceFile = Properties.DIRECTORY + "/" + filename +
-                    "/processed/hand_rotation.raw_sequence";
+                    "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/hand_rotation.raw_sequence";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             seqData = sequenceInfo.split("\n")[0].split(",");
 
@@ -129,7 +129,7 @@ public class ReconstructiveFrameGenerator extends SequenceFrameGenerator impleme
 
 
             sequenceFile = Properties.DIRECTORY + "/" + filename +
-                    "/processed/stabilised_tip.raw_sequence";
+                    "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/stabilised_tip.raw_sequence";
             sequenceInfo = FileHandler.readFile(new File(sequenceFile));
             seqData = sequenceInfo.split("\n")[0].split(",");
 

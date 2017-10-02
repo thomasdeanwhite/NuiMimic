@@ -55,7 +55,7 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 	public StateIsolatedFrameGenerator(String filename) throws IOException {
 
-		String fileStart = Properties.DIRECTORY + "/" + filename + "/processed/";
+		String fileStart = Properties.DIRECTORY + "/" + filename + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" ;
 
 		HashMap<String, SeededHand> joints = NGramFrameGenerator.getJoints(fileStart );
 

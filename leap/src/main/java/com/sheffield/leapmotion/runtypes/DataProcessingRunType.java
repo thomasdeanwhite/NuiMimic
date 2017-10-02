@@ -190,7 +190,7 @@ public class DataProcessingRunType implements RunType {
                 for (String key : keys){
                     clusterOrder.add(assignments.get(key));
                 }
-                File outputSequence = new File(dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" + files.get(s) + ".raw_sequence");
+                File outputSequence = new File(dataDir + "/processed/"  + Properties.CLUSTERS + "-" + Properties.N + "/" + files.get(s) + ".raw_sequence");
 
                 if (!outputSequence.exists()){
                     if (outputSequence.getParentFile() != null && !outputSequence.getParentFile().exists()){
@@ -336,7 +336,7 @@ public class DataProcessingRunType implements RunType {
 
             gestureNgram.calculateProbabilities();
 
-            File outputSequence = new File(dataDir + "/processed/gesture_type_ngram");
+            File outputSequence = new File(dataDir + "/processed/" + + Properties.CLUSTERS + "-" + Properties.N + "/gesture_type_ngram");
 
             if (!outputSequence.exists()){
                 if (outputSequence.getParentFile() != null && !outputSequence.getParentFile().exists()){
@@ -347,12 +347,12 @@ public class DataProcessingRunType implements RunType {
 
             FileHandler.writeToFile(outputSequence, gson.toJson(gestureNgram));
 
-            String rawGestureString = dataDir + "/processed/gesture_type_data.raw_sequence";
+            String rawGestureString = dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/gesture_type_data.raw_sequence";
 
             FileHandler.writeToFile(new File(rawGestureString), gestString);
 
 
-            String rawStatesFile = dataDir + "/processed/raw_states";
+            String rawStatesFile = dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/raw_states";
 
             FileHandler.writeToFile(new File(rawStatesFile), gson.toJson(rawStates));
 
@@ -379,7 +379,7 @@ public class DataProcessingRunType implements RunType {
 
             }
 
-            File ngramOutput = new File(dataDir + "/processed/gesture_type_stategram");
+            File ngramOutput = new File(dataDir + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/gesture_type_stategram");
 
             if (!ngramOutput.exists()){
                 if (ngramOutput.getParentFile() != null && !ngramOutput.getParentFile().exists()){

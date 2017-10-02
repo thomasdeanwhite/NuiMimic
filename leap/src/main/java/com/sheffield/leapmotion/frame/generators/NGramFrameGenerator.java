@@ -35,7 +35,7 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
     public NGramFrameGenerator(String filename) {
         super(filename);
         try {
-            String rawFile = Properties.DIRECTORY + "/" + filename + "/processed";
+            String rawFile = Properties.DIRECTORY + "/" + filename + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" ;
 
             String sequenceFile = rawFile;
 

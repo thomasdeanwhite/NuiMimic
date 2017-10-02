@@ -42,6 +42,7 @@ public class LeapmotionAgentTransformer implements ClassFileTransformer{
 
         App.ENABLE_APPLICATION_OUTPUT = true;
         App.IS_INSTRUMENTING = true;
+        InstrumentationProperties.INSTRUMENT_BRANCHES = false;
         Properties.LOG = false;
         ClassAnalyzer.setOut(App.out);
 

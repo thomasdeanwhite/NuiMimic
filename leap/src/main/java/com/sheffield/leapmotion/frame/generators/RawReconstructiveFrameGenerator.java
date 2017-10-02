@@ -56,7 +56,7 @@ public class RawReconstructiveFrameGenerator extends SequenceFrameGenerator
 
 
         String sequenceFile =
-                Properties.DIRECTORY + "/" + filename + "/processed/" +
+                Properties.DIRECTORY + "/" + filename + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/"  +
                         (Properties.SINGLE_DATA_POOL ?
                                 "hand_joints.raw_sequence" :
                                 "joint_position.raw_sequence");
