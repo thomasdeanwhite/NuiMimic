@@ -139,7 +139,7 @@ public class FrameHandler implements Tickable {
 
                 case REGRESSION:
                     //disable output from SequenceFrameGenerator
-                    SequenceFrameGenerator.OUTPUT_SEQUENCE = false;
+                    Properties.OUTPUT_SEQUENCE = false;
                     frameGenerator = new RegressionFrameGenerator(Properties
                             .INPUT[0]);
                     break;
