@@ -31,7 +31,7 @@ public class Properties extends InstrumentationProperties {
     public static int N = 3;
 
     @Parameter(key = "clusters", description = "Amount of clusters to use for data processing", category = "Data Processing")
-    public static int CLUSTERS = 400;
+    public static int CLUSTERS = 1200;
     /*
                     Properties for Leap Motion Testing
              */

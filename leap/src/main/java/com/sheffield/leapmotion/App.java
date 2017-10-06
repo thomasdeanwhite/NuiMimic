@@ -1001,10 +1001,14 @@ public class App implements ThrowableListener, Tickable {
     }
 
     public void start() {
-        if (Properties.REMAINING_BUDGET >= 0) {
-            startTime = System.nanoTime() - ((Properties.RUNTIME - Properties.REMAINING_BUDGET) * 1000000);
-        } else {
-            startTime = System.nanoTime();
+        if (startTime <= 0) {
+            if (Properties.REMAINING_BUDGET >= 0) {
+                startTime = System.nanoTime() -
+                        ((Properties.RUNTIME - Properties.REMAINING_BUDGET) *
+                                1000000);
+            } else {
+                startTime = System.nanoTime();
+            }
         }
     }
 
@@ -1056,12 +1060,10 @@ public class App implements ThrowableListener, Tickable {
             nextProgress += 0.1;
             String progress = ProgressBar.getProgressBar(21, prog);
 
-            out.print("\r" + progress + ". Cov: " + LAST_LINE_COVERAGE + ". " + SeededController.getSeededController().status());
+            out.print("\r" + progress + "[" + timePassed + "]" + ". " + SeededController.getSeededController().status());
         }
 
         if (timePassed > Properties.RUNTIME) {
-            App.out.println(time + " - " + start + " = " + timePassed + "\n"
-                    + timePassed + " > " + Properties.RUNTIME);
             status = AppStatus.FINISHED;
 
             File lastRunDump = new File(Properties.TESTING_OUTPUT + "/current_run" + Properties.CURRENT_RUN + ".nmDump");

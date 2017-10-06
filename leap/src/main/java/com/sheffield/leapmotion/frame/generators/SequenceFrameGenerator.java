@@ -354,7 +354,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
             rotations = getRotations(processed);
             stabilisedTipPositions = getStabilizedTips(processed);
             this.sgh = new SequenceGestureHandler(getCircleGestures(processed));
-            Properties.CLUSTERS = joints.keySet().size();
+//            Properties.CLUSTERS = joints.keySet().size();
 
             //load ordering of clusters and observed states
             setupOutputFiles();
@@ -378,7 +378,7 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         this.stabilisedTipPositions = stabilisedTipPositions;
         this.sgh = new SequenceGestureHandler(seededCircleGestures);
 
-        Properties.CLUSTERS = joints.keySet().size();
+//        Properties.CLUSTERS = joints.keySet().size();
 
         try {
             setupOutputFiles();
