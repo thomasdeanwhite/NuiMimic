@@ -39,11 +39,11 @@ public class NGramFrameGenerator extends SequenceFrameGenerator {
 
             String sequenceFile = rawFile;
 
-            if (!Properties.SINGLE_DATA_POOL) {
+//            if (!Properties.SINGLE_DATA_POOL) {
                 sequenceFile += "/joint_position_ngram";
-            } else {
-                sequenceFile += "/hand_joints_ngram";
-            }
+//            } else {
+//                sequenceFile += "/hand_joints_ngram";
+//            }
 
             String ngString = FileHandler.readFile(new File(sequenceFile));
 

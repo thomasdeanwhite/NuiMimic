@@ -57,7 +57,13 @@ public class StateIsolatedFrameGenerator extends FrameGenerator implements Gestu
 
 		String fileStart = Properties.DIRECTORY + "/" + filename + "/processed/" + Properties.CLUSTERS + "-" + Properties.N + "/" ;
 
-		HashMap<String, SeededHand> joints = NGramFrameGenerator.getJoints(fileStart );
+		HashMap<String, SeededHand> joints = null;
+		if (Properties.SINGLE_DATA_POOL) {
+			joints = NGramFrameGenerator.getFeaturelessHands(fileStart);
+		} else {
+			joints = NGramFrameGenerator.getJoints
+					(fileStart );
+		}
 
 		HashMap<String, Vector> positions = NGramFrameGenerator.getPositions(fileStart);
 

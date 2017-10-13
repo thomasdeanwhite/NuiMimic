@@ -187,6 +187,43 @@ public class SamplerApp extends Listener {
     private boolean rightHand = false;
 
     public void frame(Frame f) {
+        if (Properties.SINGLE_DATA_POOL){
+            frameFeatureless(f);
+        } else {
+            frameFeatures(f);
+        }
+
+        final long time = MockSystem.currentTimeMillis();
+
+        if (LOOP) {
+            final int bars = 21;
+            if (printHeader) {
+                out.println(ProgressBar.getHeaderBar(bars));
+                printHeader = false;
+            }
+            long done = time - startTime;
+            FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
+
+            long total = FrameDeconstructor
+                    .BREAK_TIMES[FrameDeconstructor.BREAK_TIMES
+                    .length - 1];
+
+            float percent = done / (float) total;
+            if (Properties.SHOW_PROGRESS || percent > progress) {
+                progress += 0.1f;
+                String progress = ProgressBar.getProgressBar(bars, percent);
+
+                out.print("\r" + progress);
+            }
+
+            if (percent >= 1) {
+                status = AppStatus.FINISHED;
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    }
+
+    public void frameFeatures(Frame f){
 
         if (App.getApp().status().equals(com.sheffield.leapmotion.util.AppStatus.FINISHED)) {
             return;
@@ -264,7 +301,7 @@ public class SamplerApp extends Listener {
                     String uniqueId = frame.timestamp() + "@"
                             + UNIQUE_MACHINE_NAME;
 
-                     frameDeconstructor.setUniqueId(uniqueId);
+                    frameDeconstructor.setUniqueId(uniqueId);
 
                     if (frame.gestures().count() > 0) {
                         for (Gesture g : frame.gestures()) {
@@ -306,35 +343,104 @@ public class SamplerApp extends Listener {
                 }
             }
         }
+    }
 
-        if (LOOP) {
-            final int bars = 21;
-            if (printHeader) {
-                out.println(ProgressBar.getHeaderBar(bars));
-                printHeader = false;
-            }
-            long done = time - startTime;
-            FRAMES_PER_SECOND = 1000f * (FRAMES / (float) done);
+    public void frameFeatureless(Frame f){
 
-            long total = FrameDeconstructor
-                    .BREAK_TIMES[FrameDeconstructor.BREAK_TIMES
-                    .length - 1];
+        if (App.getApp().status().equals(com.sheffield.leapmotion.util.AppStatus.FINISHED)) {
+            return;
+        }
 
-            float percent = done / (float) total;
-            if (Properties.SHOW_PROGRESS || percent > progress) {
-                progress += 0.1f;
-                String progress = ProgressBar.getProgressBar(bars, percent);
+        if (f == null || !f.isValid()) {
+            return;
+        }
 
-                out.print("\r" + progress);
-            }
+        Properties.HISTOGRAM_THRESHOLD = 0;
+        Properties.HISTOGRAM_BINS = 256;
 
-            if (percent >= 1) {
-                status = AppStatus.FINISHED;
-                Toolkit.getDefaultToolkit().beep();
-            }
+        if (lastFrame == f.id()) {
+            return;
+        }
+
+        lastFrame = f.id();
+
+        Frame frame = f;
+        FRAMES++;
+
+        long newTime = f.timestamp();
+
+//        assert newTime > lastTimeSeen;
+
+        lastTimeSeen = newTime;
+
+
+        final long time = MockSystem.currentTimeMillis();
+
+        if (startTime == 0) {
+            startTime = time;
         }
 
 
+        frameDeconstructor.setFilenameStart(filenameStart);
+        frameDeconstructor.setAddition("");
+        if (RECORDING_USERS) {
+            frameDeconstructor.outputRawFrameData(frame);
+        } else {
+            if (breakIndex >= 0 && breakIndex < FrameDeconstructor
+                    .BREAK_TIMES
+                    .length) {
+                if (time - startTime > FrameDeconstructor
+                        .BREAK_TIMES[breakIndex]) {
+                    breakIndex++;
+                    if (breakIndex >= FrameDeconstructor.BREAK_TIMES
+                            .length) {
+                        status = AppStatus.FINISHED;
+                        return;
+                    }
+                    frameDeconstructor.resetFiles(breakIndex);
+                }
+            } else {
+                status = AppStatus.FINISHED;
+                return;
+            }
+
+//                    String addition = "-" + BREAK_TIMES[breakIndex];
+//
+//                    frameDeconstructor.setAddition(addition);
+
+            for (Hand h : frame.hands()) {
+
+                //write hands out to file
+
+                if (h.isValid() &&
+                        //this is to stop both hands being recorded if used simultaneously
+                        (!rightHand || (rightHand && h.isRight()))) {
+
+                    if (h.isRight()){
+                        rightHand = true;
+                    }
+
+                    String uniqueId = frame.timestamp() + "@"
+                            + UNIQUE_MACHINE_NAME;
+
+                    frameDeconstructor.setUniqueId(uniqueId);
+                    try {
+
+                        if (Properties.PROCESS_PLAYBACK) {
+
+                            Properties.FRAMES_PER_SECOND = 1000;
+
+                            frameDeconstructor.outputFeaturelessHand(uniqueId, h);
+                        }
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+            }
+        }
     }
 
 

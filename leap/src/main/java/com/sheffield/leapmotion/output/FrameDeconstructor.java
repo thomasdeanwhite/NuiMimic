@@ -31,6 +31,7 @@ public class FrameDeconstructor {
     private File currentDctGestures;
     private File currentSequence;
     private File currentHands;
+    private File currentHandsSingleModel;
     private File currentHandJoints;
     private File currentPosition;
     private File currentRotation;
@@ -88,6 +89,7 @@ public class FrameDeconstructor {
     public void resetFiles(int breakIndex) {
         sequenceFile = null;
         currentHands = null;
+        currentHandsSingleModel = null;
         currentRotation = null;
         currentPosition = null;
         currentSequence = null;
@@ -177,6 +179,18 @@ public class FrameDeconstructor {
             FileHandler.writeToFile(currentHands, getHeaders(frameAsString, "jointposition"));
         }
         FileHandler.appendToFile(currentHands, frameAsString + "\n");
+    }
+
+    public void outputFeaturelessHand(String id, Hand h) throws IOException {
+        String frameAsString = HandFactory.handToFeaturelessString(id, h);
+        if (currentHandsSingleModel == null) {
+            currentHandsSingleModel = new File(FileHandler.generateFileWithName(filenameStart) + addition + "/featureless_hand_pool.ARFF");
+            currentHandsSingleModel.getParentFile().mkdirs();
+            currentHandsSingleModel.createNewFile();
+
+            FileHandler.writeToFile(currentHandsSingleModel, getHeaders(frameAsString, "jointposition"));
+        }
+        FileHandler.appendToFile(currentHandsSingleModel, frameAsString + "\n");
     }
 
     public void outputHandJointModel(Hand h) throws IOException {

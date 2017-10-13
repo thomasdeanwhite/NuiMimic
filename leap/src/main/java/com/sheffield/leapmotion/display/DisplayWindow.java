@@ -49,7 +49,7 @@ public class DisplayWindow extends JFrame {
 
 			Vector v = offset;
 
-			final float LINE_SCALE = 50f;
+			final float LINE_SCALE = 100f;
 
 			g.setColor(Color.BLUE);
 
@@ -170,7 +170,7 @@ public class DisplayWindow extends JFrame {
 			final float RADIUS = 4;
 			final float SCALE = 2;
             //App.out.println("- Frame Received!");
-			Vector offset = new Vector(100f, 0f, 0f);
+			Vector offset = new Vector(100f, -400f, 0f);
 			if (currentFrame != null && currentFrame.isValid()) {
 
 				g2d.setColor(Color.BLACK);
@@ -246,6 +246,8 @@ public class DisplayWindow extends JFrame {
 								// prevVect = nextVect.times(SCALE);
 
 								Vector origin = h.palmPosition();
+
+								origin.setY(0f);
 
 								float prevX = getWidth() / 4 + prevVect.getX() - origin.getX();
 								float prevY = getHeight() / 4 - prevVect.getY() + origin.getY();

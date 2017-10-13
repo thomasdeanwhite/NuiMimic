@@ -333,11 +333,54 @@ public class TestHandFactory {
         Vector tip2 = front2.stabilizedTipPosition();
 
         assertVectorEquals("Stablized Tip Positions should be equivalent: \n" + tip1 + "\n" + tip2 + "\n(" +
-                front1.tipVelocity() + " " + front1.tipPosition() + ") (" + front2.tipVelocity() + " " + front2.tipPosition() + ")",
+                        front1.tipVelocity() + " " + front1.tipPosition() + ") (" + front2.tipVelocity() + " " + front2.tipPosition() + ")",
                 tip1,
                 tip2);
 
 
+
+    }
+
+    @Test
+    public void testReconstructionFeaturelessStabilized(){
+        Properties.SINGLE_DATA_POOL = true;
+        Frame frame = Serializer.sequenceFromJson(serialized);
+
+        Hand original = frame.hand(0);
+
+        if (!original.isValid()){
+            for (Hand h : frame.hands()){
+                if (h.isValid()){
+                    original = h;
+                }
+            }
+        }
+
+        String serializedHand = HandFactory.handToFeaturelessString("h1", original);
+
+
+        SeededHand restored = restoreFeatureless(original, serializedHand);
+
+        for (Finger.Type ft : fingerTypes){
+            assertFingerEquals(original.fingers().fingerType(ft).get(0),
+                    restored.fingers().fingerType(ft).get(0));
+
+            assertVectorEquals(original.fingers().fingerType(ft).get(0).stabilizedTipPosition(),
+                    restored.fingers().fingerType(ft).get(0).stabilizedTipPosition());
+        }
+
+        assertFingerEquals(original.fingers().frontmost(),
+                restored.fingers().frontmost());
+
+
+        assertVectorEquals("Position is incorrect.", original.palmPosition()
+                , restored.palmPosition());
+
+//        assertVectorEquals(original.basis().getXBasis(), restored.basis().getXBasis());
+//        assertVectorEquals(original.basis().getYBasis(), restored.basis()
+//                .getYBasis());
+//        assertVectorEquals(original.basis().getZBasis(), restored.basis()
+//                .getZBasis());
 
     }
 
@@ -362,6 +405,14 @@ public class TestHandFactory {
         restored.setRotation(rot);
 
         restored.setOrigin(pos);
+
+        return restored;
+    }
+
+    public SeededHand restoreFeatureless(Hand original, String serializedHand){
+        Frame f = new Frame();
+
+        SeededHand restored = HandFactory.createHandFeatureless(serializedHand, f);
 
         return restored;
     }

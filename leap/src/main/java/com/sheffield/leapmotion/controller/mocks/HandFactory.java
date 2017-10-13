@@ -1,15 +1,13 @@
 package com.sheffield.leapmotion.controller.mocks;
 
-import com.leapmotion.leap.Bone;
-import com.leapmotion.leap.Finger;
-import com.leapmotion.leap.FingerList;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Matrix;
-import com.leapmotion.leap.Vector;
+import com.leapmotion.leap.*;
 import com.sheffield.leapmotion.App;
+import com.sheffield.leapmotion.controller.SeededController;
+import com.sheffield.leapmotion.frame.util.Quaternion;
 import com.sheffield.leapmotion.frame.util.QuaternionHelper;
+import com.sheffield.leapmotion.output.FrameDeconstructor;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -107,6 +105,112 @@ public class HandFactory {
 		hand.setFingerList(fl);
 		hand.pinchStrength = Float.parseFloat(info[offset++]);
 		hand.grabStrength = Float.parseFloat(info[offset++]);
+
+		return hand;
+	}
+
+	public static SeededHand createHandFeatureless(String data, Frame frame) {
+		String[] info = data.split(",");
+
+		SeededHand hand = new SeededHand();
+
+		if (!(frame instanceof SeededFrame)){
+			frame = new SeededFrame(frame);
+		}
+
+		hand.frame = frame;
+
+		// construct thumb
+		Finger[] fingers = new Finger[1 + fingerTypes.length];
+		int offset = 1-3;
+		SeededFinger thumb = new SeededFinger();
+		String id = info[0];
+		hand.uniqueId = id;
+
+		for (int i = 0; i < thumbBoneTypes.length; i++) {
+			SeededBone b = new SeededBone();
+			b.type = thumbBoneTypes[i];
+			b.prevJoint = vectorFromStringsNextThree(offset += 3, info);
+			b.nextJoint = vectorFromStringsNextThree(offset += 3, info);
+			thumb.bones.put(b.type, b);
+			if (i == 0){
+				SeededBone b2 = new SeededBone();
+				b2.type = Bone.Type.TYPE_METACARPAL;
+				b2.prevJoint = b.prevJoint;
+				b2.nextJoint = b.prevJoint;
+				thumb.bones.put(Bone.Type.TYPE_METACARPAL, b2);
+			}
+		}
+		thumb.frame = frame;
+		thumb.type = Finger.Type.TYPE_THUMB;
+		thumb.hand = hand;
+		thumb.rotation = hand.rotation;
+		thumb.tipPosition = vectorFromStringsNextThree(offset+=3, info);
+		thumb.stabilizedTipPosition = vectorFromStringsNextThree(offset+=3,
+				info);
+		thumb.normalize();
+		fingers[0] = thumb;
+
+		for (int j = 0; j < fingerTypes.length; j++) {
+			SeededFinger finger = new SeededFinger();
+			for (int i = 0; i < fingerBoneTypes.length; i++) {
+				int index = offset;
+				SeededBone b = new SeededBone();
+				b.type = fingerBoneTypes[i];
+				b.prevJoint = vectorFromStringsNextThree(offset += 3, info);
+				b.nextJoint = vectorFromStringsNextThree(offset += 3, info);
+				finger.bones.put(b.type, b);
+			}
+			finger.frame = frame;
+			finger.hand = hand;
+			finger.type = fingerTypes[j];
+			finger.rotation = hand.rotation;
+			finger.tipPosition = vectorFromStringsNextThree(offset+=3, info);
+			finger.stabilizedTipPosition = vectorFromStringsNextThree(offset+=3, info);
+			fingers[j + 1] = finger;
+			finger.normalize();
+		}
+
+		SeededFingerList fl = new SeededFingerList();
+		for (Finger f : fingers) {
+			fl.addFinger(f);
+		}
+
+		hand.setFingerList(fl);
+		hand.pinchStrength = Float.parseFloat(info[++offset]);
+		hand.grabStrength = Float.parseFloat(info[++offset]);
+		hand.palmPosition = vectorFromStringsNextThree(offset+=3, info);
+
+		hand.rotation = new Quaternion(Float.parseFloat(info[++offset]),
+				Float.parseFloat(info[++offset]),
+				Float.parseFloat(info[++offset]),
+				Float.parseFloat(info[++offset]));
+
+		((SeededHand)hand).stabilizedPalmPosition = vectorFromStringsNextThree(offset+=3, info);
+
+		((SeededFinger)hand.fingerList.fingerType(Finger.Type.TYPE_THUMB).get
+				(0)).
+				stabilizedTipPosition = vectorFromStringsNextThree(offset+=3, info);
+
+		for (Finger.Type ft : HandFactory.fingerTypes){
+			((SeededFinger)hand.fingerList.fingerType(ft).get
+					(0)).
+					stabilizedTipPosition = vectorFromStringsNextThree(offset+=3, info);
+		}
+
+
+		SeededGestureList sgl = new SeededGestureList();
+
+		((SeededFrame)hand.frame).gestureList = sgl;
+
+		SeededCircleGesture cg = new SeededCircleGesture(new Gesture());
+		cg.setCenter(vectorFromStringsNextThree(offset+=3, info));
+
+		cg.setNormal(vectorFromStringsNextThree(offset+=3, info));
+		cg.setRadius(Float.parseFloat(info[++offset]));
+
+		//gesture duration derived at runtime
+		offset++;
 
 		return hand;
 	}
@@ -266,6 +370,156 @@ public class HandFactory {
 	}
 
 
+	public static String handToFeaturelessString(String uniqueId, Hand h) {
+
+		Vector handXBasis = h.palmNormal().cross(h.direction()).normalized();
+		Vector handYBasis = h.palmNormal().opposite();
+		Vector handZBasis = h.direction().opposite();
+		Vector handOrigin = h.palmPosition();
+		Matrix handTransform = new Matrix(handXBasis, handYBasis, handZBasis, handOrigin);
+		handTransform = handTransform.rigidInverse();
+		FingerList fl = h.fingers();
+		String output = uniqueId + ",";
+		Finger thumb = fl.fingerType(Finger.Type.TYPE_THUMB).get(0);
+		for (int i = 0; i < thumbBoneTypes.length; i++) {
+			Bone b = thumb.bone(thumbBoneTypes[i]);
+			Vector prev = b.prevJoint();
+			Vector next = b.nextJoint();
+			output += prev.getX() + ",";
+			output += prev.getY() + ",";
+			output += prev.getZ() + ",";
+			output += next.getX() + ",";
+			output += next.getY() + ",";
+			output += next.getZ() + ",";
+		}
+		Vector thumbTip = thumb.tipPosition();
+		Vector thumbStabilizedTip = thumb.stabilizedTipPosition();
+
+		output += thumbTip.getX() + ",";
+		output += thumbTip.getY() + ",";
+		output += thumbTip.getZ() + ",";
+
+
+		output += thumbStabilizedTip.getX() + ",";
+		output += thumbStabilizedTip.getY() + ",";
+		output += thumbStabilizedTip.getZ() + ",";
+
+		for (int j = 0; j < fingerTypes.length; j++) {
+			Finger finger = fl.fingerType(fingerTypes[j]).get(0);
+			for (int i = 0; i < fingerBoneTypes.length; i++) {
+				Bone b = finger.bone(fingerBoneTypes[i]);
+				Vector prev = b.prevJoint();
+				Vector next = b.nextJoint();
+				output += prev.getX() + ",";
+				output += prev.getY() + ",";
+				output += prev.getZ() + ",";
+				output += next.getX() + ",";
+				output += next.getY() + ",";
+				output += next.getZ() + ",";
+			}
+
+			Vector fingerTip = finger
+					.tipPosition();
+
+			Vector fingerStabilizedTip = finger
+					.stabilizedTipPosition();
+
+			output += fingerTip.getX() + ",";
+			output += fingerTip.getY() + ",";
+			output += fingerTip.getZ() + ",";
+
+			output += fingerStabilizedTip.getX() + ",";
+			output += fingerStabilizedTip.getY() + ",";
+			output += fingerStabilizedTip.getZ() + ",";
+		}
+
+		output += h.pinchStrength() + ",";
+		output += h.grabStrength() + ",";
+
+		output += getHandPosition(h) + ",";
+		output += getHandRotationModel(h) + ",";
+		output += getStabilisedTip(h) + ",";
+		output += getGestureModel(h);
+		if (output.endsWith(",")) {
+			output = output.substring(0, output.length() - 1);
+		}
+		return output;
+	}
+
+	public static String getHandPosition(Hand h){
+		String position = h.palmPosition().getX() + ","
+				+ h.palmPosition().getY() + "," + h.palmPosition().getZ();
+
+		return position;
+	}
+
+	public static String getHandRotationModel(Hand h) {
+		String rotation = "";
+		Vector[] vectors = new Vector[3];
+
+		vectors[0] = h.palmNormal().cross(h.direction()).normalized();
+		vectors[1]  = h.palmNormal().opposite();
+		vectors[2]  = h.direction().opposite();
+
+		rotation += QuaternionHelper.toQuaternion(vectors).inverse().toCsv();
+
+		return rotation;
+	}
+
+	public static String getStabilisedTip(Hand h){
+		String tips = "";
+
+		tips += h.stabilizedPalmPosition().getX() +
+				"," + h.stabilizedPalmPosition().getY() +
+				"," + h.stabilizedPalmPosition().getZ();
+
+		Vector thumb = h.fingers().fingerType(Finger.Type.TYPE_THUMB).get(0).stabilizedTipPosition();
+
+		tips += "," + thumb.getX() +
+				"," + thumb.getY() +
+				"," + thumb.getZ();
+
+		for (Finger.Type ft : HandFactory.fingerTypes){
+			Finger f = h.fingers().fingerType(ft).get(0);
+			tips += "," + f.stabilizedTipPosition().getX() + "," +
+					f.stabilizedTipPosition().getY() + "," +
+					f.stabilizedTipPosition().getZ();
+		}
+		return tips;
+	}
+
+	public static String getGestureModel(Hand h) {
+		if (h.frame().gestures().count() > 0) {
+			for (Gesture g : h.frame().gestures()) {
+
+				if (!g.pointables().frontmost().isFinger()) {
+					continue;
+				}
+
+				switch (g.type()) {
+					case TYPE_CIRCLE:
+						CircleGesture cg = new CircleGesture(g);
+						String circleGesture = cg
+								.center().getX() + "," +
+								cg.center().getY() + "," +
+								cg.center().getZ() + ",";
+
+						circleGesture += cg.normal().getX() + "," +
+								cg.normal().getY() + "," +
+								cg.normal().getZ() + ",";
+
+						circleGesture += cg.radius() + ",";
+
+						circleGesture += cg.duration();
+
+						return circleGesture;
+				}
+			}
+		}
+		return "0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0";
+	}
+
+
 	public static String handToHandJoint(String uniqueId, Hand h) {
 		FingerList fl = h.fingers();
 		String output = uniqueId + ",";
@@ -334,6 +588,13 @@ public class HandFactory {
 
 	public static Vector vectorFromStrings(int index, String[] strings) {
 		int i = 1 + (index - 1) * 3;
+
+		return vectorFromStringsNextThree(i, strings);
+	}
+
+	public static Vector vectorFromStringsNextThree(int index, String[]
+			strings) {
+		int i = index;
 
 		return new Vector(Float.parseFloat(strings[i]), Float.parseFloat(strings[i + 1]),
 				Float.parseFloat(strings[i + 2]));

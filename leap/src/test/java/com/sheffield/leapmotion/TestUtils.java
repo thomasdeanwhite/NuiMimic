@@ -58,7 +58,8 @@ public class TestUtils {
 
         Vector tip2 = f2.tipPosition();
 
-        assertVectorEquals("Finger Tip Position reconstruction error",
+        assertVectorEquals(f1.type() + " Tip Position reconstruction " +
+                        "error",
                 tip1, tip2);
 
 //        tip1 = f1.stabilizedTipPosition();

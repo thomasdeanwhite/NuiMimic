@@ -71,14 +71,35 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
     protected File statesFile;
 
 
+    public static HashMap<String, SeededHand> getFeaturelessHands(String
+                                                                          filename)
+
+            throws IOException {
+        HashMap<String, SeededHand> joints = new HashMap<String, SeededHand>();
+        String clusterFile = filename;
+        clusterFile += "/feature_hand_data";
+
+
+        String contents = FileHandler.readFile(new File(clusterFile));
+        String[] lines = contents.split("\n");
+        for (String line : lines) {
+            Frame f = SeededController.newFrame();
+            SeededHand hand = HandFactory.createHandFeatureless(line, f);
+
+            joints.put(hand.getUniqueId(), hand);
+            // order.add(hand.getUniqueId());
+
+            HandFactory.injectHandIntoFrame(f, hand);
+
+        }
+
+        return joints;
+    }
+
     public static HashMap<String, SeededHand> getJoints(String filename) throws IOException {
         HashMap<String, SeededHand> joints = new HashMap<String, SeededHand>();
         String clusterFile = filename;
-        if (!Properties.SINGLE_DATA_POOL) {
-            clusterFile += "/joint_position_data";
-        } else {
-            clusterFile += "/hand_joints_data";
-        }
+        clusterFile += "/joint_position_data";
 
         String contents = FileHandler.readFile(new File(clusterFile));
         String[] lines = contents.split("\n");
@@ -349,7 +370,11 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
                     "/processed/" + Properties.CLUSTERS + "-" + Properties.N;
 
             //setup clusters
-            joints = getJoints(processed);
+            if (Properties.SINGLE_DATA_POOL) {
+                joints = getFeaturelessHands(processed);
+            } else {
+                joints = getJoints(processed);
+            }
             positions = getPositions(processed);
             rotations = getRotations(processed);
             stabilisedTipPositions = getStabilizedTips(processed);
@@ -409,6 +434,10 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
 
     @Override
     public void modifyFrame(SeededFrame frame) {
+        if (Properties.SINGLE_DATA_POOL){
+            return;
+        }
+
         Hand h = Hand.invalid();
         for (Hand hand : frame.hands()) {
             h = hand;
@@ -480,7 +509,6 @@ public abstract class SequenceFrameGenerator extends FrameGenerator implements G
         nextCircleGesture = nextSequenceCircleGesture();
 
     }
-
 
     //TODO: Model as parameter
     public abstract String nextSequenceJoints();

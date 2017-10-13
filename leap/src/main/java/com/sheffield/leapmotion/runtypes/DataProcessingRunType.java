@@ -49,6 +49,7 @@ public class DataProcessingRunType implements RunType {
         files.put("gesture_screentap_pool.ARFF", "gesture_screentap");
         files.put("gesture_swipe_pool.ARFF", "gesture_swipe");
         files.put("stabilised_tip_pool.ARFF", "stabilised_tip");
+        files.put("featureless_hand_pool.ARFF", "feature_hand");
 
         HashMap<String, ClusterResult> results = new HashMap<String, ClusterResult>();
 
