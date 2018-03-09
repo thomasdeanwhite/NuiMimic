@@ -9,12 +9,8 @@ before_install:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update
   - sudo apt-get install libstdc++-4.9-dev -y
-  - mkdir Scythe
-  - pushd Scythe
-  - git init
-  - git remote add origin https://github.com/thomasdeanwhite/instrumentation.git
-  - git fetch origin f76f68ed6739b3e0c55865c68a13b39f6c01b5a3
-  - git reset --hard FETCH_HEAD
+  - git clone https://github.com/thomasdeanwhite/instrumentation.git
+  - git checkout f76f68ed6739b3e0c55865c68a13b39f6c01b5a3
   - mvn clean install
   - popd
   - pushd lib
