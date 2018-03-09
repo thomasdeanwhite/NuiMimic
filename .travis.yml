@@ -10,7 +10,7 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install libstdc++-4.9-dev -y
   - git clone https://github.com/thomasdeanwhite/instrumentation.git
-  - git checkout f76f68ed6739b3e0c55865c68a13b39f6c01b5a3
+  - git checkout f76f68ed6739b3e0c55865c68a13b39f6c01b5a3 .
   - mvn clean install
   - popd
   - pushd lib
